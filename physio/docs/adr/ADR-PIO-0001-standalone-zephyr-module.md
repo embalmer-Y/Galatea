@@ -1,4 +1,4 @@
-# ADR-0001：PhysIO 拆分为独立西 Zephyr 模块子项目
+# ADR-PIO-0001：PhysIO 拆分为独立西 Zephyr 模块子项目
 
 - 状态：PROPOSED（待 owner 批准）
 - 日期：2026-09-15
@@ -7,7 +7,7 @@
 > ⚠️ **状态说明（2026-09-16）**：本 ADR 的**结论未变且仍成立**（PhysIO 作为 Zephyr module，`module/` 零 Galatea 依赖），
 > 但它的**实现产物已随全部 C/构建文件一同撤回**（`module/zephyr/module.yml`、`module/CMakeLists.txt`、`module/Kconfig` 已删）。
 > 原因：流程为 research → HLD → LLD → 实施，研究阶段不得落盘构建系统。
-> HLD 冻结后按 LLD 的文件级实现清单重新生成；`module/zephyr/module.yml` 属 M0 产物。
+> HLD 冻结后按 LLD 的文件级实现清单重新生成；`module/zephyr/module.yml` 属 PIO-M0 产物。
 > ⇒ 目前 `module/` 下只有 `.gitkeep` 占位目录，**仓库无任何可构建目标，这是预期状态**。
 
 ## 背景

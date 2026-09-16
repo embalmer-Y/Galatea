@@ -12,7 +12,7 @@ Galatea：建造具备感觉、情感、自我意识与学习能力的**单一�
 
 - **主线**：F0 之前的规范完备期。HLD + L00–L13 十四档全集已交付，**无任何 `galatea/**` 实现代码**（这是刻意状态：research → HLD → LLD → 实施，不得跳步）。
 - **待裁决**：`design/open_questions.md` 登记约 113 项 UNCONFIRMED；F0 阻断清单见其 Q 区（Q-L01-06、Q-G00-04/06 及 F0 合同级 schema 项）。
-- **physio**：RESEARCH 期，无可构建目标（27 个违规实现产物已于 2026-09-16 撤回）。三处 owner-review 冻结中：`RESEARCH_01_scope.md` §3.2/§4/§6、`adr/ADR-0002*`——裁决前禁止修改其实质内容。
+- **physio**：RESEARCH 期，无可构建目标（27 个违规实现产物已于 2026-09-16 撤回）。三处 owner-review 冻结中：`RESEARCH_01_scope.md` §3.2/§4/§6、`adr/ADR-PIO-0002*`——裁决前禁止修改其实质内容。
 - **版本管理**：已 git 化（2026-09-17 ACT-01，main 分支；提交纪律见下）。
 
 ## 会话开始必做

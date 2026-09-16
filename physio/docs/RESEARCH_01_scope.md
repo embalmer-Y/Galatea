@@ -10,11 +10,11 @@
 >   候选与裁决提案已拟为 **Q-PIO-07a…07e**，本文档 §6 的 Q-PIO-07 行**待裁决后一次性改写**。
 > - **§4 第 2 条负清单**（"不做通用机器人中间件（无 ROS/DDS/zbus 之外的对外中间件）"）：
 >   谓词歧义（不自研 vs 不引入）、层次混淆（把片内总线 zbus 与对外中间件并列）、适用域未界定（见 **Q-PIO-11**）
->   ⇒ 三个修订变体 N2-a/N2-b/N2-c 见 `RESEARCH_02` §7.3。
+>   ⇒ 三个修订变体 NL2-a/NL2-b/NL2-c 见 `RESEARCH_02` §7.3。
 > - **§4 第 4 条**（"不做多 MCU 组网路由"）：**与第 2 条暗中耦合**——Zenoh 的主要卖点之一就是组网路由，两条必须配套修订。
 >
 > ⇒ 裁决前不预先修改这三处，避免半成品文档互相矛盾（纪律见 `RESEARCH_02` §10 风险 R7）。
-> 另：§5 里程碑 M0 的验收项"`module/` 空壳构建通过"目前无法执行——实现产物已于 2026-09-16 全部撤回，见 `RESEARCH_01_appendixA_contract_notes.md` §A.5。
+> 另：§5 里程碑 PIO-M0 的验收项"`module/` 空壳构建通过"目前无法执行——实现产物已于 2026-09-16 全部撤回，见 `RESEARCH_01_appendixA_contract_notes.md` §A.5。
 
 ---
 
@@ -117,9 +117,9 @@ flowchart TB
 
 | 层 | 机制 | 动态性 | 风险 | 版本 |
 |---|---|---|---|---|
-| D1 配置动态 | Settings/NVS/ZMS 参数（校准表、增益、滤波系数、保护阈值） | 重启或热生效 | 低 | **V1** |
-| D2 图动态 | **控制图（Control Graph）**：数据驱动的有向图，节点=内置确定性算子库（限幅/滤波/映射/状态机/比较器…），边=数据流；图文件签名+digest 冻结后下发，固件内执行器解释执行 | 不刷固件改变控制行为 | 中（算子集封闭，行为有界） | **V1** |
-| D3 代码动态 | LLEXT 运行时装载 ELF 扩展 | 任意新代码 | 高（实验性、无 MPU 隔离时与主镜像同权） | **V2，默认 Kconfig 关闭**，仅签名扩展可装载 |
+| DYN-1 配置动态 | Settings/NVS/ZMS 参数（校准表、增益、滤波系数、保护阈值） | 重启或热生效 | 低 | **V1** |
+| DYN-2 图动态 | **控制图（Control Graph）**：数据驱动的有向图，节点=内置确定性算子库（限幅/滤波/映射/状态机/比较器…），边=数据流；图文件签名+digest 冻结后下发，固件内执行器解释执行 | 不刷固件改变控制行为 | 中（算子集封闭，行为有界） | **V1** |
+| DYN-3 代码动态 | LLEXT 运行时装载 ELF 扩展 | 任意新代码 | 高（实验性、无 MPU 隔离时与主镜像同权） | **V2，默认 Kconfig 关闭**，仅签名扩展可装载 |
 
 - 控制图合同（与 Galatea L10 对齐但独立成立）：全图 digest 冻结、禁未签名加载、节点算子集封闭枚举、每算子参数范围显式声明、执行超时/预算、图失效→回退安全态。
 - 引导与更新：MCUboot（签名验证、A/B 槽、防回滚计数）+ MCUmgr SMP（固件上传/确认/回滚/重启）+ 镜像元数据（版本、digest、构建时间、兼容协议版本）。
@@ -147,7 +147,7 @@ flowchart TB
 - **热插拔支持范围**（→ Q-PIO-04）：V1 支持 ① USB 设备（Zephyr USB host stack）② I2C/SPI 挂载设备探测（注册表指令触发扫描）③ GPIO 类即插即用；不支持原生总线级 surprise removal 的芯片差异由驱动层消化。
 - **输入通道**：Zephyr Input 子系统（事件型：按键/编码器/触摸）+ Sensor API（读数型：IMU/温湿度/光…）+ 可选 Sensing 子系统（融合链）；统一封装为 `physio_stream`（带频率、时间戳、单位、量程元数据）；批量读取走 RTIO。
 - **输出通道**：GPIO/PWM/DAC + 执行器驱动接口（舵机/步进/直流电机/继电器模板驱动）；每个输出通道显式声明**安全默认态**（上电、断链、故障三态各自的行为）。
-- **信号调理链**（确定性、版本化）：原始读数 → 校准表（线性/分段/温度补偿，参数经 D1 下发）→ 确定性滤波（滑动均值/中值/一阶低通，禁浮点非确定路径，定点优先）→ 单位/量程归一 → 上报告。**同一输入必得同一输出**（重放测试可验）。
+- **信号调理链**（确定性、版本化）：原始读数 → 校准表（线性/分段/温度补偿，参数经 DYN-1 下发）→ 确定性滤波（滑动均值/中值/一阶低通，禁浮点非确定路径，定点优先）→ 单位/量程归一 → 上报告。**同一输入必得同一输出**（重放测试可验）。
 - **局部保护（L0 层）**：硬件比较器/GPIO 中断级急停（`estop_in`）；软件限幅（每输出通道 min/max/slew-rate）；看门狗超时→全输出安全态；保护动作**先于**任何上层逻辑（ISR/最高优先级线程），且产生强制 EVENT 上报。
 
 ### 3.4 Galatea 对接层（薄，位于 app/galatea_node + 宿主侧）
@@ -162,7 +162,7 @@ flowchart TB
 
 1. 不做片上学习/自适应控制（PhysIO 合同：非学习）；
 2. 不做通用机器人中间件（无 ROS/DDS/zbus 之外的对外中间件）；
-3. 不做文件系统级插件市场；D3 代码动态仅限签名 LLEXT；
+3. 不做文件系统级插件市场；DYN-3 代码动态仅限签名 LLEXT；
 4. 不做多 MCU 组网路由（V1 单 MCU 单宿主直连；多节点编队 → V2 议题）;
 5. 不复刻 SMP/MCUmgr 已有能力（管理面直接用）；
 6. 不做 GUI/仪表盘（宿主侧工具最小化为 CLI + Python SDK）。
@@ -173,12 +173,12 @@ flowchart TB
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
-| M0 bring-up | west 工作区 + `module/` 空壳在 native_sim 与 ≥1 真实板（→ Q-PIO-02）构建通过；shell/logging/zbus 骨架 | CI 双平台绿 |
-| M1 COM v1 | Wire Protocol v1 over USB-CDC/UART：握手、DISCOVER、EVENT 上报、CMD/ACK/RECEIPT、断链安全态 | Python 宿主测试脚本全过 |
-| M2 IO 核心 | 设备注册表 + ≥2 输入类（GPIO 按键、I2C 传感器）+ ≥2 输出类（GPIO、PWM 舵机）+ 校准/滤波链 + 重放一致性测试 | 同输入同输出验证 |
-| M3 保护与 OTA | estop 链路（硬件+软件）；MCUboot+SMP 签名升级、回滚、断电续传 | 升级失败自动回滚演练 |
-| M4 图动态 | 控制图 schema + 执行器 + 签名/digest 校验 + ≥3 个示例图 | 未签名图拒载；图切换不重启 |
-| M5 Galatea 对接 | `app/galatea_node/` 映射层 + 宿主 Bridge（Python，另一仓库/目录） | 与 Galatea P1 stub 联调 |
+| PIO-M0 bring-up | west 工作区 + `module/` 空壳在 native_sim 与 ≥1 真实板（→ Q-PIO-02）构建通过；shell/logging/zbus 骨架 | CI 双平台绿 |
+| PIO-M1 COM v1 | Wire Protocol v1 over USB-CDC/UART：握手、DISCOVER、EVENT 上报、CMD/ACK/RECEIPT、断链安全态 | Python 宿主测试脚本全过 |
+| PIO-M2 IO 核心 | 设备注册表 + ≥2 输入类（GPIO 按键、I2C 传感器）+ ≥2 输出类（GPIO、PWM 舵机）+ 校准/滤波链 + 重放一致性测试 | 同输入同输出验证 |
+| PIO-M3 保护与 OTA | estop 链路（硬件+软件）；MCUboot+SMP 签名升级、回滚、断电续传 | 升级失败自动回滚演练 |
+| PIO-M4 图动态 | 控制图 schema + 执行器 + 签名/digest 校验 + ≥3 个示例图 | 未签名图拒载；图切换不重启 |
+| PIO-M5 Galatea 对接 | `app/galatea_node/` 映射层 + 宿主 Bridge（Python，另一仓库/目录） | 与 Galatea P1 stub 联调 |
 | V2+ | LLEXT 门控开启、BLE/以太网/CAN 传输、Sensing 融合链、多节点 | — |
 
 ## 6. 未决问题（→ 待 owner 裁决，格式对齐 open_questions.md）
@@ -186,22 +186,22 @@ flowchart TB
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
 | Q-PIO-01 | Zephyr 版本基线 | 4.5（2026-10），LTS4 后迁移 | 全部 | UNCONFIRMED |
-| Q-PIO-02 | 首选开发板/SoC 家族 | 双平台：native_sim（CI）+ nRF52840 DK（BLE/LLEXT/TF-M 全支持）；备选 STM32/RP2350/ESP32 | M0 | UNCONFIRMED |
-| Q-PIO-03 | V1 传输集合 | USB-CDC + UART + BLE；CAN/以太网 V2 | M1 | UNCONFIRMED |
-| Q-PIO-04 | 热插拔的 V1 支持边界 | USB 设备 + 总线扫描注册 + GPIO 类；不做 surprise removal 全覆盖 | M2 | UNCONFIRMED |
-| Q-PIO-05 | D3 代码动态（LLEXT）是否进 V1 | 不进；V2 且默认关闭、仅签名 | M4/安全评审 | UNCONFIRMED |
-| Q-PIO-06 | 时间戳精度与是否需绝对时间 | 单调时钟 µs + 宿主对齐协议；无 RTC 依赖 | M1 | UNCONFIRMED |
-| Q-PIO-07 | Wire Protocol 编码 | CBOR（tinycbor）；备选 protobuf-nanopb | M1 | UNCONFIRMED |
+| Q-PIO-02 | 首选开发板/SoC 家族 | 双平台：native_sim（CI）+ nRF52840 DK（BLE/LLEXT/TF-M 全支持）；备选 STM32/RP2350/ESP32 | PIO-M0 | UNCONFIRMED |
+| Q-PIO-03 | V1 传输集合 | USB-CDC + UART + BLE；CAN/以太网 V2 | PIO-M1 | UNCONFIRMED |
+| Q-PIO-04 | 热插拔的 V1 支持边界 | USB 设备 + 总线扫描注册 + GPIO 类；不做 surprise removal 全覆盖 | PIO-M2 | UNCONFIRMED |
+| Q-PIO-05 | DYN-3 代码动态（LLEXT）是否进 V1 | 不进；V2 且默认关闭、仅签名 | PIO-M4/安全评审 | UNCONFIRMED |
+| Q-PIO-06 | 时间戳精度与是否需绝对时间 | 单调时钟 µs + 宿主对齐协议；无 RTC 依赖 | PIO-M1 | UNCONFIRMED |
+| Q-PIO-07 | Wire Protocol 编码 | CBOR（tinycbor）；备选 protobuf-nanopb | PIO-M1 | UNCONFIRMED |
 | Q-PIO-08 | 项目许可证与仓库形态 | Apache-2.0；先 in-tree `physio/`，首次外部复用前拆独立仓库 | — | UNCONFIRMED |
-| Q-PIO-09 | 控制图算子集封闭清单 | V1：limit/scale/filter/sm/state_machine/compare/mux/delay/estop_hook（≤12 个） | M4 | UNCONFIRMED |
-| Q-PIO-10 | 宿主侧 Python SDK 放哪 | `physio/host/`（同仓库 tools 级）与 Galatea Bridge 分离 | M1/M5 | UNCONFIRMED |
+| Q-PIO-09 | 控制图算子集封闭清单 | V1：limit/scale/filter/sm/state_machine/compare/mux/delay/estop_hook（≤12 个） | PIO-M4 | UNCONFIRMED |
+| Q-PIO-10 | 宿主侧 Python SDK 放哪 | `physio/host/`（同仓库 tools 级）与 Galatea Bridge 分离 | PIO-M1/PIO-M5 | UNCONFIRMED |
 
 ---
 
 ## 7. 关键风险
 
-1. **LLEXT 成熟度**：官方标注需架构支持且仍在演进——已通过"D3 延后 + 默认关闭"处置；
+1. **LLEXT 成熟度**：官方标注需架构支持且仍在演进——已通过"DYN-3 延后 + 默认关闭"处置；
 2. **Flash/RAM 预算**：协议栈 + BLE + MCUboot 双槽对 <256KB flash 芯片紧张——目标 SoC 下限建议 512KB flash / 128KB RAM（Q-PIO-02 关联）；
 3. **Zephyr API 漂移**：非 LTS 期 API 会变（如 pipes v2、message queues v2 并存）——锁版本 + 每半年一次受控升级评估；
 4. **热插拔语义碎片化**：各总线驱动对拔插行为支持不一——注册表统一事件语义，差异下沉驱动适配器；
-5. **与 Galatea 合同双写风险**：Wire Protocol 与 Galatea L10 合同各自演进可能漂移——对接层单一映射点 + M5 联调回归。
+5. **与 Galatea 合同双写风险**：Wire Protocol 与 Galatea L10 合同各自演进可能漂移——对接层单一映射点 + PIO-M5 联调回归。

@@ -7,7 +7,7 @@
 > 本文档只做一件事：**把 stub 注释里已经想清楚的合同措辞保留下来**，作为 HLD / LLD 的输入素材。
 > 其中每一条在冻结前都仍需 owner 裁决；本文档不构成任何决定。
 >
-> ⚠️ 与本文档相关的未裁决项：ADR-0001（独立 Zephyr module）、ADR-0002（线协议 = CBOR，**属过早决定，待降级为候选**）、
+> ⚠️ 与本文档相关的未裁决项：ADR-PIO-0001（独立 Zephyr module）、ADR-PIO-0002（线协议 = CBOR，**属过早决定，待降级为候选**）、
 > Q-PIO-01…10、以及 §一.3 提出的 Q-PIO-07a–07e / Q-PIO-11 拆分（全部待 owner review）。
 
 ---
@@ -20,8 +20,8 @@
 | `module/src/core/storage.c` | Settings 键空间规划 | A.1 |
 | `module/src/core/health.c` | 每子系统一个 wdt channel + panic→retention 黑匣子 | A.1 |
 | `module/src/core/timebase.c` | 单调 µs 时间基准（Q-PIO-06） | A.1 |
-| `module/src/core/control_graph.c` | 控制图四条不可放松合同（M4/D2） | A.1 |
-| `module/src/core/llext_loader.c` | LLEXT 仅签名、拒载不影响主镜像（V2/D3） | A.1 |
+| `module/src/core/control_graph.c` | 控制图四条不可放松合同（PIO-M4/DYN-2） | A.1 |
+| `module/src/core/llext_loader.c` | LLEXT 仅签名、拒载不影响主镜像（V2/DYN-3） | A.1 |
 | `module/src/com/protocol.c` | 帧结构 + 消息类清单 + 命令-回执分离 | A.2（**待 Q-PIO-07b 裁决后才能成立**） |
 | `module/src/com/session.c` | 会话状态机 + 断链 fail-safe + 幂等去重 | A.2 |
 | `module/src/com/mgmt_smp.c` | 管理面复用 SMP、默认关闭授权开启 | A.2 |
@@ -38,10 +38,10 @@
 
 ## A.1 CORE 子系统合同候选
 
-### A.1.1 初始化顺序（M0 冻结候选）
+### A.1.1 初始化顺序（PIO-M0 冻结候选）
 
 ```text
-storage → health → timebase → io.registry → io.protection → com.session → (M4) control_graph
+storage → health → timebase → io.registry → io.protection → com.session → (PIO-M4) control_graph
 ```
 
 - **原则**：任何一步失败 → 系统进入 fail-safe（输出落安全态 + 上报），**不得半启动**。
@@ -57,13 +57,13 @@ physio/dev/...                   运行时注册设备清单摘要
 ```
 
 - 键空间用 `device_digest` 而非设备名 → 设备更换后旧校准表天然失效，与 Galatea"设备新增/更换/隔离/重新纳入各带独立授权 + digest"同构。
-- M2 起承载校准参数与配置动态层（D1）。
+- PIO-M2 起承载校准参数与配置动态层（DYN-1）。
 
 ### A.1.3 健康监控
 
 - **每子系统一个 task watchdog channel**（而非全局一个）→ 可定位是哪个子系统卡死。
 - panic → retention 环形记录最近 N 事件（黑匣子）→ 自恢复或等待宿主复位指令。
-- M3 接入 panic 钩子与黑匣子回放。
+- PIO-M3 接入 panic 钩子与黑匣子回放。
 
 ### A.1.4 时间基准（Q-PIO-06 待裁决）
 
@@ -74,7 +74,7 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 - **约定**：全部时间戳为**设备单调 µs**；与宿主的绝对时间对齐由协议层"请求-应答时延补偿"完成；**固件不引入 RTC 依赖**。
 - 这是撤回的 stub 中**唯一有实际实现的函数**，其余全是 `LOG_MODULE_DECLARE` + TODO。
 
-### A.1.5 控制图执行器（M4；D2 图动态层）—— 四条不可放松合同
+### A.1.5 控制图执行器（PIO-M4；DYN-2 图动态层）—— 四条不可放松合同
 
 1. 图文件**必须携带签名**；加载前验签 + 计算 digest，与声明不符 → **拒载**；
 2. **算子集封闭枚举**（Q-PIO-09），参数范围显式声明并校验；
@@ -83,7 +83,7 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 
 - 对齐 Galatea L10 §4.6：`PhysIOControlGraph` 必须有界、算子确定性、整图 digest 冻结、禁止未签名动态控制逻辑。
 
-### A.1.6 LLEXT 动态代码装载（V2；D3；Q-PIO-05）
+### A.1.6 LLEXT 动态代码装载（V2；DYN-3；Q-PIO-05）
 
 - 默认 Kconfig **关闭**；即便开启，**只接受通过签名校验的扩展**；
 - **装载失败 → 拒绝并上报，不影响主镜像**（关键：失败隔离）。
@@ -100,11 +100,11 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 
 ## A.2 COM 子系统合同候选
 
-> ⚠️ **本节 A.2.1 的帧结构与消息类清单来自 ADR-0002，属研究阶段的过早决定。**
-> 若 Q-PIO-07b 裁决为 Zenoh/MQTT-SN/CoAP 后端，A.2.1 整节作废，仅 A.2.2/A.2.3（L4 会话语义层）保留。
-> 按分层模型：A.2.1 = L2/L3（Zenoh 会接管），A.2.2 = L4（任何后端下都是我们自己的），A.2.3 = 管理面。
+> ⚠️ **本节 A.2.1 的帧结构与消息类清单来自 ADR-PIO-0002，属研究阶段的过早决定。**
+> 若 Q-PIO-07b 裁决为 Zenoh/MQTT-SN/CoAP 后端，A.2.1 整节作废，仅 A.2.2/A.2.3（COM-L4 会话语义层）保留。
+> 按分层模型：A.2.1 = COM-L2/COM-L3（Zenoh 会接管），A.2.2 = COM-L4（任何后端下都是我们自己的），A.2.3 = 管理面。
 
-### A.2.1 线协议 v1（L2/L3，**候选，非决定**）
+### A.2.1 线协议 v1（COM-L2/COM-L3，**候选，非决定**）
 
 - 帧：`magic(2B) | version(1B) | len(2B) | crc16 | CBOR payload`
 - 消息类：`DISCOVER` `HELLO/CAP` `STREAM_SUB` `STREAM_UNSUB` `CMD` `ACK` `RECEIPT` `EVENT` `TELEMETRY` `ESTOP` `MGMT`
@@ -114,7 +114,7 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 - **抢救理由**：即使最终换传输后端，"命令-回执分离 + 幂等键 + deadline"这三件事是**传输无关的应用语义**，
   在 Zenoh 下也必须由我们在 payload/queryable 里自己实现（Zenoh 的重传层不等于应用层回执）。
 
-### A.2.2 会话管理（L4，任何后端下都成立）
+### A.2.2 会话管理（COM-L4，任何后端下都成立）
 
 - 握手协商：协议版本、设备清单摘要、能力集。
 - 会话状态机：`IDLE → HANDSHAKING → ACTIVE → DEGRADED → LOST`。
@@ -145,14 +145,14 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 
 ## A.3 IO 子系统合同候选
 
-### A.3.1 设备注册表（M2）
+### A.3.1 设备注册表（PIO-M2）
 
 - **单一注册表**：Devicetree 静态设备 + 运行时动态注册（热插拔）**同表管理**。
 - **能力描述符**：`type / class / version / range / sampling capabilities / digest`。
 - 生命周期事件（**上 zbus + 上报宿主**）：`DEVICE_ADDED` / `DEVICE_REMOVED` / `DEVICE_FAULTED` / `DEVICE_REVALIDATED`。
 - **设备更换 = 旧描述符失效 + 新描述符注册（digest 变化强制上报）**。
 
-### A.3.2 输入通道（M2）
+### A.3.2 输入通道（PIO-M2）
 
 ```text
 设备驱动 → physio_stream → conditioning（校准/滤波）→ protection → 协议层 EVENT/订阅流上报
@@ -160,37 +160,37 @@ uint64_t physio_timestamp_us(void);   /* = k_ticks_to_us_floor64(k_uptime_ticks(
 
 - 事件型设备接 **Zephyr Input 子系统**回调；读数型走 **Sensor API / RTIO 批量**。
 
-### A.3.3 统一流抽象 `physio_stream`（M2）
+### A.3.3 统一流抽象 `physio_stream`（PIO-M2）
 
 - 输入侧统一封装，携带**频率 / 时间戳 / 单位 / 量程**元数据；
 - 底层对接三路：Input 子系统（事件型）/ Sensor API（读数型）/ RTIO（批量）；
 - 含缓冲与背压策略。
 
-### A.3.4 确定性信号调理链（M2）
+### A.3.4 确定性信号调理链（PIO-M2）
 
 ```text
-原始读数 → 校准表（线性/分段/温度补偿，D1 参数下发）
+原始读数 → 校准表（线性/分段/温度补偿，DYN-1 参数下发）
          → 确定性滤波（滑动均值/中值/一阶低通；定点优先，禁非确定浮点路径）
          → 单位/量程归一
 ```
 
 - **硬合同：同一输入序列必得同一输出序列**（重放测试机械验证）。
-- 这是 M2 的验收判据，也是与 Galatea 认识链可复算性要求对齐的关键点。
+- 这是 PIO-M2 的验收判据，也是与 Galatea 认识链可复算性要求对齐的关键点。
 
-### A.3.5 输出通道（M2）
+### A.3.5 输出通道（PIO-M2）
 
 - GPIO/PWM/DAC + 执行器模板驱动（舵机/步进/直流/继电器）。
 - **每个输出通道显式声明三安全态**：上电态 / 断链态 / 故障态。
 - **写入路径唯一**：`protection` 校验通过后才落到设备驱动（限幅 / slew-rate 强制执行）。
 - 抢救理由：这条"唯一写入路径"是可机械检查的（任何绕过 protection 的驱动写入 = 违规），HLD 应把它写成不变量。
 
-### A.3.6 局部保护（L0 层，M2/M3）
+### A.3.6 局部保护（L0 层，PIO-M2/PIO-M3）
 
 - 软件限幅（每输出通道 `min` / `max` / `slew-rate`）；
 - 链路断开 fail-safe profile；看门狗超时 → 全输出安全态；
 - **保护动作先于一切上层逻辑**，且产生**强制 EVENT 上报**。
 
-### A.3.7 急停（M3）—— 最高优先级不变量
+### A.3.7 急停（PIO-M3）—— 最高优先级不变量
 
 ```text
 estop_in（硬件 GPIO 中断/比较器）→ ISR 直接落安全态
@@ -199,7 +199,7 @@ estop_in（硬件 GPIO 中断/比较器）→ ISR 直接落安全态
 ```
 
 - **硬合同：急停响应时间上界可测**（与 Galatea **Q-L10-08** 对接时对齐；`config/protection_profiles/default.yaml`
-  里 `estop.response_budget_us: 1000` 是目标值，须在 M3 实测标定）。
+  里 `estop.response_budget_us: 1000` 是目标值，须在 PIO-M3 实测标定）。
 - **本条是与传输后端选型无关的绝对不变量**：无论 Q-PIO-07b 选谁，**急停永不经过中间件会话栈 / 协议栈**。
   若选 Zenoh，此条应升格为 HLD 级不变量 + 机械检查件（estop ISR 函数不得调用 COM 任何 API，符号级检查）。
   ⚠️ 旁证：zenoh-pico 无硬实时优先级语义；`BATCH_TX_MUTEX`/`BATCH_PEER_MUTEX` 官方注释明写"有丢连接风险"
@@ -219,7 +219,7 @@ estop_in（硬件 GPIO 中断/比较器）→ ISR 直接落安全态
 ```text
 menuconfig PHYSIO            depends on ZBUS && CBOR
 ├── PHYSIO_CORE_*            （storage / health / timebase / llext ...）
-│   └── PHYSIO_CORE_LLEXT    default n      ← D3 默认关闭（Q-PIO-05）
+│   └── PHYSIO_CORE_LLEXT    default n      ← DYN-3 默认关闭（Q-PIO-05）
 ├── PHYSIO_COM_*             （protocol / session / transport_* / mgmt_smp）
 │   └── choice PHYSIO_COM_PROTOCOL_VERSION
 │       └── default PHYSIO_COM_PROTOCOL_V1 "v1 (CBOR)"   ← ⚠️ 过早决定，必须拆除
@@ -232,7 +232,7 @@ menuconfig PHYSIO            depends on ZBUS && CBOR
 - 撤回的 `module/CMakeLists.txt` 用 `zephyr_library()` + 19 行 `zephyr_library_sources_ifdef(...)`。
   → HLD 阶段若要恢复此形态，须先冻结模块清单；研究期不预建。
 - 撤回的 `module/zephyr/module.yml` 内容为 Zephyr module 标准声明（`build: cmake: .` / `kconfig: Kconfig`）。
-  → ADR-0001 的结论（PhysIO 作为 Zephyr module）**仍然成立且未变**，只是研究期不需要真的写出该文件。
+  → ADR-PIO-0001 的结论（PhysIO 作为 Zephyr module）**仍然成立且未变**，只是研究期不需要真的写出该文件。
   → 旁证（Zenoh 调研所得）：`eclipse-zenoh/zenoh-pico` 自身就带 `zephyr/module.yml`
   （`name: zenoh-pico` / `build: cmake: zephyr/` / `kconfig: zephyr/Kconfig.zenoh`），说明"第三方库以 Zephyr module 形式引入"是成熟路径；
   但它**不在 Zephyr 官方 default manifest**，故若引入须由 PhysIO 自己的 `west.yml` 声明为 west project 并 pin revision。
@@ -250,7 +250,7 @@ menuconfig PHYSIO            depends on ZBUS && CBOR
   - `module/CMakeLists.txt`、`module/Kconfig`、`module/zephyr/module.yml`（3）
   - `app/galatea_node/{CMakeLists.txt,prj.conf,src/main.c}`（3）
 - 保留：目录骨架（以 `.gitkeep` 占位）、`config/**`、`docs/**`、`tests/README.md`、`tools/README.md`、`west.yml`、`README.md`（三者内容已改为研究期措辞）。
-- **未触碰（等 owner review）**：`docs/adr/ADR-0001*`、`docs/adr/ADR-0002*`、`docs/RESEARCH_01_scope.md` §3.2/§4/§6。
+- **未触碰（等 owner review）**：`docs/adr/ADR-PIO-0001*`、`docs/adr/ADR-PIO-0002*`、`docs/RESEARCH_01_scope.md` §3.2/§4/§6。
 - 后果：当前仓库**无任何可构建目标**；`west build` 路径失效属预期。
 
 ## A.6 恢复路径

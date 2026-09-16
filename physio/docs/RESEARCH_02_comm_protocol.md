@@ -6,7 +6,7 @@
 >
 > 上游：`RESEARCH_01_scope.md`（Zephyr 平台调研 + 功能范围）、
 > `design/lld/L10_action_gateway_physio_attribution.md` §4.6（Galatea PhysIO 合同）。
-> 受质疑工件：`adr/ADR-0002-wire-protocol-cbor.md`（研究期的过早决定，见 §1.2）、
+> 受质疑工件：`adr/ADR-PIO-0002-wire-protocol-cbor.md`（研究期的过早决定，见 §1.2）、
 > `RESEARCH_01_scope.md` §3.2 / §4 第 2·4 条 / §6 Q-PIO-07 行。
 > **上述工件在 owner review 完成前保持原样，不做半成品修改。**
 
@@ -17,9 +17,9 @@
 1. owner 要求选通信协议的真实驱动因素是**兼容各种可插拔输入输出设备**，不是吞吐量。
    据此，协议的判据应是"设备自描述能力 + 命名空间 + 动态发现 + 命令/回执语义"，而不是"帧有多紧凑"。
 2. **Zenoh 与 CBOR 不在同一层**，"自研帧 vs Zenoh"这个提法本身需要先定义边界。
-   本文档 §2 给出 COM 五层拆分（L1 链路 / L2 帧编解码 / L3 寻址路由发现 / L4 会话语义 / L5 应用 schema），
-   并指出：**Zenoh 真正买到的东西全在 L3**，L2 只是顺带接管，而 **L4、L5 无论选谁都还是我们自己的**。
-3. 原 Q-PIO-07 只问了 L2 的一半（payload 编码），**L2 的另一半（framing）与整个 L3 从未被问过就被 ADR-0002 静默裁决了**。
+   本文档 §2 给出 COM 五层拆分（COM-L1 链路 / COM-L2 帧编解码 / COM-L3 寻址路由发现 / COM-L4 会话语义 / COM-L5 应用 schema），
+   并指出：**Zenoh 真正买到的东西全在 COM-L3**，COM-L2 只是顺带接管，而 **COM-L4、COM-L5 无论选谁都还是我们自己的**。
+3. 原 Q-PIO-07 只问了 COM-L2 的一半（payload 编码），**COM-L2 的另一半（framing）与整个 COM-L3 从未被问过就被 ADR-PIO-0002 静默裁决了**。
    这是"未登记的静默裁决"，违反本项目"每个默认值一个 Q 号"的纪律 → §6 提出拆分提案。
 4. Zenoh 在 V1 的三条链路（UART / USB-CDC / BLE）上**没有一条被上游重点覆盖**（证据见 §3.3），
    且**pico 没有 router 实现**——V1 若用 Zenoh，宿主必须常驻 `zenohd`（§3.4）。
@@ -28,7 +28,7 @@
    → 必须先裁决 **Q-PIO-11（负清单适用域）**，否则 Q-PIO-07b 的四个候选里有三个是悬空的（§7.1）。
 6. 建议路径（提案，非决定）：**V1 自研轻量帧 + 承认五层分层 + 立"最小可替换面契约"（一条 CI grep 检查）+ 把 Zenoh 列为 V2 一等候选**。
    这条路径的成本是"一条契约 + 四个机械检查件"，收益是"V2 换后端时 io/core/schema 一行不改"。
-   如果不立这条契约，"V1 自研、V2 再看 Zenoh"就是空头支票（§2.4、§7.3 变体 N2-b）。
+   如果不立这条契约，"V1 自研、V2 再看 Zenoh"就是空头支票（§2.4、§7.3 变体 NL2-b）。
 
 ---
 
@@ -47,18 +47,18 @@
 
 2026-09-15 我在研究阶段做了两件越权的事：
 1. 写出 27 个实现产物（C 源码 / 头文件 / Kconfig / CMakeLists / module.yml / prj.conf）——**违反 research → HLD → LLD → 实施 的顺序**；
-2. 以 `ADR-0002` 的形式**决定**了线协议（CBOR + 帧结构 + 命令-回执分离），而应当是**研究候选**。
+2. 以 `ADR-PIO-0002` 的形式**决定**了线协议（CBOR + 帧结构 + 命令-回执分离），而应当是**研究候选**。
    同时把结论固化进构建系统：`module/Kconfig` 里存在
    `choice PHYSIO_COM_PROTOCOL_VERSION` / `default PHYSIO_COM_PROTOCOL_V1 "v1 (CBOR)"`。
 
 owner 纠正："我们现在还在 research 阶段，接下来我们才要进行 HLD 和 LLD 然后再开始实施。"
 
-→ 处置：(1) 已删除全部实现产物（§9）；(2) ADR-0002 的**处置方式本身成为待裁决项**
+→ 处置：(1) 已删除全部实现产物（§9）；(2) ADR-PIO-0002 的**处置方式本身成为待裁决项**
 （三个候选：ACCEPTED / 拆为 0002a+0002b / SUPERSEDED，见 §8.4）。本文档不代 owner 选。
 
 ### 1.3 判据错位
 
-RESEARCH_01 §3.2 与 ADR-0002 的论证围绕"帧紧凑、易实现、可审计"。
+RESEARCH_01 §3.2 与 ADR-PIO-0002 的论证围绕"帧紧凑、易实现、可审计"。
 但 owner 给出的判据是**设备异构兼容 + 可插拔**。这两个判据导向不同的选型：
 
 | 判据 | 有利于 | 不利于 |
@@ -76,26 +76,26 @@ RESEARCH_01 §3.2 与 ADR-0002 的论证围绕"帧紧凑、易实现、可审计
 
 | 层 | 职责 | 自研轻量帧方案下归谁 | Zenoh 方案下归谁 |
 |---|---|---|---|
-| **L1 物理链路** | UART / USB-CDC / BLE / CAN / ETH | Zephyr driver，我们适配 | zenoh-pico link（串口 link 有 Zephyr 实现；**USB-CDC 无**；BLE 在 Zephyr 下未验证） |
-| **L2 帧 / 编解码** | framing + 完整性校验 + payload 字节格式 | 我们拥有：`magic｜version｜len｜crc16` + CBOR | **Zenoh 拥有**：自有 wire protocol（4–6 字节头、分片、批处理） |
-| **L3 寻址 / 路由 / 发现** | 命名空间、通配订阅、节点发现、多跳路由 | 我们拥有：`DISCOVER`/`CAP`/订阅表，单播直连，**无命名空间无通配** | **Zenoh 拥有**：key expression + interest 协议 + scouting + router/peer 组网 |
-| **L4 会话语义** | 握手、幂等去重、ACK vs RECEIPT、deadline、断链 fail-safe | 我们拥有 | **仍主要是我们拥有**（Zenoh 的 lease/liveliness 只给"链路活着/死了"，不给"命令已执行且错误码=X"） |
-| **L5 应用 schema** | 能力描述符、事件、命令参数、错误码、安全态声明 | 我们拥有 | **我们拥有**（Zenoh payload 是不透明字节，仅提供 MIME 风格 `encoding` 标注位，CBOR 可照标） |
+| **COM-L1 物理链路** | UART / USB-CDC / BLE / CAN / ETH | Zephyr driver，我们适配 | zenoh-pico link（串口 link 有 Zephyr 实现；**USB-CDC 无**；BLE 在 Zephyr 下未验证） |
+| **COM-L2 帧 / 编解码** | framing + 完整性校验 + payload 字节格式 | 我们拥有：`magic｜version｜len｜crc16` + CBOR | **Zenoh 拥有**：自有 wire protocol（4–6 字节头、分片、批处理） |
+| **COM-L3 寻址 / 路由 / 发现** | 命名空间、通配订阅、节点发现、多跳路由 | 我们拥有：`DISCOVER`/`CAP`/订阅表，单播直连，**无命名空间无通配** | **Zenoh 拥有**：key expression + interest 协议 + scouting + router/peer 组网 |
+| **COM-L4 会话语义** | 握手、幂等去重、ACK vs RECEIPT、deadline、断链 fail-safe | 我们拥有 | **仍主要是我们拥有**（Zenoh 的 lease/liveliness 只给"链路活着/死了"，不给"命令已执行且错误码=X"） |
+| **COM-L5 应用 schema** | 能力描述符、事件、命令参数、错误码、安全态声明 | 我们拥有 | **我们拥有**（Zenoh payload 是不透明字节，仅提供 MIME 风格 `encoding` 标注位，CBOR 可照标） |
 
 ### 2.2 三条硬结论
 
-1. **原 Q-PIO-07 问的是 L2 的一半（payload 编码）；L2 的另一半（framing）+ 整个 L3 从未被登记为 Q 号。**
-   ADR-0002 实际一次性裁决了 L2 帧格式 + L3 寻址方式（固定消息类枚举，无命名空间 / 无通配 / 无发现协议），
+1. **原 Q-PIO-07 问的是 COM-L2 的一半（payload 编码）；COM-L2 的另一半（framing）+ 整个 COM-L3 从未被登记为 Q 号。**
+   ADR-PIO-0002 实际一次性裁决了 COM-L2 帧格式 + COM-L3 寻址方式（固定消息类枚举，无命名空间 / 无通配 / 无发现协议），
    但登记的 Q 号只写"编码：CBOR vs nanopb" → owner 裁决时批准范围不可知 → **裁决边界不清**，
    HLD 无从判断哪些已冻结、哪些还可动。
-2. **原问题的选项集不会因 Zenoh 而消失。** 即使 L2 走 Zenoh，L5 payload 仍要选编码
+2. **原问题的选项集不会因 Zenoh 而消失。** 即使 COM-L2 走 Zenoh，COM-L5 payload 仍要选编码
    （CBOR / nanopb / FlatBuffers / 裸结构体），Zenoh 只搬字节。
    → 新问题在旧问题**之上**，是正交的，不是替代品。旧问题保留为 Q-PIO-07c。
-3. **Zenoh 的价值全在 L3，而 L3 在 V1 基本用不上。**
+3. **Zenoh 的价值全在 COM-L3，而 COM-L3 在 V1 基本用不上。**
    V1 是"单 MCU 单宿主直连"（RESEARCH_01 §4 第 4 条），命名空间/通配/组网都用不到；
    V2（多 MCU / 以太网）才兑现。这是"现在不选、V2 再加"的全部技术依据。
 
-### 2.3 若 Q-PIO-07b = Zenoh，则 L2/L3 由外部库接管，L4/L5 仍自研
+### 2.3 若 Q-PIO-07b = Zenoh，则 COM-L2/COM-L3 由外部库接管，COM-L4/COM-L5 仍自研
 
 即：**Zenoh 只省了 framing、路由与发现，省不了协议语义层。**
 命令-回执分离（ACK vs RECEIPT）、`idempotency_key` 去重、`deadline` 处理、能力描述符、错误码枚举、
@@ -115,13 +115,13 @@ RESEARCH_01 §3.2 与 ADR-0002 的论证围绕"帧紧凑、易实现、可审计
 > 禁止事项：
 > ① `io/`、`core/` 源码不得 include COM 的 framing / link / session 内部头文件；
 > ② `io/`、`core/`、`config/`、schema 文件中不得出现帧字段名（`magic` / `crc16` / `batch` / `session_zid` / `scouting` 等）；
-> ③ L5 schema 定义不得引用 L2 概念（帧长、分片、CRC）。
+> ③ COM-L5 schema 定义不得引用 COM-L2 概念（帧长、分片、CRC）。
 >
 > 反向同样成立：COM 不得 import `io/`、`core/` 的任何类型（只经 zbus 通道与四元组）。
 
 **机械检查件**：CI 中一个 grep 级检查（黑白名单各一份 YAML），违反即 fail。成本 ≈ 30 行脚本 + 一个 CI 步骤。
 
-**实际效果**：V2 换后端时，`io/`、`core/`、L5 schema **一行都不用改**，只有 COM 内部 L2/L3 模块被替换。
+**实际效果**：V2 换后端时，`io/`、`core/`、COM-L5 schema **一行都不用改**，只有 COM 内部 COM-L2/COM-L3 模块被替换。
 
 **反证（为什么这条不算设计通胀）**：如果现在不写这条，V1 代码**一定**会把 `crc16`、帧长、消息类枚举
 泄漏到 io 层（因为最省事的写法就是这样），V2 引入 Zenoh 就变成全树重构——那才是真正的通胀，也是"反复重构"的来源。
@@ -141,7 +141,7 @@ RESEARCH_01 §3.2 与 ADR-0002 的论证围绕"帧紧凑、易实现、可审计
   - **CoAP**：以云为中心的 client/server；
   - **MQTT**：**"broker 悖论"**——同一 LAN 内两台设备必须绕经云端 broker 才能通信。
 - **拓扑（P2P / brokered / hybrid）在运行时选择**，同一协议从裸机 MCU 到数据中心**无需桥接**。
-- 线开销 **4–6 字节**；可运行在 OSI L2。
+- 线开销 **4–6 字节**；可运行在 OSI COM-L2。
 - 内置：可靠性级别、分片、wire-level 批处理、动态发现、Timestamps、Source Info（Entity Global ID）、
   liveliness tokens、sample-miss closure、admin space。
 - 形式化规范：**spec.zenoh.io**；采用者：ROS 2 `rmw_zenoh`、CARMA、Indy Autonomous Challenge、自动驾驶、游戏、电信。
@@ -281,7 +281,7 @@ RESEARCH_01 §3.2 与 ADR-0002 的论证围绕"帧紧凑、易实现、可审计
 `SESSION_ZID` · **`ADD_TIMESTAMP` / `USER` / `PASSWORD` = 已声明但"not currently in use"**。
 
 设置方式：`zp_config_insert(z_loan_mut(config), KEY, value)`。
-⇒ ⚠️ `ADD_TIMESTAMP` 不可用意味着**时间戳需在 L4/L5 自己带**（与附录 A §A.1.4 的单调 µs 约定一致）。
+⇒ ⚠️ `ADD_TIMESTAMP` 不可用意味着**时间戳需在 COM-L4/COM-L5 自己带**（与附录 A §A.1.4 的单调 µs 约定一致）。
 
 ### 3.9 API 风格与可理解性
 
@@ -309,7 +309,7 @@ Rust 惯用法搬到 C：`z_owned_*` / `z_loaned_*` / `z_moved_*` / `z_view_*` /
 
 ### 4.1 五个候选
 
-| 方案 | L1 覆盖（V1: UART/USB-CDC/BLE） | L2 framing | L3 命名空间/发现 | L4 会话语义 | 堆依赖 | 外部常驻进程 |
+| 方案 | COM-L1 覆盖（V1: UART/USB-CDC/BLE） | COM-L2 framing | COM-L3 命名空间/发现 | COM-L4 会话语义 | 堆依赖 | 外部常驻进程 |
 |---|---|---|---|---|---|---|
 | ① 自研轻量帧 + CBOR | 全部自己适配（可控） | 自研 | 自研，无命名空间/通配 | 自研 | 可静态化 | 无 |
 | ② Zenoh（zenoh-pico） | 串口✓(仅波特率可配) / **USB-CDC✗** / **BLE✗(Zephyr 未验证)** | 库接管 | **库接管（强项）** | 仍自研 | **需堆 + pthreads + POSIX select** | **需 `zenohd`（或 peer+UDP 组播，V1 链路不可用）** |
@@ -323,7 +323,7 @@ Rust 惯用法搬到 C：`z_owned_*` / `z_loaned_*` / `z_moved_*` / `z_view_*` /
 
 | 判据 | ① 自研帧 | ② Zenoh | ③ MQTT-SN | ④ CoAP | ⑤ micro-ROS |
 |---|---|---|---|---|---|
-| a. 设备自描述 / 异构兼容（owner 主判据） | 中（靠 L5 schema 自建） | **高**（key expr + queryable + interest） | 中 | 中 | **高** |
+| a. 设备自描述 / 异构兼容（owner 主判据） | 中（靠 COM-L5 schema 自建） | **高**（key expr + queryable + interest） | 中 | 中 | **高** |
 | b. 动态发现 / 热插拔配合 | 低（自研 DISCOVER） | **高** | 中 | 低-中 | **高** |
 | c. MCU ROM/RAM 开销 | **最优** | 差（§3.6，须实测） | 优 | 中 | 最差 |
 | d. 堆依赖 / 静态可分配 | **无依赖** | 需堆且 `z_realloc` 未实现 | 轻 | 中 | 需堆 |
@@ -347,7 +347,7 @@ Rust 惯用法搬到 C：`z_owned_*` / `z_loaned_*` / `z_moved_*` / `z_view_*` /
 | 选项 | 排除理由 |
 |---|---|
 | MODBUS / CANopen | 工业成熟、极小、确定性好，但是**静态寄存器映射**，与"异构自描述可插拔设备"判据正面相悖 |
-| nanopb / protobuf-over-serial | 这是 **L5 编码**候选（Q-PIO-07c），不是 L2/L3 后端候选；列为 07b 的选项属层次混淆 |
+| nanopb / protobuf-over-serial | 这是 **COM-L5 编码**候选（Q-PIO-07c），不是 COM-L2/COM-L3 后端候选；列为 07b 的选项属层次混淆 |
 | SLIP + CBOR 极简 | 属候选①的更瘦变体（丢掉 CRC 换 SLIP 转义），可作为 07b=① 时的实现细节，不单列 |
 | Zephyr 原生 zbus / 仅 SMP | zbus 是**片内**总线，不解决对外通信；SMP 只覆盖管理面（RESEARCH_01 §4 第 5 条已定复用） |
 
@@ -359,36 +359,36 @@ Rust 惯用法搬到 C：`z_owned_*` / `z_loaned_*` / `z_moved_*` / `z_view_*` /
 
 现文本（RESEARCH_01 §6 第 7 行）：
 
-> Q-PIO-07 ｜ Wire Protocol 编码 ｜ CBOR（tinycbor）；备选 protobuf-nanopb ｜ M1 ｜ UNCONFIRMED
+> Q-PIO-07 ｜ Wire Protocol 编码 ｜ CBOR（tinycbor）；备选 protobuf-nanopb ｜ PIO-M1 ｜ UNCONFIRMED
 
-缺陷：**问题域写"编码"，但 ADR-0002 冻结的内容远超编码**（帧结构、命令-回执分离、schema 单一源生成链）。
+缺陷：**问题域写"编码"，但 ADR-PIO-0002 冻结的内容远超编码**（帧结构、命令-回执分离、schema 单一源生成链）。
 owner 裁决这个 Q 号时实际批准的范围不可知 ⇒ 裁决边界不清 ⇒ HLD 无从判断哪些已冻结、哪些还可动。
 
 ### 5.2 提案文本（五个 Q 号，全部 UNCONFIRMED）
 
 > **Q-PIO-07a — COM 选型边界与分层模型**
-> 议题：是否承认 §2.1 的 L1–L5 五层拆分，并规定 COM 对 `io/`、`core/` 只暴露 L4/L5 级 API（L2/L3 为可替换后端）？
+> 议题：是否承认 §2.1 的 COM-L1–COM-L5 五层拆分，并规定 COM 对 `io/`、`core/` 只暴露 COM-L4/COM-L5 级 API（COM-L2/COM-L3 为可替换后端）？
 > 建议默认：**承认**，配 §2.4 的"最小可替换面契约"。
 > 影响：决定 07b/07d 是否成立。**前置裁决，不定则其余无从登记。**
 > 机械检查件：CI include/命名黑白名单 grep（§2.4）。
 >
-> **Q-PIO-07b — L2/L3 的 V1 后端实现**
+> **Q-PIO-07b — COM-L2/COM-L3 的 V1 后端实现**
 > 议题：V1（UART / USB-CDC / BLE，单 MCU 单宿主直连）的 framing + 寻址由谁提供？
-> 候选：① 自研轻量帧 + 固定消息类（ADR-0002 原案）｜② zenoh-pico（client 模式，宿主跑 `zenohd`）｜
+> 候选：① 自研轻量帧 + 固定消息类（ADR-PIO-0002 原案）｜② zenoh-pico（client 模式，宿主跑 `zenohd`）｜
 > ③ MQTT-SN（需外部 gateway/broker）｜④ CoAP（Zephyr 原生，observe 机制）
 > 建议默认：**①**。理由：V1 传输集恰是 zenoh-pico 上游覆盖最弱区（§3.3）；estop/保护路径需确定性（§3.7）；
 > 资源可预测（§3.6）；全栈可理解（§3.9）。
-> 依赖：07a、07e、Q-PIO-11。阻断 **M1**。
+> 依赖：07a、07e、Q-PIO-11。阻断 **PIO-M1**。
 >
-> **Q-PIO-07c — L5 payload 编码（= 原 Q-PIO-07 收窄后的残留问题）**
-> 议题：无论 L2 后端是谁，L5 应用 schema 的字节编码选什么？
+> **Q-PIO-07c — COM-L5 payload 编码（= 原 Q-PIO-07 收窄后的残留问题）**
+> 议题：无论 COM-L2 后端是谁，COM-L5 应用 schema 的字节编码选什么？
 > 候选：CBOR（tinycbor，Zephyr 内置）｜ protobuf-nanopb（需 IDL 编译链）｜ 裸 C 结构体 + 版本字段
 > 建议默认：**CBOR + `tools/schema/` 单一源生成 C 头与 Pydantic 模型**
-> （即 ADR-0002 的第 1、5 条裁决；**这两条与 framing 选型正交，可独立成立并先定**，可先解冻 M1 的一部分工作）。
+> （即 ADR-PIO-0002 的第 1、5 条裁决；**这两条与 framing 选型正交，可独立成立并先定**，可先解冻 PIO-M1 的一部分工作）。
 >
 > **Q-PIO-07d — V2 是否引入 Zenoh 作为第二后端**
-> 议题：进入 CAN/ETH 与多 MCU 组网阶段时，是否在 L2/L3 位置增加 zenoh-pico / zenoh backend？
-> 前置条件：M0–M1 之间做验证 spike（§6），实测达标阈值后再裁决。
+> 议题：进入 CAN/ETH 与多 MCU 组网阶段时，是否在 COM-L2/COM-L3 位置增加 zenoh-pico / zenoh backend？
+> 前置条件：PIO-M0–PIO-M1 之间做验证 spike（§6），实测达标阈值后再裁决。
 > 建议默认：**列为 V2 一等候选，不进入 V1 依赖树。**
 >
 > **Q-PIO-07e — 部署形态是否允许外部常驻进程**
@@ -402,9 +402,9 @@ owner 裁决这个 Q 号时实际批准的范围不可知 ⇒ 裁决边界不清
 
 | 方案 | 好处 | 代价 |
 |---|---|---|
-| **拆 07a–07e（5 条，建议）** | 裁决边界清晰；07c 可先定并部分解冻 M1；07b/07d 可在不同里程碑分别裁决；符合"每个默认值一个 Q 号"既有纪律 | Q 号 +4，观感上像设计通胀；owner 需读 5 段 |
-| **拆 2 条**（Q-PIO-07 = 纯 L5 编码；Q-PIO-07-L = L2/L3 后端 + 可替换面契约） | 数量增幅最小 | 07-L 一次要定 framing/寻址/V2 演进三件事，任一改动即重开整条 |
-| **保留单条，改写问题陈述** | 数量不增 | 一次裁决要同时定 5 件事（L2 framing / L3 寻址 / L5 编码 / V2 演进 / 部署形态）；HLD COM 章"已冻结"边界依然模糊 |
+| **拆 07a–07e（5 条，建议）** | 裁决边界清晰；07c 可先定并部分解冻 PIO-M1；07b/07d 可在不同里程碑分别裁决；符合"每个默认值一个 Q 号"既有纪律 | Q 号 +4，观感上像设计通胀；owner 需读 5 段 |
+| **拆 2 条**（Q-PIO-07 = 纯 COM-L5 编码；Q-PIO-07-L = COM-L2/COM-L3 后端 + 可替换面契约） | 数量增幅最小 | 07-L 一次要定 framing/寻址/V2 演进三件事，任一改动即重开整条 |
+| **保留单条，改写问题陈述** | 数量不增 | 一次裁决要同时定 5 件事（COM-L2 framing / COM-L3 寻址 / COM-L5 编码 / V2 演进 / 部署形态）；HLD COM 章"已冻结"边界依然模糊 |
 
 判断依据：07a 与 07e 是**结构性与宪法性**问题（影响负清单、影响 HLD 章结构），07b/07c/07d 是技术选型，
 性质不同，混在一条里裁决会导致 HLD 阶段反复回炉。
@@ -412,11 +412,11 @@ owner 裁决这个 Q 号时实际批准的范围不可知 ⇒ 裁决边界不清
 
 ### 5.4 各分支对下游工件的影响
 
-| 若裁决为 | ADR-0002 | PhysIO HLD COM 章 | RESEARCH_01 §3.2 | CI 新增检查件 |
+| 若裁决为 | ADR-PIO-0002 | PhysIO HLD COM 章 | RESEARCH_01 §3.2 | CI 新增检查件 |
 |---|---|---|---|---|
 | 07b=① 自研帧 | 标 **ACCEPTED**（拆出 payload 编码独立生效） | 直接描述单一实现，无抽象层 | 基本不动 | include/命名边界检查（07a） |
 | 07b=② Zenoh | 标 **SUPERSEDED** | 描述 zenoh-pico session 集成 + key expression 命名规范 + router 部署形态 | 大改（传输/管理面/发现全部重写） | zenoh Kconfig 特性组合锁定 + 内存预算断言 + estop 隔离检查 |
-| 07b=① 且 07d=V2 引入 Zenoh | 拆为 **ADR-0002a**（L5 编码 = CBOR + schema 单一源，长期有效）与 **ADR-0002b**（V1 L2/L3 = 自研帧，标注"V2 可被 ADR-000x 替换"） | 描述单一实现 **+ 一条可替换面契约** | §3.2 增一节"L2/L3 后端演进位"；§4 第 2/4 条配套修订 | include/命名边界检查 + 后端替换点标注 |
+| 07b=① 且 07d=V2 引入 Zenoh | 拆为 **ADR-PIO-0002a**（COM-L5 编码 = CBOR + schema 单一源，长期有效）与 **ADR-PIO-0002b**（V1 COM-L2/COM-L3 = 自研帧，标注"V2 可被 ADR-000x 替换"） | 描述单一实现 **+ 一条可替换面契约** | §3.2 增一节"COM-L2/COM-L3 后端演进位"；§4 第 2/4 条配套修订 | include/命名边界检查 + 后端替换点标注 |
 
 ---
 
@@ -424,31 +424,31 @@ owner 裁决这个 Q 号时实际批准的范围不可知 ⇒ 裁决边界不清
 
 ### 6.1 范围与工期
 
-约 1–2 周，放在 **M0 与 M1 之间**（不阻塞 M0）。产出物：一份实测报告 + 一个可复现的构建目标。
+约 1–2 周，放在 **PIO-M0 与 PIO-M1 之间**（不阻塞 PIO-M0）。产出物：一份实测报告 + 一个可复现的构建目标。
 spike **不进主线依赖树**（独立 workspace，独立 west project），失败即整目录丢弃。
 
 ### 6.2 必测项与达标阈值草案（阈值本身待 owner 确认，编号 Q-PIO-12 提案）
 
 | # | 必测项 | 达标阈值（草案） | 不达标后果 |
 |---|---|---|---|
-| S1 | zenoh-pico 作为 west module 在 **nRF52840 DK** 构建通过（`CONFIG_ZENOH_PICO=y`，`Z_FEATURE_LINK_SERIAL=1`） | 0 error，0 手工 patch | 直接否掉候选② |
-| S2 | **串口 link** 上 pub/sub + queryable 双向跑通（对宿主机 USB-UART 桥） | 连续 1h 无 session drop | 直接否掉 |
-| S3 | **RAM 峰值** 实测（session 建立 + 1 publisher + 1 subscriber + 1 queryable + `BATCH_UNICAST_SIZE=1024`、`FRAG_MAX_SIZE=2048`） | ≤ 目标 SoC RAM 的 25%（nRF52840 ⇒ ≤ 64KB） | 缩阈值重试；仍超则否 |
-| S4 | **Flash/ROM** 占用实测 | ≤ 64KB（留给 MCUboot 双槽 + 框架） | 否 |
-| S5 | **堆依赖量化**：`CONFIG_HEAP_MEM_POOL_SIZE` 必需值；确认 `z_realloc` 返回 NULL 是否触发任何运行路径 | 无 realloc 依赖路径 | 若依赖则需 upstream patch，否 |
-| S6 | **USB-CDC link**：确认 Zephyr 下确无实现，估算自研工作量 | 给出 LOC 与工期估算 | 若 >2 周则否（V1 主链路） |
-| S7 | **断链恢复时延**：拔线后从 link down 到本地 fail-safe 触发 | ≤ 500ms（对齐 `protection_profiles/default.yaml`），且**必须由我们自己实现**而非依赖 `Z_TRANSPORT_LEASE` | 确认 lease 不可用，写进 HLD |
-| S8 | **estop 路径独立性**：在 Zenoh session 忙/阻塞（含 batching 开启）时，estop ISR → 安全态的时延 | 与 session 空闲时**无可测差异**（≤ ±5%） | 若不成立则 Zenoh 永久禁用于本项目 |
-| S9 | **单线程模式**（`Z_FEATURE_MULTI_THREAD=0` + `zp_spin_once`）可行性 | 能跑通 S2 且不需要 `CONFIG_POSIX_API` | 若必须要 pthreads，记录为硬依赖 |
-| S10 | **宿主侧部署形态**：`zenohd` 版本、启动方式、资源占用；确认能否免 Docker（Windows 宿主机） | 给出可用启动脚本 | 若必须 Docker + Linux，与 Q-PIO-07e 冲突，直接否 V1 |
-| S11 | **版本锁定成本**：pin `1.10.1`，记录 API 冻结面大小（我们调用多少个 `z_*` 符号） | ≤ 30 个符号（可审计） | >30 则记录为可理解性风险，交 owner |
-| S12 | **特性关断组合**：关闭 `QUERYABLE`/`SCOUTING`/`LIVELINESS`/`BATCHING`/`MULTICAST_TRANSPORT` 后重新测 S3/S4 | 给出裁剪后节省量 | 用于评估能否压进更小芯片 |
+| SP-1 | zenoh-pico 作为 west module 在 **nRF52840 DK** 构建通过（`CONFIG_ZENOH_PICO=y`，`Z_FEATURE_LINK_SERIAL=1`） | 0 error，0 手工 patch | 直接否掉候选② |
+| SP-2 | **串口 link** 上 pub/sub + queryable 双向跑通（对宿主机 USB-UART 桥） | 连续 1h 无 session drop | 直接否掉 |
+| SP-3 | **RAM 峰值** 实测（session 建立 + 1 publisher + 1 subscriber + 1 queryable + `BATCH_UNICAST_SIZE=1024`、`FRAG_MAX_SIZE=2048`） | ≤ 目标 SoC RAM 的 25%（nRF52840 ⇒ ≤ 64KB） | 缩阈值重试；仍超则否 |
+| SP-4 | **Flash/ROM** 占用实测 | ≤ 64KB（留给 MCUboot 双槽 + 框架） | 否 |
+| SP-5 | **堆依赖量化**：`CONFIG_HEAP_MEM_POOL_SIZE` 必需值；确认 `z_realloc` 返回 NULL 是否触发任何运行路径 | 无 realloc 依赖路径 | 若依赖则需 upstream patch，否 |
+| SP-6 | **USB-CDC link**：确认 Zephyr 下确无实现，估算自研工作量 | 给出 LOC 与工期估算 | 若 >2 周则否（V1 主链路） |
+| SP-7 | **断链恢复时延**：拔线后从 link down 到本地 fail-safe 触发 | ≤ 500ms（对齐 `protection_profiles/default.yaml`），且**必须由我们自己实现**而非依赖 `Z_TRANSPORT_LEASE` | 确认 lease 不可用，写进 HLD |
+| SP-8 | **estop 路径独立性**：在 Zenoh session 忙/阻塞（含 batching 开启）时，estop ISR → 安全态的时延 | 与 session 空闲时**无可测差异**（≤ ±5%） | 若不成立则 Zenoh 永久禁用于本项目 |
+| SP-9 | **单线程模式**（`Z_FEATURE_MULTI_THREAD=0` + `zp_spin_once`）可行性 | 能跑通 SP-2 且不需要 `CONFIG_POSIX_API` | 若必须要 pthreads，记录为硬依赖 |
+| SP-10 | **宿主侧部署形态**：`zenohd` 版本、启动方式、资源占用；确认能否免 Docker（Windows 宿主机） | 给出可用启动脚本 | 若必须 Docker + Linux，与 Q-PIO-07e 冲突，直接否 V1 |
+| SP-11 | **版本锁定成本**：pin `1.10.1`，记录 API 冻结面大小（我们调用多少个 `z_*` 符号） | ≤ 30 个符号（可审计） | >30 则记录为可理解性风险，交 owner |
+| SP-12 | **特性关断组合**：关闭 `QUERYABLE`/`SCOUTING`/`LIVELINESS`/`BATCHING`/`MULTICAST_TRANSPORT` 后重新测 SP-3/SP-4 | 给出裁剪后节省量 | 用于评估能否压进更小芯片 |
 
 ### 6.3 spike 的裁决逻辑
 
-- S1/S2/S6/S10 任一不过 ⇒ **候选② 在 V1 与 V2 均出局**，07d 转为 CLOSED；
-- S3/S4 超阈值但 S12 裁剪后达标 ⇒ 07b 仍可为①，**07d 可成立但限定目标 SoC 下限**（写入 Q-PIO-02）；
-- S8 不过 ⇒ Zenoh 永久禁用（安全不变量优先于一切功能收益）；
+- SP-1/SP-2/SP-6/SP-10 任一不过 ⇒ **候选② 在 V1 与 V2 均出局**，07d 转为 CLOSED；
+- SP-3/SP-4 超阈值但 SP-12 裁剪后达标 ⇒ 07b 仍可为①，**07d 可成立但限定目标 SoC 下限**（写入 Q-PIO-02）；
+- SP-8 不过 ⇒ Zenoh 永久禁用（安全不变量优先于一切功能收益）；
 - 全部达标 ⇒ 07b 才真正回到 open 状态，可与候选① 平等比较。
 
 ---
@@ -500,21 +500,21 @@ spike **不进主线依赖树**（独立 workspace，独立 west project），�
 
 ### 7.3 三个修订变体
 
-#### 变体 N2-a（最紧：全面禁止）
+#### 变体 NL2-a（最紧：全面禁止）
 
 > 2. 不自研、也不引入任何对外分布式中间件。V1 与可预见版本内，对外协议仅为自研轻量帧协议（Q-PIO-07b）；
 > ROS / DDS / Zenoh / MQTT / CoAP 及其 broker、agent、router 一律不得进入依赖树（含宿主侧）。
 > 片内解耦仅用 zbus（zbus 属片内总线，不在本条治理范围内）。
 
-- **后果**：Zenoh 永久出局；ADR-0002 可整体转 ACCEPTED；07d 删除；V2 组网若成为需求必须回到 owner 重开裁决。
+- **后果**：Zenoh 永久出局；ADR-PIO-0002 可整体转 ACCEPTED；07d 删除；V2 组网若成为需求必须回到 owner 重开裁决。
 - **机械检查件**：`west.yml` / `requirements.txt` / CMake `find_package` 黑名单
   （zenoh, paho, rmw, xrce, coap…）+ 宿主侧 `pip list` 断言；**一条 CI 步骤，最省**。
 - **适配 owner 偏好**：最符合"反设计通胀 + 全栈可理解"（协议一页纸讲完）；放弃 V2 组网与 ROS 2 互操作。
 
-#### 变体 N2-b（分层豁免，**建议**）
+#### 变体 NL2-b（分层豁免，**建议**）
 
 > 2. 不自研对外分布式中间件，也不允许中间件语义渗入框架层（`io/`、`core/`）。
-> 允许在 COM 的 **L2/L3 后端位置**复用成熟协议栈（Zenoh / MQTT-SN / CoAP），当且仅当同时满足四条前提：
+> 允许在 COM 的 **COM-L2/COM-L3 后端位置**复用成熟协议栈（Zenoh / MQTT-SN / CoAP），当且仅当同时满足四条前提：
 > (i) 后端可整块替换而不触及上层 API——由"最小可替换面契约"（Q-PIO-07a）保证，CI include/命名检查；
 > (ii) V1 部署不得要求任何外部常驻进程（router / broker / agent）——Q-PIO-07e；
 > (iii) **安全路径（`estop_in`、局部保护、fail-safe profile）永不经过中间件会话栈**；
@@ -536,27 +536,27 @@ spike **不进主线依赖树**（独立 workspace，独立 west project），�
   成本 = 一条契约 + 四个 CI 检查。
 - **推荐理由**：它把"选择权"保存为一个**便宜的、机械可验的约束**，而不是保存为一个抽象层。
 
-#### 变体 N2-c（最松：V1 直接采用 Zenoh）
+#### 变体 NL2-c（最松：V1 直接采用 Zenoh）
 
 > 2. 对外通信直接采用 Zenoh（MCU 侧 zenoh-pico client，宿主侧 `zenohd` router 或 peer 会话），不自研线格式；
 > 负清单仅保留"不引入 ROS 2 / DDS 全栈（rcl/rclcpp/rmw）"。
 
-- **后果**：ADR-0002 标 SUPERSEDED；RESEARCH_01 §3.2、§4 第 2/4 条、§5 M1 验收全部重写；
-  Q-PIO-07e 必须回答"接受"；§3.3–§3.9 列出的风险**全部前置到 M0**，其中
+- **后果**：ADR-PIO-0002 标 SUPERSEDED；RESEARCH_01 §3.2、§4 第 2/4 条、§5 PIO-M1 验收全部重写；
+  Q-PIO-07e 必须回答"接受"；§3.3–§3.9 列出的风险**全部前置到 PIO-M0**，其中
   USB-CDC link 缺失、POSIX/pthread/堆依赖两条是实打实的**工作量转移**（不是省了活，是换了活）。
 - **收益**：V2 组网、ROS 2 互操作、宿主侧免写 codec、发现/RPC 免自研，一次到位。
-- **风险**：若 S3/S4/RAM-flash 超预算，回退成本已经付出（HLD/LLD 会围绕 Zenoh 的 session/key 模型写完）。
+- **风险**：若 SP-3/SP-4/RAM-flash 超预算，回退成本已经付出（HLD/LLD 会围绕 Zenoh 的 session/key 模型写完）。
 
 ### 7.4 变体对比
 
-| 维度 | N2-a | **N2-b（建议）** | N2-c |
+| 维度 | NL2-a | **NL2-b（建议）** | NL2-c |
 |---|---|---|---|
 | V1 协议 | 自研帧（锁定） | 自研帧（07b=①） | Zenoh |
 | V2 组网出口 | 无（需重开裁决） | **有，且不返工** | 有 |
 | CI 检查件数 | 1 | **4** | 3–4 |
 | 需 owner 裁决的 Q 号 | 少（07b/07c） | 多（07a–07e、11、12） | 中（07c/07e/11） |
 | 全栈可理解性 | **最好** | 好（V1 同 a） | 差 |
-| M0/M1 工期风险 | **最低** | 低 | 高 |
+| PIO-M0/PIO-M1 工期风险 | **最低** | 低 | 高 |
 | 未来后悔的成本 | 高（推倒重来） | **最低** | 中 |
 | 与 Galatea 主体负清单 | 无冲突 | **需 Q-PIO-11 界定** | **正面冲突** |
 
@@ -570,15 +570,15 @@ spike **不进主线依赖树**（独立 workspace，独立 west project），�
 flowchart TD
   Q11["Q-PIO-11 负清单适用域<br/>(Bridge 归主体域还是固件域)"] --> Q07e
   Q07e["Q-PIO-07e 是否允许<br/>宿主常驻进程"] --> Q07b
-  Q11 --> Q07b["Q-PIO-07b<br/>V1 L2/L3 后端"]
+  Q11 --> Q07b["Q-PIO-07b<br/>V1 COM-L2/COM-L3 后端"]
   Q07a["Q-PIO-07a 分层模型<br/>+ 最小可替换面契约"] --> Q07b
   Q07a --> Q07d["Q-PIO-07d<br/>V2 是否引入 Zenoh"]
-  Q07b --> N2["负清单第 2 条<br/>N2-a / N2-b / N2-c"]
+  Q07b --> N2["负清单第 2 条<br/>NL2-a / NL2-b / NL2-c"]
   Q07d --> N2
   Q12["Q-PIO-12 spike 达标阈值"] --> Q07d
-  SPIKE["§6 spike（M0–M1 间）"] --> Q07d
+  SPIKE["§6 spike（PIO-M0–PIO-M1 间）"] --> Q07d
   N2 --> N4["第 4 条(组网)<br/>配套修订"]
-  N2 --> ADR["ADR-0002 处置<br/>保留 / 拆 2a+2b / SUPERSEDED"]
+  N2 --> ADR["ADR-PIO-0002 处置<br/>保留 / 拆 2a+2b / SUPERSEDED"]
   Q07a --> SPLIT["Q 号登记形式<br/>(5 条 / 2 条 / 1 条)"]
   Q07c["Q-PIO-07c payload 编码<br/>(CBOR)"] -.正交, 可先定.-> ADR
 ```
@@ -590,24 +590,24 @@ flowchart TD
 
 | # | 待裁决 | Q 号 | 建议默认 |
 |---|---|---|---|
-| 1 | 承认 L1–L5 五层拆分与"最小可替换面"契约 | Q-PIO-07a | **承认**（成本 = 一条 CI grep 检查） |
+| 1 | 承认 COM-L1–COM-L5 五层拆分与"最小可替换面"契约 | Q-PIO-07a | **承认**（成本 = 一条 CI grep 检查） |
 | 2 | Q 号登记形式：拆 07a–07e / 拆 2 条 / 保留单条改写 | — | **拆 07a–07e**；若反对则至少拆 2 条 |
-| 3 | V1 L2/L3 后端：① 自研帧 / ② Zenoh / ③ MQTT-SN / ④ CoAP | Q-PIO-07b | **① 自研帧** |
-| 4 | L5 payload 编码：CBOR / nanopb / 裸结构体（= 原 Q-PIO-07） | Q-PIO-07c | **CBOR + schema 单一源**（与 #3 正交，可先定） |
+| 3 | V1 COM-L2/COM-L3 后端：① 自研帧 / ② Zenoh / ③ MQTT-SN / ④ CoAP | Q-PIO-07b | **① 自研帧** |
+| 4 | COM-L5 payload 编码：CBOR / nanopb / 裸结构体（= 原 Q-PIO-07） | Q-PIO-07c | **CBOR + schema 单一源**（与 #3 正交，可先定） |
 | 5 | V1 是否允许宿主常驻进程 | Q-PIO-07e | **不允许** |
-| 6 | V2 是否引入 Zenoh 后端 + spike 前置 | Q-PIO-07d | **列为 V2 一等候选，M0–M1 间做 spike** |
-| 7 | 负清单第 2 条：N2-a / N2-b / N2-c | — | **N2-b** |
+| 6 | V2 是否引入 Zenoh 后端 + spike 前置 | Q-PIO-07d | **列为 V2 一等候选，PIO-M0–PIO-M1 间做 spike** |
+| 7 | 负清单第 2 条：NL2-a / NL2-b / NL2-c | — | **NL2-b** |
 | 8 | 第 4 条（组网）是否配套修订 | — | **是** |
 | 9 | 主体负清单是否管 `physio/**` / `physio/host/` / **Bridge** | **Q-PIO-11（新）** | 固件与 host SDK 不受主体清单约束；**Bridge 请你单独定** |
-| 10 | ADR-0002 处置 | — | **拆为 0002a（payload 编码，长期有效）+ 0002b（V1 帧，标注 V2 可替换）** |
-| 11 | spike 达标阈值（S1–S12 的数值） | **Q-PIO-12（新）** | 采用 §6.2 草案数值，或授权我拟定后你复核 |
+| 10 | ADR-PIO-0002 处置 | — | **拆为 0002a（payload 编码，长期有效）+ 0002b（V1 帧，标注 V2 可替换）** |
+| 11 | spike 达标阈值（SP-1–SP-12 的数值） | **Q-PIO-12（新）** | 采用 §6.2 草案数值，或授权我拟定后你复核 |
 | 12 | 撤回 C/构建产物 | — | **已执行（§9）** |
 
 ### 8.3 "现在不裁决"的代价
 
 若这三组（07a–07e / N2 / Q-PIO-11）都不改而直接进 HLD：
 
-- HLD 的 COM 章会照 ADR-0002 写成单一自研帧实现，本次 Zenoh 调研成果（§3 约 60 项已核实事实）**无处安放**；
+- HLD 的 COM 章会照 ADR-PIO-0002 写成单一自研帧实现，本次 Zenoh 调研成果（§3 约 60 项已核实事实）**无处安放**；
 - RESEARCH_01 §3.2 继续以"已决定"的口吻描述 CBOR 帧，而 §6 的 Q-PIO-07 又说它 UNCONFIRMED
   ⇒ **文档内部矛盾**；`_audit/check_docs.py` 若把 `physio/**` 纳入检查范围会直接报错
   （现状：该脚本只查 `design/**`，共 24 份 .md）；
@@ -615,15 +615,15 @@ flowchart TD
 
 ⇒ **现在裁决的成本远低于 HLD 后返工的成本。**
 
-### 8.4 ADR-0002 处置的三个候选（不预先改状态）
+### 8.4 ADR-PIO-0002 处置的三个候选（不预先改状态）
 
 | 处置 | 含义 | 适用前提 |
 |---|---|---|
 | **ACCEPTED** | 五条裁决全部生效 | 07b=①、07c=CBOR、且不需 07d 出口 |
-| **拆为 0002a + 0002b（建议）** | 0002a = L5 payload 编码（CBOR + schema 单一源），长期有效、与后端无关；0002b = V1 L2/L3 = 自研帧，**显式标注"V2 可被后续 ADR 替换"** | 07b=① 且 07d 保留 Zenoh 出口（N2-b） |
+| **拆为 0002a + 0002b（建议）** | 0002a = COM-L5 payload 编码（CBOR + schema 单一源），长期有效、与后端无关；0002b = V1 COM-L2/COM-L3 = 自研帧，**显式标注"V2 可被后续 ADR 替换"** | 07b=① 且 07d 保留 Zenoh 出口（NL2-b） |
 | **SUPERSEDED** | 整份作废 | 07b=②（V1 直接用 Zenoh） |
 
-在裁决前，ADR-0002 保持 `PROPOSED`，仅加"owner review 中、不得作为实现依据"的提示（已落盘）。
+在裁决前，ADR-PIO-0002 保持 `PROPOSED`，仅加"owner review 中、不得作为实现依据"的提示（已落盘）。
 
 ---
 
@@ -636,7 +636,7 @@ flowchart TD
   含 init 顺序、Settings 键空间、控制图四条合同、estop ISR 直达路径、唯一写入路径、三安全态、LLEXT 失败隔离等。
 - **已保留**：目录骨架（`.gitkeep` 占位）、`config/**` 三份格式草案、`docs/**`、`tests/tools/README.md`、
   `west.yml`、`README.md`（后三者措辞已改为研究期状态）。
-- **刻意未改**（等 owner review）：`adr/ADR-0001*`、`adr/ADR-0002*`（仅加 review 提示，状态仍 PROPOSED）、
+- **刻意未改**（等 owner review）：`adr/ADR-PIO-0001*`、`adr/ADR-PIO-0002*`（仅加 review 提示，状态仍 PROPOSED）、
   `RESEARCH_01_scope.md` §3.2 / §4 / §6（仅加指向本文档的告示条，**未改任何实质内容**）。
 - 后果：当前仓库**无任何可构建目标**，`west build` 路径失效属预期。
 
@@ -647,9 +647,9 @@ flowchart TD
 | # | 风险 | 影响 | 处置 |
 |---|---|---|---|
 | R1 | **裁决项过多导致 review 疲劳**（07a–07e + 11 + 12 + N2 三变体 = 12 项） | owner review 停滞，项目卡在研究期 | §8.1 依赖图给出关键路径：**只需先答 #5、#9 两项，07b 会自动收缩**；其余可批量后定 |
-| R2 | 引用厂商宣称值（"300 字节"）而非实测 | 预算误判，M0 返工 | §3.6 明确禁止引用；S3/S4/S12 实测 |
-| R3 | Zenoh 快速演进（1.10.1，两份迁移指南，部分配置键受 `UNSTABLE_API` 门控） | 半年后 API 漂移 | N2-b(iv) 要求 pin + SBOM；S11 量化 API 冻结面 ≤30 符号 |
+| R2 | 引用厂商宣称值（"300 字节"）而非实测 | 预算误判，PIO-M0 返工 | §3.6 明确禁止引用；SP-3/SP-4/SP-12 实测 |
+| R3 | Zenoh 快速演进（1.10.1，两份迁移指南，部分配置键受 `UNSTABLE_API` 门控） | 半年后 API 漂移 | NL2-b(iv) 要求 pin + SBOM；SP-11 量化 API 冻结面 ≤30 符号 |
 | R4 | 把"最小可替换面契约"实现成一套抽象框架 | 设计通胀（owner 明确厌恶） | §2.4 限定为"依赖方向 + 命名"两条规则 + 一条 grep；**禁止引入函数指针表 / adapter 基类** |
-| R5 | estop 经中间件栈 | 安全事故 | N2-b(iii) 升格为 HLD 不变量 + S8 spike 项 + 符号级 CI 检查；不过则永久禁用 |
+| R5 | estop 经中间件栈 | 安全事故 | NL2-b(iii) 升格为 HLD 不变量 + SP-8 spike 项 + 符号级 CI 检查；不过则永久禁用 |
 | R6 | Bridge 归属未定就在宿主侧引入第三方客户端库 | 违反 Galatea 主体负清单，主体平面审计失败 | Q-PIO-11 设为 07b 的**前置**，未裁决前宿主侧只允许标准库 + 直连串口/socket |
 | R7 | 研究期文档与 ADR 出现"半改" 状态 | 文档自相矛盾 | 本轮只加告示条，不改实质；全部实质修改在裁决后一次性完成（§8.3） |

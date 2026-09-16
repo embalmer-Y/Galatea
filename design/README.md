@@ -1,6 +1,6 @@
 # Galatea 设计文档索引
 
-> v1.1.2 · 2026-09-17 · 规范状态：**NORMATIVE**（HLD + LLD 全集 14 档为唯一规范源；开发流程与标识符域归仓库根 `DEV_SPEC.md`）
+> v1.1.3 · 2026-09-17 · 规范状态：**NORMATIVE**（HLD + LLD 全集 14 档为唯一规范源；开发流程与标识符域归仓库根 `DEV_SPEC.md`）
 > 项目使命：建造具备感觉、情感、自我意识、学习能力的单一认知个体，其"具备"以可干预、可测量、可复算的真实因果结构为证（功能/因果实在论，D-10）。
 
 ## 文档结构
@@ -78,3 +78,4 @@ design/
 - 2026-09-13 v1.1.0：**L02–L13 十二份组件 LLD 批量交付**（Q-C06 既定节奏：风格经 HLD+L00+L01 确认后启动）；14 档全集完成，每档统一 11 节模板。`open_questions.md` 升 v1.1：E 区占位段替换为 E–P 十二个真实分区（新增 95 个 UNCONFIRMED Q 号：L02 7、L03 7、L04 7、L05 8、L06 8、L07 7、L08 8、L09 8、L10 9、L11 8、L12 8、L13 10），新增 Q 区（跨档联动对 10 组 + F0/M0/M1 阻断清单）；HLD 新增附录 A.8 批量交付记录。修复 L05 §4.5 `` `EthicsReviewTrigger` `` 反引号内多余空格。**F0 冻结待 owner 裁决**：Q-L01-06、Q-G00-04/Q-L13-04、Q-G00-06 及 Q 区所列 F0 合同级 schema 项。
 - 2026-09-17 v1.1.1：**开发规范设立**（owner 指令）：仓库根新增 `DEV_SPEC.md`（AI 开发工作流 + 标识符命名空间登记册，流程域 NORMATIVE）与 `AGENTS.md`（AI 会话第一入口）；`_audit/incidents.md` 缺陷台账建立（预登记 INC-01…06）。本档阅读顺序新增第 0 步、纪律速记改为双轴优先级链；HLD §0 增补 DEV_SPEC 效力位并新增附录 A.9；open_questions 新增 Q-G00-07（L13 所引 "E0" 门全库无定义）并把 UNCONFIRMED 计数 113→114。标识符改标提案 Q-ID-01…06 与过渡行动项 ACT-01…05 登记于 DEV_SPEC 附录 C/§13。
 - 2026-09-17 v1.1.2：**Q-G00-07 裁决执行（owner，方案 A 剔除）**：L13 §1 头部与 Q-L13-02 依赖列的 "E0" 引用修正（门链维持 F0→…→C5→E1→H1→P1）；Q-G00-07 迁入 open_questions A 区（CONFIRMED，20/113/1）。同日仓库完成 git 化（ACT-01，tag `devspec-v1.0`，见 DEV_SPEC 修订记录）。
+- 2026-09-17 v1.1.3：**Q-ID-01…06 裁决执行（owner，全按建议）**：physio 六组标签分域改标 `DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-`（全库 290 处 + 两份 ADR 文件重命名；冻结区实质内容未动，Q-PIO 待裁决状态不变）；执行证据 `_audit/relabel_physio_qid.py`；详见根 DEV_SPEC v1.1 §11.4/§13。

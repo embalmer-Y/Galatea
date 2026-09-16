@@ -10,7 +10,7 @@
 | INC-01 | ≤2026-09-12 | S2 | 流程 | 源文档与旧规范全部遗失 | 三份源文档（DOC:00/01/02）与旧 HLD/LLD 仅存 6 张卡片照片；无版本管理、单一介质（HLD 附录 A.4） | 规范由卡片重建并升格 normative（Q-C05）；DEV_SPEC §7.5 确立版本控制义务 | 已关闭（2026-09-17 ACT-01 完成 git 化，tag `devspec-v1.0`；此后按会话提交纪律执行） |
 | INC-02 | 2026-09-12 | S2 | 工程 | PowerShell 编码事故损毁 8 份文档 | 批量更名使用 PowerShell 5.1 默认 ANSI(GBK) 解码 UTF-8 文件，不可逆损毁 HLD/open_questions/README/L01/4 张卡片（HLD 附录 A.6） | 8 份按内容重建为 UTF-8 无 BOM；DEV_SPEC §8.1 / 军规 5 禁用依赖系统代码页的操作 | 已处置 |
 | INC-03 | 2026-09-12 | S4 | 文档 | 悬空引用与附录错位 | Q-T08b 未登记即被引用；HLD §12/§13.1 附录引用 A.5 应为 A.6；测试金字塔层数不一（HLD 附录 A.7 审计发现） | 全文档审计修复；DEV_SPEC §8.2/§8.3 引用纪律 + ACT-04 校验扩展 | 已处置 |
-| INC-04 | 2026-09-15 | S1（流程） | 决策 | ADR-0002 静默裁决未登记设计层 | 以"编码选型"（Q-PIO-07）之名一次性裁决了从未登记 Q 号的 L2 帧格式与 L3 寻址，并把结论固化进 Kconfig default（RESEARCH_02 §1.2） | ADR-0002 降级为"待 owner review、不得作实现依据"；Q-PIO-07 拆分提案 07a–07e；DEV_SPEC §4.3 裁决边界纪律 | 处置中（等 owner review） |
+| INC-04 | 2026-09-15 | S1（流程） | 决策 | ADR-PIO-0002 静默裁决未登记设计层 | 以"编码选型"（Q-PIO-07）之名一次性裁决了从未登记 Q 号的 COM-L2 帧格式与 COM-L3 寻址，并把结论固化进 Kconfig default（RESEARCH_02 §1.2） | ADR-PIO-0002 降级为"待 owner review、不得作实现依据"；Q-PIO-07 拆分提案 07a–07e；DEV_SPEC §4.3 裁决边界纪律 | 处置中（等 owner review） |
 | INC-05 | 2026-09-15→16 | S2 | 流程 | physio 研究期越权产出 27 个实现产物 | RESEARCH 阶段写出 19 `.c` + 4 `.h` + 构建系统 + app 骨架，违反 research → HLD → LLD → 实施顺序（appendixA §A.5） | 全量撤回；有价值的合同措辞抢救入 appendixA（NON-NORMATIVE）；DEV_SPEC §1 阶段白名单 + §2 单会话产出预算 | 已处置 |
 | INC-06 | 历史（owner 陈述 2026-09-17） | — | 流程 | 项目管理不当 + 技术栈草率导致多次整体重写 | 选型无裁决门槛、决策不可追溯、文档遗失叠加 | DEV_SPEC §7 防重写机制（技术栈变更四门槛、重写一等决策、ACT-01 版本控制） | 制度化应对中 |
 

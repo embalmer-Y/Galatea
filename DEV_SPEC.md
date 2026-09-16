@@ -1,6 +1,6 @@
 # Galatea 开发规范（DEV_SPEC）：AI 开发流程与标识符体系
 
-> 状态：**NORMATIVE** · v1.0.1 · 2026-09-17 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
+> 状态：**NORMATIVE** · v1.1 · 2026-09-17 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
 > 效力域：**全仓库**（`design/` · `physio/` · `_audit/` · 未来的 `galatea/**` 与 `config/**` · 根文件）。
 > 优先级（双轴，冲突时先判事务属类）：
 > - **流程与标识符事务**：LOCKED 基础裁决 > 本规范 > 其余一切文档与代码；
@@ -15,7 +15,7 @@
 1. **编码事故**：PowerShell 默认 ANSI 编码一次性不可逆损毁 8 份规范文档（HLD 附录 A.6，S2）；
 2. **单一介质丢失**：三份源文档与旧 HLD/LLD 全部遗失，规范只能由 6 张卡片照片重建（HLD 附录 A.4）；旧验收 D1–D7 与实验符号系全集至今不可得（Q-L01-06 / Q-G00-06）；
 3. **阶段越权**：physio 研究期一次性写出 27 个实现产物，全量撤回（2026-09-16，见 `physio/docs/RESEARCH_01_appendixA_contract_notes.md` §A.5）；
-4. **未登记的静默裁决**：ADR-0002 以"编码选型"之名一次性裁决了从未登记 Q 号的 L2 帧格式与 L3 寻址两层设计（`physio/docs/RESEARCH_02_comm_protocol.md` §1.2）；
+4. **未登记的静默裁决**：ADR-PIO-0002 以"编码选型"之名一次性裁决了从未登记 Q 号的 COM-L2 帧格式与 COM-L3 寻址两层设计（`physio/docs/RESEARCH_02_comm_protocol.md` §1.2）；
 5. **owner 陈述（2026-09-17）**：项目管理不当与技术栈选择过于草率，已导致项目多次重写。
 
 共同根因：流程规则散落、不成文、无机械校验；标识符命名空间无登记，跨域碰撞累积；决策（Q/ADR）与文档修订之间没有强制闭环。
@@ -71,7 +71,7 @@ research → owner 裁决（Q 号） → HLD → LLD → owner 冻结 → 实现
 2. 读本规范 §0 与 §9（军规十条）；
 3. 读 `design/README.md` 全文（索引 + 修订记录 = 最近变更的权威位置）；
 4. 按附录 A 的"任务 → 必读清单"加载任务上下文；
-5. 检查约束状态：moratorium（当前：`physio/docs/RESEARCH_01_scope.md` §3.2/§4/§6 与 ADR-0002 处于 owner-review 冻结）、门状态（当前：主线 F0 前）、Q 阻断清单（`open_questions.md` Q 区）。
+5. 检查约束状态：moratorium（当前：`physio/docs/RESEARCH_01_scope.md` §3.2/§4/§6 与 ADR-PIO-0002 处于 owner-review 冻结）、门状态（当前：主线 F0 前）、Q 阻断清单（`open_questions.md` Q 区）。
 
 **上下文压缩后的纪律**：长会话被摘要/压缩后，一律以文件现状为准重新读取关键文件续写，不以记忆续写。规范文件是唯一状态源。
 
@@ -95,7 +95,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 - 规范文本中"已决定/采用 X"语气只允许用于 CONFIRMED 项；
 - 代码常量、profile 参数、schema 字段默认值的每个数值都必须可回答"从哪来"：Q 号（CONFIRMED）或冻结 profile 引用；答案缺失即违规。
 
-### 4.3 裁决边界纪律（ADR-0002 教训）
+### 4.3 裁决边界纪律（ADR-PIO-0002 教训）
 
 一个 Q 号的**议题文本必须等于其批准范围**。若某决定实际覆盖了未登记的层/面，必须先拆分登记新 Q 号再裁决；禁止借既有 Q 号的裁决顺带冻结未登记内容。
 
@@ -111,7 +111,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 
 ### 4.5 ADR（架构决策记录）
 
-- 系列命名：主线 `ADR-G-0001…`；physio `ADR-PIO-0001…`（physio 存量裸编号 ADR-0001/0002 的改标 = Q-ID-06，裁决后一次性执行）；
+- 系列命名：主线 `ADR-G-0001…`；physio `ADR-PIO-0001…`（physio 存量裸编号已改标为 ADR-PIO-0001/0002 并重命名文件，Q-ID-06 裁决 2026-09-17 执行）；
 - 状态：PROPOSED / ACCEPTED（≡ CONFIRMED）/ SUPERSEDED（须指向替代 ADR）/ REJECTED；
 - 分工：**Q 记录"待裁决什么"，ADR 记录"为什么这样裁"**；owner 裁决 CONFIRMED 重要 Q 后，涉及架构取舍的应补一份 ADR 归档论证；
 - ADR 一经 ACCEPTED 只能被新 ADR 取代，不得原地改写（承 HLD §0 修订纪律）。
@@ -187,13 +187,13 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `Q-T<nn>` | 技术栈裁决 | design | Q-T01…T12 | 冻结（CONFIRMED 存档） |
 | `Q-C<nn>` | 构造契约 | design | Q-C01…C06 | 冻结（CONFIRMED 存档） |
 | `Q-N<nn>` | 术语更名裁决 | 全局 | Q-N01（HIO→PhysIO）；新更名沿用本系列 | 生效 |
-| `Q-G00-<nn>` | 全局未决 | design | 01…06；**07（E0 门未定义）本规范新登** | 活跃 |
+| `Q-G00-<nn>` | 全局未决 | design | 01…06（07 = E0 门未定义，已裁决剔除并迁 open_questions A 区，2026-09-17） | 活跃 |
 | `Q-L<xx>-<nn>` | LLD 档内未决 | design/lld | 95 项（L00-01 … L13-10） | 活跃 |
 | `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…10；07a–07e/11/12 为提案 | 活跃 |
-| `Q-ID-<nn>` | 标识符治理 | 本规范 §13 | 01…06（提案待裁决） | 新设 |
+| `Q-ID-<nn>` | 标识符治理 | 本规范 §13 | 01…06（**已全部裁决执行**，2026-09-17 owner：按建议改标） | 生效 |
 | `Q-DEV-<nn>` | 开发流程 | 本规范附录 D | 01…03 | 新设 |
 | `ADR-G-<dddd>` | 主线架构决策记录 | 仓库根/adr | 未使用 | 新设 |
-| `ADR-PIO-<dddd>` | physio 架构决策记录 | physio/docs/adr | 存量 ADR-0001/0002 待改标（Q-ID-06） | 新设 |
+| `ADR-PIO-<dddd>` | physio 架构决策记录 | physio/docs/adr | ADR-PIO-0001/0002（2026-09-17 由裸编号改标并重命名文件） | 生效 |
 
 ### 11.2 阶段、等级与证据域
 
@@ -222,16 +222,16 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `A.<n>` | 文档内附录号 | doc-local | 跨文档引用必须限定文档名 | 约定 |
 | `ACT-<n>` | 过渡行动项 | 本规范附录 C | ACT-01…05 | 新设 |
 
-### 11.4 physio 域（含改标提案，均阻塞于 Q-ID 裁决）
+### 11.4 physio 域（Q-ID-01…06 已裁决执行，2026-09-17；共 290 处替换，脚本 `_audit/relabel_physio_qid.py`）
 
-| 前缀/语法 | 语义 | 现状 → 处置 | Q 号 |
+| 前缀/语法 | 语义 | 改标记录 | Q 号 |
 |---|---|---|---|
-| `DYN-1/2/3` | 动态编程三层（配置/图/代码） | 现文作 `D1/D2/D3`，与裁决域 `D-<n>` 冲突 → 改 `DYN-*` | Q-ID-01 |
-| `COM-L1`…`COM-L5` | COM 五层拆分 | 现文作 `L1`…`L5`，与 LLD 档号 `L01`…`L05` 冲突 → 改 `COM-L*` | Q-ID-02 |
-| `PIO-M0`…`PIO-M5`、`V2` | physio 里程碑/版本 | 现文作 `M0`…`M5`，与门体系 `M0`–`M2` 冲突 → 改 `PIO-M*` | Q-ID-03 |
-| `SP-1`…`SP-12` | Zenoh spike 必测项 | 现文作 `S1`…`S12`，与缺陷等级 `S0`–`S4` 冲突 → 改 `SP-*` | Q-ID-04 |
-| `NL2-a/b/c` | physio 负清单第 2 条变体 | 现文作 `N2-a/b/c`，与频率参数 `N2` 冲突 → 改 `NL2-*` | Q-ID-05 |
-| `ADR-PIO-0001/0002` | physio ADR | 现为裸 `ADR-0001/0002`，与主线未来 ADR 编号冲突 → 加域前缀 | Q-ID-06 |
+| `DYN-1/2/3` | 动态编程三层（配置/图/代码） | 原 `D1/D2/D3`（与裁决域 `D-<n>` 冲突）→ 已改 `DYN-*`（15 处） | Q-ID-01（CONFIRMED 2026-09-17） |
+| `COM-L1`…`COM-L5` | COM 五层拆分 | 原 `L1`…`L5`（与 LLD 档号 `L01`…`L05` 冲突）→ 已改 `COM-L*`（102 处） | Q-ID-02（CONFIRMED 2026-09-17） |
+| `PIO-M0`…`PIO-M5`、`V2` | physio 里程碑/版本 | 原 `M0`…`M5`（与门体系 `M0`–`M2` 冲突）→ 已改 `PIO-M*`（69 处；`V2` 不变） | Q-ID-03（CONFIRMED 2026-09-17） |
+| `SP-1`…`SP-12` | Zenoh spike 必测项 | 原 `S1`…`S12`（与缺陷等级 `S0`–`S4` 冲突）→ 已改 `SP-*`（32 处） | Q-ID-04（CONFIRMED 2026-09-17） |
+| `NL2-a/b/c` | physio 负清单第 2 条变体 | 原 `N2-a/b/c`（与频率参数 `N2` 冲突）→ 已改 `NL2-*`（23 处） | Q-ID-05（CONFIRMED 2026-09-17） |
+| `ADR-PIO-0001/0002`（及草案引用 0003/0004） | physio ADR | 原裸编号（与主线未来 ADR 编号冲突）→ 已改 `ADR-PIO-*`（49 处；两份 ADR 文件已重命名） | Q-ID-06（CONFIRMED 2026-09-17，采分域前缀方案） |
 | `Q-PIO-*`（含 07a–07e、11、12） | physio 未决问题 | 已按语法登记，不变 | — |
 
 ## 12. 状态词汇表（唯一权威口径）
@@ -259,23 +259,23 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 
 禁用词：规范文本中不得使用"已决定/已采用/已选型"描述任何 UNCONFIRMED 项；不得用"已完成"描述未过 DoD 的交付。
 
-## 13. 冲突与缺口登记（处置提案）
+## 13. 冲突与缺口登记
 
-| # | 冲突/缺口 | 涉及位置 | 处置提案 | Q 号 |
+| # | 冲突/缺口 | 涉及位置 | 处置结果 | Q 号 |
 |---|---|---|---|---|
-| 1 | physio 动态层 `D1–D3` vs 裁决域 `D-<n>` | RESEARCH_01 §3.1、appendixA、RESEARCH_02 | 改 `DYN-1…3` | Q-ID-01 |
-| 2 | COM 分层 `L1–L5` vs LLD 档号 `L01–L05` | RESEARCH_02 全篇 | 改 `COM-L1…L5` | Q-ID-02 |
-| 3 | physio 里程碑 `M0–M5` vs 门 `M0–M2` | RESEARCH_01 §5、physio/README | 改 `PIO-M0…M5` | Q-ID-03 |
-| 4 | spike 项 `S1–S12` vs 缺陷等级 `S0–S4` | RESEARCH_02 §6 | 改 `SP-1…SP-12` | Q-ID-04 |
-| 5 | 负清单变体 `N2-a/b/c` vs 频率参数 `N2` | RESEARCH_02 §7 | 改 `NL2-a/b/c` | Q-ID-05 |
-| 6 | ADR 裸编号双域冲突 | physio/docs/adr | 改 `ADR-PIO-0001/0002`；主线启用 `ADR-G-<dddd>` | Q-ID-06 |
-| 7 | **门 `E0` 被引用但全库无定义** | L13 §1（"E0→E1→H1"）、Q-L13-02 依赖列 | ~~owner 定义或剔除~~ **已裁决（2026-09-17 owner，方案 A）：剔除**；两处引用已修正，门链不变 | **Q-G00-07（CONFIRMED，迁 open_questions A 区）** |
+| 1 | physio 动态层 `D1–D3` vs 裁决域 `D-<n>` | RESEARCH_01 §3.1、appendixA、RESEARCH_02 | **已改 `DYN-1…3`（2026-09-17）** | Q-ID-01（CONFIRMED） |
+| 2 | COM 分层 `L1–L5` vs LLD 档号 `L01–L05` | RESEARCH_02 全篇 | **已改 `COM-L1…L5`（2026-09-17）** | Q-ID-02（CONFIRMED） |
+| 3 | physio 里程碑 `M0–M5` vs 门 `M0–M2` | RESEARCH_01 §5、physio/README | **已改 `PIO-M0…M5`（2026-09-17）** | Q-ID-03（CONFIRMED） |
+| 4 | spike 项 `S1–S12` vs 缺陷等级 `S0–S4` | RESEARCH_02 §6 | **已改 `SP-1…SP-12`（2026-09-17）** | Q-ID-04（CONFIRMED） |
+| 5 | 负清单变体 `N2-a/b/c` vs 频率参数 `N2` | RESEARCH_02 §7 | **已改 `NL2-a/b/c`（2026-09-17）** | Q-ID-05（CONFIRMED） |
+| 6 | ADR 裸编号双域冲突 | physio/docs/adr | **已改分域前缀 `ADR-PIO-0001/0002`（含草案引用 0003/0004），文件已重命名；主线启用 `ADR-G-<dddd>`（2026-09-17）** | Q-ID-06（CONFIRMED） |
+| 7 | **门 `E0` 被引用但全库无定义** | L13 §1（"E0→E1→H1"）、Q-L13-02 依赖列 | **已裁决（2026-09-17 owner，方案 A）：剔除**；两处引用已修正，门链不变 | **Q-G00-07（CONFIRMED，迁 open_questions A 区）** |
 | 8 | `Q-C01…06` vs 门 `C0–C5` vs 清单 `C-1…C-7` 三重占用 | 多处 | 语法可区分（Q- 前缀 / 无连字符门 / 连字符清单项），**全部保留**；新检查清单一律 `CHK-<n>` | 本规范直接规定 |
 | 9 | 时序记号 `S_t/Q_t/D_t…` 与 `S0–S4`/`Q-*` 表面相近 | HLD §4.4、card_05 | 公式语境隔离，保留；全集重建时在 Q-G00-06 内统一 | 随 Q-G00-06 |
 | 10 | `D-1…D-9` 空号 | 历史遗失 | 保留不复用；新裁决自 D-15 | 本规范直接规定 |
 | 11 | `T0–T6` vs `Q-T<nn>` | 多处 | 前缀区分，保留 | 登记说明 |
 
-**执行注记**：Q-ID-01…05 的实际改名涉及 physio 三处 owner-review 冻结区（RESEARCH_01 §3.2/§4/§6、ADR-0002），必须在该 review 裁决后**一次性**执行（禁半改，承 RESEARCH_02 §10 R7）；Q-ID-06 可随同批执行。
+**裁决与执行记录（2026-09-17 owner）**：Q-G00-07 采方案 A（剔除）；Q-ID-01…06 全部按建议执行（Q-ID-06 采分域前缀）。执行方式：`_audit/relabel_physio_qid.py`（显式 UTF-8、字节保真、幂等），全库 290 处替换 + 2 个 ADR 文件 `git mv` 重命名；二次运行 0 命中验证幂等。**改标为纯标签替换，physio owner-review 冻结区（RESEARCH_01 §3.2/§4/§6、ADR-PIO-0002）的选项与论证原文未动**，其 Q-PIO-07a–07e/Q-PIO-11/ADR 处置等待裁决状态不变。
 
 ## 14. 新增标识符注册流程
 
@@ -307,7 +307,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ≤2026-09-12 | 三份源文档与旧 HLD/LLD 全部遗失，规范由 6 张卡片照片重建（HLD A.4） | S2（流程） | 无版本管理、单一介质 | §7.5 版本控制（ACT-01） |
 | 2026-09-12 | PowerShell ANSI 默认编码不可逆损毁 8 份文档（HLD A.6） | S2 | 批量文本处理未显式编码 | §8.1 / 军规 5 |
 | 2026-09-12 | Q-T08b 悬空引用、附录引用错位（HLD A.7 审计发现） | S4 | 引用无机械校验 | §8.2/§8.3 + ACT-04 |
-| 2026-09-15 | ADR-0002 以"编码选型"之名静默裁决 L2/L3 两层未登记设计 | S1（流程） | 裁决边界不清 | §4.2/§4.3 |
+| 2026-09-15 | ADR-PIO-0002 以"编码选型"之名静默裁决 COM-L2/COM-L3 两层未登记设计 | S1（流程） | 裁决边界不清 | §4.2/§4.3 |
 | 2026-09-15→16 | physio 研究期产出 27 个实现产物，全量撤回（appendixA §A.5） | S2 | 阶段越权 | §1 白名单 / 军规 3 / §2 产出预算 |
 | 历史（owner 陈述 2026-09-17） | 项目管理不当 + 技术栈草率 → 多次整体重写 | — | 选型无门槛、决策不可溯 | §7 防重写机制全节 |
 
@@ -317,7 +317,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 |---|---|---|---|
 | ACT-01 | **git 化仓库**：init + 初始提交 + `.gitignore`（registry blob/数据库/构建产物）；此后每会话结束提交、门冻结与重大裁决打 tag | owner（或授权 AI 执行） | **已完成（2026-09-17）**：main 分支初始提交 60 文件；tag `devspec-v1.0`；`* -text` 字节保真 + `core.autocrlf=false` 本地配置；`.vscode/`（含机器绝对路径）不入库 |
 | ACT-02 | 本规范设立 + `AGENTS.md` + `_audit/incidents.md` + design/README、HLD §0/附录 A.9 接线 + Q-G00-07 入册 | DEV_SPEC 交付时 | 已完成（2026-09-17） |
-| ACT-03 | Q-ID-01…06 裁决后，一次性执行 physio 文档改名（与 physio owner-review 冻结区的修订同批，禁半改） | owner 裁决后 | 阻塞于 Q-ID |
+| ACT-03 | Q-ID-01…06 裁决后，一次性执行 physio 文档改名（与 physio owner-review 冻结区的修订同批，禁半改） | owner 裁决后 | **已完成（2026-09-17）**：owner 裁决后单批执行，290 处替换 + 2 个 ADR 文件重命名（`_audit/relabel_physio_qid.py`）；冻结区实质内容未动，其 Q-PIO 待裁决状态不变 |
 | ACT-04 | `check_docs.py` 扩展：扫描范围扩至全仓 `.md`；按 §11 登记表校验标识符未登记/碰撞；Q 闭合校验升级为 error；规模计数自动核对 | IMPL | 未开始（范围见 Q-DEV-01） |
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | 未开始 |
 
@@ -333,3 +333,4 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 
 - 2026-09-17 v1.0：经 owner 指令设立。第一部分确立 AI 工作流（阶段白名单、会话类型与 DoD、引导协议、Q/ADR 决策管理、实现纪律、验证审计、防重写机制、文档健康纪律、军规十条）；第二部分确立标识符语法总则与命名空间登记册（含 Q-ID-01…06 改标提案、Q-G00-07 E0 缺口入册、状态词汇表统一）。同步动作见附录 C ACT-02。
 - 2026-09-17 v1.0.1：ACT-01 完成——仓库纳入 git（main 分支，初始提交 60 文件，tag `devspec-v1.0`；`.gitattributes * -text` 字节保真、`core.autocrlf=false`、`.vscode/` 不入库）；§7.5 与附录 C 状态同步；AGENTS.md 状态行与提交纪律同步；incidents INC-01 状态更新。
+- 2026-09-17 v1.1：**Q-G00-07 / Q-ID-01…06 owner 裁决执行**：E0 按 方案 A 剔除（L13 两处引用修正，Q-G00-07 迁 open_questions A 区，计数 20/113/1）；physio 六组标签全部分域改标（DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-，290 处 + 2 文件重命名，§11.4/§13/ACT-03 状态闭合）；新增 `_audit/relabel_physio_qid.py` 作为可复算的执行证据。
