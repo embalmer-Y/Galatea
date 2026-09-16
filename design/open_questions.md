@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 19 项；UNCONFIRMED 114 项（G 5 + L00 6 + L01 8 + L02–L13 95）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 20 项；UNCONFIRMED 113 项（G 4 + L00 6 + L01 8 + L02–L13 95）；CLOSED 1 项（Q-L00-03，编号不复用）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -31,6 +31,7 @@
 | Q-C05 | 卡片处置 | 归档 design/archive/；HLD/LLD 升 normative | 2026-09-12 |
 | Q-C06 | 交付节奏 | 先交 HLD+L00+L01 确认风格，再批量 L02–L13 | 2026-09-12 |
 | Q-N01 | 术语 HIO → PhysIO | HIO 系 Helios I/O 缩写，项目更名后废弃；全库（含 archive）统一为 PhysIO（Physical I/O）；派生标识符 PhysIO Bridge / PhysIOControlGraph | 2026-09-12 |
+| Q-G00-07 | 门链 "E0" 处置 | **方案 A 剔除**：E0 系 L13 撰写期草稿残留、非门；全库仅 2 处引用（L13 §1 头部、Q-L13-02 依赖列）已修正；门链维持 F0→M0→M1→M2→R0→C0–C5→E1→H1→物理授权→P1 不变；sealed 准备工作归属不变（策略冻结在 F0，执行在 R0/promotion/E1） | 2026-09-17 |
 
 ## B. 全局未决（G 系列）
 
@@ -42,7 +43,6 @@
 | Q-G00-04 | 六类核心决策路径的完整枚举文本 | 卡片摘要（连续性/构成边界/目标规范自主/行动委托权限/学习适应/viability 资源风险）+ 十种路径类型 | F0 | UNCONFIRMED |
 | Q-G00-05 | 持续极端 aversive-like 状态的伦理评审阈值与处置（暂停/调整/终止） | 触发即暂停 claim-relevant 运行 + 人工评审 | E1 前 | UNCONFIRMED |
 | Q-G00-06 | 完整实验对象符号系 `W/O/S/C/G/R/D/A*/A/Ä/Y/Ŷ/Z` 与 M1 时序记号 `S_t/Q_t/G_t/R_t/D_t/A_t*/Z_t+1` 的完整映射（原文不可得；HLD §4.4 仅重建了 W/O、A/Ä、Y/Ŷ 最小集） | HLD §4.4 重建释义 | F0（术语/对象图合同） | UNCONFIRMED（阻塞 F0 符号合同冻结） |
-| Q-G00-07 | 门链中 **"E0"**（L13 §1"→ E0→E1→H1"与 Q-L13-02 依赖列"F0/E0"两处引用）在全库无定义：owner 须裁决其定义（推测为 C5 与 E1 之间的 sealed 评价准备期）或从文档中剔除并修正引用 | — | F0（门体系合同） | UNCONFIRMED（2026-09-17 DEV_SPEC 设立时登记，见根 DEV_SPEC §13） |
 
 ## C. L00 横切基础
 
@@ -214,7 +214,7 @@
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
 | Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | — | F0 | UNCONFIRMED |
-| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | — | F0/E0 | UNCONFIRMED |
+| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | — | F0 | UNCONFIRMED |
 | Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | — | R0 | UNCONFIRMED |
 | Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | L13 §4.7 初版 6×10 矩阵 | **Q-G00-04**（owner 裁定）→ E1 | UNCONFIRMED（**阻断 E1**） |
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | — | C0+ | UNCONFIRMED |

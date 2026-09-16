@@ -3,7 +3,7 @@
 > LLD: L13/14 · v1.0 · 2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
 > 上游：`HLD.md` §5.1（科学平面全章）/§6.2/§8/§9（R0/E1/H1）/§10.4（全门槛退出纪律）/§11/§12/§13 · `L00_kernel.md`（registry/digest/checkpoint/TypedUnknown）· `L01`（EvidenceResult 根）· `open_questions.md` C 区
 > 下游：owner claim 冻结、门槛退出、Promotion Gate（供 L11）、`core_decision_registry`（供 E1）、审计与复算
-> 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E0→E1→H1**；贯穿全阶段
+> 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E1→H1**；贯穿全阶段（原稿"E0"经 Q-G00-07 裁决为撰写期残留，已剔除，2026-09-17）
 
 ## 1. 目标与范围
 
@@ -300,7 +300,7 @@ config/evidence/
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
 | Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | F0 | UNCONFIRMED |
-| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | F0/E0 | UNCONFIRMED |
+| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | F0 | UNCONFIRMED |
 | Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | R0 | UNCONFIRMED |
 | Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | **Q-G00-04**（owner 裁定）→ E1 | UNCONFIRMED（**阻断 E1**） |
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | UNCONFIRMED |
