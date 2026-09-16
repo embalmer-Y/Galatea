@@ -1,0 +1,43 @@
+# ===== Galatea .gitignore（ACT-01，2026-09-17）=====
+# 纪律：规范性内容（design/、physio/docs/、根 md、_audit 台账）全部入库；
+#       运行时数据、构建产物、本机环境配置一律不入库。
+
+# --- 本机编辑器/环境（含机器绝对路径）---
+.vscode/
+.idea/
+
+# --- Python（galatea/** 主线实现期）---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# --- Galatea 运行时三库与证据/工件（L00/L13：内容寻址、append-only，体积大且可再生性受控）---
+registry/
+evidence/
+artifacts/
+checkpoints/
+*.db
+*.db-wal
+*.db-shm
+
+# --- PhysIO / Zephyr 构建产物（west 工作区按设计在仓库之外，不涉及）---
+build/
+build-*/
+twister-out/
+sandbox/
+*.elf
+*.bin
+*.hex
+*.map
+
+# --- 系统与日志 ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log

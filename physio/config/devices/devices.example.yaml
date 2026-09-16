@@ -1,0 +1,29 @@
+# PhysIO 设备清单（V1 格式草案，待 ADR-0003 冻结）
+#
+# 每设备一份能力描述符：静态设备由 Devicetree 生成，动态设备运行时注册。
+# 本文件用于宿主侧工具（tools/）做发现与配置校验，不烧入固件。
+
+version: 1
+
+devices:
+  - device_id: "btn0"
+    class: input.discrete
+    driver: gpio-keys          # DT compatible
+    capabilities: {events: [press, release, long_press]}
+    conditioning: {debounce_ms: 10}
+
+  - device_id: "imu0"
+    class: input.sensor
+    driver: "invensense,mpu6050"
+    capabilities: {streams: [accel3d, gyro3d], max_hz: 100}
+    conditioning: {calibration_ref: "physio/cal/imu0", filter: lowpass1_q15}
+
+  - device_id: "servo0"
+    class: output.actuator
+    driver: pwm-servo
+    capabilities: {range: [-90, 90], unit: deg}
+    safe_states:
+      power_on: {position: 0}
+      link_loss: {position: 0, slew_limited: true}
+      fault: {disable: true}
+    protection: {slew_rate_max_deg_s: 180}

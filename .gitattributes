@@ -1,0 +1,4 @@
+# Galatea .gitattributes（ACT-01，2026-09-17）
+# 字节级保真存储：库内 CRLF/LF 混杂（历史成因），按项目 bit-exact 文化不做任何 EOL 转换。
+# 提交什么字节，检出就是什么字节；新文件建议统一 LF，但 git 不强制。
+* -text

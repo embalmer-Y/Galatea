@@ -1,0 +1,17 @@
+# PhysIO 保护 profile（V1 格式草案，待 ADR-0003 冻结）
+# 触发条件 -> 全通道安全态；固件加载时校验 digest，未声明 profile 拒绝运行输出通道。
+
+version: 1
+profile_id: default
+
+trigger_conditions:
+  - link_loss_after_ms: 500
+  - watchdog_timeout
+  - estop_asserted
+
+safe_state:
+  outputs: declared_safe_state     # 取每设备 safe_states 声明
+  streams: keep_publishing         # 输入流不因保护而中断（Galatea 合同：传感独立于执行）
+
+estop:
+  response_budget_us: 1000         # 目标上界；M3 实测校准
