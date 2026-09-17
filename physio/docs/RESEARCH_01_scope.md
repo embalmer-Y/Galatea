@@ -1,6 +1,6 @@
 # PhysIO 子项目初步调研与功能范围（RESEARCH_01）
 
-> 版本：v0.1 · 2026-09-15 · 状态：DRAFT（待 owner 裁决 Q-PIO-01…10）
+> 版本：v0.2 · 2026-09-18 · 状态：DRAFT（**Q-PIO-01…06 已裁决**，2026-09-18，见 §6 各行状态列；Q-PIO-07…10 与升级提案 07a–07e/11/12 待裁决）
 > 定位：PhysIO = 基于 Zephyr RTOS 的 MCU 末端输入输出框架。目标：让单片机成为各种系统/机器人的**末端 I/O 模块**，支持动态编程与固件更新，输入/输出设备可插拔替换。
 > 双重身份：① Galatea P1 物理具身的固件端（须满足 `design/lld/L10` §4.6 PhysIO 合同）；② **独立可复用模块**（其他项目可直接引用，Galatea 专属逻辑只放 `app/galatea_node/`，不进核心）。
 
@@ -35,7 +35,7 @@
 - **版本策略候选**（→ Q-PIO-01）：
   - A. 基于 **4.4/4.5** 开发，2027 年 LTS4 发布后迁移（获得新特性：LLEXT 更成熟、zbus proxy agent 等）；
   - B. 基于 **LTS3（3.7）** 求稳（但 LLEXT/zbus proxy 等新能力缺失或弱）。
-  - 建议：**A**，锁定 4.5（2026-10 发布后即升），理由：本项目周期与 LTS4（2027-04）重叠，届时按官方 migration guide 平移；早期用 latest stable 拿新子系统。
+  - 建议：**A**，锁定 4.5（2026-10 发布后即升），理由：本项目周期与 LTS4（2027-04）重叠，届时按官方 migration guide 平移；早期用 latest stable 拿新子系统。**（已裁决 2026-09-18，Q-PIO-01 CONFIRMED，见 §6）**
 
 ### 1.2 可直接复用的 Zephyr 子系统（避免自研轮子）
 
@@ -119,7 +119,7 @@ flowchart TB
 |---|---|---|---|---|
 | DYN-1 配置动态 | Settings/NVS/ZMS 参数（校准表、增益、滤波系数、保护阈值） | 重启或热生效 | 低 | **V1** |
 | DYN-2 图动态 | **控制图（Control Graph）**：数据驱动的有向图，节点=内置确定性算子库（限幅/滤波/映射/状态机/比较器…），边=数据流；图文件签名+digest 冻结后下发，固件内执行器解释执行 | 不刷固件改变控制行为 | 中（算子集封闭，行为有界） | **V1** |
-| DYN-3 代码动态 | LLEXT 运行时装载 ELF 扩展 | 任意新代码 | 高（实验性、无 MPU 隔离时与主镜像同权） | **V2，默认 Kconfig 关闭**，仅签名扩展可装载 |
+| DYN-3 代码动态 | LLEXT 运行时装载 ELF 扩展 | 任意新代码 | 高（实验性、无 MPU 隔离时与主镜像同权） | **V1（2026-09-18 Q-PIO-05 裁决：进 V1）**；仅签名扩展可装载、失败隔离合同不变（appendixA §A.1.6）；Kconfig 默认开关 HLD 冻结时定 |
 
 - 控制图合同（与 Galatea L10 对齐但独立成立）：全图 digest 冻结、禁未签名加载、节点算子集封闭枚举、每算子参数范围显式声明、执行超时/预算、图失效→回退安全态。
 - 引导与更新：MCUboot（签名验证、A/B 槽、防回滚计数）+ MCUmgr SMP（固件上传/确认/回滚/重启）+ 镜像元数据（版本、digest、构建时间、兼容协议版本）。
@@ -179,18 +179,20 @@ flowchart TB
 | PIO-M3 保护与 OTA | estop 链路（硬件+软件）；MCUboot+SMP 签名升级、回滚、断电续传 | 升级失败自动回滚演练 |
 | PIO-M4 图动态 | 控制图 schema + 执行器 + 签名/digest 校验 + ≥3 个示例图 | 未签名图拒载；图切换不重启 |
 | PIO-M5 Galatea 对接 | `app/galatea_node/` 映射层 + 宿主 Bridge（Python，另一仓库/目录） | 与 Galatea P1 stub 联调 |
-| V2+ | LLEXT 门控开启、BLE/以太网/CAN 传输、Sensing 融合链、多节点 | — |
+| V2+ | CAN 传输、Sensing 融合链、多节点（裁决注记 2026-09-18：LLEXT 已进 V1（Q-PIO-05）、BLE/以太网/WiFi 已进 V1 传输集（Q-PIO-03）——本里程碑表待全部 Q-PIO 裁决完成后统一重构，暂不逐行改写） | — |
 
 ## 6. 未决问题（→ 待 owner 裁决，格式对齐 open_questions.md）
 
-| Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
+> 2026-09-18：Q-PIO-01…06 经 owner 裁决 CONFIRMED（裁决内容写入各行"建议默认"列）；07…10 与升级提案 07a–07e/11/12 仍待裁决。
+
+| Q 号 | 议题 | 裁决 / 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-PIO-01 | Zephyr 版本基线 | 4.5（2026-10），LTS4 后迁移 | 全部 | UNCONFIRMED |
-| Q-PIO-02 | 首选开发板/SoC 家族 | 双平台：native_sim（CI）+ nRF52840 DK（BLE/LLEXT/TF-M 全支持）；备选 STM32/RP2350/ESP32 | PIO-M0 | UNCONFIRMED |
-| Q-PIO-03 | V1 传输集合 | USB-CDC + UART + BLE；CAN/以太网 V2 | PIO-M1 | UNCONFIRMED |
-| Q-PIO-04 | 热插拔的 V1 支持边界 | USB 设备 + 总线扫描注册 + GPIO 类；不做 surprise removal 全覆盖 | PIO-M2 | UNCONFIRMED |
-| Q-PIO-05 | DYN-3 代码动态（LLEXT）是否进 V1 | 不进；V2 且默认关闭、仅签名 | PIO-M4/安全评审 | UNCONFIRMED |
-| Q-PIO-06 | 时间戳精度与是否需绝对时间 | 单调时钟 µs + 宿主对齐协议；无 RTC 依赖 | PIO-M1 | UNCONFIRMED |
+| Q-PIO-01 | Zephyr 版本基线 | **已裁决（2026-09-18）**：4.5 基线（2026-10 发布后锁定）；PIO-M0 bring-up 期间以 4.4.0 过渡，切换 = west.yml revision 一行 + `west update` + pristine 重建；LTS4（2027-04）发布后按官方迁移评估 | 全部 | CONFIRMED |
+| Q-PIO-02 | 首选开发板/SoC 家族 | **已裁决（2026-09-18，暂定）**：目标板集 = **ESP32-S3 / ESP32-P4 / STM32H7 / RP2350**（+ native_sim 作 CI 平台）。注记：① 四款架构（Xtensa/RISC-V/Cortex-M7/M33+Hazard3）均在 LLEXT 支持列表，与 Q-PIO-05"进 V1"自洽；② 该板集无成熟 TF-M 路径，设备身份/安全以"烧录证书 + MCUboot 签名 + Crypto API"为主（HLD 定）；③ 板级成熟度于 PIO-M0 bring-up 逐板验证，暂定集可在 HLD 冻结前调整 | PIO-M0 | CONFIRMED（暂定） |
+| Q-PIO-03 | V1 传输集合 | **已裁决（2026-09-18）**：**UART + 网络传输（WiFi / 以太网 / BLE）进 V1；USB（含 USB-CDC）待定**。⚠️ 注记：网络进 V1 使 zenoh-pico 的优势链路（TCP/UDP，peer 模式 + UDP 组播可免 router）落入 V1 范围——RESEARCH_02 对 Q-PIO-07b"自研帧"论证的部分前提改变，后端裁决（07a/07b/07e、Q-PIO-11）时须重新评估 | PIO-M1 | CONFIRMED |
+| Q-PIO-04 | 热插拔的 V1 支持边界 | **已裁决（2026-09-18）**：USB 设备 + GPIO 类 + I2C/SPI 等总线探测注册（owner 表述"USB 设备 + GPIO（IIC、SPI 等等）"，= 调研默认①②③）；不含 surprise removal 全覆盖 | PIO-M2 | CONFIRMED |
+| Q-PIO-05 | DYN-3 代码动态（LLEXT）是否进 V1 | **已裁决（2026-09-18）**：**进 V1**（否决调研默认"不进"）。合同保持：仅签名扩展可装载、装载失败不影响主镜像（appendixA §A.1.6）；Kconfig 默认开关与四板实测验证在 HLD 冻结时定 | PIO-M4/安全评审 | CONFIRMED |
+| Q-PIO-06 | 时间戳精度与是否需绝对时间 | **已裁决（2026-09-18）**：按默认——设备单调 µs（k_uptime）+ 宿主请求-应答时延对齐协议；无 RTC 依赖 | PIO-M1 | CONFIRMED |
 | Q-PIO-07 | Wire Protocol 编码 | CBOR（tinycbor）；备选 protobuf-nanopb | PIO-M1 | UNCONFIRMED |
 | Q-PIO-08 | 项目许可证与仓库形态 | Apache-2.0；先 in-tree `physio/`，首次外部复用前拆独立仓库 | — | UNCONFIRMED |
 | Q-PIO-09 | 控制图算子集封闭清单 | V1：limit/scale/filter/sm/state_machine/compare/mux/delay/estop_hook（≤12 个） | PIO-M4 | UNCONFIRMED |
@@ -200,7 +202,7 @@ flowchart TB
 
 ## 7. 关键风险
 
-1. **LLEXT 成熟度**：官方标注需架构支持且仍在演进——已通过"DYN-3 延后 + 默认关闭"处置；
+1. **LLEXT 成熟度**：官方标注需架构支持且仍在演进——原以"DYN-3 延后 + 默认关闭"处置；**2026-09-18 Q-PIO-05 裁决 LLEXT 进 V1**，处置改为"仅签名扩展 + 失败隔离（appendixA §A.1.6）+ PIO-M0 起四板逐板验证"；
 2. **Flash/RAM 预算**：协议栈 + BLE + MCUboot 双槽对 <256KB flash 芯片紧张——目标 SoC 下限建议 512KB flash / 128KB RAM（Q-PIO-02 关联）；
 3. **Zephyr API 漂移**：非 LTS 期 API 会变（如 pipes v2、message queues v2 并存）——锁版本 + 每半年一次受控升级评估；
 4. **热插拔语义碎片化**：各总线驱动对拔插行为支持不一——注册表统一事件语义，差异下沉驱动适配器；

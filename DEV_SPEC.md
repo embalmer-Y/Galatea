@@ -1,6 +1,6 @@
 # Galatea 开发规范（DEV_SPEC）：AI 开发流程与标识符体系
 
-> 状态：**NORMATIVE** · v1.1 · 2026-09-17 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
+> 状态：**NORMATIVE** · v1.1.1 · 2026-09-18 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
 > 效力域：**全仓库**（`design/` · `physio/` · `_audit/` · 未来的 `galatea/**` 与 `config/**` · 根文件）。
 > 优先级（双轴，冲突时先判事务属类）：
 > - **流程与标识符事务**：LOCKED 基础裁决 > 本规范 > 其余一切文档与代码；
@@ -189,7 +189,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `Q-N<nn>` | 术语更名裁决 | 全局 | Q-N01（HIO→PhysIO）；新更名沿用本系列 | 生效 |
 | `Q-G00-<nn>` | 全局未决 | design | 01…06（07 = E0 门未定义，已裁决剔除并迁 open_questions A 区，2026-09-17） | 活跃 |
 | `Q-L<xx>-<nn>` | LLD 档内未决 | design/lld | 95 项（L00-01 … L13-10） | 活跃 |
-| `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…10；07a–07e/11/12 为提案 | 活跃 |
+| `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…06 CONFIRMED（2026-09-18，见 RESEARCH_01 §6）；07…10 与 07a–07e/11/12 待裁决 | 活跃 |
 | `Q-ID-<nn>` | 标识符治理 | 本规范 §13 | 01…06（**已全部裁决执行**，2026-09-17 owner：按建议改标） | 生效 |
 | `Q-DEV-<nn>` | 开发流程 | 本规范附录 D | 01…03 | 新设 |
 | `ADR-G-<dddd>` | 主线架构决策记录 | 仓库根/adr | 未使用 | 新设 |
@@ -334,3 +334,4 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 - 2026-09-17 v1.0：经 owner 指令设立。第一部分确立 AI 工作流（阶段白名单、会话类型与 DoD、引导协议、Q/ADR 决策管理、实现纪律、验证审计、防重写机制、文档健康纪律、军规十条）；第二部分确立标识符语法总则与命名空间登记册（含 Q-ID-01…06 改标提案、Q-G00-07 E0 缺口入册、状态词汇表统一）。同步动作见附录 C ACT-02。
 - 2026-09-17 v1.0.1：ACT-01 完成——仓库纳入 git（main 分支，初始提交 60 文件，tag `devspec-v1.0`；`.gitattributes * -text` 字节保真、`core.autocrlf=false`、`.vscode/` 不入库）；§7.5 与附录 C 状态同步；AGENTS.md 状态行与提交纪律同步；incidents INC-01 状态更新。
 - 2026-09-17 v1.1：**Q-G00-07 / Q-ID-01…06 owner 裁决执行**：E0 按 方案 A 剔除（L13 两处引用修正，Q-G00-07 迁 open_questions A 区，计数 20/113/1）；physio 六组标签全部分域改标（DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-，290 处 + 2 文件重命名，§11.4/§13/ACT-03 状态闭合）；新增 `_audit/relabel_physio_qid.py` 作为可复算的执行证据。
+- 2026-09-18 v1.1.1：**Q-PIO-01…06 owner 裁决记录**（physio/docs/RESEARCH_01_scope.md §6 六行 CONFIRMED + v0.2；west.yml/physio README/§3.1/§5/§7 一致性注记同步；§11.1 Q-PIO 行更新）。要点：4.5 基线（4.4.0 过渡）｜板集 ESP32-S3/P4/STM32H7/RP2350 暂定｜网络传输进 V1（⚠️ 改变 Q-PIO-07b 分析前提，后端裁决时重估）｜LLEXT 进 V1（合同保持）。

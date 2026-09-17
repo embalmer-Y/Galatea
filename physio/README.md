@@ -56,7 +56,7 @@ mkdir physio-ws && cd physio-ws
 west init -l ..\Galatea\physio     # 以 physio/west.yml 为 manifest（self.path=physio）
 west update                        # 拉取 Zephyr 及默认模块（约数 GB）
 west build -b native_sim physio/app/galatea_node
-west build -b nrf52840dk/nrf52840 physio/app/galatea_node   # 真实板（Q-PIO-02 待定）
+west build -b esp32s3_devkitc/esp32s3/procpu physio/app/galatea_node   # 真实板之一（Q-PIO-02 已裁决板集：ESP32-S3/ESP32-P4/STM32H7/RP2350；具体板名以 bring-up 为准）
 ```
 
 ## 状态
@@ -67,8 +67,9 @@ west build -b nrf52840dk/nrf52840 physio/app/galatea_node   # 真实板（Q-PIO-
     stub 注释中有价值的合同措辞已抢救进 `docs/RESEARCH_01_appendixA_contract_notes.md`（NON-NORMATIVE 研究输入）。撤回明细见该文 §A.5。
   - **2026-09-17 标签分域改标（Q-ID-01…06 owner 裁决执行，DEV_SPEC §13）**：动态编程层 `D1–D3`→`DYN-1…3`；通信分层 `L1–L5`→`COM-L1…5`；本子项目里程碑 `M0–M5`→`PIO-M0…5`（`V2` 不变）；spike 必测项 `S1–S12`→`SP-1…12`；负清单变体 `N2-a/b/c`→`NL2-a/b/c`；`ADR-000n`→`ADR-PIO-000n`（两份 ADR 文件已重命名，含草案引用的 0003/0004）。全库 290 处纯标签替换（脚本 `_audit/relabel_physio_qid.py`，幂等验证通过）；**三处 owner-review 冻结区的选项与论证原文未动**，其待裁决状态不变。
 - 下一步：owner review 裁决项 → 冻结 HLD → LLD → PIO-M0 实施。
-- **待 owner review 的裁决项**（全部 UNCONFIRMED）：
-  - Q-PIO-01…10，登记在 `docs/RESEARCH_01_scope.md` §6（版本基线 / 目标板 / 传输集 / 热插拔边界 / LLEXT / 时间戳 / 协议编码 / 许可证与仓库形态 / 算子集 / SDK 位置）；
+- **待 owner review 的裁决项**：
+  - **Q-PIO-01…06 已裁决**（2026-09-18，CONFIRMED，详见 `docs/RESEARCH_01_scope.md` §6）：版本基线 4.5（4.4.0 过渡）｜目标板集 ESP32-S3/ESP32-P4/STM32H7/RP2350（暂定，+ native_sim CI）｜V1 传输 = UART + 网络（WiFi/以太网/BLE），USB 待定｜热插拔 = USB 设备 + GPIO + I2C/SPI 探测｜**LLEXT 进 V1**（仅签名扩展 + 失败隔离合同保持）｜时间戳按默认（单调 µs，无 RTC）；
+  - Q-PIO-07…10 待裁决（协议编码 / 许可证 / 算子集 / SDK 位置），登记在 `docs/RESEARCH_01_scope.md` §6；
   - **Q-PIO-07 的升级提案**：拆为 07a（COM 五层分层 + 最小可替换面契约）/ 07b（V1 COM-L2-COM-L3 后端：自研帧 vs Zenoh vs MQTT-SN vs CoAP）/ 07c（COM-L5 payload 编码 = 原 Q-PIO-07 收窄）/ 07d（V2 是否引入 Zenoh + spike 前置）/ 07e（是否允许宿主常驻进程）；
   - **Q-PIO-11（新增提案）**：Galatea 主体负清单（禁消息队列/RPC/编排框架/dashboard）的适用域是否覆盖 `physio/**`、`physio/host/`、以及宿主侧 PhysIO Bridge；
   - **负清单第 2 条修订变体** NL2-a / NL2-b / NL2-c，及第 4 条（组网）配套修订；
