@@ -419,7 +419,7 @@ Timeout/schema/OOD/gateway 拒绝/recorder 失败/checkpoint 损坏/保护集回
 | core_decision_registry | 六类核心决策路径的外部不可变注册表 |
 | ExpansionDecision | 独立于根证据的扩展授权决定（ALLOW/HOLD/REWORK） |
 | MW0 | 最小世界 16×16 资源 niche（阶段 0 蓝图的门体系化实例，L01） |
-| PhysIO | 物理输入输出层（Physical I/O；P1 物理接口，非学习、有界 PhysIOControlGraph）。**曾用名 HIO（Helios I/O），已废弃** |
+| PhysIO | 物理输入输出层（Physical I/O；P1 物理接口，非学习、有界 PhysIOControlGraph）。**曾用名 HIO（Helios I/O），已废弃**。2026-09-18 注记：原主线内子项目 `physio/` 已剥离为独立项目（与 Galatea 无开发耦合，见附录 A.10）；PhysIO 在本规范中保留为 P1 物理接口层的**概念合同名**，未来实现载体另行裁决 |
 
 ## 附录 A：历史与裁决记录
 
@@ -448,3 +448,4 @@ Timeout/schema/OOD/gateway 拒绝/recorder 失败/checkpoint 损坏/保护集回
   - **F0 冻结当前阻断项（待 owner 裁决）**：Q-L01-06（D1–D7 → MW0-SC1…SC6 重映射为重建稿）、Q-G00-04 → Q-L13-04（六类决策路径全枚举，同时阻断 E1）、Q-G00-06（实验对象符号系完整映射）；另 F0 合同级 schema 依赖：Q-L10-01/-03/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09。
   - **同步修订**：本档 §0 目录树改为文件精确清单（不再用 `L02_* … L13_*` 通配符）；`README.md` 升 v1.1.0（LLD 全集状态表 14 档全 ✅，新增引入门槛列与阅读顺序）。
 - **A.9** **开发规范设立（2026-09-17，owner 指令："为大型项目设计适合 AI 的项目开发规范文档，统一规范标签与缩写"）**：仓库根新增 `DEV_SPEC.md`（AI 开发工作流 + 标识符命名空间登记册；流程/标识符事务效力仅次于 LOCKED 裁决）与 `AGENTS.md`（AI 会话第一入口）；`_audit/incidents.md` 缺陷台账建立并预登记历史事故 INC-01…06。本档 §0 增补其效力位。`open_questions.md` 新增 **Q-G00-07**（L13 §1 与 Q-L13-02 所引门 "E0" 全库无定义，owner 须裁决定义或剔除），UNCONFIRMED 计数 113→114。标识符冲突改标提案（physio 域 D1–D3/L1–L5/M0–M5/S1–S12/N2-abc/ADR 裸编号 → DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-）登记为 **Q-ID-01…06**，裁决后与 physio owner-review 冻结区修订同批一次性执行；过渡行动项 ACT-01…05 登记于 DEV_SPEC 附录 C（其中 ACT-01 git 化仓库为当前最高优先流程缺口）。
+- **A.10** **physio 子项目剥离（2026-09-18，owner 决策）**：理由——"AI 开发时过于庞大的项目不利于 AI 开发"；原 `physio/` Zephyr 固件子项目剥离为**独立项目**，开发阶段完全不考虑服务 Galatea，未来是否接入另行裁决。处置：`physio/` 全目录自本仓库删除，交接点打 tag **`physio-handoff`**（含全部调研、ADR、需求基线 RESEARCH_03）；DEV_SPEC 升 v1.3（效力域收窄、Q-PIO 系列与相关登记退役）。**对本架构的影响**：PhysIO 在本规范中保留为 P1 物理接口层的概念合同名（§8、§10.4、L10 §4.6 的非学习/有界控制图/四类授权/不旁路合同不变）；P1 门（E1+H1 后）的固件实现载体从"主线内子项目"变为"未来外选或自建，届时另裁"。此前 physio 域的裁决记录（Q-PIO-01…06、07a–07d）与标签改标（Q-ID-01…06）作为历史事实保留于各登记册，不再约束任何现行工作。

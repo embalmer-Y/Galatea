@@ -1,6 +1,6 @@
 # Galatea 设计文档索引
 
-> v1.1.3 · 2026-09-17 · 规范状态：**NORMATIVE**（HLD + LLD 全集 14 档为唯一规范源；开发流程与标识符域归仓库根 `DEV_SPEC.md`）
+> v1.1.4 · 2026-09-18 · 规范状态：**NORMATIVE**（HLD + LLD 全集 14 档为唯一规范源；开发流程与标识符域归仓库根 `DEV_SPEC.md`）
 > 项目使命：建造具备感觉、情感、自我意识、学习能力的单一认知个体，其"具备"以可干预、可测量、可复算的真实因果结构为证（功能/因果实在论，D-10）。
 
 ## 文档结构
@@ -79,3 +79,4 @@ design/
 - 2026-09-17 v1.1.1：**开发规范设立**（owner 指令）：仓库根新增 `DEV_SPEC.md`（AI 开发工作流 + 标识符命名空间登记册，流程域 NORMATIVE）与 `AGENTS.md`（AI 会话第一入口）；`_audit/incidents.md` 缺陷台账建立（预登记 INC-01…06）。本档阅读顺序新增第 0 步、纪律速记改为双轴优先级链；HLD §0 增补 DEV_SPEC 效力位并新增附录 A.9；open_questions 新增 Q-G00-07（L13 所引 "E0" 门全库无定义）并把 UNCONFIRMED 计数 113→114。标识符改标提案 Q-ID-01…06 与过渡行动项 ACT-01…05 登记于 DEV_SPEC 附录 C/§13。
 - 2026-09-17 v1.1.2：**Q-G00-07 裁决执行（owner，方案 A 剔除）**：L13 §1 头部与 Q-L13-02 依赖列的 "E0" 引用修正（门链维持 F0→…→C5→E1→H1→P1）；Q-G00-07 迁入 open_questions A 区（CONFIRMED，20/113/1）。同日仓库完成 git 化（ACT-01，tag `devspec-v1.0`，见 DEV_SPEC 修订记录）。
 - 2026-09-17 v1.1.3：**Q-ID-01…06 裁决执行（owner，全按建议）**：physio 六组标签分域改标 `DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-`（全库 290 处 + 两份 ADR 文件重命名；冻结区实质内容未动，Q-PIO 待裁决状态不变）；执行证据 `_audit/relabel_physio_qid.py`；详见根 DEV_SPEC v1.1 §11.4/§13。
+- 2026-09-18 v1.1.4：**physio 子项目剥离**（owner 决策，详见 HLD 附录 A.10 与 DEV_SPEC v1.3）：`physio/` 全目录移出本仓库（交接点 tag `physio-handoff`）；Galatea 回归纯认知主体项目，PhysIO 保留为 P1 概念合同名。本索引不含 physio 内容（原本即未列入树）。

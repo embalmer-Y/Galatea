@@ -6,14 +6,14 @@
 
 ## 项目一句话
 
-Galatea：建造具备感觉、情感、自我意识与学习能力的**单一认知个体**，一切"具备"以可干预、可测量、可复算的真实因果结构为证（功能/因果实在论，D-10）。附属子项目 `physio/`：基于 Zephyr RTOS 的 MCU 末端 I/O 框架（Galatea P1 固件端 + 独立可复用模块）。
+Galatea：建造具备感觉、情感、自我意识与学习能力的**单一认知个体**，一切"具备"以可干预、可测量、可复算的真实因果结构为证（功能/因果实在论，D-10）。
 
-## 当前状态（2026-09-17）
+## 当前状态（2026-09-18）
 
 - **主线**：F0 之前的规范完备期。HLD + L00–L13 十四档全集已交付，**无任何 `galatea/**` 实现代码**（这是刻意状态：research → HLD → LLD → 实施，不得跳步）。
 - **待裁决**：`design/open_questions.md` 登记约 113 项 UNCONFIRMED；F0 阻断清单见其 Q 区（Q-L01-06、Q-G00-04/06 及 F0 合同级 schema 项）。
-- **physio**：RESEARCH 期，无可构建目标（27 个违规实现产物已于 2026-09-16 撤回）。三处 owner-review 冻结中：`RESEARCH_01_scope.md` §3.2/§4/§6、`adr/ADR-PIO-0002*`——裁决前禁止修改其实质内容。
 - **版本管理**：已 git 化（2026-09-17 ACT-01，main 分支；提交纪律见下）。
+- **2026-09-18 子项目剥离**：原 `physio/`（Zephyr 固件子项目）已整体剥离为独立项目，与本仓库不再有任何开发耦合；其全部研究资料保存在 git tag `physio-handoff`。Galatea 的 PhysIO 仍为 P1 物理接口层的**概念合同名**（HLD 附录 A.10），未来实现载体另行裁决。
 
 ## 会话开始必做
 
@@ -43,10 +43,10 @@ AGENTS.md            ← 本文件（入口）
 DEV_SPEC.md          ← 开发规范：AI 工作流 + 标识符命名空间登记册（流程域最高法）
 design/              ← 主线规范源：HLD.md + lld/L00–L13 + open_questions.md（Q 登记册）
                        archive/（6 张历史卡片，NON-NORMATIVE）
-physio/              ← Zephyr MCU 子项目（RESEARCH 期）：README/west.yml/docs（调研+ADR）/config 草案
 _audit/              ← check_docs.py（文档机器校验，文档变更后必运行）+ report.md + incidents.md（缺陷台账）
 galatea/             ← 主线实现（未创建；须 LLD §10 清单 + Q 解冻后按门生成）
 config/profiles/     ← frozen profile（未创建；参数须 CONFIRMED 方可写入）
+（physio/ 已于 2026-09-18 剥离；历史资料见 git tag physio-handoff）
 ```
 
 ## 会话结束必做

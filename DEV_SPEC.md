@@ -1,7 +1,7 @@
 # Galatea 开发规范（DEV_SPEC）：AI 开发流程与标识符体系
 
-> 状态：**NORMATIVE** · v1.2 · 2026-09-18 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
-> 效力域：**全仓库**（`design/` · `physio/` · `_audit/` · 未来的 `galatea/**` 与 `config/**` · 根文件）。
+> 状态：**NORMATIVE** · v1.3 · 2026-09-18 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
+> 效力域：**全仓库**（`design/` · `_audit/` · 未来的 `galatea/**` 与 `config/**` · 根文件）。原 `physio/` 子项目已于 2026-09-18 剥离出库，不再受本规范管辖（历史资料见 git tag `physio-handoff`）。
 > 优先级（双轴，冲突时先判事务属类）：
 > - **流程与标识符事务**：LOCKED 基础裁决 > 本规范 > 其余一切文档与代码；
 > - **架构事务**：LOCKED 基础裁决 > HLD > 门时冻结的 profile/协议/统计计划 > LLD > ADR > 代码（承 HLD §0，本规范不改变该链）。
@@ -71,7 +71,7 @@ research → owner 裁决（Q 号） → HLD → LLD → owner 冻结 → 实现
 2. 读本规范 §0 与 §9（军规十条）；
 3. 读 `design/README.md` 全文（索引 + 修订记录 = 最近变更的权威位置）；
 4. 按附录 A 的"任务 → 必读清单"加载任务上下文；
-5. 检查约束状态：moratorium（当前：`physio/docs/RESEARCH_01_scope.md` §3.2/§4/§6 与 ADR-PIO-0002 处于 owner-review 冻结）、门状态（当前：主线 F0 前）、Q 阻断清单（`open_questions.md` Q 区）。
+5. 检查约束状态：moratorium（**当前无**）、门状态（当前：主线 F0 前）、Q 阻断清单（`open_questions.md` Q 区）。
 
 **上下文压缩后的纪律**：长会话被摘要/压缩后，一律以文件现状为准重新读取关键文件续写，不以记忆续写。规范文件是唯一状态源。
 
@@ -87,7 +87,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
   → REJECTED（裁决否决，留档）| SUPERSEDED（被新 Q 取代，须指向替代者）| CLOSED（废弃，编号永不复用）
 ```
 
-登记位置约定：主线 design 域的 Q 入 `design/open_questions.md`；physio 域的 Q 入 `physio/docs/RESEARCH_01_scope.md` §6（Q-PIO 系列）；流程与标识符域的 Q 入本规范（Q-DEV / Q-ID 系列）。各登记册头部须声明自己汇总的分区。
+登记位置约定：主线 design 域的 Q 入 `design/open_questions.md`；流程与标识符域的 Q 入本规范（Q-DEV / Q-ID 系列）。各登记册头部须声明自己汇总的分区。（physio 域 Q-PIO 系列已随子项目于 2026-09-18 剥离退役；历史登记见 git tag `physio-handoff`。）
 
 ### 4.2 无 Q 不落盘（军规 2 的展开）
 
@@ -101,7 +101,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 
 ### 4.4 owner 交互协议
 
-呈递裁决批次用统一表式，降低裁决疲劳（承 `physio/docs/RESEARCH_02_comm_protocol.md` §8.2 的有效经验）：
+呈递裁决批次用统一表式，降低裁决疲劳（经验承自 physio 子项目 RESEARCH_02 §8.2 的有效实践；该文档已随 2026-09-18 剥离移出仓库，见 git tag `physio-handoff`）：
 
 ```text
 | # | Q 号 | 背景（前因：现状 + 为什么现在是问题） | 议题（一句话） | 选项 | 建议默认 | 影响面 | 依赖/联动 |
@@ -195,11 +195,11 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `Q-N<nn>` | 术语更名裁决 | 全局 | Q-N01（HIO→PhysIO）；新更名沿用本系列 | 生效 |
 | `Q-G00-<nn>` | 全局未决 | design | 01…06（07 = E0 门未定义，已裁决剔除并迁 open_questions A 区，2026-09-17） | 活跃 |
 | `Q-L<xx>-<nn>` | LLD 档内未决 | design/lld | 95 项（L00-01 … L13-10） | 活跃 |
-| `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…06 与 07a–07d CONFIRMED（2026-09-18，见 RESEARCH_01 §6）；**07e**、08…10、11、12 待裁决 | 活跃 |
+| `Q-PIO-<n>[a-e]` | physio 未决 | ~~physio~~ | 裁决至 07d（2026-09-18）；子项目同日剥离，本系列**退役** | 退役（2026-09-18） |
 | `Q-ID-<nn>` | 标识符治理 | 本规范 §13 | 01…06（**已全部裁决执行**，2026-09-17 owner：按建议改标） | 生效 |
 | `Q-DEV-<nn>` | 开发流程 | 本规范附录 D | 01…03 | 新设 |
 | `ADR-G-<dddd>` | 主线架构决策记录 | 仓库根/adr | 未使用 | 新设 |
-| `ADR-PIO-<dddd>` | physio 架构决策记录 | physio/docs/adr | ADR-PIO-0001/0002（2026-09-17 由裸编号改标并重命名文件） | 生效 |
+| `ADR-PIO-<dddd>` | physio 架构决策记录 | ~~physio/docs/adr~~ | ADR-PIO-0001/0002 随子项目移出（2026-09-18）；编号规则作为历史登记保留 | 退役（2026-09-18） |
 
 ### 11.2 阶段、等级与证据域
 
@@ -227,9 +227,9 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `v<x>.<y>.<z>` | 文档版本 | 全部 | — | 生效 |
 | `A.<n>` | 文档内附录号 | doc-local | 跨文档引用必须限定文档名 | 约定 |
 | `ACT-<n>` | 过渡行动项 | 本规范附录 C | ACT-01…06 | 新设 |
-| `REQ-PIO-<nn>` | physio 需求条目（登记册 `physio/docs/RESEARCH_03_requirements.md`） | physio | 001…054（2026-09-18 首登，随 owner review 修订） | 新设（2026-09-18） |
+| `REQ-PIO-<nn>` | physio 需求条目（登记册 RESEARCH_03，随子项目移出 2026-09-18） | ~~physio~~ | REQ-PIO-001…054（首登即剥离，完整资料见 tag `physio-handoff`） | 退役（2026-09-18） |
 
-### 11.4 physio 域（Q-ID-01…06 已裁决执行，2026-09-17；共 290 处替换，脚本 `_audit/relabel_physio_qid.py`）
+### 11.4 physio 域（历史记录：Q-ID-01…06 改标已于 2026-09-17 执行，共 290 处替换，脚本 `_audit/relabel_physio_qid.py`；**physio 子项目已于 2026-09-18 剥离出库**，本表转为历史登记，不再约束任何现行工作）
 
 | 前缀/语法 | 语义 | 改标记录 | Q 号 |
 |---|---|---|---|
@@ -282,7 +282,8 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | 10 | `D-1…D-9` 空号 | 历史遗失 | 保留不复用；新裁决自 D-15 | 本规范直接规定 |
 | 11 | `T0–T6` vs `Q-T<nn>` | 多处 | 前缀区分，保留 | 登记说明 |
 
-**裁决与执行记录（2026-09-17 owner）**：Q-G00-07 采方案 A（剔除）；Q-ID-01…06 全部按建议执行（Q-ID-06 采分域前缀）。执行方式：`_audit/relabel_physio_qid.py`（显式 UTF-8、字节保真、幂等），全库 290 处替换 + 2 个 ADR 文件 `git mv` 重命名；二次运行 0 命中验证幂等。**改标为纯标签替换，physio owner-review 冻结区（RESEARCH_01 §3.2/§4/§6、ADR-PIO-0002）的选项与论证原文未动**，其 Q-PIO-07a–07e/Q-PIO-11/ADR 处置等待裁决状态不变。
+**裁决与执行记录（2026-09-17 owner）**：Q-G00-07 采方案 A（剔除）；Q-ID-01…06 全部按建议执行（Q-ID-06 采分域前缀）。执行方式：`_audit/relabel_physio_qid.py`（显式 UTF-8、字节保真、幂等），全库 290 处替换 + 2 个 ADR 文件 `git mv` 重命名；二次运行 0 命中验证幂等。改标为纯标签替换，physio owner-review 冻结区的选项与论证原文未动。
+**后续（2026-09-18 owner）**：physio 子项目整体剥离出 Galatea（开发完全不考虑服务 Galatea，未来接入与否另裁）；上表与 Q-PIO 系列转为历史登记，相关文档随子项目移出本仓库，完整资料见 git tag `physio-handoff`。
 
 ## 14. 新增标识符注册流程
 
@@ -300,7 +301,6 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 |---|---|
 | 任意会话 | `AGENTS.md` → 本规范 §0/§9 → `design/README.md`（索引+修订记录） |
 | 研究（主线） | HLD 相关章 → 对应 LLD → `open_questions.md` 对应区 + Q 区联动对 |
-| 研究（physio） | `physio/README.md` → RESEARCH_01/02 → ADR-PIO-* → RESEARCH_01 §6（Q-PIO 区） |
 | 规范修订（SPEC） | HLD §0 → 目标文档全文 → `open_questions.md` Q 区联动对 → 运行 `check_docs.py` |
 | 实现 L<xx> | 该 LLD 头部"上游"行 → L<xx> 全文（§2/§3/§8/§10 优先）→ L00 §2.3/§6 → L13 §2 → 对应 profile → `open_questions.md` 对应区（确认无阻断 Q） |
 | 测试 | 被测档 LLD §7 + HLD §12（九层测试金字塔） |
@@ -327,7 +327,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ACT-03 | Q-ID-01…06 裁决后，一次性执行 physio 文档改名（与 physio owner-review 冻结区的修订同批，禁半改） | owner 裁决后 | **已完成（2026-09-17）**：owner 裁决后单批执行，290 处替换 + 2 个 ADR 文件重命名（`_audit/relabel_physio_qid.py`）；冻结区实质内容未动，其 Q-PIO 待裁决状态不变 |
 | ACT-04 | `check_docs.py` 扩展：扫描范围扩至全仓 `.md`；按 §11 登记表校验标识符未登记/碰撞；Q 闭合校验升级为 error；规模计数自动核对 | IMPL | 未开始（范围见 Q-DEV-01） |
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | 未开始 |
-| ACT-06 | **physio COM 子系统 Zenoh 原生重设计**（Q-PIO-07a 裁决产物）：peer/client 拓扑（随 07e 裁决定）、key expression 命名空间设计、estop/局部保护旁路不变量（SP-8 永久否决线）、COM-L4 自研语义层（命令-回执分离/幂等键/deadline，承 ADR-PIO-0002 抢救语义）、板集链路映射（UART 调试化评估/USB 待定降级评估）、SP-1…12 门禁集成；产出设计文档并据此一次性改写 RESEARCH_01 §3.2 与后续 HLD COM 章 | RESEARCH/SPEC | 未开始（依赖 07e、Q-PIO-11、NL2 变体裁决） |
+| ACT-06 | ~~physio COM 子系统 Zenoh 原生重设计~~ | — | **已失效（2026-09-18）**：physio 子项目剥离出库，本行动随子项目带走；其主题由新独立项目自行决定是否延续 |
 
 ## 附录 D：本规范未决问题（Q-DEV 系列）
 
@@ -345,3 +345,4 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 - 2026-09-18 v1.1.1：**Q-PIO-01…06 owner 裁决记录**（physio/docs/RESEARCH_01_scope.md §6 六行 CONFIRMED + v0.2；west.yml/physio README/§3.1/§5/§7 一致性注记同步；§11.1 Q-PIO 行更新）。要点：4.5 基线（4.4.0 过渡）｜板集 ESP32-S3/P4/STM32H7/RP2350 暂定｜网络传输进 V1（⚠️ 改变 Q-PIO-07b 分析前提，后端裁决时重估）｜LLEXT 进 V1（合同保持）。
 - 2026-09-18 v1.1.2：**Q-PIO-07a–07d owner 裁决记录**（RESEARCH_01 §6 Q-PIO-07 行拆为 07a–07e 五行 + v0.3；RESEARCH_02 v0.1.1 加裁决进展横幅）。要点：**07b = Zenoh**（否决自研帧建议）｜07c = CBOR｜07d = V1 即引入｜07a = 按 Zenoh 重新设计 COM 架构（新增 **ACT-06**，依赖 07e/Q-PIO-11/NL2 裁决）；07e 已向 owner 详释待裁。连带待确认：ADR-PIO-0002 → SUPERSEDED、NL2 变体（NL2-a 出局）、SP-1…12 升格 PIO-M0–M1 门禁。
 - 2026-09-18 v1.2：**新增 §8.7 必要与自包含性纪律**（owner 指令："所有文档只记录必要内容，必要内容必须说明前因后果"——动因：owner 反馈裁决呈递不自包含、无法理解要裁什么）；§4.4 呈递表式增设强制"背景"列；§2 裁决支持/SPEC 的 DoD 增补自包含判据；§11.3 登记 `REQ-PIO-<nn>` 命名空间（physio 需求登记册 `physio/docs/RESEARCH_03_requirements.md`，REQ-PIO-001…054 首登）。
+- 2026-09-18 v1.3：**physio 子项目剥离**（owner 决策："剥离出来形成独立项目，开发时完全不考虑为 Galatea 服务；AI 开发时过于庞大的项目不利于开发"）：删除 `physio/` 全目录（交接点打 tag `physio-handoff`，含 RESEARCH_01/02/03、ADR-PIO-0001/0002、appendixA、config 草案、west.yml）；效力域收窄；§3 moratorium 清空；§4.1/§4.4/§11.1/§11.4/§13/附录 A/C 相应退役或加历史标注；ACT-06 失效。**历史记录（incidents INC-04/05、§0 设立动机第 3/4 条、§11.4 改标登记）保留不改**——它们解释了现行规则的来历。Galatea 侧 PhysIO 概念合同保留（HLD 附录 A.10）。
