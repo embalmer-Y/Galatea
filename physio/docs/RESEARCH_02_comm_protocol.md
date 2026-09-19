@@ -1,14 +1,13 @@
 # PhysIO 通信协议选型调研（RESEARCH_02）
 
-> 版本：v0.1 · 2026-09-16 · 状态：**DRAFT / NON-NORMATIVE（研究输入，零裁决）**
-> 本文档不决定任何事。所有"建议默认"均为提案，须 owner 裁决后方可生效；
-> 所有提案已分配 Q 号（Q-PIO-07a…07e、Q-PIO-11），状态一律 UNCONFIRMED。
+> 版本：v0.1.1 · 2026-09-18 · 状态：**DRAFT / NON-NORMATIVE（研究输入）**
+> 本文档不决定任何事。所有"建议默认"均为提案，须 owner 裁决后方可生效。
 >
 > 上游：`RESEARCH_01_scope.md`（Zephyr 平台调研 + 功能范围）、
 > `design/lld/L10_action_gateway_physio_attribution.md` §4.6（Galatea PhysIO 合同）。
-> 受质疑工件：`adr/ADR-PIO-0002-wire-protocol-cbor.md`（研究期的过早决定，见 §1.2）、
-> `RESEARCH_01_scope.md` §3.2 / §4 第 2·4 条 / §6 Q-PIO-07 行。
-> **上述工件在 owner review 完成前保持原样，不做半成品修改。**
+>
+> 📌 **裁决进展（2026-09-18，登记权威 = RESEARCH_01 §6）**：owner 裁决 Q-PIO-07a（按 Zenoh 重新设计 COM 架构，ACT-06）／**07b = Zenoh（否决本文建议①自研帧）**／07c = CBOR／07d = V1 即引入；07e 待裁（已获详细说明）。
+> ⇒ 本文价值转为 **ACT-06 重设计的输入**：§2 五层拆分、§3 Zenoh 事实清单（约 60 项已核实）、§6 spike 清单（SP-1…12 升格为 PIO-M0–M1 前置门禁）继续有效；§4–§5 的"自研帧建议"与 §7 NL2-a/b 变体对比按裁决结果作废/待裁；§8.2 清单状态以 RESEARCH_01 §6 为准。
 
 ---
 

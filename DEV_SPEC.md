@@ -1,6 +1,6 @@
 # Galatea 开发规范（DEV_SPEC）：AI 开发流程与标识符体系
 
-> 状态：**NORMATIVE** · v1.1.1 · 2026-09-18 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
+> 状态：**NORMATIVE** · v1.1.2 · 2026-09-18 · 经 owner 指令设立（2026-09-17："为大型项目设计适合 AI 的项目开发规范文档，并统一规范原文中各种标签与缩写"）。
 > 效力域：**全仓库**（`design/` · `physio/` · `_audit/` · 未来的 `galatea/**` 与 `config/**` · 根文件）。
 > 优先级（双轴，冲突时先判事务属类）：
 > - **流程与标识符事务**：LOCKED 基础裁决 > 本规范 > 其余一切文档与代码；
@@ -189,7 +189,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | `Q-N<nn>` | 术语更名裁决 | 全局 | Q-N01（HIO→PhysIO）；新更名沿用本系列 | 生效 |
 | `Q-G00-<nn>` | 全局未决 | design | 01…06（07 = E0 门未定义，已裁决剔除并迁 open_questions A 区，2026-09-17） | 活跃 |
 | `Q-L<xx>-<nn>` | LLD 档内未决 | design/lld | 95 项（L00-01 … L13-10） | 活跃 |
-| `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…06 CONFIRMED（2026-09-18，见 RESEARCH_01 §6）；07…10 与 07a–07e/11/12 待裁决 | 活跃 |
+| `Q-PIO-<n>[a-e]` | physio 未决 | physio | 01…06 与 07a–07d CONFIRMED（2026-09-18，见 RESEARCH_01 §6）；**07e**、08…10、11、12 待裁决 | 活跃 |
 | `Q-ID-<nn>` | 标识符治理 | 本规范 §13 | 01…06（**已全部裁决执行**，2026-09-17 owner：按建议改标） | 生效 |
 | `Q-DEV-<nn>` | 开发流程 | 本规范附录 D | 01…03 | 新设 |
 | `ADR-G-<dddd>` | 主线架构决策记录 | 仓库根/adr | 未使用 | 新设 |
@@ -320,6 +320,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ACT-03 | Q-ID-01…06 裁决后，一次性执行 physio 文档改名（与 physio owner-review 冻结区的修订同批，禁半改） | owner 裁决后 | **已完成（2026-09-17）**：owner 裁决后单批执行，290 处替换 + 2 个 ADR 文件重命名（`_audit/relabel_physio_qid.py`）；冻结区实质内容未动，其 Q-PIO 待裁决状态不变 |
 | ACT-04 | `check_docs.py` 扩展：扫描范围扩至全仓 `.md`；按 §11 登记表校验标识符未登记/碰撞；Q 闭合校验升级为 error；规模计数自动核对 | IMPL | 未开始（范围见 Q-DEV-01） |
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | 未开始 |
+| ACT-06 | **physio COM 子系统 Zenoh 原生重设计**（Q-PIO-07a 裁决产物）：peer/client 拓扑（随 07e 裁决定）、key expression 命名空间设计、estop/局部保护旁路不变量（SP-8 永久否决线）、COM-L4 自研语义层（命令-回执分离/幂等键/deadline，承 ADR-PIO-0002 抢救语义）、板集链路映射（UART 调试化评估/USB 待定降级评估）、SP-1…12 门禁集成；产出设计文档并据此一次性改写 RESEARCH_01 §3.2 与后续 HLD COM 章 | RESEARCH/SPEC | 未开始（依赖 07e、Q-PIO-11、NL2 变体裁决） |
 
 ## 附录 D：本规范未决问题（Q-DEV 系列）
 
@@ -335,3 +336,4 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 - 2026-09-17 v1.0.1：ACT-01 完成——仓库纳入 git（main 分支，初始提交 60 文件，tag `devspec-v1.0`；`.gitattributes * -text` 字节保真、`core.autocrlf=false`、`.vscode/` 不入库）；§7.5 与附录 C 状态同步；AGENTS.md 状态行与提交纪律同步；incidents INC-01 状态更新。
 - 2026-09-17 v1.1：**Q-G00-07 / Q-ID-01…06 owner 裁决执行**：E0 按 方案 A 剔除（L13 两处引用修正，Q-G00-07 迁 open_questions A 区，计数 20/113/1）；physio 六组标签全部分域改标（DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-，290 处 + 2 文件重命名，§11.4/§13/ACT-03 状态闭合）；新增 `_audit/relabel_physio_qid.py` 作为可复算的执行证据。
 - 2026-09-18 v1.1.1：**Q-PIO-01…06 owner 裁决记录**（physio/docs/RESEARCH_01_scope.md §6 六行 CONFIRMED + v0.2；west.yml/physio README/§3.1/§5/§7 一致性注记同步；§11.1 Q-PIO 行更新）。要点：4.5 基线（4.4.0 过渡）｜板集 ESP32-S3/P4/STM32H7/RP2350 暂定｜网络传输进 V1（⚠️ 改变 Q-PIO-07b 分析前提，后端裁决时重估）｜LLEXT 进 V1（合同保持）。
+- 2026-09-18 v1.1.2：**Q-PIO-07a–07d owner 裁决记录**（RESEARCH_01 §6 Q-PIO-07 行拆为 07a–07e 五行 + v0.3；RESEARCH_02 v0.1.1 加裁决进展横幅）。要点：**07b = Zenoh**（否决自研帧建议）｜07c = CBOR｜07d = V1 即引入｜07a = 按 Zenoh 重新设计 COM 架构（新增 **ACT-06**，依赖 07e/Q-PIO-11/NL2 裁决）；07e 已向 owner 详释待裁。连带待确认：ADR-PIO-0002 → SUPERSEDED、NL2 变体（NL2-a 出局）、SP-1…12 升格 PIO-M0–M1 门禁。

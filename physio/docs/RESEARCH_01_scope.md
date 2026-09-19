@@ -1,20 +1,16 @@
 # PhysIO 子项目初步调研与功能范围（RESEARCH_01）
 
-> 版本：v0.2 · 2026-09-18 · 状态：DRAFT（**Q-PIO-01…06 已裁决**，2026-09-18，见 §6 各行状态列；Q-PIO-07…10 与升级提案 07a–07e/11/12 待裁决）
+> 版本：v0.3 · 2026-09-18 · 状态：DRAFT（**Q-PIO-01…06、07a–07d 已裁决**，2026-09-18，见 §6 各行；**07e、08…10、11、12 待裁决**）
 > 定位：PhysIO = 基于 Zephyr RTOS 的 MCU 末端输入输出框架。目标：让单片机成为各种系统/机器人的**末端 I/O 模块**，支持动态编程与固件更新，输入/输出设备可插拔替换。
 > 双重身份：① Galatea P1 物理具身的固件端（须满足 `design/lld/L10` §4.6 PhysIO 合同）；② **独立可复用模块**（其他项目可直接引用，Galatea 专属逻辑只放 `app/galatea_node/`，不进核心）。
 
-> ⚠️ **本文档有三处已被 owner review 质疑，但内容原样保留待裁决（2026-09-16）**：
-> - **§3.2 通信子系统**：全节以"已决定"口吻描述自研 CBOR 帧线协议，但对应 Q-PIO-07 仍 UNCONFIRMED
->   ⇒ **文档内部矛盾**；协议选型调研与五层分层模型见 `RESEARCH_02_comm_protocol.md`；
->   候选与裁决提案已拟为 **Q-PIO-07a…07e**，本文档 §6 的 Q-PIO-07 行**待裁决后一次性改写**。
-> - **§4 第 2 条负清单**（"不做通用机器人中间件（无 ROS/DDS/zbus 之外的对外中间件）"）：
->   谓词歧义（不自研 vs 不引入）、层次混淆（把片内总线 zbus 与对外中间件并列）、适用域未界定（见 **Q-PIO-11**）
->   ⇒ 三个修订变体 NL2-a/NL2-b/NL2-c 见 `RESEARCH_02` §7.3。
-> - **§4 第 4 条**（"不做多 MCU 组网路由"）：**与第 2 条暗中耦合**——Zenoh 的主要卖点之一就是组网路由，两条必须配套修订。
+> ⚠️ **本文档有若干处为研究期快照，实质修订遵循"裁决后一次性改、禁半改"（2026-09-16 起；纪律见 `RESEARCH_02_comm_protocol.md` §10 R7）**：
+> - **§3.2 通信子系统**：原以"已决定"口吻描述自研 CBOR 帧线协议——**2026-09-18 Q-PIO-07b 裁决为 Zenoh，该节方案整体被否决**；将由 Zenoh 原生重设计（ACT-06，Q-PIO-07a 裁决产物）完成后一次性改写。五层拆分模型与协议调研事实（RESEARCH_02）继续有效。
+> - **§4 第 2 条负清单**（"不做通用机器人中间件"）：谓词歧义（不自研 vs 不引入）、层次混淆（片内 zbus 与对外中间件并列）、适用域未界定（见 **Q-PIO-11**）⇒ 三个修订变体 NL2-a/b/c 见 `RESEARCH_02` §7.3。**07b=Zenoh 后 NL2-a（全面禁止）出局**；变体待裁。
+> - **§4 第 4 条**（"不做多 MCU 组网路由"）：与第 2 条暗中耦合，须配套修订。
 >
-> ⇒ 裁决前不预先修改这三处，避免半成品文档互相矛盾（纪律见 `RESEARCH_02` §10 风险 R7）。
-> 另：§5 里程碑 PIO-M0 的验收项"`module/` 空壳构建通过"目前无法执行——实现产物已于 2026-09-16 全部撤回，见 `RESEARCH_01_appendixA_contract_notes.md` §A.5。
+> ⇒ 上述三处待 ACT-06 重设计与 NL2/Q-PIO-11 裁决后一次性修订，避免半成品矛盾。
+> 另：§5 里程碑表待全部 Q-PIO 裁决（含 07e）后统一重构；PIO-M0 验收项"`module/` 空壳构建通过"目前无法执行——实现产物已于 2026-09-16 全部撤回，见 `RESEARCH_01_appendixA_contract_notes.md` §A.5。
 
 ---
 
@@ -183,7 +179,7 @@ flowchart TB
 
 ## 6. 未决问题（→ 待 owner 裁决，格式对齐 open_questions.md）
 
-> 2026-09-18：Q-PIO-01…06 经 owner 裁决 CONFIRMED（裁决内容写入各行"建议默认"列）；07…10 与升级提案 07a–07e/11/12 仍待裁决。
+> 2026-09-18：Q-PIO-01…06 与 Q-PIO-07a–07d 经 owner 裁决 CONFIRMED（裁决内容写入各行）；**07e、08…10 与 Q-PIO-11/12 仍待裁决**。
 
 | Q 号 | 议题 | 裁决 / 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
@@ -193,7 +189,11 @@ flowchart TB
 | Q-PIO-04 | 热插拔的 V1 支持边界 | **已裁决（2026-09-18）**：USB 设备 + GPIO 类 + I2C/SPI 等总线探测注册（owner 表述"USB 设备 + GPIO（IIC、SPI 等等）"，= 调研默认①②③）；不含 surprise removal 全覆盖 | PIO-M2 | CONFIRMED |
 | Q-PIO-05 | DYN-3 代码动态（LLEXT）是否进 V1 | **已裁决（2026-09-18）**：**进 V1**（否决调研默认"不进"）。合同保持：仅签名扩展可装载、装载失败不影响主镜像（appendixA §A.1.6）；Kconfig 默认开关与四板实测验证在 HLD 冻结时定 | PIO-M4/安全评审 | CONFIRMED |
 | Q-PIO-06 | 时间戳精度与是否需绝对时间 | **已裁决（2026-09-18）**：按默认——设备单调 µs（k_uptime）+ 宿主请求-应答时延对齐协议；无 RTC 依赖 | PIO-M1 | CONFIRMED |
-| Q-PIO-07 | Wire Protocol 编码 | CBOR（tinycbor）；备选 protobuf-nanopb | PIO-M1 | UNCONFIRMED |
+| Q-PIO-07a | COM 选型边界与分层模型 | **已裁决（2026-09-18）**：以 Zenoh 为既定后端**重新设计** COM 架构（原五层拆分与"最小可替换面契约"的取舍并入重设计评估，不预设立场）；产出为新设计文档，HLD 冻结前交付（ACT-06）。重设计输入：07b/07c/07e 裁决、Q-PIO-03 传输集、Q-PIO-02 板集网络能力差异、SP-3/4/5/8/9/12 实测约束 | HLD 前 | CONFIRMED |
+| Q-PIO-07b | V1 COM-L2/L3 后端 | **已裁决（2026-09-18）**：**Zenoh（zenoh-pico）**（否决调研建议"自研帧"；网络传输进 V1 后 peer 模式可行是关键前提变化）。连带：① ADR-PIO-0002 处置按 RESEARCH_02 §5.4 映射 → **SUPERSEDED**（待 owner 最终确认）；② 负清单 NL2-a 出局（变体待裁，建议 NL2-c 基础 + 保留 NL2-b 四机械检查件）；③ SP-1…12 升格为 PIO-M0–M1 前置门禁 | PIO-M0/M1 | CONFIRMED |
+| Q-PIO-07c | COM-L5 payload 编码 | **已裁决（2026-09-18）**：**CBOR**（tinycbor）+ `tools/schema/` 单一事实源生成 C 头与 Pydantic 模型 | PIO-M1 | CONFIRMED |
+| Q-PIO-07d | Zenoh 引入时点 | **已裁决（2026-09-18）**：**V1 即引入**（非 V2 选项）；spike 验证（SP-1…12）相应前置为 PIO-M0–M1 门禁而非 V2 评估 | PIO-M0 | CONFIRMED |
+| Q-PIO-07e | V1 是否允许宿主常驻第三方进程 | 待裁决（2026-09-18 已向 owner 详释：常驻进程 = 宿主侧 zenohd 路由器，仅 client 模式/串口数据面需要；**peer 模式 + 网络链路可完全避免**——两端均为进程内嵌库）。选项：① 不允许（peer 模式；UART 降级为调试/救砖通道）／② 允许（client+zenohd；保留串口数据面与多 MCU 扇出能力） | PIO-M0/架构 | UNCONFIRMED |
 | Q-PIO-08 | 项目许可证与仓库形态 | Apache-2.0；先 in-tree `physio/`，首次外部复用前拆独立仓库 | — | UNCONFIRMED |
 | Q-PIO-09 | 控制图算子集封闭清单 | V1：limit/scale/filter/sm/state_machine/compare/mux/delay/estop_hook（≤12 个） | PIO-M4 | UNCONFIRMED |
 | Q-PIO-10 | 宿主侧 Python SDK 放哪 | `physio/host/`（同仓库 tools 级）与 Galatea Bridge 分离 | PIO-M1/PIO-M5 | UNCONFIRMED |
