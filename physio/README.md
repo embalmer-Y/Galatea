@@ -62,7 +62,8 @@ west build -b esp32s3_devkitc/esp32s3/procpu physio/app/galatea_node   # 真实�
 ## 状态
 
 - 当前阶段：**RESEARCH（研究中）**。
-  - 已完成：Zephyr 平台调研 + 功能范围确定（`docs/RESEARCH_01_scope.md`）；Zenoh/协议选型调研（结论待落盘为 `docs/RESEARCH_02_comm_protocol.md`）。
+  - **需求基线（2026-09-18）**：`docs/RESEARCH_03_requirements.md`（REQ-PIO-001…054，54 条含前因后果与状态标记）——owner review 与架构改动的对照基线。
+  - 已完成：Zephyr 平台调研 + 功能范围确定（`docs/RESEARCH_01_scope.md`）；Zenoh/协议选型调研（`docs/RESEARCH_02_comm_protocol.md`，07 系列已部分裁决，转为重设计输入）。
   - **2026-09-16 已撤回**：2026-09-15 误在研究阶段写出的 27 个实现产物（19 个 `.c` + 4 个 `.h` + `module/CMakeLists.txt` + `module/Kconfig` + `module/zephyr/module.yml` + `app/galatea_node/{CMakeLists.txt,prj.conf,src/main.c}`）。
     stub 注释中有价值的合同措辞已抢救进 `docs/RESEARCH_01_appendixA_contract_notes.md`（NON-NORMATIVE 研究输入）。撤回明细见该文 §A.5。
   - **2026-09-17 标签分域改标（Q-ID-01…06 owner 裁决执行，DEV_SPEC §13）**：动态编程层 `D1–D3`→`DYN-1…3`；通信分层 `L1–L5`→`COM-L1…5`；本子项目里程碑 `M0–M5`→`PIO-M0…5`（`V2` 不变）；spike 必测项 `S1–S12`→`SP-1…12`；负清单变体 `N2-a/b/c`→`NL2-a/b/c`；`ADR-000n`→`ADR-PIO-000n`（两份 ADR 文件已重命名，含草案引用的 0003/0004）。全库 290 处纯标签替换（脚本 `_audit/relabel_physio_qid.py`，幂等验证通过）；**三处 owner-review 冻结区的选项与论证原文未动**，其待裁决状态不变。
