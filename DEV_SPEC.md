@@ -343,6 +343,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ACT-04 | `check_docs.py` 扩展：扫描范围扩至全仓 `.md`；按 §11 登记表校验标识符未登记/碰撞；Q 闭合校验升级为 error；规模计数自动核对 | IMPL | 未开始（范围见 Q-DEV-01） |
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | 未开始 |
 | ACT-06 | ~~physio COM 子系统 Zenoh 原生重设计~~ | — | **已失效（2026-09-18）**：physio 子项目剥离出库，本行动随子项目带走；其主题由新独立项目自行决定是否延续 |
+| ACT-07 | **F0 frozen profile 成稿**（下一交付单元，前置已齐：F0 阻断 19 项已裁决 2026-09-23）——`config/evidence/stat_plan_templates/`、`min_effects.yaml`、`sealed_split_policy.yaml`、`decision_path_matrix.yaml`（初版）+ `config/profiles/` F0 合同 profile（f0_action_contract / f0_language_contract 等，各 LLD §10 所列）；成稿后按 §4.6 走 F0 门冻结（ADR-G + tag） | SPEC（AI-v2） | 未开始 |
 
 ## 附录 D：本规范未决问题（Q-DEV 系列）
 
