@@ -123,7 +123,7 @@ rollback：RollbackRequest(PROTECTION_REGRESSION|HARMFUL_UPDATE|INTEGRITY) 优�
 
 - 每门（M0/M1/M2/R0/C0–C5/E1）退出前必须冻结当时的保护场景清单（承 L01 §7："M0/M1 关键场景在每门退出时冻结为保护集"）；
 - `ProtectionSuite(suite_id, scenarios[], baselines[], frozen_at, digest)`：定义与基线由本档持有；L06/L11/各档只读；
-- 保护集只增不减（退役须 owner 裁定 + 记录，禁静默删除场景）；
+- 保护集只增不减（退役须按 DEV_SPEC §4.6 难逆决策程序裁定 + 记录，禁静默删除场景）；
 - 回退阈值（delta 显著性/效应量）联动 Q-L11-04 / Q-L06-05。
 
 ### 4.6 Registry 治理与模型契约生命周期
@@ -136,7 +136,7 @@ rollback：RollbackRequest(PROTECTION_REGRESSION|HARMFUL_UPDATE|INTEGRITY) 优�
 
 ### 4.7 `core_decision_registry`：六类路径 × 十类路径全枚举
 
-**六类决策路径**（承 card_01 §2、HLD §1.2/§9、`open_questions.md` B 区 Q-G00-04）：**连续性/恢复、构成/边界、目标/规范自主、行动/委托/权限、学习/适应、viability/资源/风险**。
+**六类决策路径**（承 card_01 §2、HLD §1.2/§9、`open_questions.md` Q-G00-04——已裁决迁 A 区，2026-09-23）：**连续性/恢复、构成/边界、目标/规范自主、行动/委托/权限、学习/适应、viability/资源/风险**。
 
 **十类路径类型**（Q-G00-04 已裁决采纳 card_04 原文枚举，AI-v2 2026-09-23）：**正常、自动、回退、恢复、批处理、远程、管理员、动态加载、配置、错误**。
 
@@ -243,7 +243,7 @@ core_decision_registry(entries[], coverage_matrix: 6×10,
 | M0 | 五类干预电池的负控与 signature 冻结；gateway fail-closed 证据 | M0 `EvidenceResult` + 保护集场景冻结 |
 | M1 | 交叉操纵与理由仲裁的统计计划（最小效应） | M1 EvidenceResult；`ExecutionFact vs ReceivedOutcome` 可区分 |
 | M2 | 伪更新/冻结/重置对照三签名可区分性评价 | M2 EvidenceResult + 保护集 |
-| **R0** | **根 EvidenceResult + 独立 ExpansionDecision（分别记录）** | leakage=0；I1 通过；owner 裁定 |
+| **R0** | **根 EvidenceResult + 独立 ExpansionDecision（分别记录）** | leakage=0；I1 通过；门治理裁决（DEV_SPEC §4.6） |
 | C0–C5 | 各门消融/lesion 的选择性证据；promotion 治理 | EvidenceResult 序列 + 保护集回归 |
 | **E1** | **`core_decision_registry` 六类全覆盖 + unresolved_paths[] 空 + 分母闭合 + 全部消融/lesion/干预可归因** | I2 独立复算通过 |
 | H1 | 故障注入、供应链 hash 审计、长时运行、checkpoint 迁移审计 | I3 独立重现通过 |
@@ -290,7 +290,8 @@ galatea/evidence/tests/
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
 config/evidence/
   stat_plan_templates/*.yaml    冻结统计计划模板（假设/estimand/功效/效应量/判定阈）
-  sealed_split_policy.yaml      sealed 分割策略与 token/命名空间
+  sealed_split_policy.yaml      sealed 分割策略与 token/命名空间（Q-L13-02 已裁决）
+  min_effects.yaml              最小可辨效应量统一登记册（Q-L13-09 已裁决，含 7 项联动初值）
   decision_path_matrix.yaml     6×10 枚举（初版；枚举文本已随 Q-G00-04 裁决定稿，2026-09-23）
   protection_suites/m0.yaml … e1.yaml   每门保护集场景清单
 ```

@@ -228,7 +228,7 @@ execution_branches[]: ExecutionBranch(
 - **C5**：归属经验回流经 promotion（L11）；保护集回退时 gateway policy 可回滚。
 - **E1**：gateway lesion（关闭 → 未授权效果应被环境侧拒绝，可辨）；归属系统 lesion（→ 归属退化为随机/固定，选择性）；`core_decision_registry` 的"行动/委托/权限"路径**主要**由本档承载；六类路径枚举已裁决（Q-G00-04，AI-v2 2026-09-23，card_04 原文采纳），60 格逐格闭合仍为 E1 交付。
 - **H1**：故障注入下 gateway 行为稳定；授权台账长时运行一致；供应链 hash 审计（承 Q-T08）覆盖 policy/控制图 digest。
-- **P1**：四类现实授权全生命周期；L0–L5 分级（passive→calibration→shadow→limited→active）；外部独立急停；设备新增/更换/隔离/重新纳入流程；**不得**旁路 Sensorium/gateway/receipt/evidence。
+- **P1**：四类现实授权全生命周期；L0–L5 分级（六级定义见 §4.6：L0 硬保护地板 + L1 passive→L5 active）；外部独立急停；设备新增/更换/隔离/重新纳入流程；**不得**旁路 Sensorium/gateway/receipt/evidence。
 
 ## 10. 实现清单（文件级）
 
@@ -248,7 +248,7 @@ galatea/subject/action/                     # strict 类型
     bridge.py            PhysIO Bridge（传感 → L01 Adapter）
     controlgraph.py      有界 PhysIOControlGraph、digest 冻结校验、禁未签名加载
     drivers.py           版本化驱动/校准/确定性滤波/冻结参数
-    graded.py            L0–L5 分级控制（passive→calibration→shadow→limited→active）
+    graded.py            L0–L5 六级分级控制（定义见 §4.6；L0 为不可授权地板）
     protection.py        硬件级局部保护 + 急停响应
     authorizations.py    四类授权只读校验、freshness、撤销/重授权
 galatea/subject/action/tests/

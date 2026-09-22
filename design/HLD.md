@@ -1,6 +1,6 @@
 # Galatea 高层设计（HLD）
 
-> 状态：**NORMATIVE · v1.1** · 2026-09-13 · 本文档与 `lld/`（14 档 L00–L13 全交付）共同构成 Galatea 项目**唯一规范源**。
+> 状态：**NORMATIVE · v1.2** · 2026-09-23 · 本文档与 `lld/`（14 档 L00–L13 全交付）共同构成 Galatea 项目**唯一规范源**。
 > 取代：DOC:00/01/02 浓缩卡片（已移入 `design/archive/`，仅作历史快照，不再具规范效力）。
 > 伴随文档：`open_questions.md`（全部 UNCONFIRMED 参数与待裁决项，统一 Q 编号）、`README.md`（索引与阅读顺序）。
 > 词汇纪律：全文只使用卡片确立的模块级标识符（Sensorium / PerceptualBelief / WorkspaceFrame / OwnedGoal …）；旧六层 S1–S6 分层叙事已废弃；旧术语 HIO（Helios I/O）已更名为 PhysIO（Physical I/O）。
@@ -9,7 +9,7 @@
 
 ```text
 design/
-  HLD.md                                     ← 本文档（架构唯一顶层规范，§0–§14 + 附录 A.1–A.8）
+  HLD.md                                     ← 本文档（架构唯一顶层规范，§0–§14 + 附录 A.1–A.11）
   lld/L00_kernel.md                          ← L00 横切基础（时钟/调度/状态/RNG/包/registry 核心）
   lld/L01_environment_channels.md            ← L01 环境与声明通道（含最小世界 MW0）
   lld/L02_sensorium.md                       ← L02 感觉形成/校准/对齐/增益
@@ -38,7 +38,7 @@ LOCKED 基础裁决（§2） > HLD > 门时冻结的 profile/协议/统计计划
 **开发流程与标识符体系**由仓库根 `DEV_SPEC.md` 治理（2026-09-17 owner 指令设立，见附录 A.9）：流程/标识符事务其效力仅次于 LOCKED 裁决；架构事务仍依上述链条。
 
 **修订纪律**：
-- LOCKED 章节（§1.3、§2、§6.2、§11）任何修改必须由 owner 裁决并记录 ADR；
+- LOCKED 章节（§1.3、§2、§6.2、§11）任何修改必须按 DEV_SPEC §4.6 难逆决策程序裁定（ADR-G + git tag；owner 否决权保留）；
 - UNCONFIRMED 参数只有经 `open_questions.md` 中对应 Q 号裁决后才可转为 CONFIRMED 并写入 frozen profile；
 - 门（§10）冻结的 profile/协议/统计计划在其作用域内优先于 LLD 默认值（注：归档卡片旧优先级将冻结 profile 置于架构文档之上，见 `archive/card_03.md` 头部；本体系架构已归并入 HLD，裁决为：frozen profile 仅在其参数域内优先于 LLD 默认值，且不得与 LOCKED/HLD 相抵触）；
 - LLD 之间不一致时，以 HLD 为准并同时修订两份 LLD，禁止口头裁决。
