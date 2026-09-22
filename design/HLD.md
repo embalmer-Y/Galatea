@@ -180,7 +180,7 @@ world truth ≠ ChannelDeliveryFact ≠ ReceivedSignal ≠ SensorySample/Sensory
 
 **内感受分层**：运维 telemetry ≠ InteroceptiveSensation ≠ InteroceptiveBodyBelief。内部事实必须先经声明通道 → Sensorium 形成感觉 → 身体模型形成信念，禁止直填。
 
-### 4.4 实验对象符号约定（承自卡片；**重建稿，UNCONFIRMED → Q-G00-06**）
+### 4.4 实验对象符号约定（承自卡片；**规范文本，Q-G00-06 已裁决，AI-v2 2026-09-23**）
 
 门体系与各 LLD 实验场景用单字母符号区分因果对象。已在 M0/M1 中实际使用的最小集：
 
@@ -190,7 +190,7 @@ world truth ≠ ChannelDeliveryFact ≠ ReceivedSignal ≠ SensorySample/Sensory
 | A / Ä | requested action（主体请求/意图动作） / effective action（世界实际结算动作） | blocked/fault/coercion 干预下 A ≠ Ä；EffectFact 分别记录（L01 §4.1） |
 | Y / Ŷ | 实际结果信号 / 主体对结果的预测（SensoryPrediction） | 归属只用主体可见的 Ŷ 比较与形成后结果，禁读隐藏 Y 真值（§8） |
 
-**未决**：完整符号系 `W/O/S/C/G/R/D/A*/A/Ä/Y/Ŷ/Z` 与 M1 时序记号 `S_t/Q_t/G_t/R_t/D_t/A_t*/Z_t+1` 仅见于 card_05（F0 交付物清单），其完整映射原文不可得；上表是重建的最小释义，**owner 逐对裁决前不得进入 frozen profile**（→ open_questions Q-G00-06）。
+**裁决（Q-G00-06，AI-v2 2026-09-23）**：上表最小集（W/O、A/Ä、Y/Ŷ）**即为 F0 符号合同**。完整符号系 `W/O/S/C/G/R/D/A*/A/Ä/Y/Ŷ/Z` 与 M1 时序记号 `S_t/Q_t/G_t/R_t/D_t/A_t*/Z_t+1`（仅见于 card_05）原文判定永久不可得；未重建符号（S/C/G/R/D/Z/A* 与时序记号）状态 **RESERVED**——规范文本与 profile 禁用，后续门需要时逐个登记释义（挂 Q 号），**禁臆测补全**。重开条件：原文现身则复审。
 
 ## 5. 横切全局机制
 
@@ -445,7 +445,8 @@ Timeout/schema/OOD/gateway 拒绝/recorder 失败/checkpoint 损坏/保护集回
     11. **记忆 `source_type` 必填**且 `LANGUAGE_INPUT` 禁写 episodic/autobiographical 经历字段（L06 §3，D-13）；未命中必返空列表 + `Unknown(MISSING_SIGNAL)`，永不邻居替代。
     12. **三模型各单写者，转移模型是主体自产学习物，非 L01 dynamics 副本**（L04 §1；副本 = oracle leakage）；rollout 输出恒为 IMAGINED。
   - **Q 登记册升 v1.1**：`open_questions.md` E 区占位段替换为 E–P 十二个真实分区，新增 **95** 个 UNCONFIRMED Q 号（L02 7、L03 7、L04 7、L05 8、L06 8、L07 7、L08 8、L09 8、L10 9、L11 8、L12 8、L13 10）；新增 Q 区：10 组跨档联动对（时基谱/regime↔情感模式/伦理阈/能力粒度/误差标度/Reflex 边界/求助对象/保护集/promotion 判据/分片与治理）与 F0/M0/M1 阻断清单。
-  - **F0 冻结当前阻断项（待 owner 裁决）**：Q-L01-06（D1–D7 → MW0-SC1…SC6 重映射为重建稿）、Q-G00-04 → Q-L13-04（六类决策路径全枚举，同时阻断 E1）、Q-G00-06（实验对象符号系完整映射）；另 F0 合同级 schema 依赖：Q-L10-01/-03/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09。
+  - **F0 冻结当前阻断项**：初列 Q-L01-06、Q-G00-04 → Q-L13-04、Q-G00-06 及 F0 合同级 schema 依赖（Q-L10-01/-03/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09）——**已于 2026-09-23 全部裁决清零**（AI-v2，见 `open_questions.md` A 区当日批次与附录 A.11）。
   - **同步修订**：本档 §0 目录树改为文件精确清单（不再用 `L02_* … L13_*` 通配符）；`README.md` 升 v1.1.0（LLD 全集状态表 14 档全 ✅，新增引入门槛列与阅读顺序）。
 - **A.9** **开发规范设立（2026-09-17，owner 指令："为大型项目设计适合 AI 的项目开发规范文档，统一规范标签与缩写"）**：仓库根新增 `DEV_SPEC.md`（AI 开发工作流 + 标识符命名空间登记册；流程/标识符事务效力仅次于 LOCKED 裁决）与 `AGENTS.md`（AI 会话第一入口）；`_audit/incidents.md` 缺陷台账建立并预登记历史事故 INC-01…06。本档 §0 增补其效力位。`open_questions.md` 新增 **Q-G00-07**（L13 §1 与 Q-L13-02 所引门 "E0" 全库无定义，owner 须裁决定义或剔除），UNCONFIRMED 计数 113→114。标识符冲突改标提案（physio 域 D1–D3/L1–L5/M0–M5/S1–S12/N2-abc/ADR 裸编号 → DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-）登记为 **Q-ID-01…06**，裁决后与 physio owner-review 冻结区修订同批一次性执行；过渡行动项 ACT-01…05 登记于 DEV_SPEC 附录 C（其中 ACT-01 git 化仓库为当前最高优先流程缺口）。
-- **A.10** **physio 子项目剥离（2026-09-18，owner 决策）**：理由——"AI 开发时过于庞大的项目不利于 AI 开发"；原 `physio/` Zephyr 固件子项目剥离为**独立项目**，开发阶段完全不考虑服务 Galatea，未来是否接入另行裁决。处置：`physio/` 全目录自本仓库删除，交接点打 tag **`physio-handoff`**（含全部调研、ADR、需求基线 RESEARCH_03）；DEV_SPEC 升 v1.3（效力域收窄、Q-PIO 系列与相关登记退役）。**对本架构的影响**：PhysIO 在本规范中保留为 P1 物理接口层的概念合同名（§8、§10.4、L10 §4.6 的非学习/有界控制图/四类授权/不旁路合同不变）；P1 门（E1+H1 后）的固件实现载体从"主线内子项目"变为"未来外选或自建，届时另裁"。此前 physio 域的裁决记录（Q-PIO-01…06、07a–07d）与标签改标（Q-ID-01…06）作为历史事实保留于各登记册，不再约束任何现行工作。**继任项目创始文件**：owner 经问答裁定 16 项决策（每立方体独立智能、并联成单逻辑节点、WASM-vs-LLEXT 待研、协议选型重开、Agent 双产出等）后，继任项目（工作名 Tessera）的创始 Prompt 存于本仓库 `_handoff/FOUNDING_PROMPT.md`，供 owner 在新目录以 ZCode 从零启动；该文件不属于 Galatea 规范体系。
+- **A.10** **physio 子项目剥离（2026-09-18，owner 决策）**：理由——"AI 开发时过于庞大的项目不利于 AI 开发"；原 `physio/` Zephyr 固件子项目剥离为**独立项目**，开发阶段完全不考虑服务 Galatea，未来是否接入另行裁决。处置：`physio/` 全目录自本仓库删除，交接点打 tag **`physio-handoff`**（含全部调研、ADR、需求基线 RESEARCH_03）；DEV_SPEC 升 v1.3（效力域收窄、Q-PIO 系列与相关登记退役）。**对本架构的影响**：PhysIO 在本规范中保留为 P1 物理接口层的概念合同名（§8、§10.4、L10 §4.6 的非学习/有界控制图/四类授权/不旁路合同不变）；P1 门（E1+H1 后）的固件实现载体从"主线内子项目"变为"未来外选或自建，届时另裁"。此前 physio 域的裁决记录（Q-PIO-01…06、07a–07d）与标签改标（Q-ID-01…06）作为历史事实保留于各登记册，不再约束任何现行工作。**继任项目创始文件**：owner 经问答裁定 16 项决策（每立方体独立智能、并联成单逻辑节点、WASM-vs-LLEXT 待研、协议选型重开、Agent 双产出等）后，继任项目（工作名 Tessera）的创始 Prompt 存于本仓库 `_handoff/FOUNDING_PROMPT.md`，供 owner 在新目录以 ZCode 从零启动；该文件不属于 Galatea 规范体系（2026-09-23 注：已移植至 Tessera 仓库，本仓库工作区删除，历史版本见 git 1eb5baf）。
+- **A.11** **裁决权模型 v2 + F0 阻断清零（2026-09-23）**：owner 指令（"该项目将完全由 AI 主导开发……请你自行裁决"）后，DEV_SPEC 升 v1.4（新增 §4.6 裁决权模型：AI 成文裁决 + 重开条件、可逆/难逆/证据可判三级、owner 否决权保留、自我审批防腐；tag `authority-v2`）。同日 AI-v2 首批行使：F0 直接阻断 19 项 Q 号成文裁决（`open_questions.md` A 区 2026-09-23 批次）——要点：Q-L01-06 重建映射采纳为规范（验收约束力归门退出判据）；Q-G00-06 §4.4 最小集即符号合同、未重建符号 RESERVED；Q-G00-04+Q-L13-04 采纳 card_04 六类×十类枚举（60 格逐格结论仍属 E1）；Q-L10-01 MW0 硬配额两级制；Q-L10-03 六级 L0–L5 定义（L0 为不可授权地板）；Q-L10-06 四类授权统一信封 schema；Q-L11-07 指标向量 schema + 最小标准集；Q-L12-02 写端口角色×内容类型双维；Q-L13-01 统计计划模板字段集 + Holm–Bonferroni 默认；Q-L13-02 sealed 70/30 分割 + digest 交集不回流判据；Q-L13-09 `min_effects.yaml` 统一效应量册（联动 7 项初值同批裁决）。登记册规模 20/113/1 → 39/94/1。本档 §4.4 与附录 A.8 阻断行同步；各 LLD §11 状态列与受影响正文同步（L01/L03/L04/L05/L07/L08/L10/L11/L12/L13）。

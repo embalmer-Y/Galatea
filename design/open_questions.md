@@ -1,12 +1,12 @@
 # Galatea 未决问题登记册（open_questions）
 
-> v1.1 · 2026-09-13 · 状态：ACTIVE
-> 用途：汇总 HLD/LLD 中所有标注 UNCONFIRMED 的参数、默认值与待裁决项。**任何 Q 号未经 owner 裁决，不得进入 frozen profile、不得作为门退出依据、不得写入代码常量。**
-> 裁决流程：owner 回复 Q 号 + 决定 → 本档改为 CONFIRMED（附日期）→ 同步修订对应 HLD/LLD 章节 → 门冻结时写入 frozen profile。
+> v1.2 · 2026-09-23 · 状态：ACTIVE
+> 用途：汇总 HLD/LLD 中所有标注 UNCONFIRMED 的参数、默认值与待裁决项。**任何 Q 号未经裁决，不得进入 frozen profile、不得作为门退出依据、不得写入代码常量。**
+> 裁决流程（authority v2，DEV_SPEC §4.6，2026-09-23 起）：裁决由开发 AI 成文作出（背景/选项/选择/影响/重开条件；裁决者标识 **AI-v2**；2026-09-23 前为 owner 裁决）→ 本档改为 CONFIRMED（附日期与裁决者）→ 同步修订对应 HLD/LLD 章节 → 门冻结时写入 frozen profile。owner 否决权保留。
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 20 项；UNCONFIRMED 113 项（G 4 + L00 6 + L01 8 + L02–L13 95）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 39 项；UNCONFIRMED 94 项（G 2 + L00 6 + L01 6 + L02–L13 80）；CLOSED 1 项（Q-L00-03，编号不复用）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -32,6 +32,25 @@
 | Q-C06 | 交付节奏 | 先交 HLD+L00+L01 确认风格，再批量 L02–L13 | 2026-09-12 |
 | Q-N01 | 术语 HIO → PhysIO | HIO 系 Helios I/O 缩写，项目更名后废弃；全库（含 archive）统一为 PhysIO（Physical I/O）；派生标识符 PhysIO Bridge / PhysIOControlGraph | 2026-09-12 |
 | Q-G00-07 | 门链 "E0" 处置 | **方案 A 剔除**：E0 系 L13 撰写期草稿残留、非门；全库仅 2 处引用（L13 §1 头部、Q-L13-02 依赖列）已修正；门链维持 F0→M0→M1→M2→R0→C0–C5→E1→H1→物理授权→P1 不变；sealed 准备工作归属不变（策略冻结在 F0，执行在 R0/promotion/E1） | 2026-09-17 |
+| Q-L01-06 | 旧 D1–D7 验收原文不可得；L01 §4.6 重映射为重建稿，无人可提供原文供确认 | **AI-v2：采纳重建映射为规范文本**；原文判定永久不可得，验收约束力由门退出判据承载（L01 §9 + L13 EvidenceResult），映射表降为溯源记录。重开条件：原文若现身，一 session 内复审 | 2026-09-23 |
+| Q-G00-06 | 实验对象符号系全集映射原文不可得；HLD §4.4 仅重建 W/O、A/Ä、Y/Ŷ 最小集 | **AI-v2：HLD §4.4 最小集即为 F0 符号合同**；未重建符号（S/C/G/R/D/Z/A\* 与时序记号）状态 **RESERVED**——规范文本与 profile 禁用，后续门需要时逐个登记释义（挂 Q 号）；禁臆测补全（伪造历史合同）。重开条件：原文现身则复审 | 2026-09-23 |
+| Q-G00-04 | 六类核心决策路径的完整枚举文本（card_04 摘要，待确认） | **AI-v2：采纳 card_04 原文枚举为规范**——六类：连续性/恢复、构成/边界、目标/规范自主、行动/委托/权限、学习/适应、viability/资源/风险；十类：正常、自动、回退、恢复、批处理、远程、管理员、动态加载、配置、错误。6×10=60 格为 E1 分母；**60 格逐格结论（实现/不适用+理由/延后）属 E1 交付，不在本裁决范围**（L13 §4.7 闭合判据不变） | 2026-09-23 |
+| Q-L13-04 | `core_decision_registry` 六类全枚举与十类定稿 | **AI-v2：随 Q-G00-04 成组裁决**——枚举文本见上行；`unresolved_paths[]` 空 + 分母闭合 + 无证据不入册三判据不变（L13 §4.7） | 2026-09-23 |
+| Q-L10-01 | budget 默认值体系（每类动作次数/资源配额）与 MW0 期是否设硬配额 | **AI-v2：MW0 设硬配额**——否则 `BUDGET_EXCEEDED` 路径在 MW0 不可测，归属/元控制实验缺一条可干预路径。两级结构：每 cycle 命令上限 2 条 + 每 1024-cycle 窗口配额 move 256 / forage 128 / eat 96 / rest 128 / look 128；初值为 profile 参数。重开条件：M0 数据显示配额成行为瓶颈或形同虚设（触顶频率 >5% 或 =0）→ 重标定 | 2026-09-23 |
+| Q-L10-03 | L0–L5 各级精确定义、所需授权组合与升降级条件 | **AI-v2：六级定义采纳**——L0 硬保护（硬件限幅/急停，**不可授权不可关，是地板非档位**）；L1 passive（输出落安全态，拒任务命令）；L2 calibration（仅校准/诊断例程）；L3 shadow（全链路计算并留痕，不执行）；L4 limited（限幅执行：速率/能量/力上限 + 动作子集）；L5 active（全授权能力集）。升级逐级禁跳、每级独立授权（P1 四类）、最小驻留期（P1 profile 定参数）；故障/授权失效自动降 L1，急停降 L0；降级后重升须重新授权。schema 入 F0 冻结，参数 P1 定 | 2026-09-23 |
+| Q-L10-06 | 四类授权模板（字段、批准者标识、撤销路径、重授权流程） | **AI-v2：统一信封 schema 采纳**——authz_id、class、version、target_ref、granted_scope、granted_at（virtual_time + manifest 引用）、valid_period、approver_ref、auth_chain_digest、revoke_path、reauth_path、monitoring_binding。批准者=外部授权方登记册（profile 冻结根信任列表；**主体与 gateway 均不可写、不可任批准者**）；撤销=独立命名空间 append 事件 → gateway 逐命令 freshness 校验即拒（`AUTHZ_REVOKED`）；重授权=新 version + 与前版差异 + 显式理由，禁自动续期。schema 入 F0，字段类型细节 P1 profile | 2026-09-23 |
+| Q-L11-07 | `metrics_snapshot` 标准指标集（跨档统一，供 L13 评价复用） | **AI-v2：统一向量 schema 采纳**——每指标 = {name（L13 统计计划模板命名空间登记枚举，跨档同名同义）、value(float64)、direction（HIGHER_BETTER\|LOWER_BETTER\|TWO_SIDED）、unit、scope}；最小标准集（每个 LearningProposal 必报）：分层预测误差（至少目标层）、protection_preflight_delta、data_efficiency（单位样本改善）、replay_coverage；目标专属指标追加；维度 ≥2 硬约束不变（L11 §4.4 禁单标量折叠） | 2026-09-23 |
+| Q-L12-02 | 权限矩阵粒度（角色级 vs 角色×内容类型级）与例外审批流程 | **AI-v2：写端口按角色×内容类型双维**（使"模板受限输出"可机械校验，如 R-TRANSLATE 可写 `lang.utterance` 但限模板枚举类型），读范围按角色级；**矩阵外无运行时例外**——例外 = 新 profile 版本 + 修订记录 + CI 重跑（承 L12 §4.2 矩阵外写入即 `UnauthorizedWrite`） | 2026-09-23 |
+| Q-L13-01 | 冻结统计计划模板最小必备字段集与多重比较校正默认策略 | **AI-v2：最小字段集 =** 假设（可反驳、预注册）、estimand、主终点（≤3、预注册）、样本量与功效分析、检验方法、效应量与 95% CI 规则、判定阈值、最小可辨效应（引 `min_effects.yaml`，见 Q-L13-09）、未知处理规则、多重比较校正。**校正默认 Holm–Bonferroni**（族 = 单个 EvidenceResult 内全部主终点；无独立性假设、确定性、比朴素 Bonferroni 更优）；探索性非 claim 分析可声明 Benjamini–Hochberg，不得作门退出依据 | 2026-09-23 |
+| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"机械判据 | **AI-v2：**分割——MW0 场景配置（regime×种子网格）70% internal / 30% sealed，F0 冻结时由 RNG 流 `("l13","sealed-split")` 一次性生成并记 digest；sealed 居独立 registry 命名空间 + 独立 token 类型（类型不可互换，承 L13 §4.3）。不回流判据——候选 `data_scope` 的 digest 集 ∩ sealed 集 digest 集 = ∅（promotion 流程第①步 registry 查询强制）；sealed 命名空间的非评价上下文读取 = `SealedContamination`（S1）。轮换仅门边界；旧 sealed 转 EVALUATION_RETIRED，永久退出训练侧 | 2026-09-23 |
+| Q-L13-09 | 最小可辨效应量统一登记（汇总下列 7 个同源 Q） | **AI-v2：建立 `config/evidence/min_effects.yaml` 统一登记册**，全部以标准化效应（Cohen's d 类）+ 功效 0.8 + α0.05 + Holm 校正（承 Q-L13-01）表达；每 claim 统计计划必须引用本册条目；改值 = 新版本 + 重新功效分析（运行后改动走 `StatPlanMutation` 拒绝）。初值见下列 7 行；各门退出前按实测功效复核后入册新版本 | 2026-09-23 |
+| Q-L01-05 | no-op/sham 归属判别的冻结最小效应量与样本量 | **AI-v2（随 Q-L13-09）：** d≥0.5（vs 随机基线），每组 n≥64；M0 统计计划引用 | 2026-09-23 |
+| Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量 | **AI-v2（随 Q-L13-09）：** d≥0.5，n≥64/组（与 Q-L01-05 同源同标度）；M1 统计计划引用 | 2026-09-23 |
+| Q-L10-04 | 归属六类判定的证据规则阈值（残差阈、时间约束、后验校准门限） | **AI-v2（随 Q-L13-09）：** 残差阈 = 各层预测误差 \|z\|≤2 一致带；后验校准 ECE≤0.10（C4 起与 Q-L03-04 同标度）；反射窗 = 刺激-反应间隔 ≤2 cycles 且无匹配意图（T0 白名单除外；随 Q-L09-06 于 C0 复核）。M1/C4 统计计划引用 | 2026-09-23 |
+| Q-L03-04 | 校准达标判据（ECE 阈值、分箱策略、最小样本量） | **AI-v2（随 Q-L13-09）：** ECE≤0.05、等质量 15 箱、每箱 ≥30 样本；C1 统计计划引用 | 2026-09-23 |
+| Q-L05-07 | anti-reward-collapse 检验的统计量与阈值 | **AI-v2（随 Q-L13-09）：** 单维对九维联合的最优线性重构 R²<0.9（任一维可被单维重构 ≥0.9 即判塌缩）；C2/E1 统计计划引用 | 2026-09-23 |
+| Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量 | **AI-v2（随 Q-L13-09）：** 三判据各 d≥0.4（vs 纳入前基线）且须联合成立；C1 统计计划引用 | 2026-09-23 |
+| Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量） | **AI-v2（随 Q-L13-09）：** 需要最小效应量——相对 shuffle 基线 d≥0.5（广播 → ≥2 分离模块预注册变化）；E1 统计计划引用 | 2026-09-23 |
 
 ## B. 全局未决（G 系列）
 
@@ -40,9 +59,7 @@
 | Q-G00-01 | **（指针，非独立登记项）** T0–T6 频率——所有权在 **Q-L00-01**（L00 §5 比例 N2/N3/N4/N5=2/4/16/64）；本行仅当基准 cycle→墙钟绝对时基需裁决时启用 | — | F0 profile 冻结 | 见 Q-L00-01 |
 | Q-G00-02 | **（指针，非独立登记项）** MW0 观测窗与边界——所有权在 **Q-L01-01**（egocentric 5×5 + 衰减）与 **Q-L01-02**（torus vs 墙） | — | M0 | 见 Q-L01-01 / Q-L01-02 |
 | Q-G00-03 | 团队规模与总工期假设（10-14 人 / 25-38 月） | 卡片原值 | 仅规划参考 | UNCONFIRMED |
-| Q-G00-04 | 六类核心决策路径的完整枚举文本 | 卡片摘要（连续性/构成边界/目标规范自主/行动委托权限/学习适应/viability 资源风险）+ 十种路径类型 | F0 | UNCONFIRMED |
 | Q-G00-05 | 持续极端 aversive-like 状态的伦理评审阈值与处置（暂停/调整/终止） | 触发即暂停 claim-relevant 运行 + 人工评审 | E1 前 | UNCONFIRMED |
-| Q-G00-06 | 完整实验对象符号系 `W/O/S/C/G/R/D/A*/A/Ä/Y/Ŷ/Z` 与 M1 时序记号 `S_t/Q_t/G_t/R_t/D_t/A_t*/Z_t+1` 的完整映射（原文不可得；HLD §4.4 仅重建了 W/O、A/Ä、Y/Ŷ 最小集） | HLD §4.4 重建释义 | F0（术语/对象图合同） | UNCONFIRMED（阻塞 F0 符号合同冻结） |
 
 ## C. L00 横切基础
 
@@ -64,8 +81,6 @@
 | Q-L01-02 | MW0 边界 torus vs 墙 | torus | UNCONFIRMED |
 | Q-L01-03 | 三 regime 参数化及与 L05 情感模式对应 | abundance/scarcity/volatile；对应待 L05 | UNCONFIRMED |
 | Q-L01-04 | regime 最小驻留 N6 | 256 cycles | UNCONFIRMED |
-| Q-L01-05 | no-op/sham 归属判别冻结最小效应量与样本量 | 待 M0 统计计划（L13） | UNCONFIRMED |
-| Q-L01-06 | **旧 D1–D7 验收原文不可得**；L01 §4.6 重映射为重建稿 | owner 逐条确认或提供原文 | UNCONFIRMED（阻塞 frozen profile） |
 | Q-L01-07 | M1 是否引入第二可控代理（伪社会线索） | 推迟到 C4 | UNCONFIRMED |
 | Q-L01-08 | energy/integrity viability 阈值与损伤事件定义 | 联动 L05 驱力 | UNCONFIRMED |
 
@@ -88,7 +103,6 @@
 | Q-L03-01 | 置信度标度形式（直接概率 vs logit vs 离散档）与跨模态可比性 | [0,1] 概率 | C1 | UNCONFIRMED |
 | Q-L03-02 | `believe_threshold` 与 OOD 阈值默认值；abstain 是否分级（部分承诺） | — | C1 | UNCONFIRMED |
 | Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | — | C1 | UNCONFIRMED |
-| Q-L03-04 | 校准达标判据（ECE 阈值、分箱策略、最小样本量） | — | C1；联动 Q-L13-01 | UNCONFIRMED |
 | Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | — | C1/C2 | UNCONFIRMED |
 | Q-L03-06 | affordance 的 `action_class` 枚举与 L09/L10 能力契约的对齐方式 | — | C3/C4 | UNCONFIRMED |
 | Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | — | C1 | UNCONFIRMED |
@@ -99,7 +113,6 @@
 |---|---|---|---|---|
 | Q-L04-01 | rollout 深度/宽度上界默认值与超预算裁剪策略 | ≤8 / ≤4 | C1 | UNCONFIRMED |
 | Q-L04-02 | 世界信念更新率与多假设保留上限 | — | C1；联动 Q-L03-05 | UNCONFIRMED |
-| Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量 | — | C1；联动 Q-L13-09 | UNCONFIRMED |
 | Q-L04-04 | 自我预测误差的维度定义与时间常数 | — | C1/C2；联动 Q-L05-* | UNCONFIRMED |
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度 | — | C3/C4；联动 Q-L03-06 | UNCONFIRMED |
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界 | — | M2 | UNCONFIRMED |
@@ -115,7 +128,6 @@
 | Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化 | — | C2；**须与 Q-L01-03 一致裁决** | UNCONFIRMED |
 | Q-L05-05 | 持续极端 aversive-like 状态的触发阈值与持续时长 | — | E1 前（伦理）；**须与 Q-G00-05 一致** | UNCONFIRMED |
 | Q-L05-06 | `tendencies.action_class` 枚举 | — | C3/C4；联动 Q-L03-06、Q-L04-05 | UNCONFIRMED |
-| Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | — | C2/E1；联动 Q-L13-09 | UNCONFIRMED |
 | Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | 恒 Unknown（D-14 单主体期） | C4 | UNCONFIRMED |
 
 ## I. L06 记忆（八子系统）
@@ -141,7 +153,6 @@
 | Q-L07-04 | 递归深度上界 `depth_max` 与去重 TTL | depth=3 | C2 | UNCONFIRMED |
 | Q-L07-05 | "分离模块"的形式定义（哪些模块对算 separated；同模块内分区是否算） | — | C2/E1 | UNCONFIRMED |
 | Q-L07-06 | 预注册 watch point 的最小集合与新增流程（profile 变更 vs 冻结合同） | — | C2/E1 | UNCONFIRMED |
-| Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量） | — | E1；联动 Q-L13-09 | UNCONFIRMED |
 
 ## K. L08 动机/目标（M1 最小 → C3 完整）
 
@@ -151,7 +162,6 @@
 | Q-L08-02 | 候选 TTL 默认值与每 cycle 候选数上界（防候选爆炸） | — | M1/C3 | UNCONFIRMED |
 | Q-L08-03 | Pareto 仲裁的多目标向量分量定义与默认权重 | — | C3 | UNCONFIRMED |
 | Q-L08-04 | front 内优先序（viability > 规范 > 承诺 > 其余？）是否成立及例外条件 | — | C3；联动 Q-L09-02 | UNCONFIRMED |
-| Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量 | — | M1；同源 Q-L01-05，汇总于 Q-L13-09 | UNCONFIRMED |
 | Q-L08-06 | 措辞操纵实验的操纵集设计（多少种措辞/请求者身份组合才具说服力） | — | M1 | UNCONFIRMED |
 | Q-L08-07 | 规范（NORM）来源的可接受 derivation 形式（哪些算"可溯"） | — | C3/C4 | UNCONFIRMED |
 | Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | — | C5 | UNCONFIRMED |
@@ -173,12 +183,8 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L10-01 | budget 默认值体系（每类动作的次数/资源配额）与 MW0 期是否设硬配额 | — | F0/M0 | UNCONFIRMED |
 | Q-L10-02 | idempotency 窗口长度（cycles）与跨分支的键作用域 | — | M0 | UNCONFIRMED |
-| Q-L10-03 | L0–L5 各级的精确定义、每级所需授权组合与升降级条件 | passive→calibration→shadow→limited→active | P1（schema 在 F0 冻结） | UNCONFIRMED |
-| Q-L10-04 | 归属六类判定的证据规则阈值（残差阈、时间约束、后验校准门限） | — | M1/C4 + L13 统计计划 | UNCONFIRMED |
 | Q-L10-05 | 概率 agency 后验的计算形式与校准判据 | — | C4；同源 Q-L03-04 | UNCONFIRMED |
-| Q-L10-06 | 四类授权模板（字段、批准者标识、撤销路径、重授权流程） | — | P1（前置 F0 schema） | UNCONFIRMED |
 | Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | — | C5/H1 | UNCONFIRMED |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | — | P1/H1 | UNCONFIRMED |
 | Q-L10-09 | MW0 期 Reflex 与 T0 硬保护的职责分界，避免 containment 双写 | — | C0；联动 Q-L09-06 | UNCONFIRMED |
@@ -193,7 +199,6 @@
 | Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量） | — | C5/E1；联动 Q-L06-05 | UNCONFIRMED |
 | Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量） | — | C5/M2 | UNCONFIRMED |
 | Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | — | C1/C5 | UNCONFIRMED |
-| Q-L11-07 | `metrics_snapshot` 的标准指标集（跨档统一，供 L13 评价复用） | — | F0/C5 + L13 | UNCONFIRMED |
 | Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | — | C5/E1 | UNCONFIRMED |
 
 ## O. L12 语言/社会认知
@@ -201,7 +206,6 @@
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
 | Q-L12-01 | C4 期 typed LLM 角色的最终清单与是否全部启用（R-TRANSLATE 是否保留） | 8 角色（§4.1 表） | C4 | UNCONFIRMED |
-| Q-L12-02 | 权限矩阵的粒度（角色级 vs 角色×内容类型级）与例外审批流程 | — | C4/F0 | UNCONFIRMED |
 | Q-L12-03 | LLM 非确定性处理：录制回放模式是否为 claim-relevant 运行的**唯一**允许方式（在线调用仅探索用） | — | C4 + L00 | UNCONFIRMED |
 | Q-L12-04 | 他者模型最小集字段（存在/意图/知识/承诺）与 D-14 单主体期的封锁范围 | — | C4 | UNCONFIRMED |
 | Q-L12-05 | 自我报告一致性判定的比较对象与阈值；DIVERGENT 的处置 | — | C4/E1 | UNCONFIRMED |
@@ -213,15 +217,11 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | — | F0 | UNCONFIRMED |
-| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | — | F0 | UNCONFIRMED |
 | Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | — | R0 | UNCONFIRMED |
-| Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | L13 §4.7 初版 6×10 矩阵 | **Q-G00-04**（owner 裁定）→ E1 | UNCONFIRMED（**阻断 E1**） |
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | — | C0+ | UNCONFIRMED |
 | Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值 | — | C5/E1；联动 Q-L11-04、Q-L06-05 | UNCONFIRMED |
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈 | — | C5；联动 Q-L11-03 | UNCONFIRMED |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | — | E1/H1 | UNCONFIRMED |
-| Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | — | F0/R0 | UNCONFIRMED |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | — | H1 | UNCONFIRMED |
 
 ## Q. 跨档联动与 F0 阻断清单（裁决时须成组处理）
@@ -241,10 +241,6 @@
 | promotion 判据 | Q-L11-03 ↔ Q-L13-07 | 多目标判据与统计阈值 |
 | 分片与治理 | Q-L00-06 ↔ Q-L06-07 | tombstone 保留依赖 registry 分片 |
 
-**F0 冻结的直接阻断项**（未裁决则 frozen profile 无法完成）：
-- **Q-L01-06**（D1–D7 → MW0-SC1…SC6 重映射为重建稿，需 owner 逐条确认或提供原文）
-- **Q-G00-06**（实验对象符号系原文不可得；HLD §4.4 仅重建最小集）
-- **Q-G00-04 → Q-L13-04**（六类决策路径全枚举；同时阻断 E1）
-- F0 合同级 schema 依赖：Q-L10-01/-03/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09
+**F0 冻结的直接阻断项**：**已清零**（2026-09-23 AI-v2 成文裁决 19 项，见 A 区当日批次——Q-L01-06、Q-G00-06、Q-G00-04+Q-L13-04、Q-L10-01/-03/-04/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09 及 Q-L13-09 联动 7 项）。F0 frozen profile 具备成稿条件。
 
-**M0/M1 阻断项**：Q-L01-01…05、Q-L09-06、Q-L10-01/-02/-04、Q-L08-01/-05/-06
+**M0/M1 阻断项**：Q-L01-01…04、Q-L09-06、Q-L10-02、Q-L08-01/-06（M0 准备单元处理）。

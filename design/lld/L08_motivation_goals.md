@@ -172,7 +172,7 @@ Motive(source_kind ∈ {VIABILITY, MISMATCH, AFFECTIVE, REQUEST, OPPORTUNITY,
 - **C3**（完整自主动机）：七类动机源全接入；冲突检测 + Pareto 仲裁；承诺/解除/修订全状态机；metacontrol 可切换（与 L09）；`affect/drive 不直达执行`经权限测试。
 - **C4**：社会规范与他者承诺（L12 typed 输入）作为 NORM/COMMITMENT 源，受 D-13 权限约束（语言不写目标，只提供可溯源规范线索）。
 - **C5**：长期目标持续（跨 episode）、与 L06 autobiographical/prospective 联动、二阶纠偏（对错误采纳的再纠正）。
-- **E1**：goal ownership 路径全 lesion（各动机源分别关闭）；`core_decision_registry` 的"目标/规范自主"路径证据由本档 `GoalDecisionLog`/`ArbitrationTrace` 承载；六类路径全覆盖需 Q-G00-04 裁决后落地。
+- **E1**：goal ownership 路径全 lesion（各动机源分别关闭）；`core_decision_registry` 的"目标/规范自主"路径证据由本档 `GoalDecisionLog`/`ArbitrationTrace` 承载；六类路径枚举已裁决（Q-G00-04，AI-v2 2026-09-23，card_04 原文采纳），60 格逐格闭合仍为 E1 交付。
 
 ## 10. 实现清单（文件级）
 
@@ -208,7 +208,7 @@ config/profiles/
 | Q-L08-02 | 候选 TTL 默认值与每 cycle 候选数上界（防候选爆炸） | M1/C3 | UNCONFIRMED |
 | Q-L08-03 | Pareto 仲裁的多目标向量分量定义与默认权重 | C3 | UNCONFIRMED |
 | Q-L08-04 | front 内优先序（viability > 规范 > 承诺 > 其余？）是否成立及例外条件 | C3 | UNCONFIRMED |
-| Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量（需 L13 统计计划；与 Q-L01-05 同源） | M1 | UNCONFIRMED |
+| Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量（需 L13 统计计划；与 Q-L01-05 同源） | M1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
 | Q-L08-06 | 措辞操纵实验的操纵集设计（多少种措辞/请求者身份组合才具说服力） | M1 | UNCONFIRMED |
 | Q-L08-07 | 规范（NORM）来源的可接受 derivation 形式（哪些算"可溯"） | C3/C4 | UNCONFIRMED |
 | Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | C5 | UNCONFIRMED |

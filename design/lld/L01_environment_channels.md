@@ -3,7 +3,7 @@
 > LLD: L01/14 · v1.0 · 2026-09-12 · 状态：WORKING（M0 冻结前）
 > 上游：`HLD.md` §3.2/§3.5/§4/§10.2 · 下游消费者：L02（Sensorium 唯一合法输入源）
 > 引入门槛：**F0**（schema 合同）→ **M0**（可审计因果通道 + 非平凡动作效应）→ **M2**（MW0 切片支撑连续性实验）
-> 本档承载阶段 0 蓝图（16×16 资源 niche）**门体系化后的实例 MW0**；旧蓝图切片 S1–S6 与验收 D1–D7 已重映射（§4.6，映射待 owner 确认 → Q-L01-06）。
+> 本档承载阶段 0 蓝图（16×16 资源 niche）**门体系化后的实例 MW0**；旧蓝图切片 S1–S6 与验收 D1–D7 已重映射（§4.6；Q-L01-06 已裁决采纳重建映射，AI-v2 2026-09-23，见 open_questions A 区）。
 
 ## 1. 目标与范围
 
@@ -108,7 +108,7 @@ EffectFact: domain=simulated（MW0 期）；requested vs effective 分离——b
 | MW0-SC5 | 连续性：checkpoint 谱系/冻结/重置/伪更新对照 | 切片 5 | M2 |
 | MW0-SC6 | sealed held-out + protection 场景（分布偏移/恢复） | 切片 6 | M2/R0 |
 
-**注意**：旧 D1–D7 验收原文不可得，上表映射是我的重建；**owner 须逐条确认或提供原文**（→ Q-L01-06）。在此之前本表标注 UNCONFIRMED，不得进入 frozen profile。
+**裁决（Q-L01-06，AI-v2 2026-09-23）**：旧 D1–D7 原文判定**永久不可得**；上表重建映射**采纳为规范文本**，验收约束力由门退出判据承载（§9 + L13 `EvidenceResult`），本表降为溯源记录（不再单列验收义务）。重开条件：原文若现身，一 session 内复审。
 
 ## 5. 时间尺度与调度挂点
 
@@ -196,7 +196,7 @@ design/mw0/
 | Q-L01-02 | MW0 边界：torus vs 墙（影响空间学习生态效度） | M0 | UNCONFIRMED |
 | Q-L01-03 | 三 regime 的参数化（再生率/风暴频率/资源密度）及其与 L05 情感模式的对应 | M0 + L05 | UNCONFIRMED |
 | Q-L01-04 | regime 最小驻留 N6（默认 256 cycles） | M0 统计功效 | UNCONFIRMED |
-| Q-L01-05 | no-op/sham 归属判别的冻结最小效应量与样本量 | M0 统计计划（L13） | UNCONFIRMED |
-| Q-L01-06 | **旧 D1–D7 验收原文不可得**：§4.6 重映射由我重建，owner 须逐条确认或提供原文 | F0 | UNCONFIRMED（阻塞 frozen profile） |
+| Q-L01-05 | no-op/sham 归属判别的冻结最小效应量与样本量 | M0 统计计划（L13） | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
+| Q-L01-06 | 旧 D1–D7 验收原文不可得：§4.6 重映射裁决 | F0 | CONFIRMED（AI-v2 2026-09-23：采纳重建映射为规范，见 §4.6 裁决注） |
 | Q-L01-07 | M1 期 MW0 是否引入第二个可控代理（伪社会线索）或留到 C4 | M1 场景设计 | UNCONFIRMED |
 | Q-L01-08 | energy/integrity 的 viability 阈值与"损伤事件"定义（联动 L05 驱力） | M0/L05 | UNCONFIRMED |

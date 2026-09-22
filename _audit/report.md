@@ -11,10 +11,10 @@
 ## 2. Q 编号闭合（声明 vs 引用）
 
 - 登记册声明 Q 号：**136**
-  - CONFIRMED: 20
-  - UNCONFIRMED: 115
+  - CONFIRMED: 39
+  - UNCONFIRMED: 96
   - CLOSED: 1
-  - 分区分佈：{'A': 20, 'B': 6, 'C': 7, 'D': 8, 'E': 7, 'F': 7, 'G': 7, 'H': 8, 'I': 8, 'J': 7, 'K': 8, 'L': 8, 'M': 9, 'N': 8, 'O': 8, 'P': 10}
+  - 分区分佈：{'A': 39, 'B': 4, 'C': 7, 'D': 6, 'E': 7, 'F': 6, 'G': 6, 'H': 7, 'I': 8, 'J': 6, 'K': 7, 'L': 8, 'M': 5, 'N': 7, 'O': 7, 'P': 6}
 
 - OK：无重复声明
 
@@ -68,7 +68,7 @@
 - `lld/L09_controllers_metacontrol.md`: 230 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
 - `lld/L10_action_gateway_physio_attribution.md`: 279 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 239 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
-- `lld/L12_language_social.md`: 241 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
+- `lld/L12_language_social.md`: 242 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
 - `lld/L13_evidence_evaluation_registry.md`: 311 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）

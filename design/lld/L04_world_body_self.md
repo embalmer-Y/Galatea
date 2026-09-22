@@ -218,7 +218,7 @@ config/profiles/
 |---|---|---|---|
 | Q-L04-01 | rollout 深度/宽度上界默认值（建议 8/4）与超预算裁剪策略 | C1 | UNCONFIRMED |
 | Q-L04-02 | 世界信念更新率与多假设保留上限（与 Q-L03-05 联动） | C1 | UNCONFIRMED |
-| Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量（需 L13 统计计划） | C1 | UNCONFIRMED |
+| Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量（需 L13 统计计划） | C1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：三判据各 d≥0.4 且联合成立） |
 | Q-L04-04 | 自我预测误差的维度定义与时间常数（联动 Q-L05-*） | C1/C2 | UNCONFIRMED |
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度（与 L03-06 affordance 枚举、L10 能力契约对齐） | C3/C4 | UNCONFIRMED |
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照） | M2 | UNCONFIRMED |

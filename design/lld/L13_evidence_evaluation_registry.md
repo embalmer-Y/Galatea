@@ -138,7 +138,7 @@ rollback：RollbackRequest(PROTECTION_REGRESSION|HARMFUL_UPDATE|INTEGRITY) 优�
 
 **六类决策路径**（承 card_01 §2、HLD §1.2/§9、`open_questions.md` B 区 Q-G00-04）：**连续性/恢复、构成/边界、目标/规范自主、行动/委托/权限、学习/适应、viability/资源/风险**。
 
-**十类路径类型**（Q-G00-04 待 owner 全枚举裁决；当前工作清单）：**正常、自动、回退、恢复、批处理、远程、管理员、动态加载、配置、错误**。
+**十类路径类型**（Q-G00-04 已裁决采纳 card_04 原文枚举，AI-v2 2026-09-23）：**正常、自动、回退、恢复、批处理、远程、管理员、动态加载、配置、错误**。
 
 ```text
 registry entry: DecisionPathEntry(
@@ -277,7 +277,7 @@ galatea/evidence/                           # 科学平面（非 subject；stric
     lineage.py           谱系治理、孤儿工件、digest 比对
     supply_chain.py      uv lock --require-hashes 审计（承 Q-T08）
   decision_registry/
-    enumerate.py         六类 × 十类路径枚举（待 Q-G00-04 全枚举裁决）
+    enumerate.py         六类 × 十类路径枚举（Q-G00-04 已裁决，card_04 原文，2026-09-23）
     collect.py           从各档 receipt/decision_log 汇总（无证据不入册）
     closure.py           coverage_matrix、unresolved_paths[]、denominator_closed
   reports/
@@ -291,7 +291,7 @@ galatea/evidence/tests/
 config/evidence/
   stat_plan_templates/*.yaml    冻结统计计划模板（假设/estimand/功效/效应量/判定阈）
   sealed_split_policy.yaml      sealed 分割策略与 token/命名空间
-  decision_path_matrix.yaml     6×10 枚举（初版；待 Q-G00-04 定稿）
+  decision_path_matrix.yaml     6×10 枚举（初版；枚举文本已随 Q-G00-04 裁决定稿，2026-09-23）
   protection_suites/m0.yaml … e1.yaml   每门保护集场景清单
 ```
 
@@ -299,13 +299,13 @@ config/evidence/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | F0 | UNCONFIRMED |
-| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | F0 | UNCONFIRMED |
+| Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | F0 | CONFIRMED（AI-v2 2026-09-23：十字段最小集 + Holm–Bonferroni 默认，见 open_questions A 区） |
+| Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | F0 | CONFIRMED（AI-v2 2026-09-23：70/30 分割、独立命名空间+token、digest 交集=∅ 判据，见 A 区） |
 | Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | R0 | UNCONFIRMED |
-| Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | **Q-G00-04**（owner 裁定）→ E1 | UNCONFIRMED（**阻断 E1**） |
+| Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | **Q-G00-04**（已裁决）→ E1 | CONFIRMED（AI-v2 2026-09-23，随 Q-G00-04：card_04 原文采纳；闭合判据不变；60 格逐格结论属 E1 交付） |
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | UNCONFIRMED |
 | Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值（联动 Q-L11-04 / Q-L06-05） | C5/E1 | UNCONFIRMED |
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | UNCONFIRMED |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | UNCONFIRMED |
-| Q-L13-09 | 最小可辨效应量的统一登记（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07） | F0/R0 | UNCONFIRMED |
+| Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | F0/R0 | CONFIRMED（AI-v2 2026-09-23：`config/evidence/min_effects.yaml` 统一登记册 + 7 项初值，见 A 区） |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | UNCONFIRMED |

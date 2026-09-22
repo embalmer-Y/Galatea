@@ -93,6 +93,7 @@ PermissionMatrix = {
 ```
 - 矩阵外的一切写入尝试 → `UnauthorizedWrite(LLM_TO_<target>)`，**S1**（若目标为 WORLD_TRUTH/OWNED_GOAL/CAPABILITY 则 **S0**）。
 - `require_evidence_citation=true` 的角色若产出无 `derivation_refs` 的主张 → 拒绝（防幻觉入规范链）。
+- **粒度（Q-L12-02 已裁决，AI-v2 2026-09-23）**：写端口按**角色×内容类型**双维（使"模板受限输出"可机械校验，如 R-TRANSLATE 可写 `lang.utterance` 但限模板枚举类型），读范围按角色级；矩阵外**无运行时例外**——例外 = 新 profile 版本 + 修订记录 + CI 重跑。
 
 ### 4.3 语言输入的分型与流向（唯一合法路径）
 
@@ -232,7 +233,7 @@ config/profiles/
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
 | Q-L12-01 | C4 期 typed LLM 角色的最终清单与是否全部启用（R-TRANSLATE 是否保留） | C4 | UNCONFIRMED |
-| Q-L12-02 | 权限矩阵的粒度（角色级 vs 角色×内容类型级）与例外审批流程 | C4/F0 | UNCONFIRMED |
+| Q-L12-02 | 权限矩阵的粒度（角色级 vs 角色×内容类型级）与例外审批流程 | C4/F0 | CONFIRMED（AI-v2 2026-09-23：写端口角色×内容类型双维、读范围角色级、无运行时例外，见 §4.2） |
 | Q-L12-03 | LLM 非确定性处理：录制回放模式是否为 claim-relevant 运行的**唯一**允许方式（在线调用仅探索用）——直接影响 bit-exact 重放 | C4 + L00 | UNCONFIRMED |
 | Q-L12-04 | 他者模型最小集字段（存在/意图/知识/承诺）与 D-14 单主体期的封锁范围 | C4 | UNCONFIRMED |
 | Q-L12-05 | 自我报告一致性判定的比较对象与阈值（vs `SelfModelView`/信念/归属）；DIVERGENT 的处置 | C4/E1 | UNCONFIRMED |

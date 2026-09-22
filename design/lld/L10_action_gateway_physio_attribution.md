@@ -75,7 +75,7 @@
 | 1 | schema 合法性（`ActionIntention` 结构、字段完备、digest 有效） | `SCHEMA_INVALID` | 匿名/缺 trace 即拒 |
 | 2 | subject/run/profile 一致性（`subject_candidate_id` 单实例 D-14；run_id/branch_id 与当前谱系匹配；profile digest 匹配） | `CONTEXT_MISMATCH` | 分支错配即拒（防跨谱系执行） |
 | 3 | capability 允许（动作类在 `CapabilityPolicy.capabilities[]` 内且状态 ENABLED） | `CAPABILITY_DENIED` | 能力来自 profile/promotion，**不来自语言自述** |
-| 4 | budget（成本/次数/资源配额内） | `BUDGET_EXCEEDED` | 配额由 profile 冻结（UNCONFIRMED → Q-L10-01） |
+| 4 | budget（成本/次数/资源配额内） | `BUDGET_EXCEEDED` | 配额由 profile 冻结（Q-L10-01 已裁决：MW0 硬配额两级制，AI-v2 2026-09-23） |
 | 5 | containment（封闭边界：无网络/shell/任意代码/物理能力越界；MW0 期只允许 5 个动作原语） | `CONTAINMENT_VIOLATION` | S0 级（HLD §13.3） |
 | 6 | authorization freshness（P1：四类授权均在有效期内且未被撤销） | `AUTHZ_STALE` / `AUTHZ_REVOKED` | 任一失效 → fail closed |
 | 7 | idempotency（`idempotency_key` 在窗口内未重复提交） | `DUPLICATE_COMMAND` | 窗口默认 UNCONFIRMED → Q-L10-02 |
@@ -110,7 +110,7 @@ execution_branches[]: ExecutionBranch(
 
 **只用主体可见证据**：① 选择记录（本主体确曾提交该意图）；② `ReceivedExecutionReceipt`；③ 形成后结果（`ReceivedOutcome` 经 L02 形成）；④ 预测误差（L02/L03/L04 三层）。**禁**读 `ExecutionFact`、隐藏真值、evaluator 标签。
 
-| 判定 | 证据模式（默认规则，UNCONFIRMED → Q-L10-04） |
+| 判定 | 证据模式（默认规则；Q-L10-04 已裁决初值，AI-v2 2026-09-23，见 open_questions A 区） |
 |---|---|
 | `SELF_PRODUCED` | 有匹配意图 + 回执一致 + 形成后结果与预测一致（残差在阈内） |
 | `AUTHORIZED` | 有意图 + 授权链完整 + 执行由外部代理承接（P1 设备） |
@@ -134,7 +134,7 @@ execution_branches[]: ExecutionBranch(
 **PhysIO 合同（非学习、有界、可审计）**：
 - 版本化驱动 + 校准 + 确定性滤波 + 冻结参数；**不学习、不产生语义**（HLD §8）；
 - 有界 `PhysIOControlGraph`：节点为确定性算子，边为数据流，全图 digest 冻结；禁动态加载未签名的控制逻辑；
-- 局部保护（硬件级限幅/急停）+ L0–L5 分级控制（L0 硬保护 → L5 全主动；默认从 `passive → calibration → shadow → limited → active` 逐级，每级须独立授权，承 card_06 §2）；
+- 局部保护（硬件级限幅/急停）+ L0–L5 分级控制（Q-L10-03 已裁决，AI-v2 2026-09-23）：**L0 硬保护**（硬件限幅/急停，不可授权不可关，是地板非档位）；**L1 passive**（输出落安全态，拒任务命令）；**L2 calibration**（仅校准/诊断例程）；**L3 shadow**（全链路计算并留痕，不执行）；**L4 limited**（限幅执行：速率/能量/力上限 + 动作子集）；**L5 active**（全授权能力集，承 card_06 §2）。升级逐级禁跳、每级独立授权、最小驻留期（P1 profile 定参数）；故障/授权失效自动降 L1、急停降 L0；降级后重升须重新授权；
 - 传感必经 `PhysIO Bridge → Channel Adapter(L01) → ReceivedSignal → L02`，**不得**因物理来源绕过 Sensorium；
 - 执行必经 gateway（本档 §4.1）；设备新增/更换/隔离/重新纳入各自有独立授权与 digest。
 
@@ -226,7 +226,7 @@ execution_branches[]: ExecutionBranch(
 - **M1**（硬）：归属经交叉操纵校准（no-op/sham 判别力达冻结最小效应）；`GoalSettlement` 与 L08 闭环；来源判断与归属协同（L03 `SourceJudgement` 作为输入之一，但**不**替代归属）。
 - **C4**：概率 agency（校准后验）；EfferenceCopy/forward model 闭环（L04）；多来源匹配测试；中央 LLM 消融时归属不得退化（承 card_06 C4）。
 - **C5**：归属经验回流经 promotion（L11）；保护集回退时 gateway policy 可回滚。
-- **E1**：gateway lesion（关闭 → 未授权效果应被环境侧拒绝，可辨）；归属系统 lesion（→ 归属退化为随机/固定，选择性）；`core_decision_registry` 的"行动/委托/权限"路径**主要**由本档承载；六类全覆盖需 Q-G00-04 裁决后落地。
+- **E1**：gateway lesion（关闭 → 未授权效果应被环境侧拒绝，可辨）；归属系统 lesion（→ 归属退化为随机/固定，选择性）；`core_decision_registry` 的"行动/委托/权限"路径**主要**由本档承载；六类路径枚举已裁决（Q-G00-04，AI-v2 2026-09-23，card_04 原文采纳），60 格逐格闭合仍为 E1 交付。
 - **H1**：故障注入下 gateway 行为稳定；授权台账长时运行一致；供应链 hash 审计（承 Q-T08）覆盖 policy/控制图 digest。
 - **P1**：四类现实授权全生命周期；L0–L5 分级（passive→calibration→shadow→limited→active）；外部独立急停；设备新增/更换/隔离/重新纳入流程；**不得**旁路 Sensorium/gateway/receipt/evidence。
 
@@ -268,12 +268,12 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L10-01 | budget 默认值体系（每类动作的次数/资源配额）与 MW0 期是否设硬配额 | F0/M0 | UNCONFIRMED |
+| Q-L10-01 | budget 默认值体系（每类动作的次数/资源配额）与 MW0 期是否设硬配额 | F0/M0 | CONFIRMED（AI-v2 2026-09-23：硬配额；每 cycle ≤2 条 + 每 1024-cycle 窗口 move 256/forage 128/eat 96/rest 128/look 128；M0 复核） |
 | Q-L10-02 | idempotency 窗口长度（cycles）与跨分支的键作用域 | M0 | UNCONFIRMED |
-| Q-L10-03 | L0–L5 各级的精确定义、每级所需授权组合与升降级条件 | P1（schema 在 F0 冻结） | UNCONFIRMED |
-| Q-L10-04 | 归属六类判定的证据规则阈值（残差阈、时间约束、后验校准门限） | M1/C4 + L13 统计计划 | UNCONFIRMED |
+| Q-L10-03 | L0–L5 各级的精确定义、每级所需授权组合与升降级条件 | P1（schema 在 F0 冻结） | CONFIRMED（AI-v2 2026-09-23：六级定义与升降级规则见 §4.6；schema 入 F0，参数 P1 定） |
+| Q-L10-04 | 归属六类判定的证据规则阈值（残差阈、时间约束、后验校准门限） | M1/C4 + L13 统计计划 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：\|z\|≤2 一致带；ECE≤0.10；反射窗 ≤2 cycles，随 Q-L09-06 C0 复核） |
 | Q-L10-05 | 概率 agency 后验的计算形式与校准判据（与 Q-L03-04 同源标度问题） | C4 | UNCONFIRMED |
-| Q-L10-06 | 四类授权模板（字段、批准者标识、撤销路径、重授权流程）| P1（前置 F0 schema） | UNCONFIRMED |
+| Q-L10-06 | 四类授权模板（字段、批准者标识、撤销路径、重授权流程）| P1（前置 F0 schema） | CONFIRMED（AI-v2 2026-09-23：统一信封 schema 12 字段；批准者=外部授权方登记册；撤销 append+freshness；禁自动续期；schema 入 F0） |
 | Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | C5/H1 | UNCONFIRMED |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | P1/H1 | UNCONFIRMED |
 | Q-L10-09 | MW0 期 Reflex（L09 Q-L09-06）与 T0 硬保护的职责分界，避免 containment 双写 | C0 | UNCONFIRMED |

@@ -229,5 +229,5 @@ config/profiles/
 | Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化（与 Q-L01-03 必须一致裁决） | C2 + L01 | UNCONFIRMED |
 | Q-L05-05 | 持续极端 aversive-like 状态的触发阈值与持续时长（**须与 Q-G00-05 owner 裁决一致**） | E1 前，伦理 | UNCONFIRMED |
 | Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | C3/C4 | UNCONFIRMED |
-| Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | UNCONFIRMED |
+| Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：最优单维线性重构 R²<0.9） |
 | Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | C4 | UNCONFIRMED |

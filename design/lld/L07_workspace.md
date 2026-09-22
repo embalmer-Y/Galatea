@@ -208,4 +208,4 @@ config/profiles/
 | Q-L07-04 | 递归深度上界 `depth_max`（建议 3）与去重 TTL | C2 | UNCONFIRMED |
 | Q-L07-05 | "分离模块"的形式定义（哪些模块对算 separated；同模块内分区是否算） | C2/E1 | UNCONFIRMED |
 | Q-L07-06 | 预注册 watch point 的最小集合与新增流程（profile 变更 vs 冻结合同） | C2/E1 | UNCONFIRMED |
-| Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量，联动 L13 统计计划） | E1 | UNCONFIRMED |
+| Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量，联动 L13 统计计划） | E1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：相对 shuffle 基线 d≥0.5） |

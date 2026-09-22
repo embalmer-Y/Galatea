@@ -65,7 +65,7 @@ design/
 
 - **优先级链（双轴，见根 DEV_SPEC.md §0）**：流程/标识符事务——LOCKED 裁决 > DEV_SPEC > 其余；架构事务——LOCKED 裁决 > HLD > 冻结 profile/协议/统计计划 > LLD > ADR > 代码。
 - **UNCONFIRMED 参数**：未经 open_questions.md 对应 Q 号裁决，不得进 frozen profile、不得作门退出依据、不得写代码常量。
-- **标识符**：跨文档标签/缩写（D-/Q-/Lxx/S0–S4/门号/ADR…）统一由根 `DEV_SPEC.md` 第二部分登记册管辖；新增命名空间须走其 §14 注册流程；physio 域改标提案 Q-ID-01…06 待 owner 裁决。
+- **标识符**：跨文档标签/缩写（D-/Q-/Lxx/S0–S4/门号/ADR…）统一由根 `DEV_SPEC.md` 第二部分登记册管辖；新增命名空间须走其 §14 注册流程（physio 域改标 Q-ID-01…06 已于 2026-09-17 裁决执行，见 DEV_SPEC §11.4；该域已随子项目剥离退役）。
 - **九条认识不变量**与**机械禁止写入路径**见 HLD §11.1 / §6.2——CI + 运行时双重强制。
 - **门体系不可颠倒**：F0→M0→M1→M2→R0→ALLOW_NEXT_STAGE→C0–C5→E1→H1→物理授权→P1；投入成本不得降低门。
 - **术语**：物理 I/O 层统一称 **PhysIO**（曾用名 HIO = Helios I/O，已废弃，见 open_questions Q-N01）。
@@ -80,3 +80,4 @@ design/
 - 2026-09-17 v1.1.2：**Q-G00-07 裁决执行（owner，方案 A 剔除）**：L13 §1 头部与 Q-L13-02 依赖列的 "E0" 引用修正（门链维持 F0→…→C5→E1→H1→P1）；Q-G00-07 迁入 open_questions A 区（CONFIRMED，20/113/1）。同日仓库完成 git 化（ACT-01，tag `devspec-v1.0`，见 DEV_SPEC 修订记录）。
 - 2026-09-17 v1.1.3：**Q-ID-01…06 裁决执行（owner，全按建议）**：physio 六组标签分域改标 `DYN-/COM-L/PIO-M/SP-/NL2-/ADR-PIO-`（全库 290 处 + 两份 ADR 文件重命名；冻结区实质内容未动，Q-PIO 待裁决状态不变）；执行证据 `_audit/relabel_physio_qid.py`；详见根 DEV_SPEC v1.1 §11.4/§13。
 - 2026-09-18 v1.1.4：**physio 子项目剥离**（owner 决策，详见 HLD 附录 A.10 与 DEV_SPEC v1.3）：`physio/` 全目录移出本仓库（交接点 tag `physio-handoff`）；Galatea 回归纯认知主体项目，PhysIO 保留为 P1 概念合同名。本索引不含 physio 内容（原本即未列入树）。
+- 2026-09-23 v1.2.0：**裁决权模型 v2 + F0 直接阻断清零（19 项）**。owner 指令（2026-09-23）移交裁决权（"该项目将完全由 AI 主导开发……请你自行裁决"）→ DEV_SPEC 升 v1.4 新增 §4.6（AI 成文裁决 + 重开条件；可逆/难逆/证据可判三级；owner 否决权保留；自我审批防腐；AI 不得为进度降门判据=数据造假 S0），tag `authority-v2`。同日 AI-v2 首批行使：`open_questions.md` A 区新增 2026-09-23 批次 19 项 CONFIRMED——Q-L01-06（重建映射采纳为规范，验收约束力归门退出判据）、Q-G00-06（HLD §4.4 最小集即 F0 符号合同，未重建符号 RESERVED 禁用）、Q-G00-04+Q-L13-04（card_04 六类×十类枚举采纳；60 格逐格结论仍属 E1）、Q-L10-01（MW0 硬配额两级制）、Q-L10-03（L0 地板+L1–L5 六级定义）、Q-L10-06（四类授权统一信封 schema）、Q-L11-07（指标向量 schema+最小标准集）、Q-L12-02（写端口角色×内容类型双维）、Q-L13-01（统计计划十字段集+Holm–Bonferroni）、Q-L13-02（sealed 70/30+digest 交集不回流）、Q-L13-09（min_effects.yaml 统一效应量册）及联动 7 项（Q-L01-05/Q-L08-05/Q-L10-04/Q-L03-04/Q-L05-07/Q-L04-03/Q-L07-07 初值）。登记册 20/113/1 → 39/94/1，升 v1.2；HLD §4.4 转规范+附录 A.11；L01/L03/L04/L05/L07/L08/L10/L11/L12/L13 同步。**F0 frozen profile 具备成稿条件**；M0/M1 阻断余项（Q-L01-01…04、Q-L09-06、Q-L10-02、Q-L08-01/-06）留 M0 准备单元。
