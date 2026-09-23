@@ -353,7 +353,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | **已完成（2026-09-23）**：目录定为仓库根 `adr/`（随 ADR-G-0001 设立，Q-DEV-01 的位置子项随之定）；ADR-G-0001 = F0 阻断清零批次 19 项裁决的选项空间补档（REV-0001 R1 闭环） |
 | ACT-06 | ~~physio COM 子系统 Zenoh 原生重设计~~ | — | **已失效（2026-09-18）**：physio 子项目剥离出库，本行动随子项目带走；其主题由新独立项目自行决定是否延续 |
 | ACT-07 | **F0 frozen profile 成稿 + F0 门冻结** | SPEC（AI-v2） | **已完成（2026-09-23）**：7 份合同（f0_l00 / f0_action_contract / f0_language_contract + claim_v1 / min_effects / sealed_split_policy / decision_path_matrix）；REV-0002 评审（PASS-WITH-FINDINGS，R1–R7 闭环）；冻结 = ADR-G-0002 + tag `f0-freeze`。前置补裁 Q-L00-01/02（原漏列） |
-| ACT-08 | **开发环境脚手架与依赖锁定（Q-T08 合规）**：`pyproject.toml`（project 元数据 + `[dependency-groups]` dev = pytest/hypothesis/pyright）+ `uv lock`（`--require-hashes` 哈希锁定）+ 重建脚本/说明（`.venv` 种子 = CPython 3.12.13，Q-T01 pin；当前环境为会话内手工创建、工具链未哈希锁定——owner 2026-09-23 问询确认的缺口） | IMPL | 未开始（F0 实现期脚手架单元内完成；完成前测试命令以 AGENTS.md 记录的 `.venv/Scripts/python.exe -m pytest` 为准） |
+| ACT-08 | **开发环境脚手架与依赖锁定（Q-T08 合规）**：`pyproject.toml`（project 元数据 + `[dependency-groups]` dev = pytest/hypothesis/pyright）+ `uv lock`（`--require-hashes` 哈希锁定）+ 重建脚本/说明（`.venv` 种子 = CPython 3.12.13，Q-T01 pin；当前环境为会话内手工创建、工具链未哈希锁定——owner 2026-09-23 问询确认的缺口） | IMPL | **已完成（2026-09-23）**：`pyproject.toml` + `.python-version`（3.12.13）+ `uv.lock`（12 包哈希锁定）；`.venv` 已删除并经 `uv sync` 从锁重建；`uv run pytest` 42 通过、`uv run pyright` 0 错误。重建 = `uv sync`；测试 = `uv run pytest` |
 
 ## 附录 D：本规范未决问题（Q-DEV 系列）
 

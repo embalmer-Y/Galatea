@@ -1,0 +1,23 @@
+# Galatea 开发环境定义（ACT-08，Q-T08：uv lock 哈希锁定；Q-T01：Python 3.12 pin 补丁版）
+# 重建：uv sync（自动创建 .venv 并按 uv.lock 哈希校验安装）；测试：uv run pytest
+[project]
+name = "galatea"
+version = "0.1.0"
+description = "Galatea：单一认知个体——一切'具备'以可干预、可测量、可复算的真实因果结构为证"
+requires-python = "==3.12.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "hypothesis==6.168.1",
+    "pyright==1.1.414",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["galatea"]
+addopts = "-q"
+
+[tool.uv]
+package = false
