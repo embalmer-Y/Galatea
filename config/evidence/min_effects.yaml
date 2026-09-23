@@ -1,0 +1,50 @@
+# Galatea 最小可辨效应量统一登记册（Q-L13-09 CONFIRMED 2026-09-23；L13 §4.3/§10）
+# 效力：F0 门冻结物（ADR-G-0002）。改值 = 新版本 + 重新功效分析；运行后改动被 StatPlanMutation 拒绝。
+# 初值属性：零实测数据期的功效推定初值（d=0.5/α=0.05/power=0.8 双侧 t 检验 ⇒ ~64/组），各对应门退出前按实测功效复核后入新版本。
+envelope:
+  alpha: 0.05
+  power: 0.80
+  correction: holm_bonferroni          # 承 stat_plan_templates/claim_v1.yaml（Q-L13-01）
+entries:
+  - id: noop_sham_attribution
+    q: Q-L01-05
+    claim_gate: M0
+    metric: attribution_accuracy_vs_random_baseline
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n_per_arm: 64
+  - id: real_vs_pseudo_motive
+    q: Q-L08-05
+    claim_gate: M1
+    metric: adoption_rate_discrimination                # 与 Q-L01-05 同源同标度
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n_per_arm: 64
+  - id: attribution_rule_thresholds
+    q: Q-L10-04
+    claim_gate: [M1, C4]
+    thresholds:
+      residual_consistency_band_z: 2.0
+      posterior_calibration_ece_max: 0.10              # C4 起；知觉校准平面另见 calibration_perception（0.05）
+      reflex_window_cycles_max: 2                       # 随 Q-L09-06 于 C0 复核
+  - id: calibration_perception
+    q: Q-L03-04
+    claim_gate: C1
+    thresholds:
+      ece_max: 0.05
+      binning: equal_mass_15
+      min_samples_per_bin: 30
+  - id: anti_reward_collapse
+    q: Q-L05-07
+    claim_gate: [C2, E1]
+    thresholds:
+      max_single_dim_linear_r2: 0.9                     # 任一维可被单维线性重构 ≥0.9 即判塌缩
+  - id: body_incorporation
+    q: Q-L04-03
+    claim_gate: C1
+    metric: three_criteria_vs_pre_incorporation_baseline
+    min_effect: {type: cohens_d, value: 0.4}            # 三判据各 d≥0.4 且联合成立
+    joint: true
+  - id: effective_access
+    q: Q-L07-07
+    claim_gate: E1
+    metric: broadcast_to_2sep_modules_vs_shuffle_baseline
+    min_effect: {type: cohens_d, value: 0.5}

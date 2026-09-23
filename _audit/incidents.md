@@ -13,6 +13,7 @@
 | INC-04 | 2026-09-15 | S1（流程） | 决策 | ADR-PIO-0002 静默裁决未登记设计层 | 以"编码选型"（Q-PIO-07）之名一次性裁决了从未登记 Q 号的 COM-L2 帧格式与 COM-L3 寻址，并把结论固化进 Kconfig default（RESEARCH_02 §1.2） | ADR-PIO-0002 降级为"待 owner review、不得作实现依据"；Q-PIO-07 拆分提案 07a–07e；DEV_SPEC §4.3 裁决边界纪律 | 处置中（等 owner review） |
 | INC-05 | 2026-09-15→16 | S2 | 流程 | physio 研究期越权产出 27 个实现产物 | RESEARCH 阶段写出 19 `.c` + 4 `.h` + 构建系统 + app 骨架，违反 research → HLD → LLD → 实施顺序（appendixA §A.5） | 全量撤回；有价值的合同措辞抢救入 appendixA（NON-NORMATIVE）；DEV_SPEC §1 阶段白名单 + §2 单会话产出预算 | 已处置 |
 | INC-06 | 历史（owner 陈述 2026-09-17） | — | 流程 | 项目管理不当 + 技术栈草率导致多次整体重写 | 选型无裁决门槛、决策不可追溯、文档遗失叠加 | DEV_SPEC §7 防重写机制（技术栈变更四门槛、重写一等决策、ACT-01 版本控制） | 制度化应对中 |
+| INC-07 | 2026-09-23 | S1（流程） | 流程 | `.gitignore` 未锚定目录模式致 4 份 F0 冻结合同未入库 | `evidence/`（无根锚定）误伤 `config/evidence/`：d5e0a0d 宣称交付 7 份合同，实际仅 3 份入库（`git ls-files config/`=3）；若直接打 tag，4 份冻结物可被无痕修改，冻结完整性不成立。发现：REV-0002 R1（冻结前强制评审，`git check-ignore -v` 证实）。根因：gitignore 模式书写未根锚定 + 提交前无"文件集入库数"验收步 | 目录模式全部根锚定（`/registry/` `/evidence/` `/artifacts/` `/checkpoints/`）；4 份补提交并入冻结提交；DEV_SPEC §2 新增"文件集交付验收"（`git ls-files` 核对）；`git ls-files config/`=7 验收 | 已处置（2026-09-23，F0 冻结提交内闭环） |
 
 ## 登记格式（新条目沿用）
 

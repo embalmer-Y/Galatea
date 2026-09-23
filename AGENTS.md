@@ -12,8 +12,8 @@ Galatea：建造具备感觉、情感、自我意识与学习能力的**单一�
 
 - **裁决权模型 v2（AI 主导）**：自 2026-09-23 起，一切 Q 号/ADR/门冻结裁决由开发 AI 按 `DEV_SPEC.md` §4.6 自主作出（成文裁决 + 重开条件；分级：可逆/难逆/证据可判）；owner 否决权保留。AI 裁决在登记册中以 **AI-v2** 标识。
 - **阶段独立评审（REV，Q-DEV-05）**：门冻结前/难逆决策后/重大批次后，由**不带作者上下文的新起子代理**只读评审（六维：目标对齐/DoD/军规/一致性/自包含性/裁决质量），报告入 `_audit/reviews/REV-<dddd>.md`，异议须书面回应闭环，未闭环 S1+ 阻断门冻结。**目标锚定（owner 要求）**：最终目标唯一权威表述 = 本文件"项目一句话" + HLD §1/§2，一切产出须可回答"如何服务该目标"。
-- **主线**：F0 之前的规范完备期。HLD + L00–L13 十四档全集已交付，**无任何 `galatea/**` 实现代码**（这是刻意状态：research → HLD → LLD → 实施，不得跳步）。
-- **F0 直接阻断已清零**（2026-09-23 AI-v2 成文裁决 19 项，见 `design/open_questions.md` A 区当日批次）：F0 frozen profile 具备成稿条件；剩余 M0/M1 阻断项（Q-L01-01…04、Q-L09-06、Q-L10-02、Q-L08-01/-06）在 M0 准备单元处理。登记册规模：CONFIRMED 39 / UNCONFIRMED 94 / CLOSED 1。
+- **主线**：**F0 已冻结（2026-09-23，ADR-G-0002 + tag `f0-freeze`）**——7 份工程合同入库（`config/profiles/` 3 份 + `config/evidence/` 4 份）。当前 = **F0 实现期**：按 L00/L01/L10/L12 §10 清单生成 `galatea/`（kernel 骨架 + schema stubs + core_decision_registry 骨架）+ 同批测试；退出判据 = HLD §10.4 F0 行（唯一写者成立；真值/接收/信念/自述/结论分 schema；core_decision_registry 建立）。
+- **F0 直接阻断已清零**（2026-09-23 AI-v2 成文裁决 21 项，含执行中补裁的 Q-L00-01/02，见 A 区当日批次）；剩余 M0/M1 阻断项（Q-L01-01…04、Q-L09-06、Q-L10-02、Q-L08-01/-06）在 M0 准备单元处理。登记册规模：CONFIRMED 41 / UNCONFIRMED 92 / CLOSED 1。
 - **版本管理**：已 git 化（2026-09-17 ACT-01，main 分支；提交纪律见下）。
 - **2026-09-18 子项目剥离**：原 `physio/`（Zephyr 固件子项目）已整体剥离为独立项目，与本仓库不再有任何开发耦合；其全部研究资料保存在 git tag `physio-handoff`。Galatea 的 PhysIO 仍为 P1 物理接口层的**概念合同名**（HLD 附录 A.10），未来实现载体另行裁决。
 
@@ -48,7 +48,8 @@ design/              ← 主线规范源：HLD.md + lld/L00–L13 + open_questio
 _audit/              ← check_docs.py（文档机器校验，文档变更后必运行）+ report.md + incidents.md（缺陷台账）
                        reviews/（REV-<dddd> 阶段独立评审报告，Q-DEV-05）
 galatea/             ← 主线实现（未创建；须 LLD §10 清单 + Q 解冻后按门生成）
-config/profiles/     ← frozen profile（未创建；参数须 CONFIRMED 方可写入）
+config/profiles/     ← frozen profile（F0 冻结 3 份：f0_l00 / f0_action_contract / f0_language_contract）
+config/evidence/      ← 证据合同（F0 冻结 4 份：claim_v1 模板 / min_effects / sealed_split_policy / decision_path_matrix）
 （physio/ 已于 2026-09-18 剥离；历史资料见 git tag physio-handoff）
 ```
 

@@ -1,0 +1,40 @@
+# Galatea 冻结统计计划模板 v1（Q-L13-01 CONFIRMED 2026-09-23；L13 §4.3）
+# 效力：F0 门冻结物（ADR-G-0002）。运行前冻结，运行后修改 = StatPlanMutation（S2）拒绝。
+# 用法：每个 claim 的统计计划必须实例化本模板全部必填字段；主终点 >3 个解析拒绝。
+template:
+  id: claim_v1
+  required_fields:
+    - hypothesis                 # 可反驳、预注册
+    - estimand
+    - primary_endpoints          # ≤3，预注册；多重比较族 = 单个 EvidenceResult 内全部主终点
+    - sample_size_and_power      # 功效分析
+    - test_method
+    - effect_size_and_ci         # 效应量 + 95% CI 规则（方法预声明）
+    - decision_thresholds
+    - min_effects_ref            # 必须引用 config/evidence/min_effects.yaml 条目（Q-L13-09）
+    - unknown_handling           # 未知处理规则（unknown ≠ negative）
+    - multiple_comparison
+  defaults:
+    alpha: 0.05
+    power: 0.80
+    multiple_comparison:
+      method: holm_bonferroni    # 无独立性假设、确定性；探索性可声明 BH 但不得作门退出依据
+      family: primary_endpoints_within_evidence_result
+    exploratory_alternative:
+      method: benjamini_hochberg
+      admissible_for_gate_exit: false
+    verdict_values: [SUPPORTED, INCONCLUSIVE, REFUTED]   # 三态 + unknowns[]（禁 unknown 当阴性）
+
+# —— 标准指标集（Q-L11-07 CONFIRMED 2026-09-23）——
+# 跨档同名同义；每个 LearningProposal 的 metrics_snapshot 必含最小标准集，维度 ≥2（L11 §4.4 禁单标量折叠）。
+standard_metrics:
+  metric_schema: {name, value, direction, unit, scope}
+  directions: [HIGHER_BETTER, LOWER_BETTER, TWO_SIDED]
+  value_type: float64            # Q-T10 CONFIRMED：证据/统计 float64
+  vector_min_dimensions: 2
+  # direction/unit 为指标语义的必然派生（Q-L11-07 schema 的实例化赋值，非新裁决；REV-0002 R6）
+  minimal_standard_set:
+    - {name: prediction_error_layered, direction: LOWER_BETTER, unit: standardized, note: 至少报目标层}
+    - {name: protection_preflight_delta, direction: LOWER_BETTER, unit: regression_count}
+    - {name: data_efficiency, direction: HIGHER_BETTER, unit: improvement_per_sample}
+    - {name: replay_coverage, direction: HIGHER_BETTER, unit: ratio}

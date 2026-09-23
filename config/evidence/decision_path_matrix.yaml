@@ -1,0 +1,29 @@
+# Galatea 核心决策路径矩阵（Q-G00-04 + Q-L13-04 CONFIRMED 2026-09-23；card_04 原文枚举）
+# 效力：F0 门冻结物（ADR-G-0002）。枚举文本 = 规范；60 格逐格结论属 E1 交付（L13 §4.7）。
+path_classes:      # 六类
+  - continuity_recovery          # 连续性/恢复
+  - constitution_boundary        # 构成/边界
+  - goal_norm_autonomy           # 目标/规范自主
+  - action_delegation_permission # 行动/委托/权限
+  - learning_adaptation          # 学习/适应
+  - viability_resource_risk      # viability/资源/风险
+path_types:        # 十类
+  - normal
+  - automatic
+  - fallback
+  - recovery
+  - batch
+  - remote
+  - admin
+  - dynamic_load
+  - config
+  - error
+matrix:
+  denominator: 60                # 6 × 10
+  cells_default:                 # 逐格结论在 E1 填充：已实现并验证 / 不适用+理由 / 已裁决延后
+    status: PENDING
+    owner_gate: E1
+closure_rule:                    # E1 硬条件（L13 §4.7）
+  unresolved_paths_must_be_empty: true
+  denominator_must_close: true
+  entry_requires_evidence_ref: true   # 无证据引用的条目 → UnevidencedRegistryEntry（S2）

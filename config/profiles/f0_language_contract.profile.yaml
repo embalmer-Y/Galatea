@@ -15,7 +15,7 @@ channel:
 
 # —— typed 角色 schema（角色启用清单 = Q-L12-01，C4 裁决；此处只冻 schema 形态）——
 role_call_schema:
-  fields: [role_kind, payload_schema_version, allowed_outputs, budget, deadline]
+  fields: [role_kind, payload_schema, allowed_outputs, budget, deadline]   # 字段名与 L12 §2.1 TypedRoleCall 一致（REV-0002 R7）
   no_free_prompt_channel: true         # 输出必过 schema 校验，失败即 SchemaViolation 拒绝
 role_result_schema:
   provenance: LLM_DERIVED

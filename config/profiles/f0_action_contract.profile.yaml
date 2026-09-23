@@ -30,7 +30,7 @@ gateway_checks:
   - {id: 7, name: idempotency,         reason_code: DUPLICATE_COMMAND}
   - {id: 8, name: deadline,            reason_code: DEADLINE_MISSED}
 fail_closed_default: true             # 任何不确定 → REJECTED + Unknown，禁宽松通过
-containment_whitelist_mw0: [move, forage, eat, rest, look]   # MW0 五原语（L01 §4.4）
+containment_whitelist_mw0: [move, forage, eat, rest, look]   # MW0 五原语（L01 §4.4）；权威源=本 profile，M0 的 m0_gateway.profile 继承（REV-0002 R7）
 
 # —— 预算（Q-L10-01 CONFIRMED 2026-09-23：MW0 硬配额两级制；初值 M0 复核）——
 # 重开条件：M0 数据显示配额成行为瓶颈或形同虚设（触顶频率 >5% 或 =0）→ 重标定。

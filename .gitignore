@@ -18,10 +18,11 @@ venv/
 *.egg-info/
 
 # --- Galatea 运行时三库与证据/工件（L00/L13：内容寻址、append-only，体积大且可再生性受控）---
-registry/
-evidence/
-artifacts/
-checkpoints/
+# 纪律：目录模式一律根锚定（INC-07：未锚定的 evidence/ 曾误伤 config/evidence/ 冻结合同）
+/registry/
+/evidence/
+/artifacts/
+/checkpoints/
 *.db
 *.db-wal
 *.db-shm

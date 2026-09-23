@@ -1,0 +1,24 @@
+# Galatea sealed 分割策略（Q-L13-02 CONFIRMED 2026-09-23；L13 §4.3/§4.4）
+# 效力：F0 门冻结物（ADR-G-0002）。
+split:
+  internal: 0.70
+  sealed: 0.30
+  unit: mw0_scenario_config          # MW0 场景配置网格（regime × 种子）
+generation:
+  rng_stream: ["l13", "sealed-split"]   # L00 counter-based 派生流（Q-T11）
+  generated_at: F0_FREEZE               # F0 冻结时一次性生成
+  digest_recorded: true                 # 分割结果入 registry 记 digest，可复算
+isolation:
+  namespace: "registry://sealed/"       # 独立 registry 命名空间
+  token_type: SealedEvaluationToken     # 独立 token 类型，与 InternalValidationSet 类型不可互换（Pydantic discriminated union）
+no_backflow:
+  criterion: data_scope_digests_intersection_empty   # 候选 data_scope digest 集 ∩ sealed digest 集 = ∅
+  enforced_at: promotion_step_1_registry_query       # Promotion Gate 流程第①步强制
+  sealed_result_reuse_for_same_candidate: forbidden  # 回流检出 → SealedContamination（S1，作废 promotion）
+read_policy:
+  allowed_context: promotion_gate_evaluation_only
+  violation: {event: SealedContamination, severity: S1}
+rotation:
+  allowed_at: gate_boundaries_only
+  retired_to: EVALUATION_RETIRED
+  retired_reuse: never_for_training     # 旧 sealed 永久退出训练侧

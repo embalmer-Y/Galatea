@@ -82,7 +82,7 @@ LearningProposal(
   parent_digest: str,                          # **必填**；无父即拒（防伪更新）
   data_scope: DataScope(run_ids[], branch_ids[], window, item_count, exclusions[]),
   seed: int, rng_stream_ref: str,              # 承 L00 §4.3 派生流；禁全局 RNG
-  metrics_snapshot: dict[str, float],
+  metrics_snapshot: list[StandardMetric],  # 向量 schema（Q-L11-07 CONFIRMED 2026-09-23；实例化见 config/evidence/stat_plan_templates/claim_v1.yaml），维度 ≥2
   bounded: bool, bound_ref: str?,
   protection_preflight: ProtectionRunResult?,  # 提交前自检（非最终判据）
   provenance, content_digest )

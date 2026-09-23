@@ -157,7 +157,7 @@ EffectFact: domain=simulated（MW0 期）；requested vs effective 分离——b
 
 ## 9. 引入门槛
 
-- **F0**：五通道 schema、WorldTruth/DeliveryFact/ReceivedSignal/EffectFact 对象图、typed unknown 对接、MW0 profile 骨架冻结。
+- **F0**：五通道 schema 与 WorldTruth/DeliveryFact/ReceivedSignal/EffectFact 对象图、typed unknown 对接以本档 §2/§4 规范文本 + L00 `schema_versions`（`f0_l00.profile.yaml`）承载，无独立 config 文件（REV-0002 R2 澄清，2026-09-23）；MW0 profile 骨架归 M0（`m0_mw0.profile.yaml`）。
 - **M0**：MW0-SC1/SC2 全量实现；五类干预电池；确定性重放与 LeakageProbe 通过——**M0 失败的运行不启动 M1 主评价**。
 - **M1**：MW0-SC3/SC4 实验台（请求/伪理由/来源线索操纵）。
 - **M2/R0**：MW0-SC5/SC6（checkpoint 对照场景、sealed held-out 世界分布偏移）。

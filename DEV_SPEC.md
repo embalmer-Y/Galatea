@@ -64,6 +64,8 @@ research → Q 号裁决（§4.6 裁决权模型） → HLD → LLD → 门冻�
 
 **单会话产出预算**：一个会话以**一个可验证交付单元**为限（一份文档修订、一个 Q 批次汇报、一个 LLD §10 清单条目及其测试）。超出预算的工作登记后另起会话——这是对 physio 27 文件事故的直接对策。
 
+**文件集交付验收**：凡以文件集为产出的交付（清单、profile、合同），提交前必须 `git ls-files` 核对实际入库文件数与清单一致（INC-07 教训，2026-09-23）。
+
 ## 3. 会话引导协议（bootstrap）
 
 任何 AI 会话在本仓库开始工作时，按序：
@@ -350,7 +352,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | ACT-04 | `check_docs.py` 扩展：扫描范围扩至全仓 `.md`；按 §11 登记表校验标识符未登记/碰撞；Q 闭合校验升级为 error；规模计数自动核对 | IMPL | 未开始（范围见 Q-DEV-01） |
 | ACT-05 | 主线首个 ADR（`ADR-G-0001`）模板与目录建立（`docs/adr/` 或仓库根 `adr/`，位置随 Q-DEV-01 一并定） | SPEC | **已完成（2026-09-23）**：目录定为仓库根 `adr/`（随 ADR-G-0001 设立，Q-DEV-01 的位置子项随之定）；ADR-G-0001 = F0 阻断清零批次 19 项裁决的选项空间补档（REV-0001 R1 闭环） |
 | ACT-06 | ~~physio COM 子系统 Zenoh 原生重设计~~ | — | **已失效（2026-09-18）**：physio 子项目剥离出库，本行动随子项目带走；其主题由新独立项目自行决定是否延续 |
-| ACT-07 | **F0 frozen profile 成稿**（下一交付单元，前置已齐：F0 阻断 19 项已裁决 2026-09-23）——`config/evidence/stat_plan_templates/`、`min_effects.yaml`、`sealed_split_policy.yaml`、`decision_path_matrix.yaml`（初版）+ `config/profiles/` F0 合同 profile（f0_action_contract / f0_language_contract 等，各 LLD §10 所列）；成稿后按 §4.6 走 F0 门冻结（ADR-G + tag） | SPEC（AI-v2） | 未开始 |
+| ACT-07 | **F0 frozen profile 成稿 + F0 门冻结** | SPEC（AI-v2） | **已完成（2026-09-23）**：7 份合同（f0_l00 / f0_action_contract / f0_language_contract + claim_v1 / min_effects / sealed_split_policy / decision_path_matrix）；REV-0002 评审（PASS-WITH-FINDINGS，R1–R7 闭环）；冻结 = ADR-G-0002 + tag `f0-freeze`。前置补裁 Q-L00-01/02（原漏列） |
 
 ## 附录 D：本规范未决问题（Q-DEV 系列）
 
@@ -374,3 +376,4 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 - 2026-09-23 v1.4：**裁决权模型 v2（AI 主导）**——owner 指令（2026-09-23）："该项目将完全由 AI 主导开发，我想看看只靠 AI 最终能走到哪一步……我的建议将没有任何意义，请你自行裁决。"新增 §4.6（成文裁决 + 重开条件、裁决三级分级、owner 否决权保留、自我审批防腐、实验框架条款），登记为 Q-DEV-04（owner 指令 CONFIRMED）；§0 原则 2、§1 工作流与白名单、§2 DoD、§4.1、§4.4（更名"裁决呈递协议"）、§7.1/§7.3、§12.2 中"owner 裁决/确认/授权"字样按 §4.6 重述；全库其余文档中"owner 裁决"字样按 §4.6 解释执行，不逐处改写（避免批量改动的编码风险），仅在各登记册头部加裁决权说明。首个 v2 行使：F0 直接阻断 19 项 Q 号同日成文裁决（见 `design/open_questions.md` A 区 2026-09-23 批次）。
 - 2026-09-23 v1.5：**阶段独立评审（REV）机制 + 目标锚定原则**——owner 建议（2026-09-23）："完成一个阶段后新开一个子 Agent review 阶段内容（提高可靠性）；务必确保最终目标始终明确并按其开发。"新增 §0 原则 4（目标锚定：唯一权威表述 = AGENTS.md 项目一句话 + HLD §1/§2；范围漂移与目标空转同级登记；禁第二目标文本）与 §6 REV 条款（触发三条件、fresh-context 只读子代理、评审六维、REV-<dddd> 报告入 `_audit/reviews/`、异议书面回应闭环、未闭环 S1+ 阻断门冻结），登记为 Q-DEV-05（owner 建议 CONFIRMED）；§11.3 登记 `REV-<dddd>` 命名空间。首例 REV-0001 同日执行（评审 v1.4 批次：裁决权模型 v2 + F0 阻断清零 19 项）。
 - 2026-09-23 v1.5.1：**REV-0001 闭环**（10 项发现：R1/R2/R3/R4/R5/R6/R9/R10 采纳即修；R7 记录教训不改历史；R8 承认并登记偏差）。修复：A 区 8 项补重开条件 + Q-L10-01 补数值属性说明（R1 前半）；`adr/ADR-G-0001` 选项空间补档并落定 ADR 目录（R1 后半，ACT-05 闭环）；L13 §10 增 `min_effects.yaml`（R2）；§11.1/§11.3 登记行修正（R3）；L13 §4.5/§4.7/§9 与 HLD §0 owner 措辞按 v2 澄清（R4/R6）；L10 §9/§10 六级措辞同步（R5）；登记册 Q 区枚举歧义与伦理阈措辞修正（R6/R10）；HLD 头部升 v1.2 + §0 树 A.1–A.11 + §8.4 增头部版本规则（R9）。教训入规：R7——跨交付单元的前向状态宣称只入完成该状态的提交（历史提交不改写）；R8——本会话超 §2 单元预算（owner 同日连续指令级联：v1.4→v1.5→REV 首例），按"登记偏差"处置，后续无级联动因时严守预算；另 643a45d 提交信息"report.md 刷新"与实际 diff 不符（字节相同无可提交差异），措辞失真承认。
+- 2026-09-23 v1.5.2：**REV-0002 闭环 + F0 门冻结（ADR-G-0002 + tag `f0-freeze`）+ ACT-07 关闭**。REV-0002（冻结前强制评审）判定 PASS-WITH-FINDINGS：R1（S1）——`.gitignore` 未锚定 `evidence/` 致 `config/evidence/` 4 份冻结物未入库，登记 **INC-07**，已根锚定修复 + 补提交 + `git ls-files config/`=7 验收；R2——L01 §9 F0 行与 §10 矛盾澄清（对象图由规范文本 + f0_l00 schema 版本承载，MW0 骨架归 M0）；R3——ACT-07/AGENTS/README/登记册 Q 区状态同步（含 21 项口径）；R4——L11 §2.1 `metrics_snapshot` 类型改向量；R5——ADR/tag 与闭环同一提交（前向引用即时成真）；R6——claim_v1 direction/unit 溯源注释；R7——payload_schema 字段名统一、白名单权威源注明（report 计数口径差留 ACT-04）。§2 新增文件集交付验收规则。
