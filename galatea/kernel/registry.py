@@ -1,0 +1,110 @@
+"""content-addressed registry 核心（L00 §4.5；Q-T09 CONFIRMED：自研 ~500 行、拒网络源）。
+
+布局：registry/<sha256[:2]>/<sha256>/（manifest.json + blob）；索引 registry.db
+（本模块以 writer_module="registry_builder" 经 Stores 单写者句柄落账）。
+put 幂等（同 digest 同内容）；blob 与 manifest 不符 → RegistryCollision（fail closed，S0）。
+治理（promotion/sealed）在 L13，本模块只做存取与 digest 完整性。
+"""
+import json
+from dataclasses import dataclass
+from pathlib import Path
+
+from galatea.kernel.clock import CycleClock
+from galatea.kernel.digest import blob_digest, content_digest
+from galatea.kernel.packet import ArtifactRef
+from galatea.kernel.state import StoreName, Stores, WriterHandle
+
+
+class RegistryCollision(RuntimeError):
+    """同 digest 路径下内容与 manifest 不符（完整性破坏，S0）。"""
+
+
+@dataclass(frozen=True, slots=True)
+class RegistryEntry:
+    manifest: dict[str, object]
+    blob: bytes
+
+
+class Registry:
+    """只增不改的内容寻址存储；get 只读。"""
+
+    def __init__(self, root: Path, stores: Stores, clock: CycleClock) -> None:
+        self._root = root
+        self._stores = stores
+        self._clock = clock
+        self._event_seq = 0
+
+    # —— 内部 ——
+    def _dir(self, digest: str) -> Path:
+        return self._root / digest[:2] / digest
+
+    def _record_event(self, writer: WriterHandle, op: str, digest: str) -> None:
+        self._event_seq += 1
+        writer.execute(
+            "INSERT INTO registry_events (seq, op, digest, cycle) VALUES (?, ?, ?, ?)",
+            (self._event_seq, op, digest, self._clock.cycle),
+        )
+
+    def put(self, blob: bytes, kind: str, parent_digests: tuple[str, ...] = ()) -> ArtifactRef:
+        """幂等写入：同 digest 同内容直接返回；目录存在但内容不符 → RegistryCollision。"""
+        if not kind:
+            raise ValueError("kind must be non-empty")
+        digest = blob_digest(blob)
+        target = self._dir(digest)
+        manifest = {
+            "kind": kind,
+            "digest": digest,
+            "size": len(blob),
+            "created_cycle": self._clock.cycle,
+            "parent_digests": list(parent_digests),
+        }
+        manifest_digest = content_digest(manifest)
+        if target.exists():
+            existing = (target / "blob").read_bytes()
+            if blob_digest(existing) != digest:
+                raise RegistryCollision(f"content mismatch under {digest}")
+        else:
+            target.mkdir(parents=True)
+            (target / "manifest.json").write_bytes(
+                json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            )
+            (target / "blob").write_bytes(blob)
+            writer = self._stores.open_writer(StoreName.REGISTRY, "artifacts", "registry_builder")
+            with writer.transaction():
+                writer.execute(
+                    "INSERT INTO artifacts (digest, kind, created_cycle, size, manifest_digest) VALUES (?, ?, ?, ?, ?)",
+                    (digest, kind, self._clock.cycle, len(blob), manifest_digest),
+                )
+                parents = self._stores.open_writer(StoreName.REGISTRY, "artifact_parents", "registry_builder")
+                for parent in parent_digests:
+                    parents.execute(
+                        "INSERT OR IGNORE INTO artifact_parents (digest, parent_digest) VALUES (?, ?)",
+                        (digest, parent),
+                    )
+                self._record_event(writer, "put", digest)
+        return ArtifactRef(digest=digest, kind=kind)
+
+    def get(self, ref: ArtifactRef) -> RegistryEntry:
+        """只读取回：blob 与 manifest digest 双重校验，不符即 IntegrityViolation 语义（fail closed）。"""
+        target = self._dir(ref.digest)
+        manifest_bytes = target / "manifest.json"
+        blob_path = target / "blob"
+        if not manifest_bytes.exists() or not blob_path.exists():
+            raise RegistryCollision(f"missing artifact: {ref.digest}")
+        manifest: dict[str, object] = json.loads(manifest_bytes.read_bytes().decode("utf-8"))
+        blob = blob_path.read_bytes()
+        if blob_digest(blob) != ref.digest:
+            raise RegistryCollision(f"blob digest mismatch for {ref.digest}")
+        if manifest.get("digest") != ref.digest:
+            raise RegistryCollision(f"manifest digest mismatch for {ref.digest}")
+        return RegistryEntry(manifest=manifest, blob=blob)
+
+    def index_digest(self) -> str:
+        """索引视图 digest（checkpoint 的 registry_view 用）。"""
+        rows = self._stores.read(
+            StoreName.REGISTRY, "SELECT digest, kind, created_cycle, size, manifest_digest FROM artifacts ORDER BY digest"
+        )
+        return content_digest([list(r) for r in rows])
+
+    def events(self) -> tuple[tuple[object, ...], ...]:
+        return tuple(self._stores.read(StoreName.REGISTRY, "SELECT seq, op, digest, cycle FROM registry_events ORDER BY seq"))
