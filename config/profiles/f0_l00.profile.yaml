@@ -1,0 +1,51 @@
+# Galatea F0 冻结 profile — L00 横切基础合同
+# 效力：F0 门冻结物（ADR-G-0002 · tag f0-freeze · 2026-09-23）。门后修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
+# 纪律：本文件每个数值/清单必须可溯源至 CONFIRMED 裁决（军规 2 常量溯源三问）。
+profile:
+  id: f0_l00
+  version: v1.0
+  frozen_at: "2026-09-23"
+  authority: AI-v2
+  spec_ref: design/lld/L00_kernel.md
+
+# —— 规范版本指针（合同身份，非参数）——
+schema_versions:
+  envelope: L00.packet.v1            # CognitivePacket（L00 §2.3）
+  digest: L00.digest.v1              # canonical JSON + sha256（L00 §4.4）
+  rng: L00.rng.v1                    # counter-based 流派生（L00 §4.3；算法选型 Q-L00-04 属 M0 前裁决，此处不定值）
+  state: L00.state.v1
+  registry: L00.reg.v1               # content-addressed 布局（Q-T09 CONFIRMED）
+
+scheduler:                           # Q-T04 CONFIRMED（自研确定性协作调度器）
+  tie_break_key: [effective_due_time, t_level, module_id, seq]
+  t0_preempt_rule: next_cooperation_point   # T0 抢占下一协作点，不中断当前片（L00 §4.1）
+  payload_visibility: envelope_only         # 调度器禁读 payload（机械保证）
+
+stores:                              # 三库物理分离（Q-T05 CONFIRMED）
+  names: [subject_state, subject_memory, registry]
+  cross_store_transactions: forbidden
+
+# —— T 级频率（Q-L00-01 CONFIRMED 2026-09-23：初值，M0 实测复核）——
+# 2 的幂梯：T3/T4/T5/T6 在每 64 cycles 的公倍点精确对齐（跨级同拍可复算）。
+t_levels:
+  T0: {period_cycles: 1}
+  T1: {period_cycles: 1}
+  T2: {period_cycles: 1}
+  T3: {period_cycles: 2}             # N2
+  T4: {period_cycles: 4}             # N3
+  T5: {period_cycles: 16}            # N4
+  T6: {period_cycles: 64}            # N5
+
+# —— typed unknown 冻结清单（Q-L00-02 CONFIRMED 2026-09-23）——
+# 增删 = schema 版本升级（L00.unknown.v2），禁原地改。
+unknown_reasons:
+  - MISSING_SIGNAL
+  - CALIBRATION_UNCERTAIN
+  - SOURCE_AMBIGUOUS
+  - OOD
+  - CONFLICTING_EVIDENCE
+  - INSUFFICIENT_OBSERVATION
+  - CAPABILITY_LIMIT
+  - ATTRIBUTION_UNRESOLVED
+  - DECISION_PATH_UNRESOLVED
+  - STREAM_MISSING                   # L00 §6.2 失败类型化所需（首冻即含）

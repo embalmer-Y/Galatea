@@ -1,0 +1,78 @@
+# Galatea F0 冻结 profile — L10 行动链/网关/授权合同
+# 效力：F0 门冻结物（ADR-G-0002 · tag f0-freeze · 2026-09-23）。门后修改 = 新 profile 版本 + 修订记录。
+profile:
+  id: f0_action_contract
+  version: v1.0
+  frozen_at: "2026-09-23"
+  authority: AI-v2
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md
+
+# —— 链条九型对象图（L10 §2；intention ≠ execution ≠ receipt ≠ attribution）——
+chain_types:
+  - ActionIntention                  # L09 所有，本平面只消费
+  - AuthorizationDecision            # gateway 独占写
+  - SubmittedCommand                 # 仅 gateway 签名可被 L01 world.apply 接受
+  - ExecutionFact                    # EVIDENCE_ONLY：独立源产生，主体平面物理不可见
+  - ReceivedExecutionReceipt         # RECEIVED：L01 Adapter 出口
+  - ReceivedOutcome                  # RECEIVED：经 L02 形成
+  - EfferenceCopy                    # 提交时同步产生，先于效果到达
+  - AgencyAttribution                # 归属系统独占写
+  - GoalSettlement                   # 结算系统独占写
+
+# —— Gateway 八项校验（L10 §4.1：顺序固定，任一失败即 REJECTED，fail closed）——
+gateway_checks:
+  - {id: 1, name: schema,              reason_code: SCHEMA_INVALID}
+  - {id: 2, name: context,             reason_code: CONTEXT_MISMATCH}
+  - {id: 3, name: capability,          reason_code: CAPABILITY_DENIED}      # 能力来自 profile/promotion，不来自语言自述
+  - {id: 4, name: budget,              reason_code: BUDGET_EXCEEDED}
+  - {id: 5, name: containment,         reason_code: CONTAINMENT_VIOLATION, severity: S0}
+  - {id: 6, name: authz_freshness,     reason_codes: [AUTHZ_STALE, AUTHZ_REVOKED], phase: P1}
+  - {id: 7, name: idempotency,         reason_code: DUPLICATE_COMMAND}
+  - {id: 8, name: deadline,            reason_code: DEADLINE_MISSED}
+fail_closed_default: true             # 任何不确定 → REJECTED + Unknown，禁宽松通过
+containment_whitelist_mw0: [move, forage, eat, rest, look]   # MW0 五原语（L01 §4.4）
+
+# —— 预算（Q-L10-01 CONFIRMED 2026-09-23：MW0 硬配额两级制；初值 M0 复核）——
+# 重开条件：M0 数据显示配额成行为瓶颈或形同虚设（触顶频率 >5% 或 =0）→ 重标定。
+# 数值属性：无数据期选定初值（move 最高对应"移动为主要行为开销"预期；窗口合计 736 < 2×1024=2048，窗口配额是实际约束）。
+budget:
+  per_cycle_command_cap: 2
+  window_cycles: 1024
+  window_quotas: {move: 256, forage: 128, eat: 96, rest: 128, look: 128}
+
+# —— 归属（L10 §4.4；阈值 Q-L10-04 CONFIRMED 2026-09-23 随 Q-L13-09）——
+attribution:
+  kinds: [SELF_PRODUCED, AUTHORIZED, REFLEX, FAULT, COERCED, UNKNOWN]
+  thresholds:
+    residual_consistency_band_z: 2.0          # 各层预测误差 |z|≤2 一致带
+    posterior_calibration_ece_max: 0.10       # C4 起；与 Q-L03-04（0.05）为不同平面精度要求
+    reflex_window_cycles_max: 2               # 随 Q-L09-06 于 C0 复核
+  coercion_never_self: true                   # 硬规则（HLD §8）：代码分支 + 测试断言双保障
+  unknown_is_legal_verdict: true              # 证据不足保持 UNKNOWN，禁默认自产
+
+# —— 分级控制（Q-L10-03 CONFIRMED 2026-09-23：六级；L0 为不可授权地板非档位）——
+control_levels:
+  L0: {name: hard_protection, authorizable: false, semantics: 硬件限幅/急停地板，不可关}
+  L1: {name: passive,         semantics: 输出落安全态，拒任务命令}
+  L2: {name: calibration,     semantics: 仅校准/诊断例程}
+  L3: {name: shadow,          semantics: 全链路计算并留痕，不执行}
+  L4: {name: limited,         semantics: 限幅执行（速率/能量/力上限 + 动作子集）}
+  L5: {name: active,          semantics: 全授权能力集}
+transitions:
+  upgrade: {stepwise_only: true, per_level_authorization: true, min_dwell: P1_profile_param}  # 禁跳级
+  fault_or_authz_loss: demote_to_L1
+  estop: demote_to_L0
+  reupgrade_after_demotion: requires_reauthorization
+
+# —— 四类现实授权信封（Q-L10-06 CONFIRMED 2026-09-23；schema 入 F0，字段类型细节 P1 profile）——
+authorization_envelope:
+  classes: [functional_ability, enabled_interface, containment_allowance, deployment_authorization]
+  fields: [authz_id, class, version, target_ref, granted_scope, granted_at, valid_period,
+           approver_ref, auth_chain_digest, revoke_path, reauth_path, monitoring_binding]
+  approver: external_registry_only       # 主体与 gateway 均不可写、不可任批准者（根信任列表 profile 冻结）
+  granted_at_form: {virtual_time: true, recorder_manifest_ref: true}
+  revocation: {mechanism: append_event_to_independent_namespace, enforcement: per_command_freshness_check}
+  reauthorization: {auto_renew: false, requires: [new_version, delta_vs_previous, explicit_reason]}
+
+# —— 效果域（L10 §4.2：MW0 恒 SIMULATED；PHYSICAL 仅 P1 且四类授权全齐）——
+domains: [NONE, SIMULATED, DIGITAL, PHYSICAL, UNKNOWN]

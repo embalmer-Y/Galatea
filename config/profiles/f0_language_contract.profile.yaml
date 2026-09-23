@@ -1,0 +1,40 @@
+# Galatea F0 冻结 profile — L12 语言面合同（stub 期）
+# 效力：F0 门冻结物（ADR-G-0002 · tag f0-freeze · 2026-09-23）。门后修改 = 新 profile 版本 + 修订记录。
+profile:
+  id: f0_language_contract
+  version: v1.0
+  frozen_at: "2026-09-23"
+  authority: AI-v2
+  spec_ref: design/lld/L12_language_social.md
+
+# —— Language 声明通道 stub（五通道之一，L01 §2；F0 冻结合同，M0 起 stub 实现）——
+channel:
+  name: language
+  input_level: EXTERNAL_STATEMENT      # 唯一合法语言入口层级；永不提升
+  m0_note: M0 期不启用任何 LLM 角色；请求可经实验控制 typed 注入（L12 §9）
+
+# —— typed 角色 schema（角色启用清单 = Q-L12-01，C4 裁决；此处只冻 schema 形态）——
+role_call_schema:
+  fields: [role_kind, payload_schema_version, allowed_outputs, budget, deadline]
+  no_free_prompt_channel: true         # 输出必过 schema 校验，失败即 SchemaViolation 拒绝
+role_result_schema:
+  provenance: LLM_DERIVED
+  level_ceiling: EXTERNAL_STATEMENT    # 永不为 PERCEIVED/RECEIVED
+  schema_violation_policy: reject      # 不降级为自由文本入库
+
+# —— 权限矩阵 schema（Q-L12-02 CONFIRMED 2026-09-23）——
+permission_matrix_schema:
+  write_granularity: role_x_content_type    # 写端口角色×内容类型双维（"模板受限输出"可机械校验）
+  read_granularity: role
+  runtime_exceptions: none                  # 例外 = 新 profile 版本 + 修订记录 + CI 重跑
+  forbidden_writes: [WORLD_TRUTH, EPISODIC_EXPERIENCE, AUTOBIOGRAPHICAL_EXPERIENCE,
+                     OWNED_GOAL, ACTION_INTENTION, AUTHORIZATION, CAPABILITY,
+                     MEMORY_ITEM_DIRECT, PROTECTION_SUITE, EVIDENCE]
+  violation_severity: {WORLD_TRUTH: S0, OWNED_GOAL: S0, CAPABILITY: S0, default: S1}
+budget_fields: [max_calls_per_window, max_tokens, max_cost]
+
+# —— 语言请求类型（L12 §2.2；标记不可去除）——
+external_request:
+  type: ExternalRequest
+  is_request_only: {value: true, immutable: true}   # L08 C-5 硬检依赖
+  destination: motive_source_only                   # 只进动机源，禁直写 OwnedGoal

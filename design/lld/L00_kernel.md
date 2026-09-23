@@ -97,7 +97,7 @@ CognitivePacket(
 
 ### 4.2 多速率虚拟时钟
 
-- 单一单调 `virtual_time_ns`，按 cycle 推进；各 T 级以 `period_cycles` 表达频率（frozen profile 给定，默认值 UNCONFIRMED → Q-L00-01）。
+- 单一单调 `virtual_time_ns`，按 cycle 推进；各 T 级以 `period_cycles` 表达频率（frozen profile 给定；N2–N5 初值已裁决 CONFIRMED，Q-L00-01，2026-09-23，M0 实测复核）。
 - 墙钟只允许出现在 recorder manifest 的独立字段（Q-T12）；主体平面模块调用 `time.time()`/`datetime.now()` 由 lint 规则禁止。
 
 ### 4.3 counter-based RNG
@@ -120,7 +120,7 @@ CognitivePacket(
 
 ## 5. 时间尺度与调度挂点
 
-L00 自身运行在**每个 cycle 的边界**：调度环每 cycle 执行一次 `dispatch.next_due()`；checkpoint 在 `commit` 点原子触发。T0–T6 各级频率默认值（全部 UNCONFIRMED → Q-L00-01）：
+L00 自身运行在**每个 cycle 的边界**：调度环每 cycle 执行一次 `dispatch.next_due()`；checkpoint 在 `commit` 点原子触发。T0–T6 各级频率（Q-L00-01 CONFIRMED 2026-09-23：初值如下，M0 实测复核；2 的幂梯保证 T3–T6 在 64-cycle 公倍点对齐）：
 
 | 级 | 建议默认频率 | 说明 |
 |---|---|---|
@@ -219,8 +219,8 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L00-01 | T3/T4/T5/T6 频率比 N2/N3/N4/N5 默认值（2/4/16/64 是否合理） | F0 冻结 profile | UNCONFIRMED |
-| Q-L00-02 | UnknownReason 冻结清单是否需增删（现 9 项） | F0 | UNCONFIRMED |
+| Q-L00-01 | T3/T4/T5/T6 频率比 N2/N3/N4/N5 默认值 | F0 冻结 profile | CONFIRMED（AI-v2 2026-09-23：2/4/16/64 初值 + M0 复核，见 open_questions A 区） |
+| Q-L00-02 | UnknownReason 冻结清单是否需增删 | F0 | CONFIRMED（AI-v2 2026-09-23：9 项 + STREAM_MISSING 共 10 项冻结，增删走 schema 版本） |
 | ~~Q-L00-03~~ | ~~float64 统一数值纪律~~ **已废弃**：被 Q-T10 CONFIRMED 裁决取代（模型 float32、证据/统计 float64），不再悬置 | — | CLOSED（归并入 Q-T10） |
 | Q-L00-04 | RNG 算法 ChaCha8 vs Philox（性能与确定性权衡） | M0 前 | UNCONFIRMED |
 | Q-L00-05 | checkpoint 频率策略（每 cycle / 每 T6 / 事件触发）与存储成本 | M2 | UNCONFIRMED |
