@@ -5,13 +5,16 @@ name = "galatea"
 version = "0.1.0"
 description = "Galatea：单一认知个体——一切'具备'以可干预、可测量、可复算的真实因果结构为证"
 requires-python = "==3.12.13"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0.3",
+]
 
 [dependency-groups]
 dev = [
     "pytest==9.1.1",
     "hypothesis==6.168.1",
     "pyright==1.1.414",
+    "types-pyyaml>=6.0.12.20260906",
 ]
 
 [tool.pytest.ini_options]

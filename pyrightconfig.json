@@ -1,6 +1,6 @@
 {
-  "include": ["galatea/kernel"],
-  "exclude": ["galatea/kernel/tests", ".venv"],
+  "include": ["galatea/kernel", "galatea/evidence"],
+  "exclude": ["**/tests", ".venv"],
   "typeCheckingMode": "strict",
   "pythonVersion": "3.12"
 }

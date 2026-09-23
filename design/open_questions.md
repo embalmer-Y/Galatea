@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 41 项；UNCONFIRMED 92 项（G 2 + L00 4 + L01 6 + L02–L13 80）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 42 项；UNCONFIRMED 92 项（G 2 + L00 4 + L01 6 + L02–L13 80）；CLOSED 1 项（Q-L00-03，编号不复用）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -33,6 +33,7 @@
 | Q-N01 | 术语 HIO → PhysIO | HIO 系 Helios I/O 缩写，项目更名后废弃；全库（含 archive）统一为 PhysIO（Physical I/O）；派生标识符 PhysIO Bridge / PhysIOControlGraph | 2026-09-12 |
 | Q-G00-07 | 门链 "E0" 处置 | **方案 A 剔除**：E0 系 L13 撰写期草稿残留、非门；全库仅 2 处引用（L13 §1 头部、Q-L13-02 依赖列）已修正；门链维持 F0→M0→M1→M2→R0→C0–C5→E1→H1→物理授权→P1 不变；sealed 准备工作归属不变（策略冻结在 F0，执行在 R0/promotion/E1） | 2026-09-17 |
 | Q-L01-06 | 旧 D1–D7 验收原文不可得；L01 §4.6 重映射为重建稿，无人可提供原文供确认 | **AI-v2：采纳重建映射为规范文本**；原文判定永久不可得，验收约束力由门退出判据承载（L01 §9 + L13 EvidenceResult），映射表降为溯源记录。重开条件：原文若现身，一 session 内复审 | 2026-09-23 |
+| Q-T13 | 冻结 YAML 配置（decision_path_matrix/stat_plan_templates 等，config/evidence/**）的运行时解析器选型 | **AI-v2：PyYAML**（safe_load；types-pyyaml 开发态类型支持；uv.lock 哈希锁定，Q-T08）——stdlib 无 YAML；结构简单的自写解析器是伪节省。重开条件：出现 PyYAML 无法满足的性能/安全需求时经新 Q 号评估 ruamel/自定义 | 2026-09-23 |
 | Q-L00-01 | T3–T6 频率比 N2/N3/N4/N5 默认值（f0_l00.profile 冻结前置；ACT-07 执行中发现此 Q 此前漏列 F0 阻断清单） | **AI-v2：2/4/16/64 采纳为初值**——2 的幂梯使 T3–T6 在 64-cycle 公倍点精确对齐（跨级同拍可复算）；定位为 profile 参数，M0 实测复核。重开条件：M0 显示某级频率成为行为瓶颈或公倍对齐无实测价值 | 2026-09-23 |
 | Q-L00-02 | UnknownReason 冻结清单增删（f0_l00.profile 冻结前置，同上漏列） | **AI-v2：冻结清单 = 现 9 项 + STREAM_MISSING 共 10 项**（L00 §6.2 失败类型化所需）；增删 = schema 版本升级而非原地改。重开条件：任一门证据出现无法归入现有 10 项的不确定性形态，经新 Q 号扩充 | 2026-09-23 |
 | Q-G00-06 | 实验对象符号系全集映射原文不可得；HLD §4.4 仅重建 W/O、A/Ä、Y/Ŷ 最小集 | **AI-v2：HLD §4.4 最小集即为 F0 符号合同**；未重建符号（S/C/G/R/D/Z/A\* 与时序记号）状态 **RESERVED**——规范文本与 profile 禁用，后续门需要时逐个登记释义（挂 Q 号）；禁臆测补全（伪造历史合同）。重开条件：原文现身则复审 | 2026-09-23 |

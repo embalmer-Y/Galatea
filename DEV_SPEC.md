@@ -213,7 +213,7 @@ PROPOSED（研究文档内登记提案）→ UNCONFIRMED（入册待裁决）
 | 前缀/语法 | 语义 | 作用域 | 现存范围 | 状态 |
 |---|---|---|---|---|
 | `D-<n>` | LOCKED 基础裁决 | 全局 | D-10…D-14；**D-1…D-9 历史遗失，空号保留不复用；新裁决自 D-15 起** | 生效 |
-| `Q-T<nn>` | 技术栈裁决 | design | Q-T01…T12 | 冻结（CONFIRMED 存档） |
+| `Q-T<nn>` | 技术栈裁决 | design | Q-T01…T12 冻结（CONFIRMED 存档）；T13 = PyYAML（AI-v2 CONFIRMED 2026-09-23） | 生效 |
 | `Q-C<nn>` | 构造契约 | design | Q-C01…C06 | 冻结（CONFIRMED 存档） |
 | `Q-N<nn>` | 术语更名裁决 | 全局 | Q-N01（HIO→PhysIO）；新更名沿用本系列 | 生效 |
 | `Q-G00-<nn>` | 全局未决 | design | 01…06，其中 04/06 已裁决迁 open_questions A 区（2026-09-23）；07 同（2026-09-17） | 活跃（余 03/05） |
