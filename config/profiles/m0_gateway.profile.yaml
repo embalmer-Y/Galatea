@@ -1,0 +1,30 @@
+# Galatea M0 冻结 profile — Gateway 运行参数（L10 §10）
+# 效力：M0 门冻结合同（ADR-G-0004 · tag m0-freeze · 2026-09-25）。八项校验的执行参数；校验顺序与失败码继承 f0_action_contract@v1（不变）。
+profile:
+  id: m0_gateway
+  version: v1.0
+  frozen_at: "2026-09-25"
+  authority: AI-v2
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md
+  parent: f0_action_contract@v1
+
+checks:
+  order: [schema, context, capability, budget, containment, authz_freshness, idempotency, deadline]
+  authz_freshness:
+    phase: inactive_in_m0        # P1 才启用（四类授权）；M0 期为恒通过占位（校验序保持，无 P1 数据面）
+  idempotency:                   # Q-L10-02 CONFIRMED
+    window_cycles: 64
+    key_scope: run_branch_global # (run_id, branch_id) 全局跨动作类
+  deadline:
+    default_cycles: 8            # 意图默认有效期；初值 Q-G00-08（覆盖重试时距 << 幂等窗）
+
+containment:                     # 权威源 = f0_action_contract@v1（REV-0002 R7 注记）；此处 M0 实例化
+  whitelist_mw0: [move, forage, eat, rest, look]
+  domain_lock: SIMULATED         # L10 §4.2：MW0 期恒 SIMULATED，PHYSICAL 仅 P1
+
+budget:                          # 继承 f0_action_contract@v1（Q-L10-01；数值单一事实源在父 profile）
+  inherit: f0_action_contract@v1
+
+attribution_env:                 # M0 环境侧配合参数
+  reflex_controller: disabled    # Q-L09-06 CONFIRMED：MW0 期 Reflex 不注册不仲裁
+  t0_scope: environment_hard_protection_only   # Q-L10-09：T0 = 环境侧硬保护，不同域不双写

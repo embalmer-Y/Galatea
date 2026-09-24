@@ -1,0 +1,54 @@
+# Galatea M0 冻结 profile — MW0 最小世界（L01 §4/§10）
+# 效力：M0 门冻结合同（ADR-G-0004 · tag m0-freeze · 2026-09-25）。数值均为初值（Q-G00-08），M0 数据复核点见各条。
+# 修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
+profile:
+  id: m0_mw0
+  version: v1.0
+  frozen_at: "2026-09-25"
+  authority: AI-v2
+  spec_ref: design/lld/L01_environment_channels.md
+  parent: f0_l00@v1
+
+world:
+  grid: {size: 16, boundary: torus}          # Q-L01-02 CONFIRMED
+  patch_types: [resource, neutral, storm_band, shelter]   # L01 §4.4
+  resource:
+    max_level: 3
+    respawn_base_cycles: 8                   # regime multiplier 调制；初值 Q-G00-08
+  body:                                      # L01 §4.4：pos/orientation/energy/integrity/load
+    energy_max: 1.0
+    integrity_max: 1.0
+    load_max: 1.0
+  action_primitives: [move, forage, eat, rest, look]      # MW0 五原语（与 f0_action_contract 白名单一致）
+  action_energy_delta:                       # 每次执行的 energy 变化（初值 Q-G00-08/Q-L01-08）
+    move: -0.01
+    forage: -0.02
+    eat: 0.15                                # 进食恢复
+    rest: 0.10                               # 休息恢复
+    look: -0.005
+  storm:
+    integrity_damage_per_hit: 0.10           # 初值 Q-G00-08
+    damage_event_min_delta: 0.05             # 损伤事件离散定义（Q-L01-08 M0 部分）：单事件降幅 ≥ 此值记 integrity_damage_event
+    # viability 告警阈值 = L05/C2 域，本 profile 不设（Q-L01-08 显式排除）
+
+observation:                                 # Q-L01-01 CONFIRMED
+  window: {shape: 5x5, metric: chebyshev}
+  gain_by_distance: {d0: 1.0, d1: 0.6, d2: 0.2}
+  render_noise_sigma: 0.05                   # 初值 Q-G00-08
+  render_rng_stream: [env, mw0, render]
+  no_truth_leakage: true                     # 禁真值坐标/精确量（L01 §4.2 不变）
+
+regimes:                                     # Q-L01-03 框架 + Q-G00-08 初值
+  abundance: {respawn_multiplier: 0.5, resource_density: 0.35, storm_rate_per_cycle: 0.005}
+  scarcity:  {respawn_multiplier: 2.0, resource_density: 0.10, storm_rate_per_cycle: 0.005}
+  volatile:  {respawn_multiplier: 1.0, resource_density: 0.20, storm_rate_per_cycle: 0.030, storm_band_drift: true}
+  min_dwell_cycles: 256                      # Q-L01-04 CONFIRMED
+  initial_regime: abundance
+
+channels:                                    # L01 §2.2：参数冻结于 claim profile；初值 Q-G00-08
+  delay_cycles: {exteroceptive: 1, interoceptive: 0, proprioceptive: 0, outcome: 1, language: 1}
+  corruption_rate: 0.01
+
+rng_streams:                                 # Q-T11：全部显式派生流
+  dynamics: [env, mw0, dynamics]
+  render: [env, mw0, render]

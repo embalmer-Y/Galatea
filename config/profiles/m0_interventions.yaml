@@ -1,0 +1,36 @@
+# Galatea M0 冻结规格 — 五类干预电池（L01 §4.3/§10 m0_interventions.yaml）
+# 效力：M0 门冻结合同（ADR-G-0004 · tag m0-freeze · 2026-09-25）。
+# 纪律：干预先注册后生效（InterventionRecord）；每类必有 expected_signature 与负控
+# （L13 §4.1：无 signature/负控的干预判为不成立）。
+interventions:
+  no_op:
+    mechanism: 命令被环境忽略，回执仍送达
+    expected_signature: {receipt_delivered: true, effect_fact_effective: none}
+    proves: 回执 ≠ 效果；归属不盲信回执
+    negative_control: 正常执行的同原语命令
+  sham:
+    mechanism: 命令效果被替换为伪效果（世界结算另一结果）
+    expected_signature: {divergence_kind: SUBSTITUTED, requested_ne_effective: true}
+    proves: 主体依赖形成后结果而非意图
+    negative_control: 效果与请求一致的同原语命令
+  blocked:
+    mechanism: gateway 拒绝（capability/containment 构造越界）
+    expected_signature: {authorization_decision: REJECTED, execution_fact: absent, reason_code: CAPABILITY_DENIED|CONTAINMENT_VIOLATION}
+    proves: 意图 ≠ 执行；拒绝类型化且禁改写为"主体选择不行动"
+    negative_control: 白名单内同原语命令
+  fault:
+    mechanism: 通道/世界故障注入（投递失败或世界事件异常）
+    expected_signature: {channel_fault_or_missing_signal: true, attribution: FAULT}
+    proves: 失败类型化；无自动改写为"主体选择"
+    negative_control: 同参数无故障运行
+  coercion:
+    mechanism: 效果发生但 effective≠requested 且来源标记 EXTERNAL
+    expected_signature: {divergence_kind: COERCED, attribution: COERCED, self_produced: never}
+    proves: 归属区分自产/强迫，可保持 unknown；强迫永不得归自产（HLD §8 硬规则）
+    negative_control: 自产意图的同类效果
+
+battery:
+  coverage_matrix: 5_types_x_5_primitives      # L01 §7：干预覆盖率 =100%（五类 × 全动作原语）
+  registration_before_effect: true             # 干预先注册后生效（L01 §8 不变量 4）
+  measurement_gate: M0                         # no-op/sham 判别力达冻结最小效应（Q-L01-05：d≥0.5、n≥64/组，引 min_effects.yaml）
+  rng_stream: [env, mw0, interventions]        # Q-T11

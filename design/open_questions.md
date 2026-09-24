@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 51 项；UNCONFIRMED 83 项（G 2 + L00 3 + L01 2 + L02–L13 76）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 53 项；UNCONFIRMED 82 项（G 2 + L00 3 + L01 1 + L02–L13 76）；CLOSED 1 项（Q-L00-03，编号不复用）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -63,6 +63,8 @@
 | Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（**与 Q-L10-09 成组裁决**，联动对） | **AI-v2：MW0 期禁用采纳**（不注册、不参与仲裁）——门前不主张反射自主（L01 §5）；M0 归属实验的无意图路径仅由环境侧承载，避免认知 Reflex 混淆归属判据。启用决策在 C0（白名单刺激定义 + Q-L10-09 分界复核后）。重开条件：C0 白名单设计完成时复核 | 2026-09-25 |
 | Q-L10-09 | MW0 期 Reflex 与 T0 硬保护的职责分界，避免 containment 双写（**与 Q-L10-09 联动的 Q-L09-06 成组**） | **AI-v2：分界采纳**——T0 挂点（MW0/C0）仅承载环境侧硬保护/急停（L01 环境内），主体 Reflex 控制器与之不同域；containment 唯一职责在 gateway（L10 §4.1 第 5 项），Reflex 将来启用后其提案仍走 gateway 八项校验、不得重复 containment 检查。重开条件：C0 白名单设计若发现不可消解的重叠 → 经新 Q 重分界 | 2026-09-25 |
 | Q-L10-02 | idempotency 窗口长度与跨分支键作用域（M0 gateway 实现前置） | **AI-v2：窗口 64 cycles**（= 一个 T6 周期，2 的幂对齐；覆盖 deadline 上界与重试时距），键作用域 = (run_id, branch_id) 全局跨动作类（窗口内重复键一律 DUPLICATE_COMMAND，从严）。重开条件：M0 数据显示合法重试被误拒或窗口占用过高 → 重标定 | 2026-09-25 |
+| Q-L01-08 | energy/integrity viability 阈值与损伤事件定义（**M0 部分**；L05 侧显式另裁） | **AI-v2（M0 部分）：**世界侧力学初值入 m0_mw0.profile（动作能耗/进食恢复/风暴损伤，见 Q-G00-08）；**损伤事件定义 = integrity 单事件降幅 ≥0.05 的离散事件**（integrity_damage_event，经 Interoceptive 通道）。**viability 告警阈值显式排除**——归属 L05 驱力域（C2 与 Q-L05-* 一并裁决），M0 世界层只产出事件不断言"危险"。重开条件：C2 裁决 viability 阈值时如需世界侧配合信号 → 本 Q 增补 | 2026-09-25 |
+| Q-G00-08 | M0 三份 profile（m0_mw0 / m0_gateway / m0_interventions）初值集（世界力学/通道噪声与延迟/gateway deadline/干预 signature 参数——纯 profile 参数，不含认知参数） | **AI-v2：初值集成文采纳**（数值见三份 profile 文件，均标注"初值"）。定值原则：2 的幂对齐（与频率梯一致）、单看无行为意义仅作可复算锚点、全部带 M0 数据复核点。重开条件：M0 统计计划功效分析或首轮数据显示任一初值致盲区/饱和 → 经新 Q 重标定（改值 = profile 新版本） | 2026-09-25 |
 
 ## B. 全局未决（G 系列）
 
@@ -87,7 +89,6 @@
 | Q 号 | 议题 | 建议默认 | 状态 |
 |---|---|---|---|
 | Q-L01-07 | M1 是否引入第二可控代理（伪社会线索） | 推迟到 C4 | UNCONFIRMED |
-| Q-L01-08 | energy/integrity viability 阈值与损伤事件定义 | 联动 L05 驱力 | UNCONFIRMED |
 
 ## E. L02 感觉形成（Sensorium）
 
