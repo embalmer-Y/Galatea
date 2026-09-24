@@ -5,7 +5,7 @@ ExecutionFact 对主体平面物理不可见（EVIDENCE_ONLY，ClassVar 标记 +
 gateway 是现实效果唯一合法通道，fail closed（ReasonCode 九型 = 冻结 profile）。
 F0 范围 = schema 合同；八项校验执行逻辑（gateway.py）归 M0。
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 
 from galatea.kernel.packet import AccessScope, ArtifactRef
@@ -98,7 +98,13 @@ class ExecutionFact:
     domain: ExecutionDomain
     effects: tuple[ArtifactRef, ...]
     independent_source: str
-    access_scope: AccessScope = AccessScope.EVIDENCE_ONLY  # ClassVar 语义：平面标记（M0 import-linter 强制）
+    access_scope: AccessScope = field(
+        default=AccessScope.EVIDENCE_ONLY, init=False
+    )  # 平面恒定且构造不可指定（REV-0003 R4；M0 import-linter 强制命名空间隔离）
+
+    def __post_init__(self) -> None:
+        if self.access_scope is not AccessScope.EVIDENCE_ONLY:
+            raise ValueError("ExecutionFact is EVIDENCE_ONLY by contract（主体平面不可见，L10 §3）")
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,11 +131,14 @@ class ReceivedOutcome:
 
 @dataclass(frozen=True, slots=True)
 class EfferenceCopy:
-    """傅里叶副本（L10 §4.3：提交命令同步产生，必早于效果到达）。"""
+    """传出副本（L10 §4.3：提交命令同步产生，必早于效果到达）。"""
 
     intention_id: str
     motor_command_copy: str
     predicted_consequence_ref: ArtifactRef | None
+
+
+# 术语注记（REV-0003 R9①）：EfferenceCopy = 传出副本（运动指令副本，非"傅里叶"）。
 
 
 class AttributionKind(StrEnum):

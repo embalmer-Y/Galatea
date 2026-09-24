@@ -47,6 +47,12 @@ def test_execution_fact_frozen_and_evidence_only() -> None:
     assert fact.access_scope is AccessScope.EVIDENCE_ONLY
     with pytest.raises(dataclasses.FrozenInstanceError):
         fact.effective_effect = "forage"  # type: ignore[misc]
+    with pytest.raises(TypeError):
+        ExecutionFact(  # type: ignore[call-arg]
+            command_id="c1", requested_effect="forage", effective_effect="none",
+            domain=ExecutionDomain.SIMULATED, effects=(), independent_source="env",
+            access_scope=AccessScope.PUBLIC_BROADCAST,  # 平面恒定，构造不可指定（REV-0003 R4）
+        )
 
 
 def test_authorization_decision_carries_reason_codes() -> None:

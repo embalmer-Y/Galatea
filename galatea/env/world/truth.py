@@ -5,7 +5,7 @@ requested ≠ effective 必须显形于 EffectFact（禁合并，L01 §8 不变�
 F0 范围 = schema 合同；dynamics/mw0 行为实现归 M0（L01 §9）。
 """
 import enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from galatea.kernel.packet import AccessScope, ArtifactRef
 from galatea.kernel.unknown import Unknown
@@ -69,7 +69,7 @@ class WorldTruthEvent:
     world_state_digest: str
     state_ref: ArtifactRef
     causal_parents: tuple[str, ...]
-    access_scope: AccessScope = EVIDENCE_ONLY_PLANE
+    access_scope: AccessScope = field(default=EVIDENCE_ONLY_PLANE, init=False)  # 平面恒定（REV-0003 R4）
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,4 +81,4 @@ class EffectFact:
     effective_effect: str
     domain: EffectDomain
     effective_unknown: "Unknown | None" = None
-    access_scope: AccessScope = EVIDENCE_ONLY_PLANE
+    access_scope: AccessScope = field(default=EVIDENCE_ONLY_PLANE, init=False)  # 平面恒定（REV-0003 R4）

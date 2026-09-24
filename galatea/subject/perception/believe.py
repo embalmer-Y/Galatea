@@ -47,13 +47,15 @@ class PerceptualBelief:
     provenance: Provenance
     causal_parent_ids: tuple[str, ...]
     cycle_id: int
-    representation_level: str = field(default="PERCEIVED")  # 恒定；提升/改写 = 违规
+    representation_level: str = field(default="PERCEIVED", init=False)  # 恒定且构造不可指定（REV-0003 R4）
     access_scope: AccessScope = AccessScope.MODULE_LOCAL
 
     def __post_init__(self) -> None:
         if not self.belief_id or not self.calibration_version:
             raise ValueError("belief_id and calibration_version are required（校准标度 L03 §4.3）")
         ensure_typed_confidence(self.confidence, "confidence")
+        if self.representation_level != "PERCEIVED":
+            raise ValueError("PerceptualBelief level is fixed to PERCEIVED（禁提升/改写，L00 §8）")
 
     def digest(self) -> str:
         """信念内容摘要（subject_state 台账与重放比对用）。"""

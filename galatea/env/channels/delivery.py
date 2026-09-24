@@ -3,7 +3,7 @@
 纪律：DeliveryFact 与 Signal 分离——投递事实只入证据侧；主体只拿 RECEIVED 包；
 缺失/损坏不静默补零，产生 MissingSignalEvent 随包 provenance 下发（L01 §8）。
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from galatea.kernel.packet import AccessScope, ArtifactRef
 from galatea.kernel.unknown import Unknown, UnknownReason
@@ -20,7 +20,7 @@ class ChannelDeliveryFact:
     delay_cycles: int
     corrupted: bool
     channel_version: str
-    access_scope: AccessScope = EVIDENCE_ONLY_PLANE
+    access_scope: AccessScope = field(default=EVIDENCE_ONLY_PLANE, init=False)  # 平面恒定（REV-0003 R4）
 
 
 @dataclass(frozen=True, slots=True)

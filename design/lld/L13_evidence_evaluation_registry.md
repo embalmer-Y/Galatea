@@ -287,6 +287,7 @@ galatea/evidence/tests/
   test_sealed_isolation.py test_sealed_no_backflow.py test_no_self_promotion.py
   test_leakage_14_paths.py test_i1_bitexact.py test_i2_independent.py test_i3_reproduce.py
   test_registry_60_cells.py test_unevidenced_entry_rejected.py
+  test_evidence_result_schema.py   # F0 合同层（EvidenceResult/PromotionDecision schema；2026-09-25 REV-0003 R6 补录清单席位）
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
 config/evidence/
   stat_plan_templates/*.yaml    冻结统计计划模板（假设/estimand/功效/效应量/判定阈）
