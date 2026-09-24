@@ -35,6 +35,14 @@ def test_supported_requires_recompute_ok() -> None:
         _result(recompute_ok=False)
 
 
+def test_supported_requires_effect_size_and_ci() -> None:
+    """SUPPORTED 缺效应量或 CI 即拒（R9⑨：estimand 完整性）。"""
+    with pytest.raises(ValueError):
+        _result(effect_size=None)
+    with pytest.raises(ValueError):
+        _result(ci=None)
+
+
 def test_three_verdicts_and_unknowns_are_first_class() -> None:
     unknown = Unknown(reason=UnknownReason.INSUFFICIENT_OBSERVATION, evidence_refs=(), detail="underpowered", detected_by="eval", virtual_time=1)
     inconclusive = _result(

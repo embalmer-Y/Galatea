@@ -2,7 +2,7 @@
 import pytest
 
 from galatea.kernel.packet import ArtifactRef, Provenance
-from galatea.kernel.unknown import Unknown, UnknownReason
+from galatea.kernel.unknown import NotTypedUnknown, Unknown, UnknownReason
 from galatea.subject.perception.believe import AltHypothesis, BeliefKind, PerceptualBelief
 
 
@@ -37,7 +37,7 @@ def test_level_cannot_be_forged_at_construction() -> None:
 
 
 def test_confidence_rejects_bare_values() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(NotTypedUnknown):
         _belief(confidence=None)  # type: ignore[arg-type]
 
 

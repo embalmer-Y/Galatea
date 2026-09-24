@@ -12,7 +12,7 @@ from galatea.env.channels.adapter import (
 )
 from galatea.env.world.truth import BodyTruth, EffectDomain, EffectFact, Patch, WorldEvent, WorldState, WorldTruthEvent
 from galatea.kernel.packet import AccessScope, ArtifactRef
-from galatea.kernel.payload import PayloadSchemaRegistry
+from galatea.kernel.payload import PayloadSchemaRegistry, SchemaViolation
 from galatea.kernel.unknown import Unknown, UnknownReason
 
 
@@ -69,7 +69,7 @@ def test_five_channel_schemas_registered() -> None:
     registry = PayloadSchemaRegistry()
     register_channel_payload_schemas(registry)
     assert set(registry.registered()) == set(CHANNEL_CONTENT_TYPES.values())
-    with pytest.raises(Exception):
+    with pytest.raises(SchemaViolation):
         register_channel_payload_schemas(registry)  # 重复注册拒绝
 
 

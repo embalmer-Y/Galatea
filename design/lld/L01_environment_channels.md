@@ -72,7 +72,7 @@ EffectFact: domain=simulated（MW0 期）；requested vs effective 分离——b
 - **DeliveryFact 与 Signal 分离**：投递事实（发了什么、何时、是否损坏）只入证据侧；主体只拿到 RECEIVED 包——兑现"投递≠接收"。
 - 缺失/损坏不静默补零：产生 `MissingSignalEvent(typed unknown=MISSING_SIGNAL)` 随包 provenance 下发，由 L02 决定形成策略。
 - 通道参数（观测窗、噪声 σ、延迟分布、增益上界）冻结于 claim profile；运行期修改 = 新 channel_version + 新 profile。
-- 外感受渲染：以 BodyTruth 为中心的 egocentric 观测窗（默认 5×5，UNCONFIRMED → Q-L01-01），按距离衰减 + 噪声；**不含**真值坐标/资源精确量（防 oracle 泄漏）。
+- 外感受渲染：以 BodyTruth 为中心的 egocentric 观测窗（Q-L01-01 CONFIRMED 2026-09-25：5×5、Chebyshev 距离增益 g(d)=1−0.4d，初值 M0 复核），按距离衰减 + 噪声；**不含**真值坐标/资源精确量（防 oracle 泄漏）。
 
 ### 4.3 干预电池（M0 必备五类，先注册后生效）
 
@@ -86,11 +86,11 @@ EffectFact: domain=simulated（MW0 期）；requested vs effective 分离——b
 
 ### 4.4 MW0：16×16 资源 niche 最小世界（阶段 0 蓝图 → 门体系实例）
 
-- **几何**：16×16 网格，环形边界（torus，UNCONFIRMED → Q-L01-02）；Patch 类型：资源丛（多级储量+再生）、中立、风暴带、遮蔽点。
+- **几何**：16×16 网格，环形边界（torus，Q-L01-02 CONFIRMED 2026-09-25）；Patch 类型：资源丛（多级储量+再生）、中立、风暴带、遮蔽点。
 - **身体**：单主体（D-14）；状态 = pos/orientation/energy/integrity/load；energy 随行动消耗、进食恢复；integrity 受风暴损伤；load 影响观测噪声（内感受源之一）。
 - **动作原语**（低维、可枚举，M0 期）：move(4 向) / forage / eat / rest / look（主动感知，L09 可提案）。
 - **内感受原始事件**（→ 经 Interoceptive 通道形成 InteroceptiveSensation，**不是** telemetry 直填）：energy 变化率、integrity 损伤事件、load/过载、恢复事件。
-- **三种资源 regime（对应蓝图"3 情感模式"的 MW0 投影，参数实例化在 L05 profile）**：`abundance`（资源充足）/ `scarcity`（稀缺竞争再生慢）/ `volatile`（风暴带扩张收缩）。regime 切换由 Experiment Control 注册为干预，主体只能经通道感知（UNCONFIRMED → Q-L01-03）。
+- **三种资源 regime（对应蓝图"3 情感模式"的 MW0 投影，参数实例化在 L05 profile）**：`abundance`（资源充足）/ `scarcity`（稀缺竞争再生慢）/ `volatile`（风暴带扩张收缩）。regime 切换由 Experiment Control 注册为干预，主体只能经通道感知（三 regime 框架 Q-L01-03 CONFIRMED 2026-09-25，与 Q-L05-04 成组；数值入 m0_mw0.profile）。
 - **表格化动力学**：MW0 期世界转移与 respawn 全部为**表格/枚举**（呼应阶段 0"表格贝叶斯"），保证 M0 重放与干预分析可手算复核；神经模型仅存在于主体侧 C1+。
 
 ### 4.5 时间语义
@@ -115,7 +115,7 @@ EffectFact: domain=simulated（MW0 期）；requested vs effective 分离——b
 - T1 挂点：每 cycle `world.step()` + 通道渲染投递（接收/形成同拍，L02 消费）。
 - T0 挂点：MW0 期无主体 T0 反射（门前不主张反射自主）；containment 由 gateway/实验控制承担。
 - 干预生效点：注册后于指定 cycle 边界原子生效，记入 InterventionRecord。
-- regime 切换：默认 ≥ 每 N6=256 cycles 一次（保证 M0 效应窗口，UNCONFIRMED → Q-L01-04）。
+- regime 切换：最小驻留 N6=256 cycles（Q-L01-04 CONFIRMED 2026-09-25；保证 M0 效应窗口 ≥4 个 T6 拍）。
 
 ## 6. 失败模式与 typed unknown
 
@@ -192,10 +192,10 @@ design/mw0/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L01-01 | egocentric 观测窗大小（默认 5×5）与距离衰减函数 | M0 profile 冻结 | UNCONFIRMED |
-| Q-L01-02 | MW0 边界：torus vs 墙（影响空间学习生态效度） | M0 | UNCONFIRMED |
-| Q-L01-03 | 三 regime 的参数化（再生率/风暴频率/资源密度）及其与 L05 情感模式的对应 | M0 + L05 | UNCONFIRMED |
-| Q-L01-04 | regime 最小驻留 N6（默认 256 cycles） | M0 统计功效 | UNCONFIRMED |
+| Q-L01-01 | egocentric 观测窗大小（默认 5×5）与距离衰减函数 | M0 profile 冻结 | CONFIRMED（AI-v2 2026-09-25：5×5 + g(d)=1−0.4d，见 A 区） |
+| Q-L01-02 | MW0 边界：torus vs 墙（影响空间学习生态效度） | M0 | CONFIRMED（AI-v2 2026-09-25：torus） |
+| Q-L01-03 | 三 regime 的参数化（再生率/风暴频率/资源密度）及其与 L05 情感模式的对应 | M0 + L05 | CONFIRMED（AI-v2 2026-09-25：框架采纳，数值入 m0_mw0.profile） |
+| Q-L01-04 | regime 最小驻留 N6（默认 256 cycles） | M0 统计功效 | CONFIRMED（AI-v2 2026-09-25：256 cycles） |
 | Q-L01-05 | no-op/sham 归属判别的冻结最小效应量与样本量 | M0 统计计划（L13） | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
 | Q-L01-06 | 旧 D1–D7 验收原文不可得：§4.6 重映射裁决 | F0 | CONFIRMED（AI-v2 2026-09-23：采纳重建映射为规范，见 §4.6 裁决注） |
 | Q-L01-07 | M1 期 MW0 是否引入第二个可控代理（伪社会线索）或留到 C4 | M1 场景设计 | UNCONFIRMED |

@@ -1,6 +1,6 @@
 """三库分离 + 单写者 + checkpoint 谱系（L00 §3；Q-T05 CONFIRMED：SQLite 三库、WAL）。
 
-纪律：三个物理库各自独立连接；连接层无跨库事务（无 ATTACH、无多库 commit API）；
+纪律：三个物理库各自独立连接；连接层无跨库事务（无跨库附接、无多库 commit API）；
 每表唯一写者（OWNERSHIP 机械校验，越权 = OwnershipViolation，S1 级）；
 subject_memory 的写者位预留给 L06（memory），orchestrator 及其余模块被拒。
 """
@@ -46,7 +46,7 @@ class CheckpointRecord:
 
 
 class WriterHandle:
-    """单表唯一写者句柄：事务作用域限于本库（跨库在 API 层不可表达）。"""
+    """单表唯一写者句柄：事务作用域限于本库；execute 仅限本表 SQL（运行时加固，ADR-G-0003 R9②）。"""
 
     def __init__(self, connection: sqlite3.Connection, store: StoreName, table: str, writer: str) -> None:
         self._connection = connection
@@ -55,6 +55,10 @@ class WriterHandle:
         self.writer = writer
 
     def execute(self, sql: str, params: tuple[object, ...] = ()) -> None:
+        if self.table not in sql:
+            raise OwnershipViolation(
+                f"writer bound to table {self.table!r} cannot execute statements touching other tables"
+            )
         self._connection.execute(sql, params)
 
     @contextmanager
@@ -144,6 +148,11 @@ class Stores:
             conn.commit()
             self._connections[store] = conn
 
+    def _select_only(self, sql: str) -> None:
+        """读面运行时加固（ADR-G-0003 R9②）：读 API 仅接受 SELECT，杜绝裸连接写。"""
+        if not sql.lstrip().upper().startswith("SELECT"):
+            raise OwnershipViolation("read surface is SELECT-only（写必须经 open_writer 单写者句柄）")
+
     def connection(self, store: StoreName) -> sqlite3.Connection:
         """只读用途的原始连接（写必须走 open_writer）。"""
         return self._connections[store]
@@ -159,6 +168,7 @@ class Stores:
         return WriterHandle(self._connections[store], store, table, writer_module)
 
     def read(self, store: StoreName, sql: str, params: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+        self._select_only(sql)
         return list(self._connections[store].execute(sql, params).fetchall())
 
     def journal_modes(self) -> dict[StoreName, str]:

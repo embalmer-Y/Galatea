@@ -2,20 +2,25 @@
 
 合同：
 - 子种子派生 = HKDF-SHA256(ikm=run_seed, salt=固定域串, info=branch|module|stream)；
-- 流内递增 counter 产生块序列；块函数（算法本体）为**显式注入**——
-  ChaCha8 vs Philox 属 Q-L00-04（UNCONFIRMED，M0 前裁决），本模块不设默认、
-  不定值；`reference_block_blake2s` 仅为测试与合同演示提供，**禁止**作为
-  生产默认（组合根必须显式注入 Q-L00-04 裁决后的正式后端）。
-- checkpoint 序列化 = (key_hex, counter)，恢复后序列 bit-exact 连续。
+- 流内递增 counter 产生块序列；块函数（算法本体）为**显式注入**；
+- **正式后端 = chacha8_block**（Q-L00-04 CONFIRMED 2026-09-25，RFC 7539 §2.3 状态
+  布局、8 轮、nonce=0——每流独立 HKDF 键已保证隔离，无需 nonce）；威胁模型 =
+  确定性模拟可复算，非对抗密码学（纯 Python 无常量时间保证）；
+- `reference_block_blake2s` 仅为测试与合同演示提供，**禁止**作为生产默认；
+- checkpoint 序列化 = (key_hex, counter, offset)，恢复后序列 bit-exact 连续。
 """
 import hashlib
 import hmac
+import struct
 from collections.abc import Callable
 from dataclasses import dataclass
 
 _HKDF_SALT = b"galatea/kernel/rng/v1"
 
 BlockFn = Callable[[bytes, int], bytes]
+
+_CHACHA_CONST_WORDS = (0x61707865, 0x3320646E, 0x79622D32, 0x6B206574)
+_MASK32 = 0xFFFFFFFF
 
 
 def hkdf_sha256(ikm: bytes, salt: bytes, info: bytes, length: int = 32) -> bytes:
@@ -31,8 +36,58 @@ def hkdf_sha256(ikm: bytes, salt: bytes, info: bytes, length: int = 32) -> bytes
     return bytes(okm[:length])
 
 
+def _rotl32(v: int, n: int) -> int:
+    return ((v << n) | (v >> (32 - n))) & _MASK32
+
+
+def _quarter_round(s: list[int], a: int, b: int, c: int, d: int) -> None:
+    """RFC 7539 §2.1.1 quarter round（旋转量 16/12/8/7）。"""
+    s[a] = (s[a] + s[b]) & _MASK32
+    s[d] = _rotl32(s[d] ^ s[a], 16)
+    s[c] = (s[c] + s[d]) & _MASK32
+    s[b] = _rotl32(s[b] ^ s[c], 12)
+    s[a] = (s[a] + s[b]) & _MASK32
+    s[d] = _rotl32(s[d] ^ s[a], 8)
+    s[c] = (s[c] + s[d]) & _MASK32
+    s[b] = _rotl32(s[b] ^ s[c], 7)
+
+
+def chacha_block(key: bytes, counter: int, rounds: int = 8, nonce: bytes = b"\x00" * 12) -> bytes:
+    """ChaCha 块函数（RFC 7539 §2.3 布局：4 常量 + 8 键 + 1 counter + 3 nonce）。
+
+    nonce 默认 0：流隔离经 HKDF 每流独立键（Q-T11），nonce 仅供标准向量校验用。
+    """
+    if len(key) != 32:
+        raise ValueError("chacha key must be 32 bytes")
+    if len(nonce) != 12:
+        raise ValueError("chacha nonce must be 12 bytes")
+    working: list[int] = [
+        *_CHACHA_CONST_WORDS,
+        *struct.unpack("<8I", key),
+        counter & _MASK32,
+        *struct.unpack("<3I", nonce),
+    ]
+    initial = working.copy()
+    for _ in range(rounds // 2):
+        _quarter_round(working, 0, 4, 8, 12)
+        _quarter_round(working, 1, 5, 9, 13)
+        _quarter_round(working, 2, 6, 10, 14)
+        _quarter_round(working, 3, 7, 11, 15)
+        _quarter_round(working, 0, 5, 10, 15)
+        _quarter_round(working, 1, 6, 11, 12)
+        _quarter_round(working, 2, 7, 8, 13)
+        _quarter_round(working, 3, 4, 9, 14)
+    out = [(working[i] + initial[i]) & _MASK32 for i in range(16)]
+    return struct.pack("<16I", *out)
+
+
+def chacha8_block(key: bytes, counter: int) -> bytes:
+    """正式后端（Q-L00-04 CONFIRMED 2026-09-25）：ChaCha8，64 字节块。"""
+    return chacha_block(key, counter, 8)
+
+
 def reference_block_blake2s(key: bytes, counter: int) -> bytes:
-    """参考块函数（仅测试/演示；Q-L00-04 裁决前禁作生产默认——见模块 docstring）。"""
+    """参考块函数（仅测试/演示；禁作生产默认——见模块 docstring）。"""
     return hashlib.blake2s(
         counter.to_bytes(16, "big"), key=key[:64] if key else b"\x00" * 32, digest_size=32
     ).digest()

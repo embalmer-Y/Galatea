@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 42 项；UNCONFIRMED 92 项（G 2 + L00 4 + L01 6 + L02–L13 80）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 51 项；UNCONFIRMED 83 项（G 2 + L00 3 + L01 2 + L02–L13 76）；CLOSED 1 项（Q-L00-03，编号不复用）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -54,6 +54,15 @@
 | Q-L05-07 | anti-reward-collapse 检验的统计量与阈值 | **AI-v2（随 Q-L13-09）：** 单维对九维联合的最优线性重构 R²<0.9（任一维可被单维重构 ≥0.9 即判塌缩）；C2/E1 统计计划引用 | 2026-09-23 |
 | Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量 | **AI-v2（随 Q-L13-09）：** 三判据各 d≥0.4（vs 纳入前基线）且须联合成立；C1 统计计划引用 | 2026-09-23 |
 | Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量） | **AI-v2（随 Q-L13-09）：** 需要最小效应量——相对 shuffle 基线 d≥0.5（广播 → ≥2 分离模块预注册变化）；E1 统计计划引用 | 2026-09-23 |
+| Q-L00-04 | RNG 算法 ChaCha8 vs Philox（M0 实现前置；frozen 合同要求块函数显式注入） | **AI-v2：ChaCha8 为正式后端**（galatea/kernel/rng.py chacha8_block）——ChaCha 核心可经雪崩特性与 RFC 7539 状态布局校验，Philox 面向 GPU 并发（纯 CPU 顺序消费无收益）且无等价标准锚；64B 块 × HKDF 派生键（Q-T11 不变）；威胁模型 = 确定性模拟可复算、非对抗密码（纯 Python 无常量时间保证，docstring 声明）。重开条件：C1+ 训练期 RNG 吞吐成实测瓶颈 → 经新 Q 评估向量化/Philox 后端（注入点已预留） | 2026-09-25 |
+| Q-L01-01 | egocentric 观测窗大小与衰减函数（M0 profile 冻结前置） | **AI-v2：5×5 egocentric 采纳**（以 BodyTruth 为中心，Chebyshev 距离 d∈{0,1,2}），增益 g(d)=1−0.4d（1.0/0.6/0.2，单调递减全程 >0）；渲染 = 真值强度 × g(d) + 噪声（流 (env,mw0,render)）；禁真值坐标/精确量（防 oracle 泄漏不变）。重开条件：M0 泄漏探针/学习曲线显示信息饥饿或过宽 → 重标定 | 2026-09-25 |
+| Q-L01-02 | MW0 边界 torus vs 墙 | **AI-v2：torus 采纳**——拓扑均匀消除角落特殊性混杂，regime 空间统计对称；空间学习不受边界伪影污染。重开条件：M0 空间行为数据提示需墙对照 → 经新 Q 增补对照场景（场景只增不减，承 L13 保护集纪律） | 2026-09-25 |
+| Q-L01-03 | 三 regime 参数化（**与 Q-L05-04 成组裁决**，联动对） | **AI-v2：三 regime 框架采纳**——abundance（再生快/密度高/风暴稀有）/ scarcity（再生慢/密度低/风暴稀有）/ volatile（再生中/密度中/风暴频繁且扩张收缩）；具体数值入 m0_mw0.profile.yaml（M0 冻结单元）。重开条件：M0 数据显示某 regime 无行为分化（可测量）→ 重参数化 | 2026-09-25 |
+| Q-L05-04 | MW0 三 regime 与 3 情感模式对应参数化（**与 Q-L01-03 成组裁决**，联动对） | **AI-v2（随 Q-L01-03）：** 初步对应 = abundance→基线稳态（低唤醒）/ scarcity→节俭竞争（能量驱力权重升）/ volatile→警戒不确定（误差敏感/警戒升）；映射为 C2 情感调制的待检验假设——M0 只实现世界侧 regime，L05 侧在 C2 经冻结统计计划检验。重开条件：C2 数据否定某对应 → 经新 Q 重映射 | 2026-09-25 |
+| Q-L01-04 | regime 最小驻留 N6 | **AI-v2：N6=256 cycles 采纳**——与 2 的幂频率梯对齐（T6 周期 64 × 4），保证 M0 效应窗口 ≥4 个 T6 巩固拍。重开条件：M0 统计功效不足（可测量）→ 延长驻留重标定 | 2026-09-25 |
+| Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（**与 Q-L10-09 成组裁决**，联动对） | **AI-v2：MW0 期禁用采纳**（不注册、不参与仲裁）——门前不主张反射自主（L01 §5）；M0 归属实验的无意图路径仅由环境侧承载，避免认知 Reflex 混淆归属判据。启用决策在 C0（白名单刺激定义 + Q-L10-09 分界复核后）。重开条件：C0 白名单设计完成时复核 | 2026-09-25 |
+| Q-L10-09 | MW0 期 Reflex 与 T0 硬保护的职责分界，避免 containment 双写（**与 Q-L10-09 联动的 Q-L09-06 成组**） | **AI-v2：分界采纳**——T0 挂点（MW0/C0）仅承载环境侧硬保护/急停（L01 环境内），主体 Reflex 控制器与之不同域；containment 唯一职责在 gateway（L10 §4.1 第 5 项），Reflex 将来启用后其提案仍走 gateway 八项校验、不得重复 containment 检查。重开条件：C0 白名单设计若发现不可消解的重叠 → 经新 Q 重分界 | 2026-09-25 |
+| Q-L10-02 | idempotency 窗口长度与跨分支键作用域（M0 gateway 实现前置） | **AI-v2：窗口 64 cycles**（= 一个 T6 周期，2 的幂对齐；覆盖 deadline 上界与重试时距），键作用域 = (run_id, branch_id) 全局跨动作类（窗口内重复键一律 DUPLICATE_COMMAND，从严）。重开条件：M0 数据显示合法重试被误拒或窗口占用过高 → 重标定 | 2026-09-25 |
 
 ## B. 全局未决（G 系列）
 
@@ -69,7 +78,6 @@
 | Q 号 | 议题 | 建议默认 | 状态 |
 |---|---|---|---|
 | ~~Q-L00-03~~ | ~~float64 统一是否接受存储/性能代价~~ **CLOSED**：与 Q-T10 裁决（模型 float32、证据/统计 float64，2026-09-12 CONFIRMED）重复且措辞冲突，已废弃归并入 Q-T10；编号不复用 | — | CLOSED |
-| Q-L00-04 | RNG 算法 ChaCha8 vs Philox | ChaCha8 | UNCONFIRMED |
 | Q-L00-05 | checkpoint 频率策略 | 每 T6 + 关键事件触发 | UNCONFIRMED |
 | Q-L00-06 | registry 大 artifact 分片阈值 | 8 MiB 分片 | UNCONFIRMED |
 | Q-L00-07 | Hypothesis packet 序列生成分布 | 谱系感知 + 对抗混合 | UNCONFIRMED |
@@ -78,10 +86,6 @@
 
 | Q 号 | 议题 | 建议默认 | 状态 |
 |---|---|---|---|
-| Q-L01-01 | egocentric 观测窗大小与衰减函数 | 5×5，线性距离衰减 | UNCONFIRMED |
-| Q-L01-02 | MW0 边界 torus vs 墙 | torus | UNCONFIRMED |
-| Q-L01-03 | 三 regime 参数化及与 L05 情感模式对应 | abundance/scarcity/volatile；对应待 L05 | UNCONFIRMED |
-| Q-L01-04 | regime 最小驻留 N6 | 256 cycles | UNCONFIRMED |
 | Q-L01-07 | M1 是否引入第二可控代理（伪社会线索） | 推迟到 C4 | UNCONFIRMED |
 | Q-L01-08 | energy/integrity viability 阈值与损伤事件定义 | 联动 L05 驱力 | UNCONFIRMED |
 
@@ -126,7 +130,6 @@
 | Q-L05-01 | 九维的取值域与量纲（[0,1] vs [-1,1]，valence 是否对称）与跨维可比性 | — | C2 | UNCONFIRMED |
 | Q-L05-02 | 内稳态误差权重 `w_d` 默认值与是否允许 appraisal 有界动态调整（幅度上界） | — | C2 | UNCONFIRMED |
 | Q-L05-03 | 各维时间常数 τ、迟滞带宽、衰减率的默认谱 | — | C2；联动 Q-L00-01 | UNCONFIRMED |
-| Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化 | — | C2；**须与 Q-L01-03 一致裁决** | UNCONFIRMED |
 | Q-L05-05 | 持续极端 aversive-like 状态的触发阈值与持续时长 | — | E1 前（伦理）；**须与 Q-G00-05 一致** | UNCONFIRMED |
 | Q-L05-06 | `tendencies.action_class` 枚举 | — | C3/C4；联动 Q-L03-06、Q-L04-05 | UNCONFIRMED |
 | Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | 恒 Unknown（D-14 单主体期） | C4 | UNCONFIRMED |
@@ -176,7 +179,6 @@
 | Q-L09-03 | 五类元决策的触发阈值（尤其 `loss_of_control` 的窗长 L_c 与误差阈值） | — | C3/C4 | UNCONFIRMED |
 | Q-L09-04 | metacontrol 最小驻留（cycles）与抖动锁定策略 | — | C3 | UNCONFIRMED |
 | Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | — | C5；联动 Q-L11-* | UNCONFIRMED |
-| Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | MW0 期禁用 | C0/C3；联动 Q-L10-09 | UNCONFIRMED |
 | Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义（人类研究者？实验控制？）与其权限边界 | — | C3/C4；联动 Q-L12-08 | UNCONFIRMED |
 | Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一 | — | C1/C3；联动 Q-L02-06、Q-L03-01 | UNCONFIRMED |
 
@@ -184,11 +186,9 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L10-02 | idempotency 窗口长度（cycles）与跨分支的键作用域 | — | M0 | UNCONFIRMED |
 | Q-L10-05 | 概率 agency 后验的计算形式与校准判据 | — | C4；同源 Q-L03-04 | UNCONFIRMED |
 | Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | — | C5/H1 | UNCONFIRMED |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | — | P1/H1 | UNCONFIRMED |
-| Q-L10-09 | MW0 期 Reflex 与 T0 硬保护的职责分界，避免 containment 双写 | — | C0；联动 Q-L09-06 | UNCONFIRMED |
 
 ## N. L11 学习/巩固
 
@@ -232,11 +232,11 @@
 | 组 | Q 号 | 联动原因 |
 |---|---|---|
 | 时基谱 | Q-L00-01 ↔ Q-L05-03 | 情感时间常数依赖 T 级频率比 |
-| regime ↔ 情感模式 | Q-L01-03 ↔ Q-L05-04 | 同一参数化在两处出现 |
+| regime ↔ 情感模式 | Q-L01-03 ↔ Q-L05-04 | 同一参数化在两处出现（已成组裁决 2026-09-25，见 A 区） |
 | 伦理阈 | Q-G00-05 ↔ Q-L05-05 | 两项必须同时裁决（authority v2 下为 AI 难逆级成文裁决：ADR-G + tag；owner 否决权保留） |
 | 能力粒度 | Q-L03-06 ↔ Q-L04-05 ↔ Q-L05-06 | `action_class` 枚举三处共用 |
 | 误差标度 | Q-L02-06 ↔ Q-L03-01 ↔ Q-L09-08 | 三层误差比较需共同标度 |
-| Reflex 边界 | Q-L09-06 ↔ Q-L10-09 | containment 不得双写 |
+| Reflex 边界 | Q-L09-06 ↔ Q-L10-09 | containment 不得双写（已成组裁决 2026-09-25，见 A 区） |
 | 求助对象 | Q-L09-07 ↔ Q-L12-08 | 单主体期的权限边界 |
 | 保护集 | Q-L06-05 ↔ Q-L11-04 ↔ Q-L13-06 | 保护集构成、阈值、治理一体 |
 | promotion 判据 | Q-L11-03 ↔ Q-L13-07 | 多目标判据与统计阈值 |
@@ -244,4 +244,4 @@
 
 **F0 冻结的直接阻断项**：**已清零**（2026-09-23 AI-v2 成文裁决 21 项，见 A 区当日批次——Q-L01-06、Q-G00-06、Q-G00-04+Q-L13-04、Q-L10-01/-03/-06、Q-L11-07、Q-L12-02、Q-L13-01/-02/-09 及 Q-L13-09 联动 7 项（Q-L10-04 归联动组）；Q-L00-01/-02 于 ACT-07 执行中补裁，此前漏列）。**F0 已冻结**（ADR-G-0002 + tag `f0-freeze`，2026-09-23，7 份合同文件）。
 
-**M0/M1 阻断项**：Q-L01-01…04、Q-L09-06、Q-L10-02、Q-L08-01/-06（M0 准备单元处理）。
+**M0 阻断项**：**已清零**（2026-09-25 AI-v2 成组裁决 9 项——Q-L00-04、Q-L01-01…04+Q-L05-04、Q-L09-06+Q-L10-09、Q-L10-02；见 A 区）。余 M1 阻断项：Q-L08-01/-06（M1 准备单元处理）。

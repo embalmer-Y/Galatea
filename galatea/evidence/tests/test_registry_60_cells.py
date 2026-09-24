@@ -35,7 +35,7 @@ def test_full_coverage_closes_denominator() -> None:
     assert report.coverage_filled == 60
     assert report.unresolved_paths == ()
     assert report.denominator_closed
-    assert gate(report) is ClosureGate.CLOSED
+    assert gate(report, spec) is ClosureGate.CLOSED
 
 
 def test_single_missing_cell_blocks_and_is_named() -> None:
@@ -49,7 +49,7 @@ def test_single_missing_cell_blocks_and_is_named() -> None:
     assert report.coverage_filled == 59
     assert report.unresolved_paths == (f"{missing[0]}/{missing[1]}",)
     assert not report.denominator_closed
-    assert gate(report) is ClosureGate.OPEN
+    assert gate(report, spec) is ClosureGate.OPEN
 
 
 def test_report_digest_deterministic_and_sensitive() -> None:

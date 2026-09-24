@@ -202,13 +202,13 @@ galatea/kernel/                  # strict 类型
   packet.py           CognitivePacket(envelope), Provenance, AccessScope, 冻结构造
   payload.py          PayloadRef, schema_version 注册表接口
   unknown.py          Unknown, UnknownReason, unknowns 登记表
-  rng.py              CounterStream, stream 派生(HKDF), checkpoint 序列化
+  rng.py              CounterStream, stream 派生(HKDF), checkpoint 序列化, chacha8_block 正式后端（Q-L00-04，2026-09-25）
   state.py            三库连接协议, single-writer 断言, CheckpointRecord, 谱系 DAG
   digest.py           canonical_json, content_digest, blob digest
   registry.py         content-addressed put/get, manifest, 索引
   watchdog.py         TimeoutEvent 注入, 协作点抢占
 galatea/kernel/tests/
-  test_tiebreak.py test_rng_isolation.py test_canonical_json.py
+  test_tiebreak.py test_rng_isolation.py test_canonical_json.py test_registry_core.py  # registry 核心合同（2026-09-25 补录清单席位，承 REV-0003 R6 先例）
   test_replay.py(ReplayTest) test_leakage.py(LeakageProbe)
   test_state_separation.py test_checkpoint_lineage.py test_unknown_coverage.py
 config/profiles/
@@ -222,7 +222,7 @@ config/profiles/
 | Q-L00-01 | T3/T4/T5/T6 频率比 N2/N3/N4/N5 默认值 | F0 冻结 profile | CONFIRMED（AI-v2 2026-09-23：2/4/16/64 初值 + M0 复核，见 open_questions A 区） |
 | Q-L00-02 | UnknownReason 冻结清单是否需增删 | F0 | CONFIRMED（AI-v2 2026-09-23：9 项 + STREAM_MISSING 共 10 项冻结，增删走 schema 版本） |
 | ~~Q-L00-03~~ | ~~float64 统一数值纪律~~ **已废弃**：被 Q-T10 CONFIRMED 裁决取代（模型 float32、证据/统计 float64），不再悬置 | — | CLOSED（归并入 Q-T10） |
-| Q-L00-04 | RNG 算法 ChaCha8 vs Philox（性能与确定性权衡） | M0 前 | UNCONFIRMED |
+| Q-L00-04 | RNG 算法 ChaCha8 vs Philox（性能与确定性权衡） | M0 前 | CONFIRMED（AI-v2 2026-09-25：ChaCha8 正式后端 chacha8_block，见 A 区） |
 | Q-L00-05 | checkpoint 频率策略（每 cycle / 每 T6 / 事件触发）与存储成本 | M2 | UNCONFIRMED |
 | Q-L00-06 | registry blob 去重阈值与大 artifact（模型权重）的分片策略 | C0 | UNCONFIRMED |
 | Q-L00-07 | Hypothesis property test 的 packet 序列生成分布（均匀/对抗/谱系感知） | M0 | UNCONFIRMED |

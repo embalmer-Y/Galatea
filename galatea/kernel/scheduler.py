@@ -166,10 +166,24 @@ class Scheduler:
         for packet in packets:
             if packet.access_scope is AccessScope.PUBLIC_BROADCAST:
                 self._consumed.add((packet.event_id, reg.module_id))
+        self._prune_broadcast()
         record = CommitRecord(cycle=due, module_id=reg.module_id, out_digests=tuple(p.content_digest for p in out))
         self._commits.append(record)
         if self._state_sink is not None:
             self._state_sink(record)
+
+    def _prune_broadcast(self) -> None:
+        """广播池剪枝（ADR-G-0003 R9⑤）：全部已注册模块均已消费的包退出池与消费账，长跑内存有界。"""
+        if not self._modules or not self._broadcast:
+            return
+        done = {
+            packet.event_id
+            for packet, _ in self._broadcast
+            if all((packet.event_id, module) in self._consumed for module in self._modules)
+        }
+        if done:
+            self._broadcast = [entry for entry in self._broadcast if entry[0].event_id not in done]
+            self._consumed = {key for key in self._consumed if key[0] not in done}
 
     def run_until(self, max_cycle: int) -> tuple[CommitRecord, ...]:
         """推进至 max_cycle（含）：逐个派发到期模块；无到期则时钟直跳。"""

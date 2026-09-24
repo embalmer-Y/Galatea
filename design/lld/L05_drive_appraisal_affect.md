@@ -226,7 +226,7 @@ config/profiles/
 | Q-L05-01 | 九维的取值域与量纲（[0,1] vs [-1,1]，valence 是否对称）与跨维可比性 | C2 | UNCONFIRMED |
 | Q-L05-02 | 内稳态误差权重 `w_d` 默认值与是否允许 appraisal 有界动态调整（调整幅度上界） | C2 | UNCONFIRMED |
 | Q-L05-03 | 各维时间常数 τ、迟滞带宽、衰减率的默认谱（与 T 级频率联动 Q-L00-01） | C2 | UNCONFIRMED |
-| Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化（与 Q-L01-03 必须一致裁决） | C2 + L01 | UNCONFIRMED |
+| Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化（与 Q-L01-03 必须一致裁决） | C2 + L01 | CONFIRMED（AI-v2 2026-09-25，随 Q-L01-03 成组：初步对应采纳，C2 统计检验） |
 | Q-L05-05 | 持续极端 aversive-like 状态的触发阈值与持续时长（**须与 Q-G00-05 owner 裁决一致**） | E1 前，伦理 | UNCONFIRMED |
 | Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | C3/C4 | UNCONFIRMED |
 | Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：最优单维线性重构 R²<0.9） |

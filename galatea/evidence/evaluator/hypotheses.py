@@ -47,5 +47,8 @@ class EvidenceResult:
     def __post_init__(self) -> None:
         if not self.hypothesis_refs or not self.stat_plan_ref:
             raise ValueError("EvidenceResult requires hypothesis_refs and stat_plan_ref（claim 冻结先于运行）")
-        if self.verdict is HypothesisVerdict.SUPPORTED and not self.recompute_ok:
-            raise ValueError("SUPPORTED verdict requires recompute_ok（I1 复算通过是门禁条件，L13 §1）")
+        if self.verdict is HypothesisVerdict.SUPPORTED:
+            if not self.recompute_ok:
+                raise ValueError("SUPPORTED verdict requires recompute_ok（I1 复算通过是门禁条件，L13 §1）")
+            if self.effect_size is None or self.ci is None:
+                raise ValueError("SUPPORTED requires effect_size and CI（estimand 完整性，L13 §4.3；R9⑨）")

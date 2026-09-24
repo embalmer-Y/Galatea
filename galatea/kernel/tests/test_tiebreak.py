@@ -84,3 +84,43 @@ def test_registration_validation() -> None:
         sched.register(mk("m2", 7, 1))  # t_level 越界
     with pytest.raises(ValueError):
         sched.register(mk("m3", 2, 0))  # period 非法
+
+
+def test_broadcast_pool_pruned_after_full_consumption() -> None:
+    """广播池剪枝（R9⑤）：全部模块消费后包退出池，长跑内存有界。"""
+    from galatea.kernel.packet import AccessScope, ArtifactRef, RepresentationLevel, UlidFactory, make_packet
+
+    log: list[str] = []
+    sched, mk = _build(log)
+
+    def emitter(ctx: DispatchContext) -> Out:
+        ulid = UlidFactory(sched._rng_directory.stream("B", "em", "ulid"), lambda: ctx.virtual_time)  # noqa: SLF001
+        packet = make_packet(
+            event_id=ulid.new(), subject_candidate_id="S", run_id="R", branch_id="B",
+            activity_window_id="W", cycle_id=ctx.due_cycle, virtual_time=ctx.virtual_time,
+            source_module="em", content_type="t.v1", representation_level=RepresentationLevel.PREDICTED,
+            schema_version="v1", payload_ref=ArtifactRef(digest="0" * 64, kind="payload"),
+            confidence=0.5, access_scope=AccessScope.PUBLIC_BROADCAST,
+        )
+        sched.submit(packet)
+        return ()
+
+    clock = CycleClock()
+    rng = RngDirectory(b"seed", reference_block_blake2s)
+    sched = Scheduler(clock, rng, run_id="R", branch_id="B", subject_candidate_id="S")
+
+    def emit_handler(ctx: DispatchContext) -> Out:
+        if ctx.due_cycle <= 62:  # 停发两拍：末包可被全员消费并剪除
+            return emitter(ctx)
+        return ()
+
+    def sink(ctx: DispatchContext) -> Out:
+        log.append(f"{ctx.due_cycle}:{ctx.module_id}:{len(ctx.packets)}")
+        return ()
+
+    sched.register(Registration("em", 1, 1, emit_handler))
+    sched.register(Registration("s1", 2, 1, sink))
+    sched.register(Registration("s2", 2, 2, sink))
+    sched.run_until(65)  # 末包（cycle 64）需发射者下拍消费后方可剪除
+    assert sched._broadcast == []  # noqa: SLF001  全部消费后池已剪空
+    assert len(sched._consumed) == 0  # noqa: SLF001

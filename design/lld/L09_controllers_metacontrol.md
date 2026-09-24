@@ -225,6 +225,6 @@ config/profiles/
 | Q-L09-03 | 五类元决策的触发阈值（尤其 `loss_of_control` 的窗长 L_c 与误差阈值） | C3/C4 | UNCONFIRMED |
 | Q-L09-04 | metacontrol 最小驻留（cycles）与抖动锁定策略 | C3 | UNCONFIRMED |
 | Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | C5，与 L11 联动 | UNCONFIRMED |
-| Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | C0/C3 | UNCONFIRMED |
+| Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | C0/C3 | CONFIRMED（AI-v2 2026-09-25：MW0 禁用，C0 复核，随 Q-L10-09 成组，见 A 区） |
 | Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义（人类研究者？实验控制？）与其权限边界 | C3/C4，联动 L12 | UNCONFIRMED |
 | Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一（联动 Q-L02-06、Q-L03-01） | C1/C3 | UNCONFIRMED |

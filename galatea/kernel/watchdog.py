@@ -18,7 +18,11 @@ class TimeoutEvent:
 
 
 class Watchdog:
-    """登记各模块 deadline；协作点检查到期。"""
+    """登记各模块 deadline；协作点检查到期。
+
+    每模块至多一个未决 deadline：重复登记抛 ValueError（既有行为文档化，
+    ADR-G-0003 R9⑧；多 deadline 需求出现时经 L00 SPEC 修订）。
+    """
 
     def __init__(self) -> None:
         self._deadlines: dict[str, int] = {}

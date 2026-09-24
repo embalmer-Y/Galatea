@@ -58,8 +58,11 @@ def close(registry: CoreDecisionRegistry, spec: MatrixSpec) -> ClosureReport:
     )
 
 
-def gate(report: ClosureReport) -> ClosureGate:
-    """E1 门语义：仅当分母闭合（且冻结规则要求两条判据均满足）时 CLOSED。"""
-    if report.denominator_closed:
-        return ClosureGate.CLOSED
-    return ClosureGate.OPEN
+def gate(report: ClosureReport, spec: MatrixSpec) -> ClosureGate:
+    """E1 门语义：消费冻结文件的 closure_rule（ADR-G-0003 R9④）——两判据按冻结规则强制。"""
+    rule = spec.closure_rule
+    if rule.unresolved_paths_must_be_empty and report.unresolved_paths:
+        return ClosureGate.OPEN
+    if rule.denominator_must_close and not report.denominator_closed:
+        return ClosureGate.OPEN
+    return ClosureGate.CLOSED
