@@ -1,6 +1,6 @@
 # Galatea M0 冻结 profile — MW0 最小世界（L01 §4/§10）
-# 效力：M0 门冻结合同（ADR-G-0004 · tag m0-freeze · 2026-09-25）。数值均为初值（Q-G00-08），M0 数据复核点见各条。
-# 修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
+# 效力：M0 门冻结合同（ADR-G-0004 · tag m0-freeze · 2026-09-25）。数值均为初值（Q-G00-08 伞式 +
+# Q-L01-09 补裁；M0 数据复核点见各行）。修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
 profile:
   id: m0_mw0
   version: v1.0
@@ -13,41 +13,58 @@ world:
   grid: {size: 16, boundary: torus}          # Q-L01-02 CONFIRMED
   patch_types: [resource, neutral, storm_band, shelter]   # L01 §4.4
   resource:
-    max_level: 3
-    respawn_base_cycles: 8                   # regime multiplier 调制；初值 Q-G00-08
+    max_level: 3                             # 每 resource patch 储量级数上限（初值 Q-G00-08）
+    respawn_base_cycles: 8                   # respawn 基础周期（regime multiplier 调制；初值 Q-G00-08）
   body:                                      # L01 §4.4：pos/orientation/energy/integrity/load
-    energy_max: 1.0
-    integrity_max: 1.0
-    load_max: 1.0
+    energy_max: 1.0                          # 初值 Q-G00-08
+    integrity_max: 1.0                       # 初值 Q-G00-08
+    load_max: 1.0                            # schema 占位：M0 期 load ≡ 0（Q-L01-09⑥），carry 机制 C0+
   action_primitives: [move, forage, eat, rest, look]      # MW0 五原语（与 f0_action_contract 白名单一致）
   action_energy_delta:                       # 每次执行的 energy 变化（初值 Q-G00-08/Q-L01-08）
     move: -0.01
     forage: -0.02
-    eat: 0.15                                # 进食恢复
+    eat: 0.15                                # 进食恢复（前置：储存食物 ≥1，Q-L01-09④）
     rest: 0.10                               # 休息恢复
     look: -0.005
+  forage_chain:                              # 觅食闭环（Q-L01-09④）
+    yield_per_success: 1                     # resource patch 上 forage：patch 储量 −1、储存食物 +1
+    non_resource_effect: none                # 非 resource patch：effective=none
+    food_storage_max: 5                      # 储存食物上限（初值）
+    eat_precondition: stored_food >= 1       # eat 消耗 1 储存 → energy +0.15
   storm:
     integrity_damage_per_hit: 0.10           # 初值 Q-G00-08
     damage_event_min_delta: 0.05             # 损伤事件离散定义（Q-L01-08 M0 部分）：单事件降幅 ≥ 此值记 integrity_damage_event
     # viability 告警阈值 = L05/C2 域，本 profile 不设（Q-L01-08 显式排除）
+  floor_semantics:                           # 边界语义（Q-L01-09⑤）
+    clamp_at_zero: [energy, integrity]       # 下限 0 截断
+    energy_depleted_event: true              # energy 首次触 0 → energy_depleted（Interoceptive 通道）
+    death_rebirth: none                      # M0 无死亡/重生语义；episode 终止仅经实验控制
+    integrity_regen: none                    # M0 无再生（修复语义 C0+）
+  load_simplification:                       # Q-L01-09⑥（显式简化留痕，防静默降级）
+    load_constant_zero: true
+    observation_noise_load_coupling: false   # 噪声固定 σ，不随 load 调制（耦合参数 C0+ 随 load 机制一并裁决）
 
 observation:                                 # Q-L01-01 CONFIRMED
   window: {shape: 5x5, metric: chebyshev}
   gain_by_distance: {d0: 1.0, d1: 0.6, d2: 0.2}
-  render_noise_sigma: 0.05                   # 初值 Q-G00-08
-  render_rng_stream: [env, mw0, render]
+  render_noise_sigma: 0.05                   # 初值 Q-G00-08；σ 固定（Q-L01-09⑥）
   no_truth_leakage: true                     # 禁真值坐标/精确量（L01 §4.2 不变）
 
-regimes:                                     # Q-L01-03 框架 + Q-G00-08 初值
+regimes:                                     # Q-L01-03 框架 + Q-G00-08 初值 + Q-L01-09 语义
   abundance: {respawn_multiplier: 0.5, resource_density: 0.35, storm_rate_per_cycle: 0.005}
   scarcity:  {respawn_multiplier: 2.0, resource_density: 0.10, storm_rate_per_cycle: 0.005}
-  volatile:  {respawn_multiplier: 1.0, resource_density: 0.20, storm_rate_per_cycle: 0.030, storm_band_drift: true}
+  volatile:  {respawn_multiplier: 1.0, resource_density: 0.20, storm_rate_per_cycle: 0.030,
+              storm_band_drift: {period_cycles: 64, cells_per_drift: 1}}   # 漂移语义 Q-L01-09②
+  parameter_semantics:                       # 可操作性语义钉死（Q-L01-09①③，REV-0004 R2）
+    storm_rate_per_cycle: per_grid_expected_hits   # 全局语义：每 grid 每 cycle 风暴命中期望次数
+    resource_density: target_coverage              # resource patch 目标覆盖率；respawn 仅当覆盖率低于目标
   min_dwell_cycles: 256                      # Q-L01-04 CONFIRMED
-  initial_regime: abundance
+  initial_regime: abundance                  # 初值 Q-G00-08；regime 切换 = Experiment Control 干预
 
-channels:                                    # L01 §2.2：参数冻结于 claim profile；初值 Q-G00-08
-  delay_cycles: {exteroceptive: 1, interoceptive: 0, proprioceptive: 0, outcome: 1, language: 1}
-  corruption_rate: 0.01
+channels:                                    # L01 §2.2：参数冻结于 claim profile
+  delay_cycles: {exteroceptive: 1, interoceptive: 0, proprioceptive: 0, outcome: 1, language: 1}   # 初值 Q-G00-08
+  corruption_rate: 0.01                      # 初值 Q-G00-08
+  loss_rate: 0.0                             # 无自发丢失；丢失仅经 fault 干预注入（Q-L01-09⑦）
 
 rng_streams:                                 # Q-T11：全部显式派生流
   dynamics: [env, mw0, dynamics]

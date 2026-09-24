@@ -199,4 +199,5 @@ design/mw0/
 | Q-L01-05 | no-op/sham 归属判别的冻结最小效应量与样本量 | M0 统计计划（L13） | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
 | Q-L01-06 | 旧 D1–D7 验收原文不可得：§4.6 重映射裁决 | F0 | CONFIRMED（AI-v2 2026-09-23：采纳重建映射为规范，见 §4.6 裁决注） |
 | Q-L01-07 | M1 期 MW0 是否引入第二个可控代理（伪社会线索）或留到 C4 | M1 场景设计 | UNCONFIRMED |
-| Q-L01-08 | energy/integrity 的 viability 阈值与"损伤事件"定义（联动 L05 驱力） | M0/L05 | UNCONFIRMED |
+| Q-L01-08 | energy/integrity 的 viability 阈值与"损伤事件"定义（联动 L05 驱力） | M0/L05 | CONFIRMED（AI-v2 2026-09-25，M0 部分：损伤事件定义 + 力学初值；viability 阈值归 L05/C2，见 A 区） |
+| Q-L01-09 | MW0 动力学表补充参数与边界语义（风暴率语义/觅食链/floor/load 简化/loss） | M0 | CONFIRMED（AI-v2 2026-09-25：REV-0004 R2–R4/R6 补裁，见 A 区） |

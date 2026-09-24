@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**137**
-  - CONFIRMED: 51
-  - UNCONFIRMED: 85
+- 登记册声明 Q 号：**139**
+  - CONFIRMED: 54
+  - UNCONFIRMED: 84
   - CLOSED: 1
-  - 分区分佈：{'A': 51, 'B': 4, 'C': 4, 'D': 2, 'E': 7, 'F': 6, 'G': 6, 'H': 6, 'I': 8, 'J': 6, 'K': 7, 'L': 7, 'M': 3, 'N': 7, 'O': 7, 'P': 6}
+  - 分区分佈：{'A': 54, 'B': 4, 'C': 4, 'D': 1, 'E': 7, 'F': 6, 'G': 6, 'H': 6, 'I': 8, 'J': 6, 'K': 7, 'L': 7, 'M': 3, 'N': 7, 'O': 7, 'P': 6}
 
 - OK：无重复声明
 
@@ -26,7 +26,7 @@
 ### 各 LLD 自声明 Q 号数（§11 表）
 
 - `lld/L00_kernel.md`: 7 → Q-L00-01, Q-L00-02, Q-L00-03, Q-L00-04, Q-L00-05, Q-L00-06, Q-L00-07
-- `lld/L01_environment_channels.md`: 8 → Q-L01-01, Q-L01-02, Q-L01-03, Q-L01-04, Q-L01-05, Q-L01-06, Q-L01-07, Q-L01-08
+- `lld/L01_environment_channels.md`: 9 → Q-L01-01, Q-L01-02, Q-L01-03, Q-L01-04, Q-L01-05, Q-L01-06, Q-L01-07, Q-L01-08, Q-L01-09
 - `lld/L02_sensorium.md`: 7 → Q-L02-01, Q-L02-02, Q-L02-03, Q-L02-04, Q-L02-05, Q-L02-06, Q-L02-07
 - `lld/L03_perception.md`: 7 → Q-L03-01, Q-L03-02, Q-L03-03, Q-L03-04, Q-L03-05, Q-L03-06, Q-L03-07
 - `lld/L04_world_body_self.md`: 7 → Q-L04-01, Q-L04-02, Q-L04-03, Q-L04-04, Q-L04-05, Q-L04-06, Q-L04-07
@@ -57,7 +57,7 @@
 ## 5. LLD 11 节模板符合度
 
 - `lld/L00_kernel.md`: 228 行 · 标题「# L00 横切基础：时钟、调度、状态、RNG、Packet、Registry 核心、typed unknown」 · OK
-- `lld/L01_environment_channels.md`: 202 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
+- `lld/L01_environment_channels.md`: 203 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
 - `lld/L02_sensorium.md`: 213 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 203 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 225 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
