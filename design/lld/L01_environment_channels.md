@@ -172,7 +172,7 @@ galatea/env/                       # EVIDENCE_ONLY 平面；主体平面禁止 i
     dynamics.py     表格 transfer/respawn/事件生成（L00 RNG 流）
     mw0.py          MW0 几何/patch/body/动作原语/regime 机
   channels/
-    adapter.py      ChannelAdapter 基类（render→transport→RECEIVED 包）
+    adapter.py      ChannelBus 总线（render→transport→RECEIVED 包 + DeliveryFact 分离；M0 实现形态，2026-09-26 回写 REV-0005 R10）
     extero.py intero.py proprio.py outcome.py language_stub.py
     delivery.py     ChannelDeliveryFact, MissingSignalEvent
   interventions/
@@ -181,6 +181,7 @@ galatea/env/                       # EVIDENCE_ONLY 平面；主体平面禁止 i
 tests/env/
   test_determinism.py test_leakage_env.py test_intervention_battery.py
   test_gateway_signature.py test_channel_fault_typing.py
+  # 注：test_gateway_signature.py 实际归属 galatea/subject/action/tests/（L10 §10 清单名；位置勘误 2026-09-26 REV-0005 R10）
 config/profiles/
   m0_mw0.profile.yaml    MW0 全参数 + 通道参数 + regime 默认（冻结前 UNCONFIRMED）
   m0_interventions.yaml  干预电池规格
