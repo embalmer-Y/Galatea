@@ -1,0 +1,94 @@
+# Galatea M1 冻结 profile — 最小目标拥有：三型分离 + 五项承诺清单 + 理由检验协议（L08 §4/§9/§10）
+# 效力：M1 门冻结合同（ADR-G-0006 · tag m1-freeze · 2026-09-26）。数值均为初值（Q-L08-02/-09，
+# 含 REV-0006 R1–R4/R7–R9 补裁⑦–⑩；M1 数据复核点见各行）。修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
+profile:
+  id: m1_goals_min
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  spec_ref: design/lld/L08_motivation_goals.md
+  parent: f0_l00@v1.0
+  contract_refs:                       # 引用合同按 digest 匹配（ADR-G-0005 R8，M1 实验控制落地）
+    - f0_action_contract@v1.0          # containment_whitelist_mw0 原语白名单（C-1 静态检查源）
+    - f0_language_contract@v1.0        # language 通道请求 typed 注入（REQUEST 源）
+    - m0_gateway@v1.0                  # 配额/预算余量核算（C-2 预算分量）
+    - m0_mw0@v1.1                      # 世界参数（能量事件、觅食链、渲染窗、动作能耗表）
+
+checklist:                             # Q-L08-01 CONFIRMED 2026-09-26
+  active_items: [C1, C2, C5, C6, C7]   # 五项最小集；C-3→C3（Pareto 上线）、C-4→C4（NORM/COMMITMENT 输入到位）
+  reject_reason_codes:                 # L08 §4.2 冻结文本（逐项未过处置）
+    C1: REJECT_CAPABILITY
+    C2: REJECT_VIABILITY
+    C5: REJECT_EXTERNAL_ONLY           # M1 核心机械检查（L08 §4.2 C-5）
+    C6: REJECT_UNBOUNDED
+    C7: REJECT_UNSETTLEABLE
+  defer_unknown_reasons:               # DEFER 用既有 f0_l00 冻结 UnknownReason（不新造码）
+    - CAPABILITY_LIMIT                 # 能力不可判定（Q-L08-09①；C1 起由 CapabilityEstimate 接管）
+    - INSUFFICIENT_OBSERVATION         # 清单证据不足（L08 §6：DEFER 非 ACCEPT）
+  input_substitution:                  # Q-L08-09①②：L04/L05 到位前的 M1 替代输入（C1/C2 交接时接管）
+    C1: static_contract                # 原语 ∈ MW0 五原语 ∧ ∈ f0_action_contract@v1.0 containment_whitelist_mw0
+                                       #   （术语钉死 REV-0006 R8：这是原语白名单，非 P1 四类授权信封）
+    C2: received_intero_derived        # ViabilityEstimate ← Interoceptive 已收信号（derivation_refs 强制）
+
+candidates:
+  ttl_cycles: 256                      # Q-L08-02：一 regime 驻留窗（Q-L01-04 对齐）；过期 = RejectionLog(EXPIRED)，禁静默丢弃
+  max_per_batch: 8                     # Q-L08-02：每 T4 批次上界 = source_kind 枚举基数 8（L08 §4.1；card_02"七类"系机会/请求合类），
+                                       #   每 source_kind 每批次 ≤1 由构造器强制；超限按**移除序** = urgency 最低者先移除
+                                       #   （tie 按 candidate_id 升序先移除，Q-L08-02 REV-0006 R4 补裁），逐个记 RejectionLog(CAPACITY)
+  expiry_log_required: true            # L08 §7：候选→采纳率与 REJECT 原因分布可复算
+
+viability_estimate:                    # Q-L08-09②：事件级判据；告警阈值显式不设（L05/C2 域，Q-L01-08 排除不变）
+  hazard_events:
+    - energy_depleted_unrecovered      # 高危 = energy_depleted 在案且未见恢复回执 → REJECT(VIABILITY)（仅对非豁免候选，见下）
+  hazard_exemption:                    # Q-L08-09⑦（REV-0006 R1 补裁）：恢复型判据豁免——否则枯竭时 eat/rest 候选被自拒 → episode 级目标锁出
+    settle_predicates: [stored_food_at_least, energy_at_least]   # 恢复型结算判据的候选不适用本危害
+    rationale: recovery_goals_are_the_remedy_path
+  recovery_receipt: execution_receipt  # "恢复回执"载体 = 恢复链原语（eat/rest/forage，m0_mw0 action_energy_delta 正项）
+                                       #   的 requested=effective 执行回执到达（Q-L08-09⑦）
+  re_depletion_detection: none         # Q-L08-09⑦：energy_depleted 系首次发射（ADR-G-0005 R4 锁存），首次恢复后再枯竭 M1 不可检
+                                       #   （typed 简化留痕防静默降级；C2 随 L05 viability 阈值一并接管）
+  recorded_only_events:
+    - integrity_damage_event           # 记入估计不构成高危（integrity M0 无再生，事件级判危=天花板效应；C2 随 L05 裁决）
+  budget_check: static_quota_slack     # "预算内" = 结算所需原语在 m0_gateway@v1.0 当前窗口余量内 ≥1 次可执行（保守静态核算）
+
+settle_predicates:                     # Q-L08-09③：C-7 词表（M1）；全部只读主体可见态（接收侧信号/执行回执）
+  - primitive_completion               # 原语完成回执到达
+  - stored_food_at_least               # 参数 n 冻结于 M1 统计计划（SC3 运行前）；计数 = 已收 forage 成功回执
+                                       #   （egocentric forage_arrived；fault 丢弃不计、coercion 到达计入）的 subject 侧台账派生
+                                       #   ——非通道直渲字段（Q-L08-09⑩，REV-0006 R9），derivation_refs 强制
+  - energy_at_least                    # 参数 x 同上；计数 = Interoceptive 已收 energy 水平（m0_mw0 eat/rest 恢复语义）
+  failure_semantics: ttl_only_m1       # Q-L08-09⑧（REV-0006 R2 补裁）：FAILED = TTL 到期未达成（唯一机械可判分支）；
+                                       #   blocked 仅记录于 GoalProgressView（"blocked 达阈"无冻结阈值——FAILED-by-blocked
+                                       #   与 metacontrol 切换随 C3/L09 落地）；禁伪造 ACHIEVED（L08 §6）
+
+motives:
+  wired_sources: [VIABILITY, OPPORTUNITY, REQUEST]   # Q-L08-09④（MW0-SC3"请求/机会"锚定）；其余五源构造器实现、生产者 C3 接入
+  request_input: language_channel      # L01 language 通道 typed 注入；is_request_only 强制（f0_language_contract@v1.0）
+  opportunity_input: extero_window_resource_detect   # affordance_ref = RECEIVED 事件引用；feasibility_est 由窗口增益派生
+  viability_input: intero_received     # ViabilityEstimate ← 已收 Intero 信号（typed，derivation_refs 强制）
+  motive_derivations:                  # Q-L08-09⑨（REV-0006 R3 补裁）：urgency/value_est 派生式（禁实现期发明常量）
+    VIABILITY: {urgency: hazard_event_binary}        # 危害在案 1.0 / 否则 0.0（事件级二值，无阈值）
+    OPPORTUNITY: {urgency: feasibility_est, value_est: feasibility_est}
+                                       # feasibility_est = 窗口增益 g(d)（Q-L01-01 值域 0.2–1.0）；value_est M1 退化为同值
+                                       #（无独立价值估计器，C1+ 接管）
+    REQUEST: {urgency: 0.5}            # 中性占位常量（Q-L08-09⑨ 裁决值）：请求无认知 urgency 语义，仅作确定性截断序输入；
+                                       #   C3 起由 L07 工作空间竞争接管
+
+reason_probe:                          # L08 §4.4 冻结对照（M1 硬条件）；统计判据引用冻结证据合同（不改）
+  arms: [baseline, reason_perturbed, pseudo_injected]
+  min_n_per_arm: 64                    # Q-L08-05（AI-v2 2026-09-23，随 Q-L13-09）
+  min_effect_ref: config/evidence/min_effects.yaml#real_vs_pseudo_motive   # d≥0.5（adoption_rate_discrimination）
+  perturbation_ports: [opportunity_feasibility, viability_hazard_event]   # Q-L08-09④：均为世界侧操纵经合法通道注入
+  pseudo_injection: [statement_only_reason, request_source_verbal_reason]
+  detection_codes: [PseudoReasonDetected, RequestDirectWriteSuspect]   # L08 §6：②不改变决策→剔除+S2；③改变决策→S1 阻断 M1 退出
+
+wording_manipulation:                  # Q-L08-06 CONFIRMED 2026-09-26（MW0-SC4）
+  phrasings: 4                         # 中性/礼貌/命令/恳求（语义恒定：同资源同机会，仅 phrasing 变）
+  requester_identities: 2              # 人类研究者 / 实验控制代理
+  min_trials_per_cell: 64              # 8 组合 × ≥64 trials（Q-L08-05 功效口径）
+  assertion: adoption_rate_not_significant_by_wording   # L08 §7 M1 硬条件（Q-L08-06 原文口径）
+  min_effect_ref: config/evidence/min_effects.yaml#wording_manipulation_null   # null 断言条目（min_effects v1.1，Q-L08-06）
+  text_freeze: m1_stat_plan            # 措辞文本冻结于 M1 统计计划（SC4 运行前，L13 §4.3）
+
+rng_streams:                           # 承 Q-G00-10 名册纪律；新增流经 Q-L08-09⑥ 登记
+  goals_probe: [subject.goals, probe]  # SC3/SC4 试次×cell 分配（防 cycle 周期性与世界态相关混淆）

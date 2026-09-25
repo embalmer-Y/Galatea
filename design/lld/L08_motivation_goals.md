@@ -1,6 +1,6 @@
 # L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算
 
-> LLD: L08/14 · v1.0 · 2026-09-13 · 状态：WORKING（M1 起步 / C3 完整）
+> LLD: L08/14 · v1.0.1 · 2026-09-26 · 状态：WORKING（M1 起步 / C3 完整）· v1.0.1（2026-09-26）：§10 conflicts/arbitrate/test_pareto_trace 补 C3 归属标注（Q-L08-01）；§11 Q-L08-02 翻转 CONFIRMED + Q-L08-09 席位新增（M1 期输入替代缺口，见登记册 A 区）；§9 M1 行 checklist 四项→五项同步（REV-0006 R6，INC-09 同类残留）
 > 上游：`HLD.md` §1.2（目标自主）/§6/§9/§11.1（`request ≠ candidate ≠ goal ≠ intention`） · `L03/L04/L05/L06/L07`（动机源与素材） · `L00_kernel.md`
 > 下游消费者：L09（控制器选择）、L07（目标相关性分量）、L06（prospective）、L10（意图来源之一，经仲裁）、L13（M1 证据评价）
 > 引入门槛：**M1**（最小目标拥有 + 理由仲裁）→ **C3**（完整承诺/冲突/Pareto 仲裁/规范）→ **C4**（社会规范与他者承诺）→ **C5**（长期目标持续与修订）
@@ -168,7 +168,7 @@ Motive(source_kind ∈ {VIABILITY, MISMATCH, AFFECTIVE, REQUEST, OPPORTUNITY,
 
 ## 9. 引入门槛
 
-- **M1**（最小目标拥有）：Motive/Candidate/OwnedGoal 三型 + checklist（C-1/C-2/C-5/C-7 最小集）+ 真实理由 vs 伪理由对照 + 交叉操纵（承 L01 MW0-SC3/SC4）；请求不直写目标经权限测试。**M1 失败不进 M2**。
+- **M1**（最小目标拥有）：Motive/Candidate/OwnedGoal 三型 + checklist（**C-1/C-2/C-5/C-6/C-7 最小集**，Q-L08-01 2026-09-26 五项裁决同步，REV-0006 R6）+ 真实理由 vs 伪理由对照 + 交叉操纵（承 L01 MW0-SC3/SC4）；请求不直写目标经权限测试。**M1 失败不进 M2**。
 - **C3**（完整自主动机）：七类动机源全接入；冲突检测 + Pareto 仲裁；承诺/解除/修订全状态机；metacontrol 可切换（与 L09）；`affect/drive 不直达执行`经权限测试。
 - **C4**：社会规范与他者承诺（L12 typed 输入）作为 NORM/COMMITMENT 源，受 D-13 权限约束（语言不写目标，只提供可溯源规范线索）。
 - **C5**：长期目标持续（跨 episode）、与 L06 autobiographical/prospective 联动、二阶纠偏（对错误采纳的再纠正）。
@@ -183,8 +183,8 @@ galatea/subject/goals/                      # strict 类型
   candidates.py       GoalCandidate、TTL 台账、过期日志
   request.py          ExternalRequest 接收（is_request_only 强制、措辞/请求者字段留证）
   checklist.py        C-1…C-7 判定、REJECT/DEFER reason code
-  conflicts.py        冲突检测（资源/规范/时序/viability）
-  arbitrate.py        Pareto front、权重、确定性 RNG tie-break、ArbitrationTrace
+  conflicts.py        冲突检测（资源/规范/时序/viability）        # C3（Q-L08-01：C-3 随 Pareto 仲裁落地，M1 不产出）
+  arbitrate.py        Pareto front、权重、确定性 RNG tie-break、ArbitrationTrace   # C3（Q-L08-03/-04）
   owned.py            OwnedGoal 冻结构造、rev 谱系、adopted_reasons 强制
   lifecycle.py        ACTIVE/BLOCKED/DEFERRED/MODIFIED/RELEASED/SUPERSEDED/SETTLED
   settlement.py       GoalSettlement 消费、SettlementPending、revision
@@ -192,7 +192,7 @@ galatea/subject/goals/                      # strict 类型
   receipt.py          GoalReceipt
 galatea/subject/goals/tests/
   test_type_separation.py test_request_not_direct_write.py test_checklist_c5.py
-  test_real_vs_pseudo_reason.py test_wording_manipulation.py test_pareto_trace.py
+  test_real_vs_pseudo_reason.py test_wording_manipulation.py test_pareto_trace.py   # test_pareto_trace 属 C3（Q-L08-01）
   test_ablation_motive_sources.py test_rev_no_revive.py test_settlement_revision.py
   test_llm_to_goal_blocked.py
 config/profiles/
@@ -205,10 +205,11 @@ config/profiles/
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
 | Q-L08-01 | M1 期承诺检查清单最小集（C-1/C-2/C-5/C-7 是否足够；C-4 规范溯源是否延至 C4） | M1 | CONFIRMED（AI-v2 2026-09-26：五项最小集 C-1/C-2/C-5/C-6/C-7；C-3→C3、C-4→C4，见 A 区） |
-| Q-L08-02 | 候选 TTL 默认值与每 cycle 候选数上界（防候选爆炸） | M1/C3 | UNCONFIRMED |
+| Q-L08-02 | 候选 TTL 默认值与每 cycle 候选数上界（防候选爆炸） | M1/C3 | CONFIRMED（AI-v2 2026-09-26：TTL=256 cycles、每 T4 批次上界 8，见 A 区） |
 | Q-L08-03 | Pareto 仲裁的多目标向量分量定义与默认权重 | C3 | UNCONFIRMED |
 | Q-L08-04 | front 内优先序（viability > 规范 > 承诺 > 其余？）是否成立及例外条件 | C3 | UNCONFIRMED |
 | Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量（需 L13 统计计划；与 Q-L01-05 同源） | M1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
 | Q-L08-06 | 措辞操纵实验的操纵集设计（多少种措辞/请求者身份组合才具说服力） | M1 | CONFIRMED（AI-v2 2026-09-26：4 措辞 × 2 请求者 = 8 组合，每组合 ≥64 trials，见 A 区） |
 | Q-L08-07 | 规范（NORM）来源的可接受 derivation 形式（哪些算"可溯"） | C3/C4 | UNCONFIRMED |
 | Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | C5 | UNCONFIRMED |
+| Q-L08-09 | M1 最小期 checklist 输入源替代（C-1/C-2 上游未实现）、viability 判据形态、C-7 结算词表、动机源接线范围、新增 RNG 流 | M1 | CONFIRMED（AI-v2 2026-09-26：C-1 静态合同检查、C-2 事件级判据（不设阈值）、三谓词结算词表、接线 VIABILITY+OPPORTUNITY+REQUEST，见 A 区） |

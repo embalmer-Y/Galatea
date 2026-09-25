@@ -10,13 +10,13 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**141**
-  - CONFIRMED: 58
-  - UNCONFIRMED: 84
+- 登记册声明 Q 号：**142**
+  - CONFIRMED: 60
+  - UNCONFIRMED: 81
   - CLOSED: 1
-  - 分区分佈：{'A': 56, 'K': 7, 'B': 4, 'C': 4, 'D': 1, 'E': 7, 'F': 6, 'G': 6, 'H': 6, 'I': 8, 'J': 6, 'L': 7, 'M': 3, 'N': 7, 'O': 7, 'P': 6}
+  - 分区分佈：{'A': 60, 'B': 4, 'C': 4, 'D': 1, 'E': 7, 'F': 6, 'G': 6, 'H': 6, 'I': 8, 'J': 6, 'K': 4, 'L': 7, 'M': 3, 'N': 7, 'O': 7, 'P': 6}
 
-- FAIL 重复声明：['Q-L08-01', 'Q-L08-06']
+- OK：无重复声明
 
 - **WARNING 被引用但登记册未声明（1）**：
   - `Q-T08b` → HLD.md, README.md
@@ -33,7 +33,7 @@
 - `lld/L05_drive_appraisal_affect.md`: 8 → Q-L05-01, Q-L05-02, Q-L05-03, Q-L05-04, Q-L05-05, Q-L05-06, Q-L05-07, Q-L05-08
 - `lld/L06_memory.md`: 8 → Q-L06-01, Q-L06-02, Q-L06-03, Q-L06-04, Q-L06-05, Q-L06-06, Q-L06-07, Q-L06-08
 - `lld/L07_workspace.md`: 7 → Q-L07-01, Q-L07-02, Q-L07-03, Q-L07-04, Q-L07-05, Q-L07-06, Q-L07-07
-- `lld/L08_motivation_goals.md`: 8 → Q-L08-01, Q-L08-02, Q-L08-03, Q-L08-04, Q-L08-05, Q-L08-06, Q-L08-07, Q-L08-08
+- `lld/L08_motivation_goals.md`: 9 → Q-L08-01, Q-L08-02, Q-L08-03, Q-L08-04, Q-L08-05, Q-L08-06, Q-L08-07, Q-L08-08, Q-L08-09
 - `lld/L09_controllers_metacontrol.md`: 8 → Q-L09-01, Q-L09-02, Q-L09-03, Q-L09-04, Q-L09-05, Q-L09-06, Q-L09-07, Q-L09-08
 - `lld/L10_action_gateway_physio_attribution.md`: 9 → Q-L10-01, Q-L10-02, Q-L10-03, Q-L10-04, Q-L10-05, Q-L10-06, Q-L10-07, Q-L10-08, Q-L10-09
 - `lld/L11_learning_consolidation.md`: 8 → Q-L11-01, Q-L11-02, Q-L11-03, Q-L11-04, Q-L11-05, Q-L11-06, Q-L11-07, Q-L11-08
@@ -64,7 +64,7 @@
 - `lld/L05_drive_appraisal_affect.md`: 233 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
 - `lld/L06_memory.md`: 220 行 · 标题「# L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制」 · OK
 - `lld/L07_workspace.md`: 211 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
-- `lld/L08_motivation_goals.md`: 214 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
+- `lld/L08_motivation_goals.md`: 215 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
 - `lld/L09_controllers_metacontrol.md`: 230 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
 - `lld/L10_action_gateway_physio_attribution.md`: 279 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 239 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
