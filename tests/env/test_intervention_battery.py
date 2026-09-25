@@ -104,6 +104,7 @@ from galatea.subject.action.gateway import ActionSpec, CapabilityGateway, load_g
 from galatea.subject.action.ports import GatewayDecision, GatewayReasonCode
 from galatea.subject.action.signature import derive_signing_key, verify
 from galatea.subject.control.intention import ActionIntention
+import re
 
 _ROOT = Path(__file__).resolve().parents[2]
 _GATEWAY_CONFIG = load_gateway_config(
@@ -246,6 +247,7 @@ def test_sc1_channel_separation_subject_never_sees_truth() -> None:
         assert b"world_state_ref" not in blob  # 投递事实/真值引用不入主体侧
         assert b'"pos"' not in blob
         assert b"state_digest" not in blob
+        assert re.search(rb"_to_\d+_\d+", blob) is None  # 绝对格坐标不出主体边界（ADR-G-0005 R3）
         if b'"observation_window"' in blob:
             windows.append(_json.loads(blob)["window"])
     assert windows, "exteroceptive window must be delivered"
@@ -281,15 +283,16 @@ def test_sham_suppresses_exactly_the_real_effect() -> None:
         ({"record_id": "isham", "kind": "sham", "registered_at_cycle": 0, "from_cycle": 3, "to_cycle": 3},),
         cycles=6,
     )
-    look_run, _w2, _r2 = _e2e(
+    noop_run, _w2, _r2 = _e2e(
         b"sham-cmp",
-        ((2, "move", "N", "m1"), (3, "look", None, "m2")),
-        (),
+        ((2, "move", "N", "m1"), (3, "move", "N", "m2")),
+        ({"record_id": "inoop", "kind": "no_op", "registered_at_cycle": 0, "from_cycle": 3, "to_cycle": 3},),
         cycles=6,
     )
-    # cycle ≥3 起两跑世界 digest 完全一致：sham 精确抑制了 move 的状态变化，
-    # 且环境事件（respawn/风暴）不受影响——"报告成功但世界未变"的精确语义。
+    # cycle ≥3 起两跑世界 digest 完全一致：sham 与 no_op 的世界态效应恒等（均无状态变化、
+    # 无能耗差——dry-run 不耗能 = 冻结语义"效果被替换"的世界侧形态），且环境事件不受影响。
+    # 回执差异在主体侧：sham 报告成功（forage/move_success），no_op 报告 none——归属判别的输入。
     sham_worlds = {t[0]: t[2] for t in sham_run if t[1] == "world"}
-    look_worlds = {t[0]: t[2] for t in look_run if t[1] == "world"}
+    noop_worlds = {t[0]: t[2] for t in noop_run if t[1] == "world"}
     for cycle in range(3, 6):
-        assert sham_worlds[cycle] == look_worlds[cycle], f"cycle {cycle}"
+        assert sham_worlds[cycle] == noop_worlds[cycle], f"cycle {cycle}"

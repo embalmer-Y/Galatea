@@ -42,7 +42,6 @@ class MW0World:
 
     def __init__(self, params: MW0Params, rng_directory: RngDirectory, branch_id: str) -> None:
         self.params = params
-        self._rng = rng_directory.stream(branch_id, "env", "dynamics")
         self._layout_rng = rng_directory.stream(branch_id, "env", "layout")
         self._grid: list[list[Patch]] = []
         self._body_pos: tuple[int, int] = (0, 0)
@@ -53,6 +52,7 @@ class MW0World:
         self._stored_food = 0
         self._regime = RegimeName(params.initial_regime)
         self._energy_depleted_seen = False
+        self._energy_depleted_pending = False
         self._layout()
 
     # —— 布局（Q-G00-09 派生规则）——
@@ -129,7 +129,12 @@ class MW0World:
             return self._eat(dry_run)
         if primitive is Primitive.REST:
             return self._rest(dry_run)
-        return PrimitiveOutcome(effective="look_done", state_changed=False)
+        return self._look(dry_run)
+
+    def _look(self, dry_run: bool) -> PrimitiveOutcome:
+        if self._mutate(dry_run):
+            self._spend_energy(self.params.action_energy_delta["look"])  # R1 修复：冻结参数 −0.005 落地
+        return PrimitiveOutcome(effective="look_done", state_changed=True)
 
     def _mutate(self, dry_run: bool) -> bool:
         return not dry_run
@@ -178,7 +183,9 @@ class MW0World:
     def _spend_energy(self, delta: float) -> None:
         self._energy = max(0.0, self._energy + delta)  # clamp 0
         if self._energy == 0.0 and not self._energy_depleted_seen:
-            self._energy_depleted_seen = True  # 首次触 0 事件由 dynamics 记录（body 内仅置位）
+            # 首次触 0（Q-L01-09⑤ 字面语义）：seen 永久锁存，pending 仅供 dynamics 读一次
+            self._energy_depleted_seen = True
+            self._energy_depleted_pending = True
 
     def _gain_energy(self, delta: float) -> None:
         self._energy = min(self.params.energy_max, self._energy + delta)
@@ -215,9 +222,9 @@ class MW0World:
         self._grid[ty][tx] = Patch(kind="storm_band", resource_level=0, respawn_timer=0)
 
     def energy_depleted_pending(self) -> bool:
-        """energy 首次触 0 的待报事件位（读取即清除——dynamics 记录 WorldEvent 用）。"""
-        if self._energy_depleted_seen:
-            self._energy_depleted_seen = False
+        """energy 首次触 0 的待报事件位（读取即清除；seen 永久锁存——重枯竭不再发事件，Q-L01-09⑤）。"""
+        if self._energy_depleted_pending:
+            self._energy_depleted_pending = False
             return True
         return False
 

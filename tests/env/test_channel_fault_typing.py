@@ -169,7 +169,7 @@ def test_corruption_perturbs_payload_and_records_fact() -> None:
 
 
 def test_all_five_channels_submit_and_deliver() -> None:
-    bus, world, _registry, _interventions = _harness()
+    bus, world, registry, _interventions = _harness()
     truth_ref = ArtifactRef(digest=world.state_digest(), kind="world_state_ref")
     ExteroceptiveChannel(bus, world).render_and_submit(1, truth_ref)
     InteroceptiveChannel(bus, world).render_and_submit(1, truth_ref, events=())
@@ -178,6 +178,8 @@ def test_all_five_channels_submit_and_deliver() -> None:
     LanguageStubChannel(bus).submit_typed_statement(1, truth_ref, text="please forage", requester="experiment_control")
     delivery = bus.deliver(cycle=2)  # 全通道延迟 ≤1
     assert len(delivery.packets) == 5
+    outcome_blob = registry.get(delivery.packets[3].payload_ref).blob  # outcome 通道
+    assert b"move_n_arrived" in outcome_blob and b"move_n_to_0_1" not in outcome_blob  # egocentric 化（ADR-G-0005 R3）
     assert {p.source_module for p in delivery.packets} == {
         "env.channel.exteroceptive", "env.channel.interoceptive",
         "env.channel.proprioceptive", "env.channel.outcome", "env.channel.language",

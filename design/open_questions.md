@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 55 项；UNCONFIRMED 80 项（G 1 + L00 3 + L01 1 + L02–L13 76）；CLOSED 1 项（Q-L00-03，编号不复用）。
+> **规模**：CONFIRMED 56 项；UNCONFIRMED 82 项（G 2 + L00 3 + L01 1 + L02–L13 76）；CLOSED 1 项（Q-L00-03，编号不复用）。此前头部 55/80 系笔误（G 1 误计；G00-09 新增不改 UNCONFIRMED 分区），本次随 Q-G00-10 一并订正。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -66,6 +66,7 @@
 | Q-L01-08 | energy/integrity viability 阈值与损伤事件定义（**M0 部分**；L05 侧显式另裁） | **AI-v2（M0 部分）：**世界侧力学初值入 m0_mw0.profile（动作能耗/进食恢复/风暴损伤，见 Q-G00-08）；**损伤事件定义 = integrity 单事件降幅 ≥0.05 的离散事件**（integrity_damage_event，经 Interoceptive 通道）。**viability 告警阈值显式排除**——归属 L05 驱力域（C2 与 Q-L05-* 一并裁决），M0 世界层只产出事件不断言"危险"。重开条件：C2 裁决 viability 阈值时如需世界侧配合信号 → 本 Q 增补 | 2026-09-25 |
 | Q-G00-08 | M0 三份 profile（m0_mw0 / m0_gateway / m0_interventions）初值集（世界力学/通道噪声与延迟/gateway deadline/干预 signature 参数——纯 profile 参数，不含认知参数） | **AI-v2：初值集成文采纳**（数值见三份 profile 文件，均标注"初值"）。定值原则：2 的幂对齐（与频率梯一致）、单看无行为意义仅作可复算锚点、全部带 M0 数据复核点。重开条件：M0 统计计划功效分析或首轮数据显示任一初值致盲区/饱和 → 经新 Q 重标定（改值 = profile 新版本） | 2026-09-25 |
 | Q-G00-09 | MW0 初始布局派生规则（MW0 实现期发现：patch_types 含 storm_band/shelter 但布局数量无源） | **AI-v2：派生规则采纳**——① storm_band 初始格数 = round(storm_rate_per_cycle × 256)（由已裁风暴率派生：abundance/scarcity = 1、volatile = 8，无新自由参数）；② **shelter 在 M0 初始布局不布设**（格位类型与损伤豁免语义实现保留；布设数量属 C0 场景扩展，届时经新 Q）；③ resource 初始格数 = round(resource_density × 256)（Q-L01-09③ 同源），布局 RNG 流 = (env,mw0,dynamics)。重开条件：M0 显示风暴带密度与行为学不匹配（可测量）→ 经新 Q 重定 | 2026-09-25 |
+| Q-G00-10 | RNG 流名册勘误（REV-0005 R2：裁决/-profile 声明的流名与实现不一致——布局/漂移/风暴/respawn 分流实现 vs 裁决"共享 dynamics 流"字样；(env,dynamics) 死流；channel 流未声明） | **AI-v2（勘误 + 名册钉死）：**以"按关注点分流"为准绳采纳实现侧流名册为规范——layout=(env,layout)、storm=(env,storm，含漂移)、respawn=(env,respawn)、render=(env,render)、channel transport/ulid=(channel.<kind>,transport|ulid)、(env,dynamics) 为 C0 世界主流预留；m0_mw0.profile 升 **v1.1**（rng_streams 节换名册）。Q-G00-09③"布局 RNG 流=(env,mw0,dynamics)"与 Q-L01-09②"漂移用 dynamics 流"两处字样按本勘误解释（SUPERSEDED-by-note，裁决实体语义不变——确定性/隔离不受影响，REV-0005 已核）。重开条件：无（流名册为合同身份声明；新增流须在此登记） | 2026-09-26 |
 | Q-L01-09 | MW0 动力学表补充参数与边界语义（REV-0004 R2/R3/R4/R6 补裁：冻结前钉死可操作性语义，防实现期无源常量） | **AI-v2：**① storm_rate_per_cycle = **全局语义**（每 grid 每 cycle 风暴命中期望次数；abundance/scarcity 0.005 → 约 1.3 次/256 驻留，volatile 0.030 → 约 7.7 次 ≈ 0.77 integrity 损耗/驻留）；② storm_band_drift = volatile 期每 64 cycles 沿随机方向漂移 1 格（dynamics 流）；③ resource_density = resource patch **目标覆盖率**（respawn 仅当覆盖率低于目标时进行，regime 切换即时生效）；④ 觅食链 = resource patch 上 forage → patch 储量 −1、储存食物 +1（非资源 patch effective=none）；eat 前置 = 储存 ≥1（消耗 1 → energy +0.15），储存上限 5；⑤ floor 语义 = energy/integrity 下限 0 截断，energy 首次触 0 记 energy_depleted 事件（Interoceptive），**M0 无死亡/重生/自然回复语义**（episode 终止仅经实验控制），integrity M0 无再生；⑥ load ≡ 0（load_max 为 schema 占位，carry 机制 C0+），观测噪声固定 σ 不随 load 调制（显式简化留痕，防静默降级）；⑦ 通道 loss_rate = 0.0（无自发丢失，丢失仅经 fault 干预注入）。全部为 M0 初值，M0 数据复核。重开条件：M0 显示觅食链/floor 语义产生非预期行为学（如能量枯竭支配一切行为）→ 经新 Q 重裁 | 2026-09-25 |
 
 ## B. 全局未决（G 系列）

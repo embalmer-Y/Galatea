@@ -3,7 +3,7 @@
 # Q-L01-09 补裁；M0 数据复核点见各行）。修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
 profile:
   id: m0_mw0
-  version: v1.0
+  version: v1.1                 # v1.1（2026-09-26）：rng_streams 节换流名册（Q-G00-10 勘误）；其余不变
   frozen_at: "2026-09-25"
   authority: AI-v2
   spec_ref: design/lld/L01_environment_channels.md
@@ -66,6 +66,11 @@ channels:                                    # L01 §2.2：参数冻结于 claim
   corruption_rate: 0.01                      # 初值 Q-G00-08
   loss_rate: 0.0                             # 无自发丢失；丢失仅经 fault 干预注入（Q-L01-09⑦）
 
-rng_streams:                                 # Q-T11：全部显式派生流
-  dynamics: [env, mw0, dynamics]
-  render: [env, mw0, render]
+rng_streams:                                 # Q-T11：全部显式派生流（名册 = Q-G00-10 勘误，2026-09-26）
+  layout: [env, layout]                      # 初始布局洗牌
+  storm: [env, storm]                        # 风暴命中 + volatile 漂移
+  respawn: [env, respawn]                    # 资源再生
+  render: [env, render]                      # 观测噪声（Q-L01-01）
+  dynamics: [env, dynamics]                  # C0 世界主流预留（M0 未消费）
+  channel_transport: [channel.<kind>, transport]   # 每通道独立（损坏采样）
+  channel_ulid: [channel.<kind>, ulid]             # 每通道独立（RECEIVED 包 id）
