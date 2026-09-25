@@ -5,6 +5,7 @@ F0 范围 = schema 合同：通道名/content_type 常量 + ReceivedSignalPayloa
 ReceivedSignalPacket 本体 = L00 CognitivePacket（representation_level=RECEIVED），
 其 payload schema 在此登记——"接收"与"真值"（galatea.env.world.truth）分属不同类型。
 """
+from collections.abc import Callable
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict
@@ -53,8 +54,8 @@ def register_channel_payload_schemas(registry: PayloadSchemaRegistry) -> None:
         )
 
 
-def _validator_for(kind: ChannelKind) -> "object":
-    """返回该校验 payload 字节的 callable（经 Registered payload schema 校验）。"""
+def _validator_for(kind: ChannelKind) -> Callable[[bytes], None]:
+    """返回该校验 payload 字节的 callable。"""
 
     def validate(payload: bytes) -> None:
         ReceivedSignalPayload.model_validate_json(payload)
