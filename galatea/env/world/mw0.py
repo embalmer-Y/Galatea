@@ -227,6 +227,12 @@ class MW0World:
     def energy_fraction(self) -> float:
         return self._energy / self.params.energy_max
 
+    def integrity_fraction(self) -> float:
+        return self._integrity / self.params.integrity_max
+
+    def orientation(self) -> str:
+        return self._orientation
+
     # —— 观测渲染素材（channel 行为层消费；本方法不泄露真值坐标）——
     def render_window(self, stream: CounterStream) -> dict[tuple[int, int], float]:
         """5×5 egocentric 观测窗（Q-L01-01）：资源强度 × 距离增益 + 噪声（σ 固定，Q-L01-09⑥）。"""
