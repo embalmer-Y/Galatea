@@ -45,10 +45,15 @@ class MW0Dynamics:
         regime = self.world.regime_params
         # respawn：目标覆盖率驱动（Q-L01-09③）；节拍 = respawn_base × multiplier
         interval = max(1, round(self.profile.params.respawn_base_cycles * regime.respawn_multiplier))
-        if tick % interval == 0 and self.world.coverage() < regime.resource_density:
-            spawned = self._spawn_resource()
-            if spawned is not None:
-                events.append(WorldEvent(kind="resource_respawn", pos=spawned, tick=tick))
+        if tick % interval == 0:
+            # (a) patch 内储量再生（L01 §4.4"多级储量+再生"；forage 只降储量不降格数，本层保证再生可观测）
+            regrown = self.world.regrow_resource_levels()
+            events.extend(WorldEvent(kind="resource_regrow", pos=pos, tick=tick) for pos in regrown)
+            # (b) 覆盖率补充（Q-L01-09③：respawn 仅当覆盖率低于目标）
+            if self.world.coverage() < regime.resource_density:
+                spawned = self._spawn_resource()
+                if spawned is not None:
+                    events.append(WorldEvent(kind="resource_respawn", pos=spawned, tick=tick))
         # 风暴：确定性采样（整数 + 小数概率）
         hits = self._sample_hits(regime.storm_rate_per_cycle)
         for _ in range(hits):

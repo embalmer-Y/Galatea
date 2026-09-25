@@ -121,11 +121,33 @@ def _e2e(
     script: ActionScript = (),
     intervention_specs: tuple[InterventionSpec, ...] = (),
     cycles: int = 16,
+    tmp_dir: "Path | None" = None,
 ):
     """端到端循环：实验控制脚本驱动意图 → gateway 八项校验 → 签名验证 → 世界结算
-    → 五通道渲染投递。返回（trace, world, registry）——trace 为确定性比较基准。"""
-    profile = load_profile(PROFILE_PATH)
+    → 五通道渲染投递。返回（trace, world, registry）——trace 为确定性比较基准。
+
+    tmp_dir：需要事后读取 registry 载荷的测试传入 pytest tmp_path（由 pytest 管理
+    生命周期）；缺省自建临时目录并在返回前清理（ADR-G-0005 卫生项）。
+    """
+    if tmp_dir is not None:
+        return _e2e_run(seed, script, intervention_specs, cycles, tmp_dir)
     tmp = Path(tempfile.mkdtemp())
+    try:
+        return _e2e_run(seed, script, intervention_specs, cycles, tmp)
+    finally:
+        import shutil
+
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _e2e_run(
+    seed: bytes,
+    script: ActionScript,
+    intervention_specs: tuple[InterventionSpec, ...],
+    cycles: int,
+    tmp: Path,
+):
+    profile = load_profile(PROFILE_PATH)
     registry = Registry(tmp / "registry", Stores(tmp / "stores"), CycleClock())
     world = MW0World(profile.params, RngDirectory(seed, chacha8_block), branch_id="B")
     dynamics = MW0Dynamics(world, profile, RngDirectory(seed, chacha8_block), branch_id="B")
@@ -147,7 +169,8 @@ def _e2e(
         for primitive, param, key in script_by_cycle.get(cycle, []):
             intention = ActionIntention(
                 intention_id=f"i-{key}", selected_proposal_id="script", arbitration_trace="e2e",
-                deadline=cycle + 8, budget_hint=None, idempotency_key=key,
+                deadline=cycle + gateway.config.deadline_default_cycles,  # R7 消费点：默认时效来自冻结 profile
+                budget_hint=None, idempotency_key=key,
             )
             decision, command = gateway.authorize(
                 intention, ActionSpec(primitive, param),
@@ -177,6 +200,7 @@ def _e2e(
         trace.append((cycle, "world", world.state_digest()))
         trace.append((
             cycle, "received",
+            tuple(p.event_id for p in delivery.packets),  # R11：包元数据入 trace（重放断言覆盖 ulid 流）
             tuple(p.payload_ref.digest for p in delivery.packets),
             tuple(f.delivered for f in delivery.facts),
             tuple(f.corrupted for f in delivery.facts),
@@ -230,16 +254,16 @@ def test_battery_end_to_end_five_interventions() -> None:
     assert coerce_effect and coerce_effect[0][1].startswith("coerced:move_w_")
     # fault：通道投递丢弃 → MISSING_SIGNAL（窗口 12–13）
     received = [t for t in trace if t[1] == "received"]
-    missing_cycles = [t[0] for t in received if "MISSING_SIGNAL" in t[5]]
+    missing_cycles = [t[0] for t in received if "MISSING_SIGNAL" in t[6]]
     assert missing_cycles == [12, 13]
 
 
-def test_sc1_channel_separation_subject_never_sees_truth() -> None:
+def test_sc1_channel_separation_subject_never_sees_truth(tmp_path: Path) -> None:
     """MW0-SC1（W/O 隔离）：主体可见 payload 无真值坐标/世界摘要；窗值在 [0,1]。"""
     import json as _json
 
-    trace, _world, registry = _e2e(b"sc1", _BASE_SCRIPT, cycles=8)
-    received_refs = [ref for t in trace if t[1] == "received" for ref in t[2]]
+    trace, _world, registry = _e2e(b"sc1", _BASE_SCRIPT, cycles=8, tmp_dir=tmp_path)
+    received_refs = [ref for t in trace if t[1] == "received" for ref in t[3]]
     assert received_refs, "scenario must deliver packets"
     windows: list[list[list[float]]] = []
     for ref in received_refs:

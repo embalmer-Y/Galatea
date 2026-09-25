@@ -234,6 +234,18 @@ class CapabilityGateway:
         while self._window and self._window[0][0] <= horizon:
             self._window.popleft()
         self._idempotency[intention.idempotency_key] = virtual_time
+        self._prune_ledgers(virtual_time)
+
+    def _prune_ledgers(self, virtual_time: int) -> None:
+        """记账剪枝（ADR-G-0005 R11）：超出窗口的 per-cycle 计数与幂等键退出台账，长跑内存有界。"""
+        budget_horizon = virtual_time - self.config.budget_window_cycles
+        stale_cycles = [c for c in self._cycle_commands if c <= budget_horizon]
+        for c in stale_cycles:
+            del self._cycle_commands[c]
+        idem_horizon = virtual_time - self.config.idempotency_window_cycles
+        stale_keys = [k for k, last in self._idempotency.items() if last <= idem_horizon]
+        for k in stale_keys:
+            del self._idempotency[k]
 
     def _issue(self, spec: ActionSpec, intention: ActionIntention, virtual_time: int) -> SubmittedCommand:
         """签发签名命令：签名覆盖全部合同字段（signature.py；字段篡改即验证失败）。"""

@@ -15,6 +15,10 @@ from galatea.kernel.digest import content_digest
 from galatea.kernel.rng import CounterStream, RngDirectory
 
 
+class RegimeDwellViolation(ValueError):
+    """regime 切换违反最小驻留（Q-L01-04；ADR-G-0005 R7 消费点）。"""
+
+
 class Primitive(enum.StrEnum):
     """MW0 五原语（f0_action_contract containment 白名单）。"""
 
@@ -51,6 +55,7 @@ class MW0World:
         self._load = 0.0
         self._stored_food = 0
         self._regime = RegimeName(params.initial_regime)
+        self._regime_since = 0
         self._energy_depleted_seen = False
         self._energy_depleted_pending = False
         self._layout()
@@ -106,12 +111,32 @@ class MW0World:
     def regime(self) -> RegimeName:
         return self._regime
 
-    def set_regime(self, name: str) -> None:
+    def set_regime(self, name: str, at_tick: int) -> None:
+        """regime 切换（Experiment Control 经干预驱动）；最小驻留强制（Q-L01-04/R7 消费点）。
+
+        当前 regime 驻留不足 min_dwell_cycles → RegimeDwellViolation（防切换刷洗行为学）。
+        """
+        if at_tick - self._regime_since < self.params.min_dwell_cycles:
+            raise RegimeDwellViolation(
+                f"regime {self._regime.value} occupied {at_tick - self._regime_since} < min_dwell {self.params.min_dwell_cycles}"
+            )
         self._regime = RegimeName(name)  # 越界即 ValueError（StrEnum）
+        self._regime_since = at_tick
 
     @property
     def regime_params(self):
         return self.params.regime(self._regime.value)
+
+    def regrow_resource_levels(self) -> list[tuple[int, int]]:
+        """全部 resource patch 储量 +1（上限 max_level）；返回再生格位（dynamics 记事件用）。"""
+        regrown: list[tuple[int, int]] = []
+        for y in range(self.params.grid_size):
+            for x in range(self.params.grid_size):
+                patch = self._grid[y][x]
+                if patch.kind == "resource" and patch.resource_level < self.params.resource_max_level:
+                    self._grid[y][x] = replace(patch, resource_level=patch.resource_level + 1)
+                    regrown.append((x, y))
+        return regrown
 
     def coverage(self) -> float:
         """resource patch 当前覆盖率（respawn 目标对比用，Q-L01-09③）。"""

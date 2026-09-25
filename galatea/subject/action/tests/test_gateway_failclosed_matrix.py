@@ -190,3 +190,13 @@ def test_profile_contract_mismatch_fails_closed() -> None:
     assert doc["budget"]["inherit"] == "f0_action_contract@v1"  # 冻结合同在场
     with pytest.raises(GatewayProfileViolation):
         load_gateway_config(m0_path, ROOT / "config" / "profiles" / "m0_mw0.profile.yaml")  # 错误父文件：预算继承缺失
+
+
+def test_ledger_pruning_bounded() -> None:
+    """记账剪枝（ADR-G-0005 R11）：超出窗口的 per-cycle 计数与幂等键退出台账，长跑内存有界。"""
+    gw = _gateway()
+    for i in range(150):
+        intention = _intention(deadline=10_000, idempotency_key=f"kp{i}")
+        _auth(gw, ActionSpec("move", "N"), intention=intention, key=f"kp{i}", vt=10 + i)
+    assert len(gw._idempotency) <= 65  # noqa: SLF001  幂等窗 64 + 当拍
+    assert all(c > 150 - CONFIG.budget_window_cycles for c in gw._cycle_commands)  # noqa: SLF001
