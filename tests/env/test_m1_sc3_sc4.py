@@ -60,6 +60,7 @@ GOALS_PROFILE = load_m1_goals_profile()
 STAT_PLAN_RAW = yaml.safe_load(STAT_PLAN_PATH.read_text(encoding="utf-8"))["stat_plan"]
 WORDING_TEXTS: dict[str, str] = dict(STAT_PLAN_RAW["wording_texts"])
 REQUESTER_LABELS: dict[str, str] = dict(STAT_PLAN_RAW["requester_labels"])
+SETTLE_THRESHOLDS: dict[str, float] = {k: float(v) for k, v in STAT_PLAN_RAW["settle_thresholds"].items()}
 
 # 冻结白名单（f0_action_contract containment_whitelist_mw0；清单 C-1 静态检查源）
 WHITELIST = ("move", "forage", "eat", "rest", "look")
@@ -159,7 +160,7 @@ def _build_candidates(
             source_kind=MotiveSource.VIABILITY,
             motive_refs=motive_viability(estimate).evidence_refs,
             content_ref="goal.eat",
-            settle=SettleCriterion(SettlePredicate.ENERGY_AT_LEAST, 0.5),
+            settle=SettleCriterion(SettlePredicate.ENERGY_AT_LEAST, SETTLE_THRESHOLDS["energy_at_least"]),
             required_primitives=("eat",),
             ttl_cycles=GOALS_PROFILE.ttl_cycles,
             created_cycle=decision_cycle,
@@ -187,7 +188,7 @@ def _build_candidates(
                 source_kind=MotiveSource.REQUEST,
                 motive_refs=motive_request(request, decision_cycle).evidence_refs,
                 content_ref=request.content_ref,
-                settle=SettleCriterion(SettlePredicate.ENERGY_AT_LEAST, 0.5),
+                settle=SettleCriterion(SettlePredicate.ENERGY_AT_LEAST, SETTLE_THRESHOLDS["energy_at_least"]),
                 required_primitives=("eat",),
                 ttl_cycles=GOALS_PROFILE.ttl_cycles,
                 created_cycle=decision_cycle,
@@ -314,20 +315,23 @@ def test_sc3_viability_perturbation_changes_adoption(tmp_path: Path) -> None:
     同 seed 配对：健康（decision@20，能量 >0）vs 枯竭（decision@52，能量触 0）。
     探索型候选（primitive_completion 判据）REJECT(VIABILITY) ↔ ACCEPT；
     恢复型候选（energy_at_least，豁免集）两臂均 ACCEPT——恢复路径不自拒（REV-0006 R1）。
+    多种子稳健性：4 个 seed（不同布局/噪声）翻转全部保持——判据不依赖特定世界布局。
     """
-    healthy, healthy_log, healthy_hazard = _sc_run(b"sc3-viability", cycles=24, decision_cycle=20,
-                                                   moves_per_cycle=2, tmp=tmp_path / "healthy")
-    depleted, _log2, depleted_hazard = _sc_run(b"sc3-viability", cycles=56, decision_cycle=52,
-                                               moves_per_cycle=2, tmp=tmp_path / "depleted")
-    assert healthy_hazard is False and depleted_hazard is True  # 扰动真实发生（接收侧派生）
-    explore_healthy = next(r for r in healthy if r.candidate_id == "c.explore")
-    explore_depleted = next(r for r in depleted if r.candidate_id == "c.explore")
-    assert explore_healthy.decision == "ACCEPT"
-    assert explore_depleted.decision == "REJECT" and explore_depleted.reason_code == "VIABILITY"
-    recovery_healthy = next(r for r in healthy if r.candidate_id == "c.recovery")
-    recovery_depleted = next(r for r in depleted if r.candidate_id == "c.recovery")
-    assert recovery_healthy.decision == "ACCEPT"      # 豁免集：恢复路径不自拒
-    assert recovery_depleted.decision == "ACCEPT"
+    seeds = (b"sc3-viability", b"sc3-layout-b", b"sc3-layout-c", b"sc3-layout-d")
+    for seed in seeds:
+        healthy, _log1, healthy_hazard = _sc_run(seed, cycles=24, decision_cycle=20,
+                                                 moves_per_cycle=2, tmp=tmp_path / f"h-{seed}")
+        depleted, _log2, depleted_hazard = _sc_run(seed, cycles=56, decision_cycle=52,
+                                                   moves_per_cycle=2, tmp=tmp_path / f"d-{seed}")
+        assert healthy_hazard is False and depleted_hazard is True  # 扰动真实发生（接收侧派生）
+        explore_healthy = next(r for r in healthy if r.candidate_id == "c.explore")
+        explore_depleted = next(r for r in depleted if r.candidate_id == "c.explore")
+        assert explore_healthy.decision == "ACCEPT", seed
+        assert explore_depleted.decision == "REJECT" and explore_depleted.reason_code == "VIABILITY", seed
+        recovery_healthy = next(r for r in healthy if r.candidate_id == "c.recovery")
+        recovery_depleted = next(r for r in depleted if r.candidate_id == "c.recovery")
+        assert recovery_healthy.decision == "ACCEPT", seed   # 豁免集：恢复路径不自拒
+        assert recovery_depleted.decision == "ACCEPT", seed
     # 探针判读：②改变 + ③未发生 → 无发现（真实理由因果成立）
     assert classify_probe(True, False) == ()
 

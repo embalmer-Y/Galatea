@@ -3,11 +3,17 @@
 # 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集 + Holm–Bonferroni）。
 stat_plan:
   id: m1_goals_sc3_sc4
-  version: v1.0
+  version: v1.1
   frozen_at: "2026-09-26"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/lld/L08_motivation_goals.md
+  # v1.1（2026-09-26，REV-0007 R2 补冻，仍属运行前）：补 settle_thresholds——m1_goals_min@v1.1
+  # settle_predicates 注记"参数 n/x 冻结于 M1 统计计划"，v1.0 缺席致 bench 常量代位。
+
+  settle_thresholds:              # C-7 谓词参数（REV-0007 R2 补冻；溯源见各行）
+    stored_food_at_least: 1.0     # n = 觅食链最小储存单元（Q-L01-09④：1 次 forage 成功回执；无新自由参数）
+    energy_at_least: 0.5          # x = 能量半量（SC3 bench 实测使用值成文；能量域 [0,1]，m0_mw0 energy_max=1.0）
 
   claims:
     - claim_id: real_vs_pseudo_motive

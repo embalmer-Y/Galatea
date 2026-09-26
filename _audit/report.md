@@ -57,14 +57,14 @@
 ## 5. LLD 11 节模板符合度
 
 - `lld/L00_kernel.md`: 228 行 · 标题「# L00 横切基础：时钟、调度、状态、RNG、Packet、Registry 核心、typed unknown」 · OK
-- `lld/L01_environment_channels.md`: 204 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
+- `lld/L01_environment_channels.md`: 205 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
 - `lld/L02_sensorium.md`: 213 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 203 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 225 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 233 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
 - `lld/L06_memory.md`: 220 行 · 标题「# L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制」 · OK
 - `lld/L07_workspace.md`: 211 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
-- `lld/L08_motivation_goals.md`: 215 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
+- `lld/L08_motivation_goals.md`: 216 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
 - `lld/L09_controllers_metacontrol.md`: 230 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
 - `lld/L10_action_gateway_physio_attribution.md`: 280 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 239 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK

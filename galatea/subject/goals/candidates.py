@@ -106,8 +106,9 @@ class CandidateLedger:
     def submit_batch(self, candidates: tuple[GoalCandidate, ...], batch_cycle: int) -> tuple[GoalCandidate, ...]:
         """提交一个 T4 批次：容量截断 + 每源 ≤1 检查，返回存活候选。
 
-        移除序（Q-L08-02 REV-0006 R4）：urgency 升序 = 最低先移除；
-        tie 按 candidate_id 升序先移除。被移除者逐个记 CAPACITY。
+        移除序（Q-L08-02 REV-0006 R4 补裁）：urgency 最低者先移除；tie 按
+        candidate_id 升序**先移除**（即同 urgency 保留较大 id）。被移除者逐个记
+        CAPACITY（按移除序落账）。REV-0007 R3 补测钉死本序（test_candidate_ledger_ttl.py）。
         """
         seen_sources: dict[MotiveSource, str] = {}
         for cand in candidates:
@@ -126,9 +127,10 @@ class CandidateLedger:
                 )
             seen_sources[cand.source_kind] = cand.candidate_id
 
-        ordered = sorted(candidates, key=lambda c: (-c.urgency, c.candidate_id))
-        kept = ordered[: self._cap]
-        dropped = ordered[self._cap :]
+        removal_order = sorted(candidates, key=lambda c: (c.urgency, c.candidate_id))
+        n_drop = max(0, len(candidates) - self._cap)
+        dropped = removal_order[:n_drop]
+        kept = removal_order[n_drop:]
         for cand in dropped:
             self._logs.append(
                 GoalDecisionLog(

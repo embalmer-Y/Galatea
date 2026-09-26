@@ -1,6 +1,6 @@
 # L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算
 
-> LLD: L08/14 · v1.0.1 · 2026-09-26 · 状态：WORKING（M1 起步 / C3 完整）· v1.0.1（2026-09-26）：§10 conflicts/arbitrate/test_pareto_trace 补 C3 归属标注（Q-L08-01）；§11 Q-L08-02 翻转 CONFIRMED + Q-L08-09 席位新增（M1 期输入替代缺口，见登记册 A 区）；§9 M1 行 checklist 四项→五项同步（REV-0006 R6，INC-09 同类残留）
+> LLD: L08/14 · v1.0.2 · 2026-09-26 · 状态：WORKING（M1 起步 / C3 完整）· v1.0.1（2026-09-26）：§10 conflicts/arbitrate/test_pareto_trace 补 C3 归属标注（Q-L08-01）；§11 Q-L08-02 翻转 CONFIRMED + Q-L08-09 席位新增（M1 期输入替代缺口，见登记册 A 区）；§9 M1 行 checklist 四项→五项同步（REV-0006 R6，INC-09 同类残留）· v1.0.2（2026-09-26）：§10 测试清单补录 test_candidate_ledger_ttl.py（REV-0007 R3：TTL 过期/容量截断移除序补测——实现 tie 序与裁决相反的偏差随测试钉死修正）
 > 上游：`HLD.md` §1.2（目标自主）/§6/§9/§11.1（`request ≠ candidate ≠ goal ≠ intention`） · `L03/L04/L05/L06/L07`（动机源与素材） · `L00_kernel.md`
 > 下游消费者：L09（控制器选择）、L07（目标相关性分量）、L06（prospective）、L10（意图来源之一，经仲裁）、L13（M1 证据评价）
 > 引入门槛：**M1**（最小目标拥有 + 理由仲裁）→ **C3**（完整承诺/冲突/Pareto 仲裁/规范）→ **C4**（社会规范与他者承诺）→ **C5**（长期目标持续与修订）
@@ -192,6 +192,7 @@ galatea/subject/goals/                      # strict 类型
   receipt.py          GoalReceipt
 galatea/subject/goals/tests/
   test_type_separation.py test_request_not_direct_write.py test_checklist_c5.py
+  test_candidate_ledger_ttl.py   # v1.0.2 补录（REV-0007 R3：TTL/截断移除序）
   test_real_vs_pseudo_reason.py test_wording_manipulation.py test_pareto_trace.py   # test_pareto_trace 属 C3（Q-L08-01）
   test_ablation_motive_sources.py test_rev_no_revive.py test_settlement_revision.py
   test_llm_to_goal_blocked.py
