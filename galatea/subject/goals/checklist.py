@@ -147,10 +147,10 @@ def load_m1_goals_profile(path: Path | None = None) -> M1GoalsProfile:
 
     checklist_cfg = cast(dict[str, Any], _require(raw, "checklist"))
     active = tuple(cast(list[str], _require(checklist_cfg, "active_items")))
-    if set(active) != _M1_ACTIVE or len(active) != 5:
+    if set(active) != set(_M1_ACTIVE) or len(active) != 5:
         raise M1ProfileViolation(f"active_items must be the M1 five-item set, got {active}")
     codes_cfg = cast(dict[str, Any], _require(checklist_cfg, "reject_reason_codes"))
-    if set(codes_cfg) != _M1_ACTIVE:
+    if set(codes_cfg) != set(_M1_ACTIVE):
         raise M1ProfileViolation(f"reject_reason_codes keys must be {sorted(_M1_ACTIVE)}")
     reject_codes: dict[str, RejectionCode] = {}
     for item, spelled in codes_cfg.items():
@@ -225,7 +225,7 @@ def run_checklist(
 
     if not isinstance(candidate, GoalCandidate):
         raise TypeError(f"run_checklist expects GoalCandidate, got {type(candidate).__name__}")
-    if set(profile.active_items) != _M1_ACTIVE:
+    if set(profile.active_items) != set(_M1_ACTIVE):
         raise M1ProfileViolation("profile active_items drift（M1 五项集，Q-L08-01）")
 
     results: list[CheckItemResult] = []

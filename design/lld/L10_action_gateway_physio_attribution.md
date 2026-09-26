@@ -1,6 +1,6 @@
 # L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统
 
-> LLD: L10/14 · v1.0 · 2026-09-13 · 状态：WORKING（**F0/M0 即须成立**）
+> LLD: L10/14 · v1.0.1 · 2026-09-26 · 状态：WORKING（**F0/M0 即须成立**）· v1.0.1（2026-09-26）：§10 测试清单补录 test_execution_branches.py / test_action_chain_receipt.py（ADR-G-0005 R5 移交件 branches.py/receipt.py 的 M1 落地测试）
 > 上游：`HLD.md` §8（全章）/§6.1/§6.2/§10.4（P1） · `L01_environment_channels.md`（`world.apply` 只接受 gateway 签名）· `L09_controllers_metacontrol.md`（`ActionIntention` 来源）· `L00_kernel.md`
 > 下游：L01 Environment（执行）、L08（GoalSettlement）、L09（回执反馈）、L04（预测/归属证据）、L13（证据评价）
 > 引入门槛：**F0**（对象图/权限矩阵合同）→ **M0**（gateway fail-closed + 五类干预 + 意图/执行可分）→ **M1**（归属经交叉操纵校准）→ **C4**（概率 agency）→ **P1**（PhysIO + 四类现实授权）
@@ -256,6 +256,7 @@ galatea/subject/action/tests/
   test_intervention_battery_attribution.py test_noop_sham_discrimination.py
   test_coercion_never_self.py test_execution_fact_invisible.py
   test_efference_timing.py test_settlement_unknown_legal.py
+  test_execution_branches.py test_action_chain_receipt.py   # M1（ADR-G-0005 R5 移交件落地测试，v1.0.1 补录）
   test_authz_matrix_p1.py test_estop_priority.py test_controlgraph_digest.py
 config/profiles/
   f0_action_contract.profile.yaml   九型对象图、权限矩阵、授权 schema（F0 冻结）

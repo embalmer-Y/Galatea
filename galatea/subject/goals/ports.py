@@ -9,7 +9,6 @@ M1 范围 = schema + 分离断言 + 禁写路径检查；conflicts.py/arbitrate.
 """
 import enum
 from dataclasses import dataclass
-from typing import Any
 
 __all__ = [
     "GoalDecision",
@@ -98,14 +97,14 @@ def assert_goal_writer(writer: GoalWriter) -> None:
 
 
 def assert_four_type_separation(
-    request: Any, candidate: Any, goal: Any, intention: Any
+    request: object, candidate: object, goal: object, intention: object
 ) -> None:
     """四型分离断言（HLD §11.1：request ≠ candidate ≠ goal ≠ intention）。
 
     机械判据：四对象类型两两不同，且任一类型不是另一类型的子类
     （禁隐式转换/别名继承——L08 §4.1"三型独立类型"的四型扩展）。
     """
-    types = (type(request), type(candidate), type(goal), type(intention))
+    types: tuple[type, ...] = (type(request), type(candidate), type(goal), type(intention))
     if len(set(types)) != 4:
         raise TypeError(f"four-type separation violated: {[t.__name__ for t in types]}")
     for i, a in enumerate(types):
