@@ -219,6 +219,31 @@ def main() -> None:
         add(f"- `{rel}`: {'OK' if not miss else '缺 ' + ','.join(miss)}")
     add("")
 
+    # ---- 7. frozen config YAML parseability (INC-11 增补：冻结合同必须可加载) ----
+    add("## 7. 冻结配置 YAML 可解析性（config/**）")
+    add("")
+    try:
+        import yaml  # noqa: PLC0415（延迟导入：非 venv 环境降级为 SKIP）
+    except ImportError:
+        add("- SKIP：当前解释器无 PyYAML，未执行（在项目 venv 内运行以启用本检查）")
+        yaml = None  # type: ignore[assignment]
+    if yaml is not None:
+        cfg_root = ROOT.parent / "config"
+        yml_files = sorted(cfg_root.rglob("*.y*ml"))
+        yml_fail: list[tuple[str, str]] = []
+        for p in yml_files:
+            try:
+                yaml.safe_load(p.read_text(encoding="utf-8"))
+            except Exception as exc:  # noqa: BLE001（任何解析失败都算冻结合同不可加载）
+                yml_fail.append((p.relative_to(ROOT.parent).as_posix(), f"{type(exc).__name__}: {exc}"))
+        add(f"- 扫描 YAML 文件数：{len(yml_files)}")
+        if yml_fail:
+            for rel, msg in yml_fail:
+                add(f"- FAIL `{rel}`: {msg}")
+        else:
+            add("- OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过")
+    add("")
+
     OUT.write_text("\n".join(lines), encoding=STRICT, newline="\n")
     print(f"report written: {OUT}")
 

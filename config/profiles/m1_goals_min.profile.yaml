@@ -3,7 +3,8 @@
 # 含 REV-0006 R1–R4/R7–R9 补裁⑦–⑩；M1 数据复核点见各行）。修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
 profile:
   id: m1_goals_min
-  version: v1.0
+  version: v1.1                 # v1.1（2026-09-26）：settle_predicates 节结构修复（INC-11：v1.0 YAML 非法不可加载，
+                                # tag m1-freeze 重打至修复提交）；语义与数值与 v1.0 意图完全一致，无实质变更
   frozen_at: "2026-09-26"
   authority: AI-v2
   spec_ref: design/lld/L08_motivation_goals.md
@@ -52,11 +53,12 @@ viability_estimate:                    # Q-L08-09②：事件级判据；告警�
   budget_check: static_quota_slack     # "预算内" = 结算所需原语在 m0_gateway@v1.0 当前窗口余量内 ≥1 次可执行（保守静态核算）
 
 settle_predicates:                     # Q-L08-09③：C-7 词表（M1）；全部只读主体可见态（接收侧信号/执行回执）
-  - primitive_completion               # 原语完成回执到达
-  - stored_food_at_least               # 参数 n 冻结于 M1 统计计划（SC3 运行前）；计数 = 已收 forage 成功回执
+  vocabulary:                          # （v1.1 结构修复：INC-11——v1.0 本节列表与键混排，YAML 非法、合同不可加载）
+    - primitive_completion             # 原语完成回执到达
+    - stored_food_at_least             # 参数 n 冻结于 M1 统计计划（SC3 运行前）；计数 = 已收 forage 成功回执
                                        #   （egocentric forage_arrived；fault 丢弃不计、coercion 到达计入）的 subject 侧台账派生
                                        #   ——非通道直渲字段（Q-L08-09⑩，REV-0006 R9），derivation_refs 强制
-  - energy_at_least                    # 参数 x 同上；计数 = Interoceptive 已收 energy 水平（m0_mw0 eat/rest 恢复语义）
+    - energy_at_least                  # 参数 x 同上；计数 = Interoceptive 已收 energy 水平（m0_mw0 eat/rest 恢复语义）
   failure_semantics: ttl_only_m1       # Q-L08-09⑧（REV-0006 R2 补裁）：FAILED = TTL 到期未达成（唯一机械可判分支）；
                                        #   blocked 仅记录于 GoalProgressView（"blocked 达阈"无冻结阈值——FAILED-by-blocked
                                        #   与 metacontrol 切换随 C3/L09 落地）；禁伪造 ACHIEVED（L08 §6）

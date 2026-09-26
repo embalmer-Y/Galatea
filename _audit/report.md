@@ -87,3 +87,8 @@
 - `lld/L11_learning_consolidation.md`: OK
 - `lld/L12_language_social.md`: OK
 - `lld/L13_evidence_evaluation_registry.md`: OK
+
+## 7. 冻结配置 YAML 可解析性（config/**）
+
+- 扫描 YAML 文件数：11
+- OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
