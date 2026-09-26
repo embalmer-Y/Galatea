@@ -283,9 +283,13 @@ def run_checklist(
                 results.append(CheckItemResult("C2", ItemOutcome.REJECT, "REJECT_VIABILITY"))
 
     # C5 非外部直写（M1 核心机械检查，L08 §4.2）
+    # 支持判定（实现期补裁，登记册 Q-L08-09④ 注记）：非 REQUEST 源动机须 urgency > 0
+    # 方计为"支持"——零 urgency = 无活跃信号（任意 intero 接收不使 C-5 永真）；
+    # 事件级二值纪律，无新阈值参数。
     if candidate.source_kind is MotiveSource.REQUEST:
         for motive in inputs.supporting_non_request_motives:
-            subject_refs.extend(motive.evidence_refs)
+            if motive.urgency > 0:
+                subject_refs.extend(motive.evidence_refs)
         if subject_refs:
             results.append(CheckItemResult("C5", ItemOutcome.PASS, None))
         else:

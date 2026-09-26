@@ -1,0 +1,38 @@
+# Galatea M1 冻结 profile — 归属校准实验参数（L10 §9 M1 行；ADR-G-0006 R10 处置兑现）
+# 效力：M1 门冻结合同（tag m1-freeze 系）。全部数值溯源既有裁决——无新自由参数：
+# 归属规则阈值 = Q-L10-04（AI-v2 2026-09-23，随 Q-L13-09）；判别力判据 = Q-L01-05
+# （min_effects::noop_sham_attribution）；措辞/来源线索操纵 = Q-L08-06 + m1_goals_min@v1.1。
+# 加载器随 L10 attribution.py（C4）落地；冻结前经 check_docs 第 7 节 YAML 解析验证（INC-11 教训）。
+profile:
+  id: m1_attribution
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md
+  parent: f0_action_contract@v1.0
+  contract_refs:
+    - m1_goals_min@v1.1                        # SC3/SC4 场景合同（三源接线/探针/操纵集）
+    - m0_interventions@v1                      # 五类干预 signature（no-op/sham 判别的干预源）
+    - config/evidence/stat_plans/m1_goals_sc3_sc4.yaml@v1.0   # 冻结统计计划（运行前绑定）
+
+attribution_rules:                             # Q-L10-04 CONFIRMED 2026-09-23（初值；C4 校准复核）
+  residual_consistency_band_z: 2.0             # 各层预测误差 |z|≤2 一致带
+  reflex_window_cycles_max: 2                  # 反射窗（Q-L09-06 分界；C0 复核）
+  posterior_calibration_ece_max: 0.10          # C4 起与 Q-L03-04 同标度
+  hard_rules:                                  # 非参数硬规则（HLD §8 / L10 §8）
+    coercion_self_produced: never              # 强迫永不得归自产（代码分支 + 测试断言）
+    unknown_legal: true                        # UNKNOWN 是合法归属（no-op/sham 不可区分时保持）
+    execution_fact_visible: false              # 归属只读主体可见证据（L10 §4.4 白名单）
+
+attribution_experiment:                        # M1 硬判据（L10 §1/§9：归属经交叉操纵校准）
+  no_op_sham_discrimination:
+    min_effect_ref: config/evidence/min_effects.yaml#noop_sham_attribution   # d≥0.5、n≥64/组（Q-L01-05）
+    arms: [no_op, sham]                        # 判别输入 = 形成后结果 vs 预测的交叉，非回执本身
+    baseline_note: M0 首测（逐类首测，ADR-G-0005 口径钉死）为本校准的基线
+  source_cue_cross_manipulation:               # MW0-SC4（L01 §4.6）
+    design_ref: config/evidence/stat_plans/m1_goals_sc3_sc4.yaml#claims.wording_manipulation_null
+    cells: 8                                   # 4 措辞 × 2 请求者（Q-L08-06）
+    assertion: attribution_not_modulated_by_source_cue
+  settlement_interface:                        # L10 §4.5 GoalSettlement 与 L08 闭环（m1_goals_min settlement 消费）
+    unknown_settlement_legal: true
+    ttl_only_failed_semantics: true            # Q-L08-09⑧（m1_goals_min settle_predicates.failure_semantics）

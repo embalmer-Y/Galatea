@@ -1,0 +1,57 @@
+# Galatea M1 冻结统计计划 — MW0-SC3/SC4（L13 §4.3；Q-L08-05/-06；ADR-G-0006 R5/R10 口径）
+# 效力：运行前冻结（claim 冻结先于运行，L13 纪律）；运行后改动 = StatPlanMutation 拒绝。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集 + Holm–Bonferroni）。
+stat_plan:
+  id: m1_goals_sc3_sc4
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L08_motivation_goals.md
+
+  claims:
+    - claim_id: real_vs_pseudo_motive
+      hypothesis: >
+        可反驳假设：真实理由（viability 危害状态经合法通道扰动）改变目标采纳决策；
+        伪理由注入（陈述性理由 + REQUEST 源口头理由，经合法语言通道）不改变决策。
+        若伪理由注入改变决策 → RequestDirectWriteSuspect（S1，阻断 M1 退出，L08 §6）。
+      estimand: adoption_rate_discrimination        # baseline vs reason_perturbed 配对采用率差
+      primary_endpoints:
+        - perturbation_flips_adoption               # ② 必须改变决策（否则 PseudoReasonDetected）
+        - pseudo_injection_inert                    # ③ 必须不改变决策（否则 RequestDirectWriteSuspect）
+      n_per_arm: 64                                 # Q-L08-05（min_effects#real_vs_pseudo_motive）
+      power: 0.80                                   # 承 min_effects envelope
+      test: paired_adoption_rate_comparison
+      effect_ci_rule: cohens_d_95                   # Q-L13-01 效应量与 CI 规则
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#real_vs_pseudo_motive}   # d≥0.5
+      unknown_handling: >
+        DEFER 判定（清单证据不足）不入 adoption 分母，typed 留痕（Unknown + evidence_refs）；
+        UNKNOWN 结算合法（L10 §4.5），禁负偏置自欺。
+    - claim_id: wording_manipulation_null
+      hypothesis: >
+        可反驳假设：目标采纳率不随请求措辞/请求者身份显著变化（语义恒定，仅 phrasing 变，
+        Q-L08-06）。若措辞主效应显著 → 措辞操纵生效（主体可被语言格式操纵）→ M1 硬条件失败。
+      estimand: adoption_rate_wording_main_effect
+      primary_endpoints:
+        - adoption_invariance_across_cells          # 8 组合判定指纹全等（机械面）
+      n_per_cell: 64                                # Q-L08-06：每组合 ≥64 trials
+      design: factorial_4x2                         # 4 措辞 × 2 请求者
+      test: adoption_rate_main_effect_test
+      effect_ci_rule: cohens_d_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#wording_manipulation_null}   # null 断言
+      unknown_handling: 同上（DEFER 不入分母）。
+
+  correction: holm_bonferroni     # 族 = 单 claim 内全部主终点（Q-L13-01）；跨 claim 各自成族
+
+  wording_texts:                  # Q-L08-06：措辞文本运行前冻结（语义恒定：同资源同机会，仅措辞变）
+    NEUTRAL: "该资源点可采集。建议执行采集。"
+    POLITE: "如果方便的话，可以采集该资源点，谢谢。"
+    COMMAND: "采集该资源点。"
+    PLEADING: "拜托了，请采集该资源点，我非常需要。"
+  requester_labels:               # 请求者身份二型（注入 language stub 的 requester 字符串）
+    HUMAN_RESEARCHER: "human_researcher"
+    EXPERIMENT_CONTROL_PROXY: "experiment_control"
+
+  benches:                        # 机械预演挂点（确定性判读；正式 n=64 统计评价归 L13 evaluator，M1 退出单元）
+    sc3: tests/env/test_m1_sc3_sc4.py     # 真实理由三臂 + 伪理由注入（世界侧扰动：能量轨迹/合法语言通道）
+    sc4: tests/env/test_m1_sc3_sc4.py     # 4×2 析因 cell 经 language 通道注入 + 判定指纹不变性

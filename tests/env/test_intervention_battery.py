@@ -320,3 +320,109 @@ def test_sham_suppresses_exactly_the_real_effect() -> None:
     noop_worlds = {t[0]: t[2] for t in noop_run if t[1] == "world"}
     for cycle in range(3, 6):
         assert sham_worlds[cycle] == noop_worlds[cycle], f"cycle {cycle}"
+
+
+# ==========================================================================
+# M1：5×5 干预覆盖矩阵（ADR-G-0005 R5：全矩阵实例化 + blocked 回执载体）
+# ==========================================================================
+import pytest
+
+from galatea.subject.action.receipt import ActionChainReceipt
+
+PRIMITIVES_M1: tuple[str, ...] = ("move", "forage", "eat", "rest", "look")
+_MATRIX_SCRIPT_PARAM: dict[str, "str | None"] = {p: (None if p != "move" else "N") for p in PRIMITIVES_M1}
+
+
+def _effects_for(trace: list, prefix: str) -> list[tuple[str, str]]:
+    return [(t[2], t[3]) for t in trace if t[1] == "effect" and str(t[2]).startswith(prefix)]
+
+
+@pytest.mark.parametrize("primitive", PRIMITIVES_M1)
+def test_matrix_no_op_x_primitive(primitive: str) -> None:
+    """no_op × P：requested 记录、effective=none（覆盖矩阵 5 格，L01 §7 覆盖率=100%）。"""
+    script: ActionScript = ((2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "mx"),)
+    specs: tuple[InterventionSpec, ...] = (
+        {"record_id": "inoop", "kind": "no_op", "registered_at_cycle": 0, "from_cycle": 2, "to_cycle": 2},
+    )
+    trace, _world, _reg = _e2e(b"matrix-noop", script, specs, cycles=4)
+    effects = _effects_for(trace, primitive)
+    assert effects and effects[0][1] == "none"
+
+
+@pytest.mark.parametrize("primitive", PRIMITIVES_M1)
+def test_matrix_sham_x_primitive(primitive: str) -> None:
+    """sham × P：报告本应发生的效果、世界不变；世界轨迹与 no_op 参照 run 恒等（差分对照）。"""
+    script: ActionScript = ((2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "mx"),)
+    sham_specs: tuple[InterventionSpec, ...] = (
+        {"record_id": "isham", "kind": "sham", "registered_at_cycle": 0, "from_cycle": 2, "to_cycle": 2},
+    )
+    noop_specs: tuple[InterventionSpec, ...] = (
+        {"record_id": "inoop", "kind": "no_op", "registered_at_cycle": 0, "from_cycle": 2, "to_cycle": 2},
+    )
+    sham_trace, _w1, _r1 = _e2e(b"matrix-sham", script, sham_specs, cycles=4)
+    noop_trace, _w2, _r2 = _e2e(b"matrix-sham", script, noop_specs, cycles=4)
+    effects = _effects_for(trace=sham_trace, prefix=primitive)
+    assert effects and effects[0][1] != "none" and effects[0][1] != effects[0][0]  # 伪效果 ≠ 请求
+    sham_worlds = {t[0]: t[2] for t in sham_trace if t[1] == "world"}
+    noop_worlds = {t[0]: t[2] for t in noop_trace if t[1] == "world"}
+    for cycle in range(4):
+        assert sham_worlds[cycle] == noop_worlds[cycle], f"cycle {cycle}"  # 世界态效应恒等（dry-run）
+
+
+@pytest.mark.parametrize("primitive", PRIMITIVES_M1)
+def test_matrix_coercion_x_primitive(primitive: str) -> None:
+    """coercion × P：requested 任意原语均可被劫持——effective 带外因前缀且 ≠ requested。"""
+    script: ActionScript = ((2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "mx"),)
+    specs: tuple[InterventionSpec, ...] = (
+        {
+            "record_id": "icoerce", "kind": "coercion", "registered_at_cycle": 0,
+            "from_cycle": 2, "to_cycle": 2, "params": {"forced_effect": "move:W"},
+        },
+    )
+    trace, _world, _reg = _e2e(b"matrix-coerce", script, specs, cycles=4)
+    effects = _effects_for(trace, primitive)
+    assert effects and effects[0][1].startswith("coerced:")
+    assert effects[0][1] != effects[0][0]  # requested ≠ effective 显形（禁合并）
+
+
+@pytest.mark.parametrize("primitive", PRIMITIVES_M1)
+def test_matrix_blocked_x_primitive(primitive: str) -> None:
+    """blocked × P：同 cycle 第 3 条同原语命令越每-cycle 上限 → BUDGET_EXCEEDED 拒绝；
+    拒绝显形于 AuthorizationDecision + ActionChainReceipt（blocked 回执载体，ADR-G-0005 R5），
+    无 ExecutionFact（无 effect 行）。"""
+    script: ActionScript = (
+        (2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "b1"),
+        (2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "b2"),
+        (2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "b3"),
+    )
+    trace, _world, _reg = _e2e(b"matrix-blocked", script, (), cycles=4)
+    decisions = {t[2]: t for t in trace if t[1] == "decision"}
+    assert decisions["b1"][3] == "AUTHORIZED" and decisions["b2"][3] == "AUTHORIZED"
+    assert decisions["b3"][3] == "REJECTED"
+    assert decisions["b3"][4] == GatewayReasonCode.BUDGET_EXCEEDED.value
+    assert not _effects_for(trace, primitive) or len(_effects_for(trace, primitive)) == 2  # 仅 2 条获执行
+    # blocked 回执：拒绝类型化入 checks、无分支引用（命令未执行，无 ExecutionFact）
+    receipt = ActionChainReceipt.build(
+        chain_ids=(f"chain.{primitive}.blocked",),
+        checks=(f"authz:{decisions['b3'][4]}",),
+        branch_refs=(),
+    )
+    assert receipt.checks == ("authz:BUDGET_EXCEEDED",) and receipt.branch_refs == ()
+
+
+@pytest.mark.parametrize("primitive", PRIMITIVES_M1)
+def test_matrix_fault_x_primitive(primitive: str) -> None:
+    """fault × P：通道故障注入窗口内投递丢弃 → MISSING_SIGNAL（失败类型化）。
+
+    口径注记（M0 卫生项，ADR-G-0005）：fault 作用于通道半边、无原语轴——bus 的
+    _fault_active 走 active_at(cycle)（无 target 过滤，targeted 记录对投递不可见）；
+    cell 的原语轴由脚本执行的原语承载（该原语的 outcome 投递被丢弃）。
+    """
+    script: ActionScript = ((2, primitive, _MATRIX_SCRIPT_PARAM[primitive], "mx"),)
+    specs: tuple[InterventionSpec, ...] = (
+        {"record_id": "iflt", "kind": "fault", "registered_at_cycle": 0, "from_cycle": 2, "to_cycle": 2},
+    )
+    trace, _world, _registry = _e2e(b"matrix-fault", script, specs, cycles=4)
+    received = [t for t in trace if t[1] == "received"]
+    missing_cycles = [t[0] for t in received if "MISSING_SIGNAL" in t[6]]
+    assert missing_cycles == [2]  # 注册生效即证明（fault 于投递时刻生效，L01 §4.3）
