@@ -153,6 +153,13 @@ class Stores:
         if not sql.lstrip().upper().startswith("SELECT"):
             raise OwnershipViolation("read surface is SELECT-only（写必须经 open_writer 单写者句柄）")
 
+    def close(self) -> None:
+        """关闭全部三库连接（幂等；试验隔离/清理场景用——关闭后方可在 Windows
+        上可靠删除底层文件，未关闭连接的句柄锁会阻止删除）。"""
+        for conn in self._connections.values():
+            conn.close()
+        self._connections.clear()
+
     def connection(self, store: StoreName) -> sqlite3.Connection:
         """只读用途的原始连接（写必须走 open_writer）。"""
         return self._connections[store]

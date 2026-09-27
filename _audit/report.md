@@ -90,5 +90,5 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：13
+- 扫描 YAML 文件数：14
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过

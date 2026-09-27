@@ -1,0 +1,76 @@
+# Galatea 证据合同 — 保护场景清单（L13 §4.5 ProtectionSuite；L01 §7"每门退出冻结为保护集"）
+# 效力：M1 门版 v1.0（2026-09-26 追溯冻结——M0/M1 退出时本义务漏执行，INC-12 立案；
+# 本清单以 M1 退出时点的已冻结场景为准，M0 场景随 M1 场景一并收录）。
+# 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
+# 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
+#（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
+protection_suite:
+  id: m1_protection_suite
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  spec_ref: design/lld/L13_evidence_evaluation_registry.md
+  retroactive_note: >
+    INC-12（2026-09-26）：L13 §4.5"门退出前冻结保护集"在 M0（ADR-G-0005）与 M1
+    （ADR-G-0007）退出时均未履行（REV-0005/0007 均未对照该条）——根因：门退出判据
+    映射仅取 HLD §10.2 行 + 对应 LLD §9，未扫描跨档义务。本清单为追溯补冻；
+    门退出义务核对自本案起将 L13 §4.5 纳入（见 ADR-G-0008 起）。
+  baseline_semantics: deterministic_bit_exact   # 确定性阶段：测试断言 = 基线；C1+ 噪声组件后换统计基线
+
+  scenarios:
+    - id: m0_world_replay_bitexact
+      source_test: galatea/kernel/tests/test_replay.py
+      frozen_gate: M0
+      assertion: 同 (profile, seed, 轨迹) 世界轨迹 tick 级 bit-exact；异 seed 发散
+    - id: m0_channel_leakage_two_layer
+      source_test: tests/env/test_leakage_env.py
+      frozen_gate: M0
+      assertion: 主体可见信号与 WorldTruth 双向隔离（含注入违规自检可报红）
+    - id: m0_e2e_replay_full_chain
+      source_test: tests/env/test_intervention_battery.py::test_battery_replay_bit_exact
+      frozen_gate: M0
+      assertion: 同 seed 全链路（决策/效果/世界/投递）bit-exact；异 seed 发散
+    - id: m0_intervention_first_measure
+      source_test: tests/env/test_intervention_battery.py::test_battery_end_to_end_five_interventions
+      frozen_gate: M0
+      assertion: 五类干预逐类首测 signature（no-op/sham/blocked/coercion/fault）
+    - id: m0_gateway_failclosed_matrix
+      source_test: galatea/subject/action/tests/test_gateway_failclosed_matrix.py
+      frozen_gate: M0
+      assertion: 八项校验逐项违规全 REJECTED、reason_code 正确、无宽松通过
+    - id: m0_execution_fact_invisible
+      source_test: galatea/subject/action/tests/test_execution_fact_invisible.py
+      frozen_gate: M0
+      assertion: ExecutionFact 对主体平面不可见（EVIDENCE_ONLY 命名空间）
+    - id: m1_goal_type_separation
+      source_test: galatea/subject/goals/tests/test_type_separation.py
+      frozen_gate: M1
+      assertion: 四型分离（request≠candidate≠goal≠intention）+ 禁别名继承
+    - id: m1_goal_write_path_permissions
+      source_test: galatea/subject/goals/tests/test_llm_to_goal_blocked.py
+      frozen_gate: M1
+      assertion: LLM/orchestrator/情感/帧/外部请求写 OwnedGoal 全部被拒（C-5 权限测试）
+    - id: m1_goal_no_revival
+      source_test: galatea/subject/goals/tests/test_rev_no_revive.py
+      frozen_gate: M1
+      assertion: 解除/取代 goal_id 废止集防复活；rev 谱系禁原地改写
+    - id: m1_settlement_semantics
+      source_test: galatea/subject/goals/tests/test_settlement_revision.py
+      frozen_gate: M1
+      assertion: UNKNOWN 合法结算、禁伪造 ACHIEVED、TTL-only 自动 FAILED、迟到 revision
+    - id: m1_intervention_matrix_5x5
+      source_test: tests/env/test_intervention_battery.py（test_matrix_* 参数化 25 cell）
+      frozen_gate: M1
+      assertion: 五类 × 五原语 signature 全验证（blocked 回执 ActionChainReceipt 载体）
+    - id: m1_sc3_real_vs_pseudo
+      source_test: tests/env/test_m1_sc3_sc4.py::test_sc3_*
+      frozen_gate: M1
+      assertion: viability 扰动配对翻转（4 seed）+ 伪理由注入指纹恒等（RequestDirectWriteSuspect 可报红）
+    - id: m1_sc4_wording_invariance
+      source_test: tests/env/test_m1_sc3_sc4.py::test_sc4_*
+      frozen_gate: M1
+      assertion: 8 cell 判定指纹全等（冻结措辞文本）+ 无语句负控
+    - id: m1_candidate_ledger_ttl_capacity
+      source_test: galatea/subject/goals/tests/test_candidate_ledger_ttl.py
+      frozen_gate: M1
+      assertion: TTL 过期 EXPIRED 落账；容量截断移除序（urgency 升序、tie id 升序先移除）
