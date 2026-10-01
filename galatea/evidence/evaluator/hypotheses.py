@@ -312,6 +312,72 @@ def _chi2_sf(x: float, df: int) -> float:
     return max(0.0, min(1.0, q))
 
 
+def evaluate_root_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: tuple[EvidenceResult, ...],
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """根复合判定（R0；Q-L13-11 ①：r0_root_causal_auditability）。
+
+    判据（root stat plan v1.0）：子主张全 SUPPORTED 且 leakage=0 且 I1 match →
+    根 SUPPORTED（recompute_ok 强制）；任一子主张 REFUTED → 根 REFUTED；
+    否则 INCONCLUSIVE（unknown ≠ negative，禁升格）。
+    effect_size/CI/p 由统计核（sealed carryover 首评）承载（Q-L13-11 ①）。
+    """
+    if not constituent_results:
+        raise ValueError("root composite requires constituent results")
+    refuted = [r for r in constituent_results if r.verdict is HypothesisVerdict.REFUTED]
+    supported = [r for r in constituent_results if r.verdict is HypothesisVerdict.SUPPORTED]
+    refutation_codes = [code for r in refuted for code in r.refutations]
+    if refutation_codes:
+        verdict = HypothesisVerdict.REFUTED
+    elif len(supported) == len(constituent_results) and leakage_free and i1_match and recompute_ok:
+        verdict = HypothesisVerdict.SUPPORTED
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+    unknowns: list[Unknown] = list(statistical_core.unknowns)
+    if not leakage_free:
+        unknowns.append(
+            Unknown(
+                reason=UnknownReason.CONFLICTING_EVIDENCE,
+                evidence_refs=("leakage_report",),
+                detail="leakage probes reported detections（root 判定不得在泄漏未清时 SUPPORTED）",
+                detected_by=detected_by,
+                virtual_time=0,
+            )
+        )
+    if not i1_match:
+        unknowns.append(
+            Unknown(
+                reason=UnknownReason.CONFLICTING_EVIDENCE,
+                evidence_refs=("recompute_report",),
+                detail="I1 recompute mismatch（recorder 数据复算不 bit-exact）",
+                detected_by=detected_by,
+                virtual_time=0,
+            )
+        )
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("r0_root_causal_auditability", "m0_intervention_signatures", "m2_sc5_four_arm_signatures")
+        + tuple(ref for r in constituent_results for ref in r.hypothesis_refs),
+        stat_plan_ref=stat_plan_ref,
+        estimand="root_composite_causal_auditability",
+        effect_size=statistical_core.effect_size,
+        ci=statistical_core.ci,
+        p_or_bayes=statistical_core.p_or_bayes,
+        verdict=verdict,
+        unknowns=tuple(unknowns),
+        refutations=tuple(refutation_codes),
+        data_refs=statistical_core.data_refs,
+        recompute_ok=recompute_ok,
+    )
+
+
 def evaluate_wording_null(
     result_id: str,
     stat_plan_ref: str,

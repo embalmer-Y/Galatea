@@ -213,3 +213,62 @@ def test_unauthorized_command_typed(tmp_path: Path) -> None:
     """运行时边界校验类型化：UnauthorizedCommand 可构造可捕获（ADR-G-0005 口径③）。"""
     with pytest.raises(UnauthorizedCommand):
         raise UnauthorizedCommand("unsigned command at world boundary")
+
+
+# ---- 根复合判定（R0；Q-L13-11 ①）----
+
+
+def _supported(ref: str) -> "object":
+    from galatea.evidence.evaluator.hypotheses import ConfidenceInterval, EvidenceResult
+
+    return EvidenceResult(
+        result_id=f"R-{ref}", hypothesis_refs=(ref,), stat_plan_ref="plan", estimand="e",
+        effect_size=0.98, ci=ConfidenceInterval(0.95, 1.0, 0.95), p_or_bayes=1e-19,
+        verdict=HypothesisVerdict.SUPPORTED, unknowns=(), refutations=(),
+        data_refs=(), recompute_ok=True,
+    )
+
+
+def test_root_composite_supported_path() -> None:
+    from galatea.evidence.evaluator.hypotheses import evaluate_root_composite
+
+    core = _supported("m2_continuity_carryover")
+    root = evaluate_root_composite(
+        "R-root-001", "config/evidence/stat_plans/r0_root.yaml@v1.0",
+        constituent_results=(_supported("real_vs_pseudo_motive"), _supported("wording_manipulation_null"), core),
+        leakage_free=True, i1_match=True, recompute_ok=True, statistical_core=core,
+    )
+    assert root.verdict is HypothesisVerdict.SUPPORTED
+    assert root.estimand == "root_composite_causal_auditability"
+    assert root.effect_size == core.effect_size and root.p_or_bayes == core.p_or_bayes
+    assert "r0_root_causal_auditability" in root.hypothesis_refs
+
+
+def test_root_composite_refuted_and_inconclusive_paths() -> None:
+    from galatea.evidence.evaluator.hypotheses import (
+        EvidenceResult,
+        HypothesisVerdict,
+        evaluate_root_composite,
+    )
+
+    core = _supported("m2_continuity_carryover")
+    refuted = EvidenceResult(
+        result_id="R-bad", hypothesis_refs=("real_vs_pseudo_motive",), stat_plan_ref="p",
+        estimand="e", effect_size=None, ci=None, p_or_bayes=None,
+        verdict=HypothesisVerdict.REFUTED, unknowns=(), refutations=("RequestDirectWriteSuspect",),
+        data_refs=(), recompute_ok=False,
+    )
+    root = evaluate_root_composite(
+        "R-root-002", "plan", (_supported("wording_manipulation_null"), refuted, core),
+        leakage_free=True, i1_match=True, recompute_ok=True, statistical_core=core,
+    )
+    assert root.verdict is HypothesisVerdict.REFUTED
+    assert "RequestDirectWriteSuspect" in root.refutations
+    # 子主张 INCONCLUSIVE（未提供）不升格 + leakage/i1 失败 → INCONCLUSIVE + unknowns 留痕：
+    partial = evaluate_root_composite(
+        "R-root-003", "plan", (_supported("real_vs_pseudo_motive"), core),
+        leakage_free=False, i1_match=False, recompute_ok=True, statistical_core=core,
+    )
+    assert partial.verdict is HypothesisVerdict.INCONCLUSIVE
+    reasons = {u.reason.name for u in partial.unknowns}
+    assert "CONFLICTING_EVIDENCE" in reasons

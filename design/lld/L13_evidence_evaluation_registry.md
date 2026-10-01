@@ -1,6 +1,6 @@
 # L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decision_registry
 
-> LLD: L13/14 · v1.0.1 · 2026-10-02（v1.0.1：§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
+> LLD: L13/14 · v1.0.2 · 2026-10-02（v1.0.2：§10 R0 准备单元交付标注 + gate/expansion.py、sc6 正式 runner、expansion/sealed/recorder/leakage 测试席位补录；§11 Q-L13-03/-05 转 CONFIRMED + Q-L13-11 新增——AI-v2 裁决，见 A 区）· v1.0.1 2026-10-02（§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
 > 上游：`HLD.md` §5.1（科学平面全章）/§6.2/§8/§9（R0/E1/H1）/§10.4（全门槛退出纪律）/§11/§12/§13 · `L00_kernel.md`（registry/digest/checkpoint/TypedUnknown）· `L01`（EvidenceResult 根）· `open_questions.md` C 区
 > 下游：owner claim 冻结、门槛退出、Promotion Gate（供 L11）、`core_decision_registry`（供 E1）、审计与复算
 > 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E1→H1**；贯穿全阶段（原稿"E0"经 Q-G00-07 裁决为撰写期残留，已剔除，2026-09-17）
@@ -256,20 +256,30 @@ galatea/evidence/                           # 科学平面（非 subject；stric
     claim.py             Claim 冻结、PostHoc 拒绝、run control 隔离断言
     interventions.py     InterventionRegistry（12 类干预 + expected_signature + 负控）
     runs.py              ExperimentRunControl、分支谱系登记、recorder 前置断言
-  recorder/
+                         【R0 准备单元交付】SC6 正式 runner（run_carryover + PathwayFault +
+                         _derive_regime_profile + ITT 分配 + recorder 接线 + I1 复算；
+                         REV-0009 R9 三点保真度；load_sc6_scenario 场景冻结 typed 读取）
+  recorder/              【R0 准备单元交付（最小范围：四分区 batch 落盘；流式 per-record 入册 C0+）】
     writer.py            Polars 写侧、append-only、digest 计算、四类分区
+                         （分区 blob 经 kernel registry 内容寻址；行 schema 漂移 fail-closed）
     manifest.py          manifest（墙钟仅此，承 Q-T12）、profile/seed/branch digest
     heartbeat.py         recorder 可用性探测 → 停止 claim-relevant 运行
-    replay.py            I1 重放接口（联动 Q-L00-07）
+    replay.py            I1 重放接口（DuckDB 只读复算；registry blob → read_parquet → 行复算）
   evaluator/
     statplan.py          冻结统计计划模板加载/校验/最小效应
     hypotheses.py        SUPPORTED/INCONCLUSIVE/REFUTED + unknowns[] + refutations[]
-    leakage.py           14 条禁写路径探针（静态/动态/数据三源）+ LeakageReport
+                         【R0 准备单元交付】evaluate_root_composite（根复合判定，Q-L13-11①）
+    leakage.py           【R0 准备单元交付】14 条禁写路径探针（Q-L13-05 R0 范围：STATIC
+                         源扫描/缺席守卫 + RUNTIME 守卫重放 + DATA 证据行扫描；注入可失败）
     ablation.py          lesion × 干预效应量矩阵、选择性判据（消费 L07 AccessEvidence）
-    sealed.py            InternalValidationSet vs SealedScientificEvaluationSet 隔离
-    recompute.py         I1/I2/I3 RecomputeReport（DuckDB 只读复算）
+    sealed.py            【R0 准备单元交付】InternalValidationSet vs SealedScientificEvaluationSet
+                         双类型隔离 + 流派生分割 + SealedNamespace（registry://sealed/）+
+                         check_no_backflow（Q-L13-02 合同兑现；REV-0009 R3 缺口闭合）
+    recompute.py         I2/I3 RecomputeReport（I1 由 recorder/replay.py 承载，E1/H1 补 I2/I3）
   gate/
     promotion.py         PromotionDecision 流程（完整性→保护→sealed→多目标→签发）
+    expansion.py         【R0 准备单元交付】ExpansionDecision 记录 + HLD §10.2 R0 门规则
+                         （decide_from_root）+ Q-L13-03 双签发者纪律（仅消费根结果 digest）
     rollback.py          rollback 裁决、二阶纠偏可区分性（联动 L11）
     protection.py        ProtectionSuite 定义/基线冻结/只增不减治理
   registry_gov/
@@ -289,12 +299,17 @@ galatea/evidence/tests/
   test_registry_60_cells.py test_unevidenced_entry_rejected.py
   test_evidence_result_schema.py   # F0 合同层（EvidenceResult/PromotionDecision schema；2026-09-25 REV-0003 R6 补录清单席位）
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
+  # 【R0 准备单元交付 + 席位补录】：test_sealed_isolation.py / test_sealed_no_backflow.py /
+  # test_append_only.py / test_recorder_kill_stops_run.py / test_i1_bitexact.py /
+  # test_leakage_14_paths.py / test_expansion_decision.py / test_sc6_formal_runner.py
 config/evidence/
   stat_plan_templates/*.yaml    冻结统计计划模板（假设/estimand/功效/效应量/判定阈）
+  stat_plans/*.yaml             冻结统计计划（运行前冻结：m1_goals_sc3_sc4 v1.1 /
+                                m2_continuity_sc5_sc6 v1.0 / r0_root v1.0【R0 准备单元冻结，Q-L13-11】）
   sealed_split_policy.yaml      sealed 分割策略与 token/命名空间（Q-L13-02 已裁决）
   min_effects.yaml              最小可辨效应量统一登记册（Q-L13-09 已裁决，含 7 项联动初值）
   decision_path_matrix.yaml     6×10 枚举（初版；枚举文本已随 Q-G00-04 裁决定稿，2026-09-23）
-  protection_suites/m0.yaml … e1.yaml   每门保护集场景清单
+  protection_suite.yaml         保护集（v1.1 起合并单档：每门退出只增不减，INC-12 义务）
 ```
 
 ## 11. 未决问题（→ open_questions.md）
@@ -303,11 +318,12 @@ config/evidence/
 |---|---|---|---|
 | Q-L13-01 | 冻结统计计划模板的最小必备字段集与多重比较校正默认策略 | F0 | CONFIRMED（AI-v2 2026-09-23：十字段最小集 + Holm–Bonferroni 默认，见 open_questions A 区） |
 | Q-L13-02 | sealed 分割策略（比例、隔离层级、token 机制）与"不回流同一候选"的机械判据 | F0 | CONFIRMED（AI-v2 2026-09-23：70/30 分割、独立命名空间+token、digest 交集=∅ 判据，见 A 区） |
-| Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | R0 | UNCONFIRMED |
+| Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | R0 | CONFIRMED（AI-v2 2026-10-02：模块级双签发者——evaluator 机械算出 vs gate/expansion.py 独立签发仅消费根结果 digest；ALLOW 前置 = REV 引用 + 无约束；见 A 区） |
 | Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | **Q-G00-04**（已裁决）→ E1 | CONFIRMED（AI-v2 2026-09-23，随 Q-G00-04：card_04 原文采纳；闭合判据不变；60 格逐格结论属 E1 交付） |
-| Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | UNCONFIRMED |
+| Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | CONFIRMED（AI-v2 2026-10-02：R0 = 三源探针 STATIC/RUNTIME/DATA + 注入可失败（P01–P14）；C0 期义务同条钉死——import-linter 契约 + 生产路径钩子 + DuckDB 查询；见 A 区） |
 | Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值（联动 Q-L11-04 / Q-L06-05） | C5/E1 | UNCONFIRMED |
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | UNCONFIRMED |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | UNCONFIRMED |
 | Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | F0/R0 | CONFIRMED（AI-v2 2026-09-23：`config/evidence/min_effects.yaml` 统一登记册 + 7 项初值，见 A 区） |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | UNCONFIRMED |
+| Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值 | R0 | CONFIRMED（AI-v2 2026-10-02：复合 claim `r0_root_causal_auditability` + r0_root.yaml v1.0 冻结 + 绑定物集 + sealed 网格 3×32=96 cells 主种子 hex "19"×32；REV-0009 R3 补执行口径；见 A 区） |

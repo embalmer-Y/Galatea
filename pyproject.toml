@@ -6,6 +6,8 @@ version = "0.1.0"
 description = "Galatea：单一认知个体——一切'具备'以可干预、可测量、可复算的真实因果结构为证"
 requires-python = "==3.12.13"
 dependencies = [
+    "duckdb>=1.0",
+    "polars>=1.0",
     "pydantic>=2.13.5",
     "pyyaml>=6.0.3",
 ]

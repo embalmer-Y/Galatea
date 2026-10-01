@@ -1,0 +1,50 @@
+# Galatea R0 根统计计划（L13 §9 R0 行；Q-L13-11 ①②；claim 冻结先于运行）
+# 效力：运行前冻结（authority AI-v2，Q-L13-11）；运行后改动 = StatPlanMutation 拒绝。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01）。
+# 根结果的统计量化核 = sealed 网格上的 m2_continuity_carryover 首评
+# （stat_plans/m2_continuity_sc5_sc6.yaml v1.0 判定协议复用；effect_size/CI/p 由其承载）。
+stat_plan:
+  id: r0_root
+  version: v1.0
+  frozen_at: "2026-10-02"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L13_evidence_evaluation_registry.md   # §9 R0 行
+
+  sealed_split:                            # Q-L13-11 ③④（split policy 的执行定值）
+    policy_ref: config/evidence/sealed_split_policy.yaml   # F0 冻结物（ADR-G-0002）
+    grid: 3_regimes_x_32_seeds             # 96 cells = Q-L01-03 regime 集 × 32 槽位
+    master_seed_hex: "1919191919191919191919191919191919191919191919191919191919191919"
+    sealed_fraction: 0.30
+
+  binding:                                 # HLD §10.3 绑定物（ExpansionDecision.bound_digests 基料）
+    config_contracts: config/**            # 签发时机械收集全部合同 digest
+    system_version: pyproject_version+git_head_digest
+    recorder_manifest: run_manifest_partition_digest
+
+  claims:
+    - claim_id: r0_root_causal_auditability
+      hypothesis: >
+        可反驳根假设（R0 门）：前 R0 确定性架构的因果可审计性主张成立——
+        M0 五类干预 signature 全部显形（机械面，m0_interventions.yaml 冻结负控）、
+        M1 真实理由因果地改变选择而伪理由注入惰性（real_vs_pseudo_motive +
+        wording_manipulation_null 首评 SUPPORTED）、M2 连续性三签名可区分
+        （SC5 四臂机械面）且经历经非初始化路径（记忆）在感知退化下进入下一轮
+        （m2_continuity_carryover，n=64 sealed 首评）；全库 14 条禁写路径
+        leakage=0；评价数据 I1 复算 bit-exact。任一子主张 REFUTED 即根 REFUTED。
+      estimand: root_composite_causal_auditability   # 统计核 = sealed carryover 配对率差
+      primary_endpoints:
+        - sealed_carryover_paired_rate_diff    # 根结果 effect_size/CI/p 的承载终点
+        - leakage_probes_zero_detections       # 14 探针检出数 = 0
+        - i1_recompute_bit_exact               # recorder 数据复算 match
+      n_per_arm: 64
+      power: 0.80
+      test: composite_gate_rule_with_mcnemar_core
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#m2_continuity_carryover}
+      unknown_handling: >
+        子主张 INCONCLUSIVE 不升格为 SUPPORTED（根 INCONCLUSIVE）；unknown ≠ negative；
+        饱和 estimand 以 rate_diff 上确界单调承载（ADR-G-0007 口径同源）；
+        carryover 判定协议 = stat_plans/m2_continuity_sc5_sc6.yaml v1.0（冻结，不重复定义）。
+
+  correction: holm_bonferroni              # 族 = 本 claim 全部主终点（Q-L13-01）

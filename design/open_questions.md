@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 64 项（A 区 64 行实点）；UNCONFIRMED 76 项（G 2 + L00 2 + L01 1 + L02–L13 71，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（M2 门冻结单元）：Q-L00-05/-L04-06/-L11-05 裁决移除 + 新增即裁 Q-G00-11。
+> **规模**：CONFIRMED 67 项（A 区 67 行实点）；UNCONFIRMED 74 项（G 2 + L00 2 + L01 1 + L02–L13 69，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（R0 准备单元）：Q-L13-03/-L13-05（R0 范围）裁决移除 + 新增即裁 Q-L13-11。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -76,6 +76,9 @@
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照；M2 profile 冻结前置） | **AI-v2：主判据 = 谱系断裂，gap 计数按身份主张分型**——伪更新 = "声称同一身份延续而 parent_digests 谱系断裂"（LineageBreak，机械可检，L06 §4.5）；`ContinuityGap[]` 在合法分支恢复时显形记录（clone ≠ identity，D-12）但**不构成伪更新**。判定规则：对"延续"主张 gap 最大可接受数 = **0**（任何 gap 即拒绝延续主张）；对"分支"主张 gap 允许（显形即合规）。C1+ 按 gap 类型（重放缺失/巩固断裂/重置痕迹）细化分型。重开条件：MW0-SC5 显示该二分判据不可区分三类对照 → 经新 Q 细化 | 2026-09-26 |
 | Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量；C5/M2；M2 profile 冻结前置） | **AI-v2：M2 = 集合级判据**——三步签名（有害更新 / 回退 / 再提案）两两以 (data_scope 集合, seed, parent_digest) 元组区分，**data_scope 集合对称差非空即可区分**（集合级，无量度）；三步闭环 = ① 有害更新被检出（protection 回归/能力退化）② 回退后基线恢复（protection preflight delta 回零）③ 修正 data_scope 后再提案通过（PromotionDecision ACCEPTED）。C5 引入量化差异度量（如 Jaccard）经届时裁决。重开条件：C5 实践显示集合级判据不足以支撑多目标 promotion → 经新 Q | 2026-09-26 |
 | Q-G00-11 | M2 初值集伞式（m2_continuity.profile：最小记忆参数/SC5 对照场景/SC6 held-out/intent-to-treat 分支分配——纯 profile 参数，不含认知语义参数） | **AI-v2：初值集成文采纳**（数值见 m2_continuity.profile.yaml v1.0，均标注初值）。定值原则承 Q-G00-08（2 的幂对齐、单看无行为意义仅作可复算锚点、全部带 M2 数据复核点）；记忆参数为 **M2 最小连续性切片**（完整分层记忆 = C2 门，Q-L06-01/02/03 届时重裁，本伞式不预支）。重开条件：M2 首评/SC5/SC6 显示任一初值致盲区/饱和 → 经新 Q 重标定（改值 = profile 新版本） | 2026-09-26 |
+| Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | **AI-v2：模块级双签发者 + REV 独立面**——① EvidenceResult 由 evaluator（hypotheses.py 判定执行）从冻结统计计划 + recorder 数据**机械算出**；ExpansionDecision 由 gate/expansion.py **独立签发**，仅可消费根 EvidenceResult 的 digest（禁携带统计中间态）+ basis_evidence_ids + REV 独立评审引用；两者记录面分离（L13 §2.2 两端口分别落盘，canonical JSON + sha256 digest 入 registry，与 EvidenceResult 同构）。② ExpansionDecision 必含 stage / decision / basis_evidence_ids / constraints[] / bound_digests（root stat plan + config 合同集 + 系统版本 + recorder manifest）/ independent_of（根结果签发者声明，HLD §10.3 绑定物）。③ 组织独立（authority v2 下）：ExpansionDecision 由 AI-v2 成文裁决签发，但 **REV 独立评审（Q-DEV-05 新起子代理）为强制独立面——REV 未闭环的 S1+ 未清零不得签发 ALLOW_NEXT_STAGE**。重开条件：REV 显示签发分离不可审计 → 经新 Q | 2026-10-02 |
+| Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | **AI-v2（R0 范围本批裁决；C0+ 义务同条钉死）**：R0 = 三源探针框架（evidence/evaluator/leakage.py，14 路径 P01–P14 对应 HLD §6.2 逐行）——STATIC（源扫描 import 图：主体域禁读 evidence、环境域禁读 subject、感知域禁读通道、action 域禁 affect + 引入门槛缺席守卫 sensorium/C1-learner/C2-workspace）/ RUNTIME（真实守卫重放：GoalWriter 禁写、D-13 编码面、包 envelope 不可变、typed unknown 强制）/ DATA（证据行扫描：SC6 trace 两臂记忆 digest 恒等 + naive 断连仅经 fault 机制）。**每探针注入可失败**（INC-08 教训成规：合成违规检出率 = 100%，套件测试双面断言）；检出的 severity = 真值/oracle 交叉 S0、其余 S1（HLD §13.3 细化映射随 C0）。**C0 期义务（同条钉死，无需再裁）**：深化为 import-linter 契约测试 + 生产路径全覆盖运行时钩子 + DuckDB 数据查询三源；Sensorium/workspace/learner 层引入时其探针自动从缺席守卫升级为实检。重开条件：C0 实践显示某路径三源形式不可判定 → 经新 Q | 2026-10-02 |
+| Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值（R0 交付前置；新增即裁） | **AI-v2：**① **根假设 = 复合 claim `r0_root_causal_auditability`**（root stat plan `stat_plans/r0_root.yaml` 运行前冻结）：判据 = M0 五类干预 signature 集 + M1 real_vs_pseudo_motive / wording_manipulation_null + M2 SC5 四臂签名 + **m2_continuity_carryover 首评（n=64 sealed，根结果的统计量化核——effect_size/CI/p 由其承载）** + leakage=0（14 探针）+ I1 bit-exact；全 SUPPORTED 且无 REFUTED → 根 SUPPORTED，任一 REFUTED → REFUTED，否则 INCONCLUSIVE。② 绑定物（HLD §10.3）= root stat plan digest + config/** 16 份合同 digest 集 + 系统版本（pyproject version + git HEAD digest）+ recorder manifest 分区 digest。③ sealed 分割定值：网格 = 3 regimes × 32 种子槽位 = 96 cells（Q-L01-03 regime 集）；**主种子 = hex `"19"×32`**（先于任何 sealed 数据消费钉死的任意常数；流派生 ⇒ 生成时刻不影响内容）。④ **REV-0009 R3 处置**：split policy `generated_at: F0_FREEZE` 未在 F0 执行——如实记录为 R0 准备期补执行（内容等价性由流派生保证；digest 入册后可复算），不另立 INC（R3 已立案跟踪）。重开条件：首评 INCONCLUSIVE/REFUTED → 按 ADR-G-0009 顺延终止条款处置（无顺延）；网格定值使 sealed 单元复用模式失效 → 经新 Q | 2026-10-02 |
 
 ## B. 全局未决（G 系列）
 
@@ -224,8 +227,6 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | — | R0 | UNCONFIRMED |
-| Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | — | C0+ | UNCONFIRMED |
 | Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值 | — | C5/E1；联动 Q-L11-04、Q-L06-05 | UNCONFIRMED |
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈 | — | C5；联动 Q-L11-03 | UNCONFIRMED |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | — | E1/H1 | UNCONFIRMED |
@@ -259,3 +260,5 @@
 **M2 已退出**（ADR-G-0009 + tag `m2-exit`，2026-10-02，REV-0009 PASS-WITH-FINDINGS R1–R10 全闭环——R1(S1) 经口径裁定：M2 满足口径 = 机械因果证明 + 冻结协议，ADR-G-0007 同源）。
 
 **R0 侧硬前置（移交，ADR-G-0009 口径裁定）**：① m2_continuity_carryover 首评（stat plan m2_continuity_sc5_sc6 v1.0，n=64 sealed）**≤ R0 门退出**；② sealed 网格基础设施（`registry://sealed/` 命名空间 + SealedEvaluationToken + F0 分割流一次性生成与 digest 入册，Q-L13-02 合同义务）为其必然前置；③ SC6 正式 runner 三点保真度（regime 网格继承/naive 断连经 fault/ITT 流驱动两臂）；④ **顺延终止条款：C1 起统计评价为各 claim 门退出的不可顺延判据**（确定性阶段理由消失）；⑤ 三步纠偏闭环全链 → C5。
+
+**R0 硬前置完成（2026-10-02，R0 准备单元）**：① **carryover 首评 = SUPPORTED**（sealed 网格 96 cells → sealed 28 / internal 68，分割 digest `9b99d26f…`、manifest 入册 `bc68e3ac…`；n=64 ITT 均衡 [30,34]；carry 64/64 vs naive 0/64，配对差 = 1.0（饱和上确界），McNemar p ≈ 1.08e-19，I1 bit-exact）；② sealed 基础设施落地（evidence/evaluator/sealed.py：双类型 token 隔离 + SealedNamespace + check_no_backflow——17 份 config digest ∩ sealed = ∅ 机械验证）；③ SC6 正式 runner 三点保真度交付（runs.py `run_carryover`；REV-0009 R9 闭合）；**根 EvidenceResult `R-r0-root-001` = SUPPORTED**（复合判定 Q-L13-11①：M1 两 claim + carryover + leakage=0（14 探针 0 检出，digest `961a0ef8…`）+ I1 match；effect_size/CI/p 由 sealed carryover 核承载）。④⑤ 维持原判（C1/C5 期义务）。**R0 门退出余件 = REV-0010（门退出前独立评审）→ ExpansionDecision 签发（Q-L13-03：rev 引用 + 绑定物；ALLOW/HOLD/REWORK 由 decide_from_root 机械映射）→ ADR-G-0010 + tag。**
