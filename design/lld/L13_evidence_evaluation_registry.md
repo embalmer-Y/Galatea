@@ -1,6 +1,6 @@
 # L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decision_registry
 
-> LLD: L13/14 · v1.0 · 2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
+> LLD: L13/14 · v1.0.1 · 2026-10-02（v1.0.1：§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
 > 上游：`HLD.md` §5.1（科学平面全章）/§6.2/§8/§9（R0/E1/H1）/§10.4（全门槛退出纪律）/§11/§12/§13 · `L00_kernel.md`（registry/digest/checkpoint/TypedUnknown）· `L01`（EvidenceResult 根）· `open_questions.md` C 区
 > 下游：owner claim 冻结、门槛退出、Promotion Gate（供 L11）、`core_decision_registry`（供 E1）、审计与复算
 > 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E1→H1**；贯穿全阶段（原稿"E0"经 Q-G00-07 裁决为撰写期残留，已剔除，2026-09-17）
@@ -242,7 +242,7 @@ core_decision_registry(entries[], coverage_matrix: 6×10,
 | F0 | 证据合同 + 统计计划模板 + sealed 分割策略 + 权限矩阵冻结 | `EvidenceResult`/`PromotionDecision`/`core_decision_registry` schema；模板审定 |
 | M0 | 五类干预电池的负控与 signature 冻结；gateway fail-closed 证据 | M0 `EvidenceResult` + 保护集场景冻结 |
 | M1 | 交叉操纵与理由仲裁的统计计划（最小效应） | M1 EvidenceResult；`ExecutionFact vs ReceivedOutcome` 可区分 |
-| M2 | 伪更新/冻结/重置对照三签名可区分性评价 | M2 EvidenceResult + 保护集 |
+| M2 | 伪更新/冻结/重置对照三签名可区分性评价 | M2 EvidenceResult + 保护集（**改期锚定注记，2026-10-02，ADR-G-0009**：M2 满足口径 = 机械因果证明 + 冻结协议（确定性阶段统计量退化，ADR-G-0007 同源）；m2_continuity_carryover 首评（n=64 sealed）≤ R0 门退出为硬前置，sealed 网格基础设施为其前置——REV-0009 R1/R3） |
 | **R0** | **根 EvidenceResult + 独立 ExpansionDecision（分别记录）** | leakage=0；I1 通过；门治理裁决（DEV_SPEC §4.6） |
 | C0–C5 | 各门消融/lesion 的选择性证据；promotion 治理 | EvidenceResult 序列 + 保护集回归 |
 | **E1** | **`core_decision_registry` 六类全覆盖 + unresolved_paths[] 空 + 分母闭合 + 全部消融/lesion/干预可归因** | I2 独立复算通过 |

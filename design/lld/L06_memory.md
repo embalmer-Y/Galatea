@@ -1,6 +1,6 @@
 # L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制
 
-> LLD: L06/14 · v1.0.1 · 2026-09-26（v1.0.1：§10 测试清单标注 M2 交付 6 件与 C2/C5 归属）· 原版 2026-09-13 · 状态：WORKING（C2 冻结前）
+> LLD: L06/14 · v1.0.2 · 2026-10-02（v1.0.1：§10 测试清单标注 M2 交付与 C2/C5 归属；v1.0.2：交付计数勘误 6→7，REV-0009 R5）· 原版 2026-09-13 · 状态：WORKING（C2 冻结前；M2 依赖件已交付）
 > 上游：`HLD.md` §4.2/§5/§6/§11.1（`recorder ≠ memory`） · `L02/L03/L04`（帧/信念/模型状态） · `L05`（AffectiveValueTag） · `L00_kernel.md`（三库分离，`subject_memory.db` 由本档独占写）
 > 下游消费者：L03（线索）、L04（回忆对照）、L07（候选）、L08（承诺/规范）、L09（经验策略）、L11（重放）
 > 引入门槛：**C2**（分层记忆 + 来源类型）→ **C5**（持续写入/巩固/遗忘控制/保护集，与 L11 联动）
@@ -201,7 +201,7 @@ galatea/subject/memory/tests/
   test_source_type_mandatory.py test_recall_level_guard.py test_retrieval_determinism.py
   test_m2_continuity_contrast.py test_lineage_break.py
   test_language_to_episodic_blocked.py test_memory_db_permission.py
-  # ↑ M2 期交付 6 件（v1.0.1 标注，2026-09-26）；SC5/SC6 实验台在 tests/env/test_m2_sc5.py / test_m2_sc6.py
+  # ↑ M2 期交付 7 件（v1.0.1 标注并经 REV-0009 R5 勘误；原误记 6）；SC5/SC6 实验台在 tests/env/test_m2_sc5.py / test_m2_sc6.py
   # ↓ 以下 4 件属 C2/C5（protection.py/metamemory.py/forget.py 随完整分层记忆落地）
   test_protection_violation.py test_ablation_episodic.py test_metamemory_confusion.py test_forget_tombstone.py
 config/profiles/
