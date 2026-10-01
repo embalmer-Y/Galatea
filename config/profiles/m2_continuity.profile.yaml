@@ -1,0 +1,54 @@
+# Galatea M2 冻结 profile — 连续性：checkpoint 谱系 + 最小记忆切片 + SC5/SC6 场景 + intent-to-treat
+# 效力：M2 门冻结合同（ADR-G-0008 · tag m2-freeze · 2026-09-26）。数值均为初值（Q-L00-05/Q-L04-06/
+# Q-L11-05/Q-G00-11；M2 数据复核点见各行）。修改 = 新 profile 版本 + 修订记录（DEV_SPEC §4.6）。
+# 冻结前核验：check_docs 第 7 节 YAML 解析通过（INC-11 机械防线）；typed 加载器随 M2 实现单元落地
+#（REV-0008 R1 勘误——冻结时点无 m2 加载器，不作"已联调"宣称）。
+profile:
+  id: m2_continuity
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  spec_ref: design/lld/L06_memory.md        # M2 退出依赖本档（L06 §9）；SC 场景源 L01 §4.6
+  parent: m1_goals_min@v1.1
+  contract_refs:                            # 引用合同按 digest 匹配（实验控制侧承载，c7484f9 已落地）
+    - m0_mw0@v1.1                           # 世界参数（episode 运行域）
+    - m0_gateway@v1.0                       # 配额/预算（episode 内行动约束）
+    - config/evidence/sealed_split_policy.yaml   # SC6 sealed 网格（F0 冻结 70/30；文件无 version 字段，裸路径引用——REV-0008 R3）
+    - m1_protection_suite@v1.0              # 保护集（INC-12 追溯冻结；M2 退出前增补 M2 场景）
+
+checkpoint:                                  # Q-L00-05 CONFIRMED 2026-09-26
+  periodic_cycles: 64                        # T6 边界（与巩固拍同锚，谱系锚点确定；2^k 对齐）
+  event_triggers: [episode_boundary, intervention_effective]   # SC5 操作点 + 归因状态锚
+  record_semantics: digest_refs_only         # CheckpointRecord 只存 digest 引用 + RNG 快照（L00 §3，无全量复制）
+  lineage: parent_dag                        # parent_checkpoint_id DAG；clone ≠ identity（D-12）
+
+memory_min:                                  # Q-G00-11：M2 最小连续性切片（完整分层记忆 = C2 门，Q-L06-01/02/03 重裁）
+  subsystems: [working, episodic]            # M2 切片仅两子系统（continuity 的认知载体）
+  episodic_capacity: 128                     # 每 episode 写入预算上界（2^k 初值；溢出策略 C2 裁决）
+  working_capacity: 8                        # 工作缓冲槽位（2^k 初值）
+  strength_initial: 0.5                      # 编码强度初值
+  decay_factor_per_t6: 0.9                   # 每 T6 拍强度乘子（可手算；C2 换 τ 谱经 Q-L06-03）
+  retrieval_top_k: 4                         # 每次检索返回上界
+  retrieval_cadence: per_T4                  # 检索服务挂点（L06 §5）
+  source_type_enforced: true                 # 来源类型强制（L06 §1 铁律）
+  recalled_never_promotes: true              # RECALLED 禁提升为 PERCEIVED（L06 §8 不变量 2——REV-0008 R4 锚位勘误）
+
+sc5:                                         # MW0-SC5 连续性对照（L01 §4.6；L06 §4.5 记忆侧签名）
+  episode_cycles: 256                        # = 一 regime 驻留窗（与 M1 TTL 同尺度，Q-L01-04 对齐）
+  arms: [full_continuity, freeze_restore, reset, pseudo_update]   # 三类对照 + 完整延续基线
+  reset_semantics: clear_working_episodic_keep_lineage   # L06 §4.5 重置定义（登记/谱系保留）
+  pseudo_update_detector: lineage_break      # Q-L04-06 主判据：parent_digests 断裂 = LineageBreak
+  continuation_gap_policy:                   # Q-L04-06：gap 按身份主张分型
+    continuation_claim_max_gaps: 0           # "延续"主张：任何 gap 即拒绝
+    branch_claim_gaps_allowed: true          # "分支"主张：gap 显形即合规（clone ≠ identity）
+sc6:                                         # MW0-SC6 sealed held-out（L01 §4.6）
+  sealed_split_ref: config/evidence/sealed_split_policy.yaml   # 70/30 网格（F0 冻结，Q-L13-02）
+  held_out_min_effect_ref: config/evidence/min_effects.yaml#m2_continuity_carryover   # d≥0.5（v1.2）
+  held_out_claim: next_round_performance_memory_vs_naive       # round2：携带记忆 vs naive（配对）
+  distribution_shift: regime_scenario_grid   # sealed 网格内的 regime×seed 组合
+
+intent_to_treat:                             # M2 退出判据"随机分支 intent-to-treat"（HLD §10.2）
+  branch_assign_stream: [l13, branch-assign] # 承 Q-L13-02 的 l13 命名空间先例（Q-G00-11 登记新流）
+  assignment_at: episode_start               # 分配于 episode 开始（实验控制执行）
+  subject_visible: false                     # 主体不可见不可改（分配在控制平面）
+  branches: [carry_memory, naive]            # M2 携带效应对照的两臂

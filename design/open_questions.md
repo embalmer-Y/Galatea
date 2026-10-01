@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 60 项（A 区 60 行实点）；UNCONFIRMED 79 项（G 2 + L00 3 + L01 1 + L02–L13 73，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律（REV-0006 R11 重申）：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准——本批前头部"80"系按裁决状态推算、未随行同步（INC-09/R11，实际 82 行含 2 行已裁残留），本批移除 Q-L08-01/-02/-06（已裁）并新增即裁 Q-L08-09（不入分区）后，行实点与真实状态首次对齐。
+> **规模**：CONFIRMED 64 项（A 区 64 行实点）；UNCONFIRMED 76 项（G 2 + L00 2 + L01 1 + L02–L13 71，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（M2 门冻结单元）：Q-L00-05/-L04-06/-L11-05 裁决移除 + 新增即裁 Q-G00-11。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -72,6 +72,10 @@
 | Q-L01-09 | MW0 动力学表补充参数与边界语义（REV-0004 R2/R3/R4/R6 补裁：冻结前钉死可操作性语义，防实现期无源常量） | **AI-v2：**① storm_rate_per_cycle = **全局语义**（每 grid 每 cycle 风暴命中期望次数；abundance/scarcity 0.005 → 约 1.3 次/256 驻留，volatile 0.030 → 约 7.7 次 ≈ 0.77 integrity 损耗/驻留）；② storm_band_drift = volatile 期每 64 cycles 沿随机方向漂移 1 格（dynamics 流）；③ resource_density = resource patch **目标覆盖率**（respawn 仅当覆盖率低于目标时进行，regime 切换即时生效）；④ 觅食链 = resource patch 上 forage → patch 储量 −1、储存食物 +1（非资源 patch effective=none）；eat 前置 = 储存 ≥1（消耗 1 → energy +0.15），储存上限 5；⑤ floor 语义 = energy/integrity 下限 0 截断，energy 首次触 0 记 energy_depleted 事件（Interoceptive），**M0 无死亡/重生/自然回复语义**（episode 终止仅经实验控制），integrity M0 无再生；⑥ load ≡ 0（load_max 为 schema 占位，carry 机制 C0+），观测噪声固定 σ 不随 load 调制（显式简化留痕，防静默降级）；⑦ 通道 loss_rate = 0.0（无自发丢失，丢失仅经 fault 干预注入）。全部为 M0 初值，M0 数据复核。重开条件：M0 显示觅食链/floor 语义产生非预期行为学（如能量枯竭支配一切行为）→ 经新 Q 重裁 | 2026-09-25 |
 | Q-L08-02 | 候选 TTL 默认值与每 T4 批次候选数上界（M1 profile 冻结前置；C-6 判据数值化） | **AI-v2：TTL = 256 cycles**——与 regime 最小驻留对齐（Q-L01-04 N6=256）：候选所由生的动机语境（regime + 接收侧 viability 态）在一个驻留窗后即失效，未采纳即过期（GoalDecisionLog 记 RejectionLog(EXPIRED)，禁静默丢弃，L08 §6/§7）；2 的幂对齐，= 64 个 T4 拍（Q-L00-01 N3=4），评审机会充分。**每 T4 批次候选上界 = 8** = Motive source_kind 枚举基数（L08 §4.1 八 kind；card_02"七类"系机会/请求合类口径），每 source_kind 每批次 ≤1 由构造器强制，上界即枚举基数、无额外余量参数（防候选爆炸，Q-L08-02 议题原文）。**REV-0006 R4 补裁：**"按 urgency 升序截断"钉死为**移除序**——超限时移除 urgency 最低者（tie 按 candidate_id 升序先移除），保留高 urgency 候选；逐个记 RejectionLog(CAPACITY)（扩展码随 Q-L08-09⑤）。全部为 M1 初值。重开条件：MW0-SC3 显示过期删失（候选在清单评估完成前过期）或上界触顶频繁 → 经新 Q 重标定 | 2026-09-26 |
 | Q-L08-09 | M1 最小期 checklist 输入源替代（C-1 需 L04、C-2 需 L05，均未实现）、viability 判据形态、结算判据词表、动机源接线范围、新增 RNG 流（M1 profile 冻结前置；实现期发现缺口） | **AI-v2：**① C-1 M1 输入 = 静态合同检查（原语 ∈ MW0 五原语 ∧ ∈ **f0_action_contract@v1.0 的 `containment_whitelist_mw0` 原语白名单**——术语钉死：非 P1 四类授权信封，REV-0006 R8 → FEASIBLE；结算所需原语越界 → REJECT(CAPABILITY)；不可静态判定 → Unknown(CAPABILITY_LIMIT) → DEFER）——C1 起 L04 CapabilityEstimate 接管；② C-2 高危判据 = **事件级而非阈值级**（不设告警阈值，守 Q-L01-08 对 L05 域的显式排除）：energy_depleted 在案且未见恢复回执 → REJECT(VIABILITY)；integrity_damage_event 记入 ViabilityEstimate（derivation_refs 强制）但 M1 期不构成高危判据（integrity 无再生语义下事件级判危将拒绝一切目标，天花板效应，留 C2 随 L05 阈值一并裁决）；"预算内" = 结算所需原语在 m0_gateway@v1.0 冻结配额当前窗口余量内 ≥1 次可执行（保守静态核算，读 gateway 记账只读面）；③ C-7 结算判据词表（M1）= 三谓词 `primitive_completion` / `stored_food_at_least(n)` / `energy_at_least(x)`，全部只读主体可见态（接收侧信号/执行回执），阈值 n/x 冻结于 M1 统计计划（SC3 运行前）；C1+ 扩词表经新 Q；④ M1 接线动机源 = VIABILITY + OPPORTUNITY + REQUEST 三源（MW0-SC3"请求/机会"锚定：REQUEST 经 L01 language 通道 typed 注入，is_request_only 强制；OPPORTUNITY 输入 = exteroceptive 渲染窗内 resource patch 检出，affordance_ref = RECEIVED 事件引用，feasibility_est 由窗口增益派生；VIABILITY 输入 = Interoceptive 已收信号派生 ViabilityEstimate）；**其余五源**（MISMATCH/AFFECTIVE/COMMITMENT/NORM/CURIOSITY，REV-0006 R7 计数勘误）类型构造器实现、生产者 C3 接入（L08 §9 C3 行）；理由探针扰动端口 = opportunity feasibility（世界侧布局/能迹操纵）与 viability 危害事件（世界侧能量轨迹操纵，REV-0006 R8 改称——M1 无"告警"对象），均经合法通道注入；**C-5 支持判定实现期补裁（SC3/SC4 实验台单元）：非 REQUEST 源动机须 urgency > 0 方计为"支持"**——零 urgency = 无活跃信号，防止任意 intero 接收使 C-5 在生产配置中永真（事件级二值纪律，无新阈值参数；REQUEST 源候选在无活跃信号世界中的 REJECT(EXTERNAL_ONLY) 由此保真）；⑤ RejectionLog 扩展码 CAPACITY（超上界截断记录用，L08 §6 仅有 EXPIRED）；⑥ 新增主体侧 RNG 流 `goals_probe = (subject.goals, probe)`（SC3/SC4 试次×cell 分配，防 cycle 周期性与世界态相关混淆；承 Q-G00-10 名册纪律在此登记）。**REV-0006 R1/R2/R9 补裁（⑦–⑨）：**⑦ C-2 豁免与恢复回执——恢复型结算判据（stored_food_at_least / energy_at_least）的候选**豁免** energy_depleted_unrecovered 危害（恢复类目标是危害的解除路径；否则枯竭时 eat/rest 候选被 REJECT(VIABILITY) 自拒 → episode 级目标锁出，REV-0006 R1）；"恢复回执" = 恢复链原语（eat/rest/forage，m0_mw0 action_energy_delta 正项）的 requested=effective 执行回执到达；energy_depleted 系首次发射（ADR-G-0005 R4 锁存），首次恢复后的**再枯竭 M1 不可检**（typed 简化留痕，C2 随 L05 viability 阈值接管）；⑧ FAILED 语义收缩 = **TTL-only**（"blocked 达阈"无冻结阈值来源，REV-0006 R2：M1 期 blocked 仅记录于 GoalProgressView；FAILED-by-blocked 与 metacontrol 切换随 C3/L09 落地）；⑨ 三源 Motive.urgency / Opportunity.value_est 派生式（禁实现期发明常量，REV-0006 R3）：VIABILITY urgency = 危害事件二值（在案 1.0 / 否则 0.0）；OPPORTUNITY urgency = feasibility_est（= 窗口增益 g(d)，Q-L01-01 值域），value_est M1 退化为同值（无独立价值估计器，C1+ 接管）；REQUEST urgency = 中性占位常量 0.5（无认知 urgency 语义，仅作确定性截断序输入；C3 起由 L07 竞争接管）；⑩ M1 期 stored_food 计数 = 已收 forage 成功回执（egocentric `forage_arrived`；fault 丢弃不计、coercion 到达计入）的 subject 侧台账派生——stored_food 非通道直渲字段（REV-0006 R9），derivation_refs 强制。重开条件：C1/C2 交接时替代输入与 L04/L05 语义不可桥接 → 经新 Q 重裁；SC3/SC4 显示事件级 C-2 判据不可判定 → 经新 Q | 2026-09-26 |
+| Q-L00-05 | checkpoint 频率策略（每 cycle / 每 T6 / 事件触发）与存储成本（M2 profile 冻结前置） | **AI-v2：混合双机制**——① 周期性 = 每 T6 边界（64 cycles：与巩固拍同锚使谱系锚点确定；2^k 对齐）；② 事件触发 = episode 边界（MW0-SC5 冻结/重置操作点）+ 干预生效边界（regime 切换/干预 from_cycle——归因分析的状态锚）。存储成本 = CheckpointRecord 只存 digest 引用 + RNG 流快照（L00 §3 冻结结构，无全量状态复制，单 checkpoint KB 级）；M2 实测复核体积/时长。重开条件：MW0-SC5 显示 64-cycle 间隔使三类对照不可判或存储超预算 → 经新 Q 重标定 | 2026-09-26 |
+| Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照；M2 profile 冻结前置） | **AI-v2：主判据 = 谱系断裂，gap 计数按身份主张分型**——伪更新 = "声称同一身份延续而 parent_digests 谱系断裂"（LineageBreak，机械可检，L06 §4.5）；`ContinuityGap[]` 在合法分支恢复时显形记录（clone ≠ identity，D-12）但**不构成伪更新**。判定规则：对"延续"主张 gap 最大可接受数 = **0**（任何 gap 即拒绝延续主张）；对"分支"主张 gap 允许（显形即合规）。C1+ 按 gap 类型（重放缺失/巩固断裂/重置痕迹）细化分型。重开条件：MW0-SC5 显示该二分判据不可区分三类对照 → 经新 Q 细化 | 2026-09-26 |
+| Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量；C5/M2；M2 profile 冻结前置） | **AI-v2：M2 = 集合级判据**——三步签名（有害更新 / 回退 / 再提案）两两以 (data_scope 集合, seed, parent_digest) 元组区分，**data_scope 集合对称差非空即可区分**（集合级，无量度）；三步闭环 = ① 有害更新被检出（protection 回归/能力退化）② 回退后基线恢复（protection preflight delta 回零）③ 修正 data_scope 后再提案通过（PromotionDecision ACCEPTED）。C5 引入量化差异度量（如 Jaccard）经届时裁决。重开条件：C5 实践显示集合级判据不足以支撑多目标 promotion → 经新 Q | 2026-09-26 |
+| Q-G00-11 | M2 初值集伞式（m2_continuity.profile：最小记忆参数/SC5 对照场景/SC6 held-out/intent-to-treat 分支分配——纯 profile 参数，不含认知语义参数） | **AI-v2：初值集成文采纳**（数值见 m2_continuity.profile.yaml v1.0，均标注初值）。定值原则承 Q-G00-08（2 的幂对齐、单看无行为意义仅作可复算锚点、全部带 M2 数据复核点）；记忆参数为 **M2 最小连续性切片**（完整分层记忆 = C2 门，Q-L06-01/02/03 届时重裁，本伞式不预支）。重开条件：M2 首评/SC5/SC6 显示任一初值致盲区/饱和 → 经新 Q 重标定（改值 = profile 新版本） | 2026-09-26 |
 
 ## B. 全局未决（G 系列）
 
@@ -87,7 +91,6 @@
 | Q 号 | 议题 | 建议默认 | 状态 |
 |---|---|---|---|
 | ~~Q-L00-03~~ | ~~float64 统一是否接受存储/性能代价~~ **CLOSED**：与 Q-T10 裁决（模型 float32、证据/统计 float64，2026-09-12 CONFIRMED）重复且措辞冲突，已废弃归并入 Q-T10；编号不复用 | — | CLOSED |
-| Q-L00-05 | checkpoint 频率策略 | 每 T6 + 关键事件触发 | UNCONFIRMED |
 | Q-L00-06 | registry 大 artifact 分片阈值 | 8 MiB 分片 | UNCONFIRMED |
 | Q-L00-07 | Hypothesis packet 序列生成分布 | 谱系感知 + 对抗混合 | UNCONFIRMED |
 
@@ -128,7 +131,6 @@
 | Q-L04-02 | 世界信念更新率与多假设保留上限 | — | C1；联动 Q-L03-05 | UNCONFIRMED |
 | Q-L04-04 | 自我预测误差的维度定义与时间常数 | — | C1/C2；联动 Q-L05-* | UNCONFIRMED |
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度 | — | C3/C4；联动 Q-L03-06 | UNCONFIRMED |
-| Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界 | — | M2 | UNCONFIRMED |
 | Q-L04-07 | C1+ 神经世界模型替换表格模型的等价性/泄漏验证方法 | — | C1；同源 Q-L03-07 | UNCONFIRMED |
 
 ## H. L05 驱力/评价/情感（九维动力学）
@@ -203,7 +205,6 @@
 | Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | — | C5 | UNCONFIRMED |
 | Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束）与最小改善阈值 | — | C5；联动 Q-L13-07 | UNCONFIRMED |
 | Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量） | — | C5/E1；联动 Q-L06-05 | UNCONFIRMED |
-| Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量） | — | C5/M2 | UNCONFIRMED |
 | Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | — | C1/C5 | UNCONFIRMED |
 | Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | — | C5/E1 | UNCONFIRMED |
 
@@ -252,3 +253,5 @@
 **M0 阻断项**：**已清零**（2026-09-25 AI-v2 成组裁决 9 项——Q-L00-04、Q-L01-01…04+Q-L05-04、Q-L09-06+Q-L10-09、Q-L10-02；见 A 区）。**M0 已退出**（ADR-G-0005 + tag `m0-exit`，2026-09-25）。
 
 **M1 阻断项**：**已清零**（Q-L08-01/-06 于 2026-09-26 M1 准备单元裁决；Q-L08-02/-09 于 2026-09-26 M1 门冻结单元裁决——均见 A 区；`m1_goals_min.profile.yaml` 随 ADR-G-0006 冻结）。**M1 已退出**（ADR-G-0007 + tag `m1-exit`，2026-09-26，REV-0007 PASS-WITH-FINDINGS R1–R9 全闭环）。**M2 侧硬前置（移交）**：L13 EvidenceResult 首评（stat plan m1_goals_sc3_sc4 v1.1 两 claim × n=64 种子化 run）**不晚于 M2 门退出**（ADR-G-0007 口径钉死第 2 条）；ADR-G-0005 R8 profile digest 匹配随 M2 实验控制模块落地。**首评完成（2026-09-26，M2 准备一）**：real_vs_pseudo_motive = SUPPORTED（配对差 0.984，McNemar p=2.2e-19，伪注入惰性、复算全等）；wording_manipulation_null = SUPPORTED（χ² 同质性 p=0.379）——硬前置兑现。**首评更正（对 ADR-G-0007 口径第 3 条）**：M0 冻结 0.01 传输损坏率使 trial 真实带噪，"指纹全等"确定性 shortcut 前提不成立，null 断言以冻结计划的统计形式（χ² 同质性）为准；depleted 臂 1/64 采纳 = 关键 intero 包损坏的诚实容错行为。
+
+**M2 阻断项**：**已清零**（2026-09-26 M2 门冻结单元 AI-v2 四项——Q-L00-05 checkpoint 双机制、Q-L04-06 谱系断裂主判据、Q-L11-05 集合级可区分性、Q-G00-11 M2 初值集伞式；见 A 区；`m2_continuity.profile.yaml` 随 ADR-G-0008 冻结）。

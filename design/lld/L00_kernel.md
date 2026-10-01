@@ -223,6 +223,6 @@ config/profiles/
 | Q-L00-02 | UnknownReason 冻结清单是否需增删 | F0 | CONFIRMED（AI-v2 2026-09-23：9 项 + STREAM_MISSING 共 10 项冻结，增删走 schema 版本） |
 | ~~Q-L00-03~~ | ~~float64 统一数值纪律~~ **已废弃**：被 Q-T10 CONFIRMED 裁决取代（模型 float32、证据/统计 float64），不再悬置 | — | CLOSED（归并入 Q-T10） |
 | Q-L00-04 | RNG 算法 ChaCha8 vs Philox（性能与确定性权衡） | M0 前 | CONFIRMED（AI-v2 2026-09-25：ChaCha8 正式后端 chacha8_block，见 A 区） |
-| Q-L00-05 | checkpoint 频率策略（每 cycle / 每 T6 / 事件触发）与存储成本 | M2 | UNCONFIRMED |
+| Q-L00-05 | checkpoint 频率策略（每 cycle / 每 T6 / 事件触发）与存储成本 | M2 | CONFIRMED（AI-v2 2026-09-26：T6 周期 64 + episode/干预事件触发双机制，digest 引用制无全量复制，见 A 区） |
 | Q-L00-06 | registry blob 去重阈值与大 artifact（模型权重）的分片策略 | C0 | UNCONFIRMED |
 | Q-L00-07 | Hypothesis property test 的 packet 序列生成分布（均匀/对抗/谱系感知） | M0 | UNCONFIRMED |

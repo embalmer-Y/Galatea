@@ -233,7 +233,7 @@ config/profiles/
 | Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | C5 | UNCONFIRMED |
 | Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束的具体规则）与最小改善阈值 | C5，与 L13 统计计划联动 | UNCONFIRMED |
 | Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量）——与 Q-L06-05 保护集构成联动 | C5/E1 | UNCONFIRMED |
-| Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量） | C5/M2 | UNCONFIRMED |
+| Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量） | C5/M2 | CONFIRMED（AI-v2 2026-09-26：M2 集合级判据——data_scope 对称差非空即可区分，三步闭环签名，见 A 区） |
 | Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | C1/C5 | UNCONFIRMED |
 | Q-L11-07 | `metrics_snapshot` 的标准指标集（跨档统一，供 L13 评价复用） | F0/C5 + L13 | CONFIRMED（AI-v2 2026-09-23：向量 schema {name/value/direction/unit/scope} + 最小标准集四项，见 open_questions A 区） |
 | Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | C5/E1 | UNCONFIRMED |

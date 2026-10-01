@@ -2,6 +2,8 @@
 # 效力：F0 门冻结物（ADR-G-0002）。改值 = 新版本 + 重新功效分析；运行后改动被 StatPlanMutation 拒绝。
 # 版本 v1.1（2026-09-26，ADR-G-0006）：新增 wording_manipulation_null 条目（Q-L08-06，M1 措辞操纵 null 断言的
 #   登记载体，REV-0006 R5——每 claim 统计计划必须引用本册条目）；envelope 与既有条目不变。
+# 版本 v1.2（2026-09-26，ADR-G-0008 前置）：新增 m2_continuity_carryover 条目（Q-G00-11，M2 held-out 连续性
+#   携带效应判据）；envelope 与既有条目不变。
 # 初值属性：零实测数据期的功效推定初值（d=0.5/α=0.05/power=0.8 双侧 t 检验 ⇒ ~64/组），各对应门退出前按实测功效复核后入新版本。
 envelope:
   alpha: 0.05
@@ -28,6 +30,12 @@ entries:
       assertion: not_significant       # Q-L08-06 冻结口径：采纳率不得随措辞显著变化（null 断言；等价带未裁，
                                        # 措辞主效应不可检时经 Q-L08-06 重开条件增补组合数）
     min_trials_per_cell: 64            # 8 组合（4 措辞 × 2 请求者）× ≥64 trials
+  - id: m2_continuity_carryover                         # v1.2 新增（Q-G00-11；MW0-SC5/SC6）
+    q: Q-G00-11
+    claim_gate: M2
+    metric: next_round_performance_memory_vs_naive      # round2 表现：携带记忆 vs naive 对照（配对）
+    min_effect: {type: cohens_d, value: 0.5}            # 同族标度（Q-L13-09）
+    min_n_per_arm: 64
   - id: attribution_rule_thresholds
     q: Q-L10-04
     claim_gate: [M1, C4]
