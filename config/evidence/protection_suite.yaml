@@ -1,20 +1,20 @@
 # Galatea 证据合同 — 保护场景清单（L13 §4.5 ProtectionSuite；L01 §7"每门退出冻结为保护集"）
-# 效力：M1 门版 v1.0（2026-09-26 追溯冻结——M0/M1 退出时本义务漏执行，INC-12 立案；
-# 本清单以 M1 退出时点的已冻结场景为准，M0 场景随 M1 场景一并收录）。
+# 效力：v1.0 = M1 门版（2026-09-26 追溯冻结——M0/M1 退出时本义务漏执行，INC-12 立案）。
+#       v1.1 = M2 门版（2026-09-26，M2 退出单元增补 M2 场景——只增不减纪律）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.0
+  version: v1.1                 # v1.1（M2 门版）：新增 m2_* 9 场景；既有 14 场景原样保留（只增不减）
   frozen_at: "2026-09-26"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
     INC-12（2026-09-26）：L13 §4.5"门退出前冻结保护集"在 M0（ADR-G-0005）与 M1
     （ADR-G-0007）退出时均未履行（REV-0005/0007 均未对照该条）——根因：门退出判据
-    映射仅取 HLD §10.2 行 + 对应 LLD §9，未扫描跨档义务。本清单为追溯补冻；
-    门退出义务核对自本案起将 L13 §4.5 纳入（见 ADR-G-0008 起）。
+    映射仅取 HLD §10.2 行 + 对应 LLD §9，未扫描跨档义务。v1.0 为追溯补冻；
+    门退出义务核对自本案起将 L13 §4.5 纳入（v1.1 即首次执行：M2 场景随退出增补）。
   baseline_semantics: deterministic_bit_exact   # 确定性阶段：测试断言 = 基线；C1+ 噪声组件后换统计基线
 
   scenarios:
@@ -74,3 +74,39 @@ protection_suite:
       source_test: galatea/subject/goals/tests/test_candidate_ledger_ttl.py
       frozen_gate: M1
       assertion: TTL 过期 EXPIRED 落账；容量截断移除序（urgency 升序、tie id 升序先移除）
+    - id: m2_memory_source_type_mandatory
+      source_test: galatea/subject/memory/tests/test_source_type_mandatory.py
+      frozen_gate: M2
+      assertion: 来源类型强制字段（六类冻结枚举；UNKNOWN 使用限）
+    - id: m2_recall_level_guard
+      source_test: galatea/subject/memory/tests/test_recall_level_guard.py
+      frozen_gate: M2
+      assertion: RecalledContent 层级恒 RECALLED（不可注入/不可改写/禁提升）
+    - id: m2_retrieval_determinism
+      source_test: galatea/subject/memory/tests/test_retrieval_determinism.py
+      frozen_gate: M2
+      assertion: 检索确定性（tie-break id 升序、top-k 预算、空命中 typed Unknown）
+    - id: m2_memory_db_permission
+      source_test: galatea/subject/memory/tests/test_memory_db_permission.py
+      frozen_gate: M2
+      assertion: subject_memory.db 单写者=memory（orchestrator 写即拒）+ episodic 容量冻结值
+    - id: m2_language_to_episodic_blocked
+      source_test: galatea/subject/memory/tests/test_language_to_episodic_blocked.py
+      frozen_gate: M2
+      assertion: LANGUAGE_INPUT 禁写 episodic 经历（D-13，encode 面即拒）
+    - id: m2_lineage_break_detection
+      source_test: galatea/subject/memory/tests/test_lineage_break.py + test_m2_continuity_contrast.py
+      frozen_gate: M2
+      assertion: 谱系断裂检出（伪造锚/缺失锚）；身份主张分型（延续 gap=0、分支容 gap 不容伪造）
+    - id: m2_sc5_four_arms
+      source_test: tests/env/test_m2_sc5.py
+      frozen_gate: M2
+      assertion: 四臂判定 {full:T, frozen:T, reset:F, pseudo:F}；恢复≡冻结点状态恒等
+    - id: m2_sc6_carryover_mechanical
+      source_test: tests/env/test_m2_sc6.py
+      frozen_gate: M2
+      assertion: 感知退化下携带臂知晓/naive 失明（检索跨期冗余通路）+ ITT 分配确定性/均衡/round1 不可见 + sealed 网格可复算
+    - id: m2_registry_idempotent_put
+      source_test: galatea/kernel/tests/test_registry_core.py（+ tests/env/test_m2_sc5.py 重放场景）
+      frozen_gate: M2
+      assertion: registry.put 幂等（文件/索引分叉态不撞主键）+ registry_events seq 跨实例续接

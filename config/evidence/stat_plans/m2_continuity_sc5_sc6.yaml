@@ -1,0 +1,63 @@
+# Galatea M2 冻结统计计划 — MW0-SC5/SC6（L13 §4.3；Q-G00-11；ADR-G-0008 R5 配对语义钉死）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01）。
+# SC5（四臂连续性对照）为确定性机械判据（m2_continuity.profile sc5 节 + L06 §4.5 签名），
+# 不入统计 claim；本计划承载 SC6 统计对照与 intent-to-treat 语义。
+stat_plan:
+  id: m2_continuity_sc5_sc6
+  version: v1.0
+  frozen_at: "2026-09-26"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L06_memory.md        # M2 退出依赖本档（L06 §9）
+
+  itt_pairing_semantics:                    # ADR-G-0008 R5：配对与 intent-to-treat 关系成文
+    trial_unit: seeded_run                  # 试次单位 = 种子化 run（承 ADR-G-0007 口径）
+    arm_assignment:                         # intent-to-treat 分支分配（HLD §10.2 M2 行）
+      stream: [l13, branch-assign]          # Q-G00-11 登记流；控制平面执行
+      at: episode_start                     # round2 开始前分配
+      arms: [carry_memory, naive]           # 唯一差异 = round2 是否接入 round1 记忆
+      subject_visible: false                # 主体不可见不可改
+      as_assigned: true                     # ITT：按分配分析，不问依从
+    pairing: same_seed_cross_arm            # 配对 = 同 master 种子跨臂（同世界实现/同损坏流）；
+                                            # 与 M1 首评配对（种子复用）同构，分配机制为新增维度
+    round1_invisibility: assigned_arm_must_not_alter_round1   # 分配不可见性断言（机械）
+
+  claims:
+    - claim_id: m2_continuity_carryover
+      hypothesis: >
+        可反驳假设：round1 的枯竭经历经记忆（episodic 编码 → checkpoint 谱系 → round2 检索）
+        构成感知退化下的跨期冗余通路——round2 中 interoceptive 通道故障（fault 干预注入）
+        时，carry_memory 臂经检索知晓能量枯竭危害（hazard_aware），naive 臂失明。
+        若两臂知晓率无差 → "经历经非初始化路径进入下一轮"不成立 → M2 判据失败。
+      estimand: hazard_awareness_carryover            # round2 危害知晓率配对差（carry − naive）
+      primary_endpoints:
+        - carry_arm_hazard_aware_in_degraded_perception   # 携带臂：感知退化下仍知晓（检索通路）
+        - naive_arm_blind_under_fault                     # naive 臂：故障下失明（负控面）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_rate_comparison_mcnemar
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#m2_continuity_carryover}   # d≥0.5
+      unknown_handling: >
+        fault 窗口内接收全丢的 trial 照常计入（naive 失明即预期行为，非 unknown）；
+        检索空命中 = typed Unknown（INSUFFICIENT_OBSERVATION）→ 该 trial 计 hazard_aware=false
+        并留 unknowns 痕迹（禁静默）。
+
+  scenario:                                  # SC6 场景冻结（机械可复算）
+    round1:                                  # 经历轮： 枯竭事件确定性发生（SC3 同型能量轨迹操纵）
+      cycles: 56
+      moves_per_cycle: 2
+      regime: scenario_inherited             # 沿用 sealed_split 网格单元的 regime（70/30 由流分配）
+      encoding: t6_cadence_and_hazard_event  # T6 节拍切片 + hazard 事件即时编码
+    round2:                                  # 退化感知轮：同种子延续 + intero 通道 fault
+      cycles: 12
+      decision_cycle: 8
+      fault_window_cycles: [4, 11]           # 覆盖决策窗（channel fault 干预，Q-L01-09⑦ 丢失仅经 fault）
+      degraded_channel: interoceptive
+    sealed_grid:
+      split_ref: config/evidence/sealed_split_policy.yaml   # 70/30（unit: mw0_scenario_config）
+      grid: regimes_x_seeds                  # regime × 种子组合
+      sealed_fraction: 0.30
+
+  correction: holm_bonferroni                # 族 = 本 claim 全部主终点（Q-L13-01）

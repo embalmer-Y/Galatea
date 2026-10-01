@@ -1,11 +1,9 @@
 """EvidenceResult schema 与判定执行（L13 §2.2 evd.evidence_result / §4.3 / §10 hypotheses.py）。
 
 纪律：三态判定 + 未知清单（unknown ≠ negative）；root 门槛载体（R0）；
-含统计计划引用与可复算标志。判定执行（本模块下半部，M2 准备单元交付）：
+含统计计划引用与可复算标志。判定执行（M2 准备单元交付 + M2 收尾增补）：
 SUPPORTED = 达冻结阈值 **且负控通过**（L13 §4.3）；INCONCLUSIVE = 功效不足或冲突；
-REFUTED = 反证条件成立。确定性阶段统计量退化（一臂方差为 0）按 ADR-G-0007
-口径处理：effect_size = estimand 标度（配对采用率差），CI 退化区间如实呈现，
-饱和判定以 estimand 上确界单调性为准。
+REFUTED = 反证条件成立。三判定器：real_vs_pseudo（M1）/ wording_null（M1，χ²）/ carryover（M2）。
 """
 import enum
 import math
@@ -185,6 +183,94 @@ def evaluate_real_vs_pseudo(
         unknowns=tuple(unknowns),
         refutations=tuple(refutations),
         data_refs=(f"trials:healthy={rate_h:.6f}", f"trials:depleted={rate_d:.6f}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_carryover(
+    result_id: str,
+    stat_plan_ref: str,
+    carry_aware: tuple[bool, ...],
+    naive_aware: tuple[bool, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """m2_continuity_carryover 判定（冻结协议：stat plan m2_continuity_sc5_sc6 v1.0）。
+
+    判据（HLD §10.2 M2 行"经历经非初始化路径进入下一轮"的统计面）：round2 感知
+    退化（intero fault）下携带臂危害知晓率 − naive 臂失明率 ≥ 冻结最小效应
+    （min_effects#m2_continuity_carryover，estimand = 配对率差，二值标度以
+    rate_diff ≥ 0.5 为 d≥0.5 代理——承 M1 首评先例）；naive 臂未失明（知晓）为
+    反证 → REFUTED（记忆无因果贡献或场景退化失败）。n 不足 → INCONCLUSIVE。
+    饱和处理同 evaluate_real_vs_pseudo（确定性/高效应下 d 不可定义，如实记录）。
+    """
+    if len(carry_aware) != n_expected or len(naive_aware) != n_expected:
+        return EvidenceResult(
+            result_id=result_id,
+            hypothesis_refs=("m2_continuity_carryover",),
+            stat_plan_ref=stat_plan_ref,
+            estimand="hazard_awareness_carryover",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=(
+                Unknown(
+                    reason=UnknownReason.INSUFFICIENT_OBSERVATION,
+                    evidence_refs=("trial_count",),
+                    detail=f"n={len(carry_aware)}/{len(naive_aware)} < frozen n={n_expected}",
+                    detected_by=detected_by,
+                    virtual_time=0,
+                ),
+            ),
+            refutations=(), data_refs=(), recompute_ok=recompute_ok,
+        )
+    rate_c, rate_n, diff, ci_lo, ci_hi = _paired_rate_stats(carry_aware, naive_aware)
+    p_value = _mcnemar_exact_two_sided(
+        sum(1 for a, b in zip(carry_aware, naive_aware) if a and not b),
+        sum(1 for a, b in zip(carry_aware, naive_aware) if b and not a),
+    )
+    saturated = diff > 0.0 and all(a != b for a, b in zip(carry_aware, naive_aware))
+    unknowns: list[Unknown] = []
+    if saturated:
+        unknowns.append(
+            Unknown(
+                reason=UnknownReason.CALIBRATION_UNCERTAIN,
+                evidence_refs=("cohens_d",),
+                detail=(
+                    "cohens_d undefined: zero within-arm variance in deterministic/high-effect phase"
+                    "（estimand rate_diff 单调承载阈值判定，ADR-G-0007 口径同源）"
+                ),
+                detected_by=detected_by,
+                virtual_time=0,
+            )
+        )
+    refutations: list[str] = []
+    if diff <= 0.0:
+        refutations.append("carryover_absent")            # 记忆无跨期因果贡献
+    if rate_n > 0.5:
+        refutations.append("naive_arm_not_blind")         # 负控面失败：感知退化未生效
+    if refutations:
+        verdict = HypothesisVerdict.REFUTED
+    elif saturated:
+        verdict = HypothesisVerdict.SUPPORTED if recompute_ok else HypothesisVerdict.INCONCLUSIVE
+    else:
+        verdict = (
+            HypothesisVerdict.SUPPORTED
+            if (recompute_ok and diff >= 0.5 and ci_lo > 0.0)
+            else HypothesisVerdict.INCONCLUSIVE
+        )
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("m2_continuity_carryover",),
+        stat_plan_ref=stat_plan_ref,
+        estimand="hazard_awareness_carryover",
+        effect_size=diff,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p_value,
+        verdict=verdict,
+        unknowns=tuple(unknowns),
+        refutations=tuple(refutations),
+        data_refs=(f"trials:carry={rate_c:.6f}", f"trials:naive={rate_n:.6f}"),
         recompute_ok=recompute_ok,
     )
 

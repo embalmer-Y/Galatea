@@ -127,6 +127,39 @@ def test_wording_null_wrong_cell_count_inconclusive() -> None:
     assert result.verdict is HypothesisVerdict.INCONCLUSIVE
 
 
+def test_carryover_saturated_supported_and_refuted() -> None:
+    """M2 carryover（SC6）：饱和 SUPPORTED（64 vs 0）；记忆无贡献/负控失败 → REFUTED。"""
+    from galatea.evidence.evaluator.hypotheses import evaluate_carryover
+
+    ok = evaluate_carryover(
+        "R-m2-001", PLAN_REF,
+        carry_aware=(True,) * 64, naive_aware=(False,) * 64, recompute_ok=True,
+    )
+    assert ok.verdict is HypothesisVerdict.SUPPORTED
+    assert ok.effect_size == 1.0
+    assert any("zero within-arm variance" in (u.detail or "") for u in ok.unknowns)
+
+    absent = evaluate_carryover(
+        "R-m2-002", PLAN_REF,
+        carry_aware=(False,) * 64, naive_aware=(False,) * 64, recompute_ok=True,
+    )
+    assert absent.verdict is HypothesisVerdict.REFUTED
+    assert "carryover_absent" in absent.refutations
+
+    leaky = evaluate_carryover(
+        "R-m2-003", PLAN_REF,
+        carry_aware=(True,) * 64, naive_aware=(True,) * 60 + (False,) * 4, recompute_ok=True,
+    )
+    assert leaky.verdict is HypothesisVerdict.REFUTED
+    assert "naive_arm_not_blind" in leaky.refutations   # 负控面：感知退化未生效
+
+    short = evaluate_carryover(
+        "R-m2-004", PLAN_REF,
+        carry_aware=(True,) * 8, naive_aware=(False,) * 8, recompute_ok=True,
+    )
+    assert short.verdict is HypothesisVerdict.INCONCLUSIVE
+
+
 def test_chi2_sf_known_values() -> None:
     """χ² 上侧概率可手算复核（df=1 临界值 3.841 → p≈0.05）。"""
     from galatea.evidence.evaluator.hypotheses import _chi2_sf
