@@ -42,7 +42,10 @@ class Registry:
         self._root = root
         self._stores = stores
         self._clock = clock
-        self._event_seq = 0
+        # 事件序号从 DB 恢复（多 Registry 实例共享同一 registry 库时续接——
+        # M2 SC5 重放场景暴露：实例内重置会撞 PRIMARY KEY）
+        row = stores.read(StoreName.REGISTRY, "SELECT COALESCE(MAX(seq), 0) FROM registry_events")
+        self._event_seq = int(cast(int, row[0][0]))
 
     # —— 内部 ——
     def _dir(self, digest: str) -> Path:
@@ -68,7 +71,7 @@ class Registry:
         events = self._stores.open_writer(StoreName.REGISTRY, "registry_events", "registry_builder")
         with writer.transaction():
             writer.execute(
-                "INSERT INTO artifacts (digest, kind, created_cycle, size, manifest_digest) VALUES (?, ?, ?, ?, ?)",
+                "INSERT OR IGNORE INTO artifacts (digest, kind, created_cycle, size, manifest_digest) VALUES (?, ?, ?, ?, ?)",
                 (
                     digest,
                     str(manifest["kind"]),
@@ -114,7 +117,7 @@ class Registry:
             events = self._stores.open_writer(StoreName.REGISTRY, "registry_events", "registry_builder")
             with writer.transaction():
                 writer.execute(
-                    "INSERT INTO artifacts (digest, kind, created_cycle, size, manifest_digest) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT OR IGNORE INTO artifacts (digest, kind, created_cycle, size, manifest_digest) VALUES (?, ?, ?, ?, ?)",
                     (digest, kind, self._clock.cycle, len(blob), manifest_digest),
                 )
                 for parent in parent_digests:

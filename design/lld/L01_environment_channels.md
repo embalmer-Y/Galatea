@@ -1,6 +1,6 @@
 # L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0
 
-> LLD: L01/14 · v1.0.1 · 2026-09-26 · 状态：WORKING（M0 已退出 · M1 场景层已落地）· v1.0.1（2026-09-26）：§10 测试清单补录 test_m1_sc3_sc4.py（MW0-SC3/SC4 实验台，L08 §9 M1 行/L13 冻结统计计划挂点）；头部状态栏勘误（REV-0007 R7："M0 冻结前"残留）
+> LLD: L01/14 · v1.0.2 · 2026-09-26 · 状态：WORKING（M0 已退出 · M1/M2 场景层已落地）· v1.0.1（2026-09-26）：§10 测试清单补录 test_m1_sc3_sc4.py（MW0-SC3/SC4 实验台，L08 §9 M1 行/L13 冻结统计计划挂点）；头部状态栏勘误（REV-0007 R7："M0 冻结前"残留）· v1.0.2（2026-09-26）：§10 测试清单补录 test_m2_sc5.py（MW0-SC5 四臂连续性对照，m2_continuity.profile sc5 节挂点）
 > 上游：`HLD.md` §3.2/§3.5/§4/§10.2 · 下游消费者：L02（Sensorium 唯一合法输入源）
 > 引入门槛：**F0**（schema 合同）→ **M0**（可审计因果通道 + 非平凡动作效应）→ **M2**（MW0 切片支撑连续性实验）
 > 本档承载阶段 0 蓝图（16×16 资源 niche）**门体系化后的实例 MW0**；旧蓝图切片 S1–S6 与验收 D1–D7 已重映射（§4.6；Q-L01-06 已裁决采纳重建映射，AI-v2 2026-09-23，见 open_questions A 区）。
@@ -181,6 +181,7 @@ galatea/env/                       # EVIDENCE_ONLY 平面；主体平面禁止 i
 tests/env/
   test_determinism.py test_leakage_env.py test_intervention_battery.py
   test_m1_sc3_sc4.py                # M1：MW0-SC3/SC4 实验台（v1.0.1 补录）
+  test_m2_sc5.py                    # M2：MW0-SC5 四臂连续性对照（v1.0.2 补录）
   test_gateway_signature.py test_channel_fault_typing.py
   # 注：test_gateway_signature.py 实际归属 galatea/subject/action/tests/（L10 §10 清单名；位置勘误 2026-09-26 REV-0005 R10）
 config/profiles/
