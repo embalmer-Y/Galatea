@@ -1,6 +1,6 @@
 # L02 Sensorium：感觉形成、校准、对齐与增益
 
-> LLD: L02/14 · v1.0 · 2026-09-13 · 状态：WORKING（C0 冻结前）
+> LLD: L02/14 · v1.0.1 · 2026-10-02（v1.0.1：§11 Q-L02-03/-05 转 CONFIRMED——AI-v2 C0 准备单元裁决；`config/profiles/c0_sensorium.profile.yaml` v1.0 随 C0 门冻结单元成稿，Q-G00-12 伞式）· v1.0 2026-09-13 · 状态：WORKING（C0 冻结前）
 > 上游：`HLD.md` §4.2/§4.3/§5/§6/§9 · `L01_environment_channels.md`（唯一合法输入源）· `L00_kernel.md`（envelope/RNG/时钟）
 > 下游消费者：L03（知觉，唯一合法消费 SensoryFrame 的模块）、L04（身体模型消费内感受帧）
 > 引入门槛：**C0**（形成回执与旁路保护）→ **C2**（有界增益 + 增益回执）→ **C5**（设备/模态适配）
@@ -27,7 +27,7 @@
 
 | 端口 | 来源 | 数据 | 表示层级 | 纪律 |
 |---|---|---|---|---|
-| `sensory.ingest(received_packet)` | L01 `channel.received` / `outcome.received` | `ReceivedSignalPacket` | RECEIVED | **唯一合法入口**；只读，禁改写（含 attention/affect/prediction 改写） |
+| `sensory.ingest(received_packet)` | L01 `channel.received` / `outcome.received` | `ReceivedSignalPacket` | RECEIVED | **唯一合法入口**；只读，禁改写（含 attention/affect/prediction 改写）。**C0 期排除 `outcome.received` 载体**（Q-G00-12①：效果回传归 L10 归属域，不入感觉形成；未来如需感觉化 outcome 走新 Q + 模态枚举扩展） |
 | `sensory.prediction_in(pred_packet)` | L03/L04/L09 | `SensoryPrediction(target_modality, expected_features, valid_window, precision)` | PREDICTED | 必须带 `valid_window`；过期预测丢弃并记 `deferred/expired` |
 | `sensory.modulation_in(field)` | L05 `ModulationField` | 有界增益/精度调制指令 + `modulation_bound_ref` | — | 增益上界由 frozen profile 给定；**必须回写增益回执**（§4.4） |
 | `sensory.calibration_load(ref)` | Experiment Control（经 registry） | `CalibrationVersion(id, params_digest, valid_scope)` | — | 版本切换 = 新 profile；运行期禁改参数 |
@@ -92,13 +92,13 @@ ingest RECEIVED 包 → 校验 schema/provenance/层级（不符即 SchemaViolat
 
 ### 4.3 跨模态时间对齐
 
-- 单一对齐窗 `W_align`（默认 4 cycles，UNCONFIRMED → Q-L02-03）；窗内各模态帧按 `effective_time` 归槽，窗关闭时原子发布对齐组（`alignment_group_id`）。
-- 窗超时未到的模态：**不等待、不补零**，发布部分对齐帧 + `Unknown(INSUFFICIENT_OBSERVATION)`；迟到信号以 revision 事件表达（新帧引用旧帧，envelope 不可变纪律）。
+- 单一对齐窗 `W_align`（**4 cycles，CONFIRMED Q-L02-03**：T3 对齐，覆盖通道延迟上界 3 倍余量）；窗内各模态帧按 `effective_time` 归槽，窗关闭时原子发布对齐组（`alignment_group_id`）。
+- 窗超时未到的模态：**不等待、不补零**，发布部分对齐帧 + `Unknown(INSUFFICIENT_OBSERVATION)`；迟到信号以 revision 事件表达（新帧引用旧帧，envelope 不可变纪律）；**回溯深度 = 1 个对齐窗（Q-L02-03）**——超窗龄迟到记 `Unknown(INSUFFICIENT_OBSERVATION)` 留痕，不产历史帧改写。
 - 对齐误差 = 各模态 `effective_time` 极差；超阈值降级 `alignment_confidence` 并记指标。
 
 ### 4.4 增益（gain）与增益回执（C2 核心）
 
-- 增益来源两类：profile 静态增益、L05 `ModulationField` 动态调制。**统一上界** `gain_max[modality]`（frozen profile，UNCONFIRMED → Q-L02-02）。
+- 增益来源两类：profile 静态增益、L05 `ModulationField` 动态调制。**统一上界** `gain_max[modality]`（frozen profile，**C2 冻结，Q-L02-02**——C0 期增益恒等 1.0、无调制入口，Q-G00-12③）。
 - `applied_factor = clip(requested, 0, gain_max)`；越界即裁剪并记录 `bound_check=CLIPPED`（不报错、不静默）。
 - **增益不改历史**：增益只作用于当期形成的特征缩放与精度权重，**禁止**回写已发布帧或改写 ReceivedSignal（HLD §6.2 禁止路径 `attention/affect/prediction → rewrite ReceivedSignal`）。
 - 每帧必回 `GainReceipt`，使 evaluator 能复算"调制是否真的发生因果作用"（C2 退出条件：至少三类下游因果调制通过消融——增益是其中一类的载体）。
@@ -206,8 +206,8 @@ config/profiles/
 |---|---|---|---|
 | Q-L02-01 | 校准版本策略：单版本冻结 vs 允许受控漂移（漂移是否需 revision 谱系） | C1 | UNCONFIRMED |
 | Q-L02-02 | `gain_max[modality]` 默认上界与裁剪是否计入"调制有效性"判据 | C2 | UNCONFIRMED |
-| Q-L02-03 | 对齐窗 `W_align` 默认值（建议 4 cycles）与迟到 revision 的最大回溯深度 | C0/C1 | UNCONFIRMED |
+| Q-L02-03 | 对齐窗 `W_align` 默认值（建议 4 cycles）与迟到 revision 的最大回溯深度 | C0/C1 | CONFIRMED（AI-v2 2026-10-02：W_align = 4 cycles（T3 对齐，覆盖通道延迟上界 3 倍余量）+ 迟到回溯 = 1 窗（超窗龄 = Unknown(INSUFFICIENT_OBSERVATION) 留痕，禁历史帧改写），见 open_questions A 区） |
 | Q-L02-04 | 质量估计量纲与跨模态可比性（是否需归一到统一 [0,1] 精度标度） | C1 | UNCONFIRMED |
-| Q-L02-05 | 内感受模态的最小集与"损伤事件"离散化阈值（联动 Q-L01-08、L05 驱力） | C0 | UNCONFIRMED |
+| Q-L02-05 | 内感受模态的最小集与"损伤事件"离散化阈值（联动 Q-L01-08、L05 驱力） | C0 | CONFIRMED（AI-v2 2026-10-02：C0 内感受最小集四 sensation——energy_level/integrity_level（连续 [0,1]）+ damage_event/energy_depleted（离散，零新阈值：Q-L01-08 世界侧离散化 + Q-L01-09⑤ 锁存）；energy_rate = 派生差分非独立 sensation，见 A 区） |
 | Q-L02-06 | 感觉层预测误差的特征空间定义（MW0 期是否直接用网格观测向量） | C1 | UNCONFIRMED |
 | Q-L02-07 | C5 新模态适配是否需独立 protection 场景（防适配破坏既有模态） | C5 | UNCONFIRMED |

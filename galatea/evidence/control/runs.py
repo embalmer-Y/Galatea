@@ -633,15 +633,22 @@ class ExperimentRunControl:
         return healthy, depleted, pseudo
 
     def run_wording_cells(
-        self, n_per_cell: int, cells: tuple[tuple[str, str], ...]
+        self, n_per_cell: int, cells: tuple[tuple[str, str, str], ...]
     ) -> dict[tuple[str, str], EvaluationData]:
-        """SC4 析因 cell：(phrasing, requester_label) × n_per_cell（语句文本 = 冻结计划）。"""
+        """SC4 析因 cell：(phrasing_key, requester_key, statement_text) × n_per_cell。
+
+        语句文本 = 冻结计划 wording_texts 值；requester 载荷 = RequesterIdentity 枚举值。
+        种子标签 = `sc4:{phrasing_key}:{requester_key}`——**Q-L13-12④ 规范派生格式**
+        （入口规范化钉死；2026-09-26 首评的 SC4 派生格式随临时脚本消失、逆向不可判定
+        ——本格式**非**历史复现，冻结工件仍为 M1 wording claim 权威；χ² 对派生格式的
+        损坏噪声级敏感性见 Q-L13-12④ 与 ADR-G-0011）。
+        """
         out: dict[tuple[str, str], EvaluationData] = {}
-        for phrasing, label in cells:
-            scenario = TrialScenario(
-                cycles=4, decision_cycle=2, statement=(phrasing, label),
+        for phrasing_key, requester_key, text in cells:
+            scenario = TrialScenario(cycles=4, decision_cycle=2, statement=(text, requester_key))
+            out[(phrasing_key, requester_key)] = self._run_arm(
+                f"sc4:{phrasing_key}:{requester_key}", n_per_cell, scenario
             )
-            out[(phrasing, label)] = self._run_arm(f"sc4.{phrasing}.{label}", n_per_cell, scenario)
         return out
 
     def _run_arm(self, label: str, n: int, scenario: TrialScenario, seed_label: "str | None" = None) -> EvaluationData:

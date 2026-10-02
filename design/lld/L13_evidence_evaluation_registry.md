@@ -1,6 +1,6 @@
 # L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decision_registry
 
-> LLD: L13/14 · v1.0.2 · 2026-10-02（v1.0.2：§10 R0 准备单元交付标注 + gate/expansion.py、sc6 正式 runner、expansion/sealed/recorder/leakage 测试席位补录；§11 Q-L13-03/-05 转 CONFIRMED + Q-L13-11 新增——AI-v2 裁决，见 A 区）· v1.0.1 2026-10-02（§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
+> LLD: L13/14 · v1.0.3 · 2026-10-02（v1.0.3：§10 control/entry.py 交付席位（REV-0010 R5 收敛项）+ run_wording_cells 规范化注记（Q-L13-12④）+ test_evaluation_entry.py 席位——C0 准备单元）· v1.0.2 2026-10-02（§10 R0 准备单元交付标注 + gate/expansion.py、sc6 正式 runner、expansion/sealed/recorder/leakage 测试席位补录；§11 Q-L13-03/-05 转 CONFIRMED + Q-L13-11 新增——AI-v2 裁决，见 A 区）· v1.0.1 2026-10-02（§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
 > 上游：`HLD.md` §5.1（科学平面全章）/§6.2/§8/§9（R0/E1/H1）/§10.4（全门槛退出纪律）/§11/§12/§13 · `L00_kernel.md`（registry/digest/checkpoint/TypedUnknown）· `L01`（EvidenceResult 根）· `open_questions.md` C 区
 > 下游：owner claim 冻结、门槛退出、Promotion Gate（供 L11）、`core_decision_registry`（供 E1）、审计与复算
 > 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E1→H1**；贯穿全阶段（原稿"E0"经 Q-G00-07 裁决为撰写期残留，已剔除，2026-09-17）
@@ -259,6 +259,13 @@ galatea/evidence/                           # 科学平面（非 subject；stric
                          【R0 准备单元交付】SC6 正式 runner（run_carryover + PathwayFault +
                          _derive_regime_profile + ITT 分配 + recorder 接线 + I1 复算；
                          REV-0009 R9 三点保真度；load_sc6_scenario 场景冻结 typed 读取）
+                         【C0 准备单元规范化】run_wording_cells cell 三元组 (键,键,冻结文本) +
+                         种子标签 `sc4:{phrasing_key}:{requester_key}`（Q-L13-12④；
+                         入口规范化钉死——原首评 SC4 派生格式逆向不可判定，
+                         冻结工件仍为 M1 wording claim 权威，χ² 敏感性见 Q-L13-12④）
+    entry.py             【C0 准备单元交付（REV-0010 R5 收敛项）】正式评价入口
+                         （m1|carryover|root 子命令；冻结计划 + Q-L13-12 种子 → 确定性
+                         复现 + 工件落盘；ExpansionDecision 签发不在入口——Q-L13-03 gate act）
   recorder/              【R0 准备单元交付（最小范围：四分区 batch 落盘；流式 per-record 入册 C0+）】
     writer.py            Polars 写侧、append-only、digest 计算、四类分区
                          （分区 blob 经 kernel registry 内容寻址；行 schema 漂移 fail-closed）
@@ -300,6 +307,7 @@ galatea/evidence/tests/
   test_evidence_result_schema.py   # F0 合同层（EvidenceResult/PromotionDecision schema；2026-09-25 REV-0003 R6 补录清单席位）
   test_hypothesis_evaluation.py    # 判定执行（四判定器 real_vs_pseudo/wording_null/carryover/root_composite + 运行编排；
                                    # M2 准备单元交付、R0 准备单元扩 root_composite——REV-0010 R2 补录清单席位）
+  test_evaluation_entry.py         # 【C0 准备单元交付】正式评价入口（确定性 + SC3 冻结工件复现 + 根复合组合）
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
   # 【R0 准备单元交付 + 席位补录】：test_sealed_isolation.py / test_sealed_no_backflow.py /
   # test_append_only.py / test_recorder_kill_stops_run.py / test_i1_bitexact.py /

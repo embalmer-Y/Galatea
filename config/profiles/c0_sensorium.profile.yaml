@@ -1,0 +1,53 @@
+# Galatea C0 冻结规格 — Sensorium 感觉形成（L02 §10 c0_sensorium.profile.yaml）
+# 效力：C0 门冻结合同（拟 ADR-G-0011 · tag c0-freeze · 2026-10-02）。
+# 纪律：全部数值溯源既有裁决（Q-L02-03/-05、Q-G00-12）；C0 期无调制入口、无 RNG 算子；
+# 形成无条件义务（调制/失败均不跳过形成，L02 §8 不变量 6）。
+profile:
+  id: c0_sensorium
+  version: v1.0
+  frozen_at: "2026-10-02"
+  authority: AI-v2
+  spec_ref: design/lld/L02_sensorium.md
+
+sensorium:
+  modalities:                                    # Q-G00-12①：C0 模态集四类（≥2 外感受 + ≥1 内感受，L02 §9 C0）
+    - id: EXT_LOCAL_OBS
+      source_payload: observation_window         # exteroceptive 通道（延迟 1，Q-G00-08）
+      exteroceptive: true
+    - id: EXT_EVENT
+      source_payload: interoceptive_state.events # 威胁观测形成面（事件列表 → 事件帧）
+      exteroceptive: true
+    - id: INTERO
+      source_payload: interoceptive_state        # Q-L02-05 四 sensation
+      exteroceptive: false
+    - id: PROPRIO
+      source_payload: proprioceptive_state
+      exteroceptive: false
+  excluded_carriers:
+    - action_outcome       # OUTCOME 通道不入 sensorium（Q-G00-12①：效果回传归 L10 归属域，ReceivedOutcome 非感觉）
+
+  alignment:
+    w_align_cycles: 4                  # Q-L02-03：T3 对齐；覆盖通道延迟上界（1）3 倍余量
+    late_revision_lookback_windows: 1  # Q-L02-03：超窗龄迟到 = Unknown(INSUFFICIENT_OBSERVATION) 留痕，禁历史帧改写
+
+  intero_sensations:                   # Q-L02-05：C0 内感受最小集（四 sensation）
+    - energy_level                     # 连续 [0,1]（载荷 energy 字段）
+    - integrity_level                  # 连续 [0,1]（载荷 integrity 字段）
+    - damage_event                     # 离散（Q-L01-08 世界侧已离散化 Δ≥0.05；零新阈值）
+    - energy_depleted                  # 离散（Q-L01-09⑤ 首次触 0 锁存）
+  energy_rate: derived_diff           # 派生差分非独立 sensation（Q-L02-05；C1 随 L05 接管）
+
+  calibration:
+    version_id: c0-static-v1          # Q-G00-12②：单版本运行期只读；漂移策略 Q-L02-01（C1）
+
+  gain:
+    c0_form: identity_1.0             # Q-G00-12③：恒等、PROFILE 来源、无调制入口；gain_max/GainReceipt 归 C2（Q-L02-02）
+
+  quality_metrics:                    # Q-G00-12④：C0 度量纲
+    completeness_range: [0.0, 1.0]
+    corruption_flags: enum            # 通道损坏标记转写（证据侧）
+    snr_est: placeholder              # 占位；跨模态归一标度 Q-L02-04（C1）
+
+  determinism:
+    rng_operators: none_c0            # C0 形成算子全确定性，无 RNG 算子（无流注册——死流禁登记，Q-G00-10 纪律；
+                                      # C1+ 若需则登记 ("sensorium", modality) 流，L02 §4.2）
