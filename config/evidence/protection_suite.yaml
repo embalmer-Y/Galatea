@@ -1,20 +1,21 @@
 # Galatea 证据合同 — 保护场景清单（L13 §4.5 ProtectionSuite；L01 §7"每门退出冻结为保护集"）
 # 效力：v1.0 = M1 门版（2026-09-26 追溯冻结——M0/M1 退出时本义务漏执行，INC-12 立案）。
 #       v1.1 = M2 门版（2026-09-26，M2 退出单元增补 M2 场景——只增不减纪律）。
+#       v1.2 = R0 门版（2026-10-02，R0 退出单元增补 R0 场景——只增不减纪律）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.1                 # v1.1（M2 门版）：新增 m2_* 9 场景；既有 14 场景原样保留（只增不减）
-  frozen_at: "2026-09-26"
+  version: v1.2                 # v1.2（R0 门版）：新增 r0_* 9 场景；既有 23 场景原样保留（只增不减）
+  frozen_at: "2026-10-02"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
     INC-12（2026-09-26）：L13 §4.5"门退出前冻结保护集"在 M0（ADR-G-0005）与 M1
     （ADR-G-0007）退出时均未履行（REV-0005/0007 均未对照该条）——根因：门退出判据
     映射仅取 HLD §10.2 行 + 对应 LLD §9，未扫描跨档义务。v1.0 为追溯补冻；
-    门退出义务核对自本案起将 L13 §4.5 纳入（v1.1 即首次执行：M2 场景随退出增补）。
+    门退出义务核对自本案起将 L13 §4.5 纳入（v1.1 M2 首次正常执行、v1.2 R0 第二次）。
   baseline_semantics: deterministic_bit_exact   # 确定性阶段：测试断言 = 基线；C1+ 噪声组件后换统计基线
 
   scenarios:
@@ -110,3 +111,39 @@ protection_suite:
       source_test: galatea/kernel/tests/test_registry_core.py（+ tests/env/test_m2_sc5.py 重放场景）
       frozen_gate: M2
       assertion: registry.put 幂等（文件/索引分叉态不撞主键）+ registry_events seq 跨实例续接
+    - id: r0_sealed_type_isolation
+      source_test: galatea/evidence/tests/test_sealed_isolation.py
+      frozen_gate: R0
+      assertion: internal ≠ sealed 双类型 token 隔离（混用/伪造/退役复用全拒）+ 分割流派生可复算
+    - id: r0_sealed_no_backflow
+      source_test: galatea/evidence/tests/test_sealed_no_backflow.py
+      frozen_gate: R0
+      assertion: data_scope ∩ sealed digest 交集=∅ 判据（交集即 SealedContamination）+ 命名空间 kind/token 纪律
+    - id: r0_recorder_append_only
+      source_test: galatea/evidence/tests/test_append_only.py
+      frozen_gate: R0
+      assertion: 四分区 Parquet 内容寻址幂等 + 关闭后写入拒绝 + 行 schema 漂移 fail-closed + 墙钟仅 manifest（Q-T12）
+    - id: r0_recorder_kill_stops_run
+      source_test: galatea/evidence/tests/test_recorder_kill_stops_run.py
+      frozen_gate: R0
+      assertion: recorder 不可用 → RecorderUnavailable 显式停机（禁静默继续）
+    - id: r0_i1_recompute_bit_exact
+      source_test: galatea/evidence/tests/test_i1_bitexact.py
+      frozen_gate: R0
+      assertion: recorder 数据 → DuckDB 复算 digest bit-exact；指标漂移检出；同路径内容分叉 = RegistryCollision
+    - id: r0_leakage_14_paths
+      source_test: galatea/evidence/tests/test_leakage_14_paths.py
+      frozen_gate: R0
+      assertion: 14 条禁写路径探针干净树零检出 + 注入面检出率 100%（INC-08 教训成规）
+    - id: r0_sc6_formal_runner_fidelity
+      source_test: galatea/evidence/tests/test_sc6_formal_runner.py
+      frozen_gate: R0
+      assertion: REV-0009 R9 三点保真度（regime 继承实分化/naive 断连经 fault/ITT 流驱动）+ I1 match + P12 数据面通过
+    - id: r0_root_composite_rule
+      source_test: galatea/evidence/tests/test_hypothesis_evaluation.py::test_root_composite_*
+      frozen_gate: R0
+      assertion: 根复合判定规则（全 SUPPORTED 且 leakage=0 且 I1 → SUPPORTED；任一 REFUTED → REFUTED；INCONCLUSIVE 禁升格）
+    - id: r0_expansion_gate_rule
+      source_test: galatea/evidence/tests/test_expansion_decision.py
+      frozen_gate: R0
+      assertion: HLD §10.2 R0 门规则机械映射 + ALLOW 前置（REV 引用+无约束+绑定物）+ 双签发者记录分离

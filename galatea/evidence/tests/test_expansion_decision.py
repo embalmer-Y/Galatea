@@ -73,3 +73,20 @@ def test_decision_record_deterministic_digest() -> None:
     assert a.digest == b.digest
     changed = _decision(ExpansionOutcome.HOLD, reason="R0 SUPPORTED with constraints")
     assert changed.digest != a.digest
+
+
+def test_collect_binding_digests_covers_all_config_contracts() -> None:
+    """绑定物收集器（REV-0010 R4 计算域成文）：config/** 全量、relpath 排序、文本 digest。"""
+    from pathlib import Path as _P
+
+    from galatea.evidence.gate.expansion import collect_binding_digests
+    from galatea.kernel.digest import content_digest as _cd
+
+    root = _P(__file__).resolve().parents[3]
+    digests = collect_binding_digests(root)
+    files = sorted(p.relative_to(root).as_posix() for p in (root / "config").rglob("*.y*ml"))
+    assert [name for name, _ in digests] == files
+    by_name = dict(digests)
+    sample = root / files[0]
+    assert by_name[files[0]] == _cd(sample.read_text(encoding="utf-8"))
+    assert len(digests) >= 17   # R0 期 17 份（含 r0_root.yaml）

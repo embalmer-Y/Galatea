@@ -8,11 +8,28 @@ HOLD；REFUTED → REWORK。
 """
 from dataclasses import dataclass
 from enum import StrEnum
+from pathlib import Path
 
 from galatea.evidence.evaluator.hypotheses import EvidenceResult, HypothesisVerdict
 from galatea.kernel.digest import content_digest
 
-__all__ = ["ExpansionOutcome", "ExpansionDecision", "decide_from_root", "StatPlanRefMissing"]
+__all__ = [
+    "ExpansionOutcome",
+    "ExpansionDecision",
+    "decide_from_root",
+    "StatPlanRefMissing",
+    "collect_binding_digests",
+]
+
+
+def collect_binding_digests(root: Path) -> tuple[tuple[str, str], ...]:
+    """HLD §10.3 绑定物收集器（Q-L13-11②；REV-0010 R4 计算域成文：config 合同 digest
+    = canonical content_digest(文件 UTF-8 文本)，relpath 排序，posix 键）。"""
+    entries: list[tuple[str, str]] = []
+    config_dir = root / "config"
+    for path in sorted(config_dir.rglob("*.y*ml")):
+        entries.append((path.relative_to(root).as_posix(), content_digest(path.read_text(encoding="utf-8"))))
+    return tuple(entries)
 
 
 class ExpansionOutcome(StrEnum):

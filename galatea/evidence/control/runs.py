@@ -419,8 +419,10 @@ class EvaluationData:
 # 按分配分析（as-assigned），round1 单次运行两臂共享（分配不可见性 = 结构性）。
 # ==========================================================================
 
-_HAZARD_CONTENT = "hazard:energy_depleted"   # round1 危害经历内容锚（stat plan 场景冻结同源）
+_HAZARD_CONTENT = "hazard:energy_depleted"   # round1 危害经历内容锚（stat plan 场景冻结同源；Q-L13-12③）
 _SEALED_MASTER_SEED_HEX = "19" * 32          # Q-L13-11：sealed 分割主种子（运行前冻结，任意但先于结果钉死）
+_EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②：carryover 首评 run 主种子
+_EVAL_MASTER_SEED_M1 = b"m1-first-evaluation"          # Q-L13-12①：M1 首评 run 主种子（历史默认值出处）
 
 
 @dataclass(frozen=True, slots=True)
@@ -602,7 +604,9 @@ class ExperimentRunControl:
     完全确定性、可复算、跨 claim 独立。
     """
 
-    def __init__(self, runner: SubjectTrialRunner, master_seed: bytes = b"m1-first-evaluation") -> None:
+    def __init__(self, runner: SubjectTrialRunner, master_seed: bytes = _EVAL_MASTER_SEED_M1) -> None:
+        """master_seed = run 级主种子（任意但先于评价钉死；Q-L13-12①——首评值出处；
+        carryover 首评值 = _EVAL_MASTER_SEED_CARRYOVER，Q-L13-12②，正式入口随 C0 收敛）。"""
         self._runner = runner
         self._master = master_seed
 
