@@ -56,15 +56,21 @@ def test_injections_detected_static_paths() -> None:
         assert hit, f"{path_id} injection NOT detected（探针空转）: {injection!r}"
 
 
-def test_injections_detected_absence_guards() -> None:
-    """缺席守卫（P09/P11-learner/P13-workspace）：门槛前出现模块层 → 检出。"""
+def test_injections_detected_absence_and_active_guards() -> None:
+    """缺席守卫（P11-learner/P13-workspace）+ P09 实检（Q-L13-05 预案：C0 起
+    sensorium 层已引入，探针从缺席守卫升级为禁写路径扫描）。"""
     sources = load_tree_sources(_ROOT)
-    sources["galatea/subject/sensorium/form.py"] = "# premature sensorium layer\n"
     sources["galatea/subject/learning/proposal.py"] = "# premature learner\n"
     sources["galatea/subject/workspace/frame.py"] = "# premature workspace\n"
     report = run_leakage_suite(sources)
     hit_ids = {d.path_id for d in report.detections}
-    assert {"P09", "P11", "P13"} <= hit_ids
+    assert {"P11", "P13"} <= hit_ids
+    # P09 实检面：sensorium 注入对行动/目标平面的 import → 检出
+    sources["galatea/subject/sensorium/pipeline.py"] += (
+        "\nfrom galatea.subject.goals.ports import GoalWriter  # injected forbidden import\n"
+    )
+    report = run_leakage_suite(sources)
+    assert any(d.path_id == "P09" for d in report.detections)
 
 
 def test_injection_detected_gateway_bypass_from_workspace() -> None:

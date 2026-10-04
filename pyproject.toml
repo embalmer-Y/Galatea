@@ -23,7 +23,8 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["galatea", "tests"]
-addopts = "-q"
+addopts = "-q --import-mode=importlib"   # 2026-10-03：importlib 导入模式——测试模块基名可跨目录重名
+                                         # （L02 §10 test_determinism.py 与 tests/env 同名；namespace 布局保持，无 __init__.py）
 
 [tool.uv]
 package = false

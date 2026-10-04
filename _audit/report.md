@@ -58,7 +58,7 @@
 
 - `lld/L00_kernel.md`: 228 行 · 标题「# L00 横切基础：时钟、调度、状态、RNG、Packet、Registry 核心、typed unknown」 · OK
 - `lld/L01_environment_channels.md`: 207 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
-- `lld/L02_sensorium.md`: 213 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
+- `lld/L02_sensorium.md`: 225 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 203 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 225 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 233 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK

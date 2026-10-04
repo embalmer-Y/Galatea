@@ -189,8 +189,15 @@ def _p08(input: ProbeInput) -> str | None:   # noqa: A002
 
 
 def _p09(input: ProbeInput) -> str | None:   # noqa: A002
-    """Sensorium → fact/goal/intention/agency：Sensorium 层 C0 引入，当前缺席。"""
-    return _require_absent(input.sources, "galatea/subject/sensorium", "C0")
+    """Sensorium → fact/goal/intention/agency：C0 起层已引入（Q-L13-05 预案）——
+    探针从缺席守卫升级为实检：sensorium 域禁 import 行动/目标/知觉平面（形成不产出
+    信念/事实/目标/意图/归属，L02 §8 不变量 2）。"""
+    if _require_absent(input.sources, "galatea/subject/sensorium", "C0") is None:
+        return None   # 层缺席（C0 前）→ 路径不存在
+    return _scan(
+        input.sources, "galatea/subject/sensorium",
+        r"from galatea\.subject\.(action|goals|perception)\b|import galatea\.subject\.(action|goals|perception)\b",
+    )
 
 
 def _p10(input: ProbeInput) -> str | None:   # noqa: A002

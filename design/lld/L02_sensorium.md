@@ -1,6 +1,6 @@
 # L02 Sensorium：感觉形成、校准、对齐与增益
 
-> LLD: L02/14 · v1.0.1 · 2026-10-02（v1.0.1：§11 Q-L02-03/-05 转 CONFIRMED——AI-v2 C0 准备单元裁决；`config/profiles/c0_sensorium.profile.yaml` v1.0 随 C0 门冻结单元成稿，Q-G00-12 伞式）· v1.0 2026-09-13 · 状态：WORKING（C0 冻结前）
+> LLD: L02/14 · v1.0.2 · 2026-10-03（v1.0.2：§10 实现期首批交付标注——十二件 + pipeline 装配面补录 + tests/conftest 装置 + 测试八件全绿；C0 实现期首单元）· v1.0.1 2026-10-02（§11 Q-L02-03/-05 转 CONFIRMED——AI-v2 C0 准备单元裁决；`config/profiles/c0_sensorium.profile.yaml` v1.0 随 C0 门冻结单元成稿，Q-G00-12 伞式）· v1.0 2026-09-13 · 状态：**C0 实现期**（冻结物 c0_sensorium v1.0；门退出待 REV-0012）
 > 上游：`HLD.md` §4.2/§4.3/§5/§6/§9 · `L01_environment_channels.md`（唯一合法输入源）· `L00_kernel.md`（envelope/RNG/时钟）
 > 下游消费者：L03（知觉，唯一合法消费 SensoryFrame 的模块）、L04（身体模型消费内感受帧）
 > 引入门槛：**C0**（形成回执与旁路保护）→ **C2**（有界增益 + 增益回执）→ **C5**（设备/模态适配）
@@ -181,23 +181,35 @@ ingest RECEIVED 包 → 校验 schema/provenance/层级（不符即 SchemaViolat
 ```text
 galatea/subject/sensorium/              # strict 类型
   ports.py            PortIn/PortOut 定义、层级常量断言
-  ingest.py           RECEIVED 校验、schema/provenance 检查、拒绝路径
-  alignment.py        对齐窗、槽位归一、迟到 revision、alignment_group
-  form_extero.py      外感受形成算子（MW0：局部观测/事件）
-  form_intero.py      内感受形成（energy/integrity/load/recovery → InteroceptiveSensation）
-  form_proprio.py     本体感受形成
-  calibration.py      CalibrationVersion 加载/digest/漂移统计
-  quality.py          QualityMetrics、SNR/完整度/损坏标记
-  gain.py             增益应用、上界裁剪、GainReceipt
-  pred_error.py       SensoryPrediction 匹配、残差、精度加权
-  receipt.py          FormationReceipt 构造与发布
-  unknowns.py         本档 Unknown 产生点（统一走 L00 类型）
+                      【C0 实现期首单元交付】SensoryModality 四类枚举 + C0SensoriumProfile
+                      typed loader（load_c0_sensorium_profile，INC-11 纪律）+ SensoryFrame
+                      （构造期 digest 强制重算核验——replace 篡改构造即拒，S0 面）+
+                      GainState/QualityMetrics/四特征 dataclass
+  ingest.py           【交付】RECEIVED 校验、schema/provenance/层级/kind↔载体匹配、
+                      excluded_carriers 拒绝路径（Q-G00-12①）
+  alignment.py        【交付】对齐窗、槽位归一、迟到 revision、alignment_group（Q-L02-03）
+  form_extero.py      【交付】外感受形成算子（EXT_LOCAL_OBS 观测窗 + EXT_EVENT 事件观测面）
+  form_intero.py      【交付】内感受形成（Q-L02-05 四 sensation + energy_rate 派生差分，零新阈值）
+  form_proprio.py     【交付】本体感受形成（orientation；位置不下发 Q-L01-09⑥）
+  calibration.py      【交付】CalibrationVersion 绑定/digest/漂移统计（c0-static-v1，Q-G00-12②）
+  quality.py          【交付】QualityMetrics、completeness/损坏标记/OOD 标记（Q-G00-12④）
+  gain.py             【交付】C0 恒等增益 + GainReceipt + 调制入口即拒（Q-G00-12③）
+  pred_error.py       【交付】C0 合同面：无预测源 → 不产误差（禁伪造零误差；C1/C4 接线）
+  receipt.py          【交付】FormationReceipt 构造与发布（digest 双绑定、完整性 fail-closed）
+  unknowns.py         【交付】本档 Unknown 产生点（MISSING_SIGNAL/INSUFFICIENT/
+                      CALIBRATION_UNCERTAIN/OOD，统一走 L00 类型）
+  pipeline.py         【C0 补录件（REV-0011 R2 后首单元）】SensoriumPipeline 装配面：
+                      process_cycle（T1：ingest→对齐→三面形成→校准→增益→发布）+ audit
+                      （无帧无回执/增益回执逐帧绑定/digest 失配——消融检出面）
 galatea/subject/sensorium/tests/
+  conftest.py         【C0 补录件】测试装置：真实通道 schema 同构的 RECEIVED 包构造 +
+                      run_full_stream（extero 延迟 1 + W=4 窗关闭语义）
   test_determinism.py test_alignment_partial.py test_gain_bound.py
   test_no_bypass.py(权限) test_level_escalation.py test_receipt_completeness.py
-  test_intero_no_telemetry.py test_ablation_gain_receipt.py
+  test_intero_no_telemetry.py test_ablation_gain_receipt.py        # 八件全绿（C0 实现期首单元）
 config/profiles/
-  c0_sensorium.profile.yaml   模态清单/W_align/gain_max/校准版本（冻结前 UNCONFIRMED）
+  c0_sensorium.profile.yaml   【已冻结 v1.0，ADR-G-0011 + tag c0-freeze】模态集/W_align/
+                              内感受四 sensation/校准版本/增益形态/质量度量纲（Q-L02-03/-05/Q-G00-12）
 ```
 
 ## 11. 未决问题（→ open_questions.md）
