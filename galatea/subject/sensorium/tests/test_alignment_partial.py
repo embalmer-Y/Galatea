@@ -13,7 +13,9 @@ from galatea.subject.sensorium.calibration import bind_calibration
 from galatea.subject.sensorium.ingest import ingest
 from galatea.subject.sensorium.pipeline import SensoriumPipeline
 from galatea.subject.sensorium.ports import load_c0_sensorium_profile
-from galatea.subject.sensorium.tests.conftest import extero_packet, intero_packet, proprio_packet
+from galatea.subject.sensorium.tests.conftest import (
+    extero_packet, intero_packet, proprio_packet, time_basis,
+)
 
 _ROOT = Path(__file__).resolve().parents[4]
 _PROFILE_PATH = _ROOT / "config" / "profiles" / "c0_sensorium.profile.yaml"
@@ -21,7 +23,9 @@ _PROFILE_PATH = _ROOT / "config" / "profiles" / "c0_sensorium.profile.yaml"
 
 def _pipeline() -> SensoriumPipeline:
     profile = load_c0_sensorium_profile(_PROFILE_PATH)
-    return SensoriumPipeline(profile, bind_calibration(_PROFILE_PATH, profile.calibration_version))
+    return SensoriumPipeline(
+        profile, bind_calibration(_PROFILE_PATH, profile.calibration_version), time_basis()
+    )
 
 
 def test_missing_carrier_partial_publish_no_zero_fill() -> None:
@@ -61,7 +65,7 @@ def test_late_revision_within_lookback() -> None:
 
     pipeline = _pipeline()
     run_full_stream(pipeline, 6)   # t=0/1 的窗随 extero 正常发布（delivery 4/5）
-    out = pipeline.process_cycle(6, [extero_packet(0)])   # 迟到 2 cycles < 回溯 4
+    out = pipeline.process_cycle(6, [extero_packet(1)])   # 迟到 2 cycles < 回溯 4（cycle_id=1 → effective 0）
     revisions = [f for f in out.frames if f.revision_of is not None]
     assert revisions and all(r.modality.value == "EXT_LOCAL_OBS" for r in revisions)
     assert all(r.revision_of == "sf.EXT_LOCAL_OBS.0" for r in revisions)
@@ -75,7 +79,7 @@ def test_late_beyond_lookback_unknown_no_historical_frame() -> None:
     pipeline = _pipeline()
     for delivery in range(10):
         pipeline.process_cycle(delivery, [intero_packet(delivery), proprio_packet(delivery)])
-    out = pipeline.process_cycle(10, [extero_packet(0)])   # 迟到 6 cycles ≥ 回溯 4
+    out = pipeline.process_cycle(10, [extero_packet(1)])   # 迟到 6 cycles ≥ 回溯 4（effective 0）
     assert all(f.modality.value != "EXT_LOCAL_OBS" or f.effective_time != 0 for f in out.frames)
     assert any(u.reason is UnknownReason.INSUFFICIENT_OBSERVATION for u in out.unknowns)
 
@@ -84,6 +88,6 @@ def test_window_submit_beyond_lookback_raises() -> None:
     profile = load_c0_sensorium_profile(_PROFILE_PATH)
     window = AlignmentWindow(profile)
     packet, text = extero_packet(0)
-    signal = ingest(packet, text, profile)
+    signal = ingest(packet, text, profile, time_basis())
     with pytest.raises(LateBeyondLookback):
         window.submit(signal, delivery_cycle=100)

@@ -28,8 +28,10 @@ from galatea.subject.sensorium.ingest import (
     CARRIER_INTERO,
     CARRIER_PROPRIO,
     IngestedSignal,
+    SchemaViolation,
     ingest,
 )
+from galatea.subject.sensorium.unknowns import calibration_uncertain
 from galatea.subject.sensorium.ports import C0SensoriumProfile, SensoryFrame
 from galatea.subject.sensorium.receipt import FormationReceipt, GainReceipt, build_receipt
 
@@ -50,7 +52,16 @@ class CycleOutput:
 class SensoriumPipeline:
     """形成流水线（T1；形成义务无条件——包缺失产 Unknown，不跳过形成）。"""
 
-    def __init__(self, profile: C0SensoriumProfile, calibration: CalibrationVersion) -> None:
+    def __init__(
+        self, profile: C0SensoriumProfile, calibration: CalibrationVersion,
+        time_basis: dict[str, int],
+    ) -> None:
+        """time_basis = 冻结通道延迟表（REV-0012 R2：世界时恢复的唯一来源；
+        装配层从冻结 m0_mw0 profile 的 channel_delay_cycles 提取传入，禁运行时发明）。"""
+        missing = [c for c in (CARRIER_EXTERO, CARRIER_INTERO, CARRIER_PROPRIO) if c not in time_basis]
+        if missing:
+            raise ValueError(f"time_basis missing frozen delays for: {missing}")
+        self._time_basis = dict(time_basis)
         self._profile = profile
         self._calibration = calibration
         self._window = AlignmentWindow(profile)
@@ -67,9 +78,18 @@ class SensoriumPipeline:
         unknowns: list[Unknown] = []
 
         for packet, payload_text in sorted(packets, key=lambda p: p[0].event_id):
-            signal = ingest(packet, payload_text, self._profile)
             try:
+                signal = ingest(packet, payload_text, self._profile, self._time_basis)
                 self._window.submit(signal, delivery_cycle)
+            except SchemaViolation as broken:
+                # L02 §6 行 3（REV-0012 R3）：损坏/异构包 → typed unknown + 留痕，
+                # 禁整 cycle 崩止、禁静默丢弃、禁补零
+                unknowns.append(calibration_uncertain(
+                    (packet.event_id,),
+                    f"packet {packet.event_id} not formable: {broken}（通道损坏面，corruption 留痕）",
+                    delivery_cycle,
+                ))
+                continue
             except LateBeyondLookback as late:
                 unknowns.extend(
                     AlignmentWindow.late_unknown(

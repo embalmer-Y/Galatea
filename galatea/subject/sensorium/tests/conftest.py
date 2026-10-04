@@ -1,5 +1,6 @@
 """Sensorium 测试共用装置：真实 schema 的 RECEIVED 包构造（L01 通道载荷同构）。"""
 import json
+from pathlib import Path
 from typing import Any
 
 from galatea.kernel.digest import content_digest
@@ -54,16 +55,34 @@ def outcome_packet(cycle: int) -> tuple[CognitivePacket, str]:
     return make_packet("channel.outcome.received.v1", cycle, {"kind": "action_outcome"})
 
 
-def run_full_stream(pipeline: Any, cycles: int) -> list[Any]:
-    """全载体流（extero 延迟 1，Q-G00-08）：返回逐 cycle CycleOutput 列表。
+def time_basis() -> dict[str, int]:
+    """冻结通道延迟表（真实总线语义：包 cycle_id = 投递时；REV-0012 R2）。
 
-    W_align=4 → effective_time=t 的帧在 delivery=t+4 发布（窗关闭语义，Q-L02-03）。
+    来源 = 冻结 m0_mw0.profile channel_delay_cycles（Q-G00-08）——测试与生产同源，
+    禁测试自造常量。
+    """
+    import yaml
+
+    root = Path(__file__).resolve().parents[4]
+    m0 = yaml.safe_load(
+        (root / "config" / "profiles" / "m0_mw0.profile.yaml").read_text(encoding="utf-8")
+    )
+    delays = m0["channels"]["delay_cycles"]
+    return {
+        CARRIER_EXTERO: int(delays["exteroceptive"]),
+        CARRIER_INTERO: int(delays["interoceptive"]),
+        CARRIER_PROPRIO: int(delays["proprioceptive"]),
+    }
+
+
+def run_full_stream(pipeline: Any, cycles: int) -> list[Any]:
+    """全载体流（总线忠实语义，REV-0012 R2）：extero 渲染于 t 在 t+1 投递
+    （cycle_id = 投递时）；intero/proprio 零延迟。窗关闭语义 W_align=4（Q-L02-03）。
     """
     outputs = []
     for delivery in range(cycles):
-        outputs.append(pipeline.process_cycle(delivery, [
-            extero_packet(max(0, delivery - 1)),
-            intero_packet(delivery),
-            proprio_packet(delivery),
-        ]))
+        packets = [intero_packet(delivery), proprio_packet(delivery)]
+        if delivery >= 1:
+            packets.append(extero_packet(delivery))   # 渲染于 delivery−1，cycle_id=投递时
+        outputs.append(pipeline.process_cycle(delivery, packets))
     return outputs

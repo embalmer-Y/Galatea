@@ -14,8 +14,12 @@ _PROFILE_PATH = _ROOT / "config" / "profiles" / "c0_sensorium.profile.yaml"
 
 
 def _pipeline() -> SensoriumPipeline:
+    from galatea.subject.sensorium.tests.conftest import time_basis
+
     profile = load_c0_sensorium_profile(_PROFILE_PATH)
-    return SensoriumPipeline(profile, bind_calibration(_PROFILE_PATH, profile.calibration_version))
+    return SensoriumPipeline(
+        profile, bind_calibration(_PROFILE_PATH, profile.calibration_version), time_basis()
+    )
 
 
 def test_every_frame_has_complete_receipt() -> None:

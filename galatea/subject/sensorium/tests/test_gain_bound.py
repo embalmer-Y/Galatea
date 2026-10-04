@@ -29,14 +29,16 @@ def test_gain_receipt_per_frame_in_pipeline() -> None:
     from galatea.subject.sensorium.calibration import bind_calibration
     from galatea.subject.sensorium.pipeline import SensoriumPipeline
     from galatea.subject.sensorium.ports import load_c0_sensorium_profile
-    from galatea.subject.sensorium.tests.conftest import extero_packet, intero_packet, proprio_packet
+    from galatea.subject.sensorium.tests.conftest import (
+    extero_packet, intero_packet, proprio_packet, run_full_stream, time_basis,
+)
 
     root = Path(__file__).resolve().parents[4]
     profile_path = root / "config" / "profiles" / "c0_sensorium.profile.yaml"
     profile = load_c0_sensorium_profile(profile_path)
-    pipeline = SensoriumPipeline(profile, bind_calibration(profile_path, profile.calibration_version))
-    from galatea.subject.sensorium.tests.conftest import run_full_stream
-
+    pipeline = SensoriumPipeline(
+        profile, bind_calibration(profile_path, profile.calibration_version), time_basis()
+    )
     outputs = run_full_stream(pipeline, 5)
     frames = [f for o in outputs for f in o.frames]
     receipts = [r for o in outputs for r in o.gain_receipts]
