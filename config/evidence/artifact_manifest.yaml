@@ -1,0 +1,29 @@
+# Galatea 证据工件归档清单（ADR-G-0012 R8：evidence/ gitignore 域的门前工件 digest 锚）
+# 机械核验 = _audit/check_docs.py §8：本地文件 sha256 必须与本清单一致（改动即 FAIL）
+# 纪律：每门退出追加（只增不减）；工件内容修正 = 新条目 + 注记，禁原地改 digest
+artifact_manifest:
+  id: evidence_artifact_manifest
+  version: v1.0
+  frozen_at: "2026-10-03"
+  authority: AI-v2
+  artifacts:
+    - name: R-m1-sc3-001
+      path: evidence/m1_first_evaluation/R-m1-sc3-001.json
+      sha256: 8599b80fced85e65c29fa215ebe02272c0c28a2c651408481442473676fbe513
+      gate: M1 首评（M2 准备单元）
+    - name: R-m1-sc4-002
+      path: evidence/m1_first_evaluation/R-m1-sc4-002.json
+      sha256: 0b6d313ba64223c8dec0452b0bb41093a766d18d66f80450016a5367d7acf7d4
+      gate: M1 首评
+    - name: R-m2-carryover-001
+      path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
+      sha256: 477165bc33d31436e340ee5dfc0777ed5e87276d6533564165bb01bf9f519f55
+      gate: R0 carryover 首评
+    - name: R-r0-root-001
+      path: evidence/m2_carryover_first_evaluation/R-r0-root-001.json
+      sha256: 5ca02d571a10cadaf0257e33d7c091d7d3e432485a29cdf2f9d98292bf60b2ba
+      gate: R0 根证据
+    - name: EXP-R0-001
+      path: evidence/r0_expansion/EXP-R0-001.json
+      sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
+      gate: ExpansionDecision ALLOW

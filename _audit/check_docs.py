@@ -244,6 +244,36 @@ def main() -> None:
             add("- OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过")
     add("")
 
+    # ---- 8. 证据工件归档核验（ADR-G-0012 R8：evidence/ gitignore 域的 digest 锚）----
+    add("## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）")
+    add("")
+    manifest_path = ROOT.parent / "config" / "evidence" / "artifact_manifest.yaml"
+    if yaml is None or not manifest_path.is_file():
+        add("- SKIP：manifest 不存在或无 PyYAML")
+    else:
+        import hashlib  # noqa: PLC0415
+
+        doc = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+        entries = doc.get("artifact_manifest", {}).get("artifacts", [])
+        mismatch: list[str] = []
+        missing: list[str] = []
+        for entry in entries:
+            rel = str(entry["path"])
+            f = ROOT.parent / rel
+            if not f.is_file():
+                missing.append(rel)   # 新 clone 无本地工件 = SKIP 面（非 FAIL）
+                continue
+            if hashlib.sha256(f.read_bytes()).hexdigest() != str(entry["sha256"]):
+                mismatch.append(rel)  # 本地工件与锚不符 = 篡改/漂移 → FAIL
+        add(f"- 清单条目：{len(entries)}（只增不减）")
+        for rel in mismatch:
+            add(f"- FAIL `{rel}`: 本地工件 sha256 与归档锚不符（禁事后篡改）")
+        for rel in missing:
+            add(f"- SKIP `{rel}`: 本地不存在（fresh clone；digest 锚已在 git 持久化）")
+        if not mismatch:
+            add("- OK：本地存在的全部工件与归档锚一致" + (f"（SKIP {len(missing)} 项缺失）" if missing else ""))
+    add("")
+
     OUT.write_text("\n".join(lines), encoding=STRICT, newline="\n")
     print(f"report written: {OUT}")
 

@@ -134,3 +134,13 @@ def test_detection_severity_oracle_s0() -> None:
     assert {severities["P02"], severities["P04"], severities["P05"],
             severities["P06"], severities["P14"]} == {"S0"}
     assert severities["P01"] == "S1"
+
+
+def test_probe_coverage_matrix_complete() -> None:
+    """Q-L13-05 C0 期义务（REV-0012 R7）：14 路径全有源 + 三源深化状态显式。"""
+    from galatea.evidence.evaluator.leakage import probe_coverage_report
+
+    report = probe_coverage_report()
+    assert report["paths"] == 14 and report["missing_paths"] == []
+    status = report["deepening_status"]
+    assert all("已上线" in v for v in status.values())

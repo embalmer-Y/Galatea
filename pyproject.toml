@@ -18,6 +18,7 @@ dev = [
     "hypothesis==6.168.1",
     "pyright==1.1.414",
     "types-pyyaml>=6.0.12.20260906",
+    "import-linter>=2.15",
 ]
 
 [tool.pytest.ini_options]
@@ -28,3 +29,30 @@ addopts = "-q --import-mode=importlib"   # 2026-10-03：importlib 导入模式�
 
 [tool.uv]
 package = false
+
+# REV-0012 R7 / Q-L13-05 C0 期义务：import-linter 契约测试（静态禁写路径机械化）
+[tool.importlinter]
+root_package = "galatea"
+
+[[tool.importlinter.contracts]]
+name = "主体平面禁读证据/治理平面（P04）"
+type = "forbidden"
+source_modules = ["galatea.subject"]
+forbidden_modules = ["galatea.evidence"]
+
+[[tool.importlinter.contracts]]
+name = "环境平面禁 import 主体平面（P06/P14）"
+type = "forbidden"
+source_modules = ["galatea.env"]
+forbidden_modules = ["galatea.subject"]
+
+[[tool.importlinter.contracts]]
+name = "sensorium 禁触行动/目标/知觉平面（P09 实检）"
+type = "forbidden"
+source_modules = ["galatea.subject.sensorium"]
+forbidden_modules = ["galatea.subject.action", "galatea.subject.goals", "galatea.subject.perception"]
+
+[[tool.importlinter.contracts]]
+name = "kernel 横切基础独立于一切上层"
+type = "independence"
+modules = ["galatea.kernel"]

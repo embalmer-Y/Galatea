@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 71 项（A 区 71 行实点）；UNCONFIRMED 72 项（G 2 + L00 2 + L01 1 + L02–L13 67，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（C0 准备单元）：Q-L02-03/-L02-05 裁决移除 + 新增即裁 Q-G00-12（C0 初值集伞式）。
+> **规模**：CONFIRMED 86 项（A 区 86 行实点）；UNCONFIRMED 57 项（G 2 + L00 2 + L01 1 + L02–L13 52，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（C0 准备单元）：Q-L02-03/-L02-05 裁决移除 + 新增即裁 Q-G00-12（C0 初值集伞式）。
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -80,6 +80,21 @@
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | **AI-v2（R0 范围本批裁决；C0+ 义务同条钉死）**：R0 = 三源探针框架（evidence/evaluator/leakage.py，14 路径 P01–P14 对应 HLD §6.2 逐行）——STATIC（源扫描 import 图：主体域禁读 evidence、环境域禁读 subject、感知域禁读通道、action 域禁 affect + 引入门槛缺席守卫 sensorium/C1-learner/C2-workspace）/ RUNTIME（真实守卫重放：GoalWriter 禁写、D-13 编码面、包 envelope 不可变、typed unknown 强制）/ DATA（证据行扫描：SC6 trace 两臂记忆 digest 恒等 + naive 断连仅经 fault 机制）。**每探针注入可失败**（INC-08 教训成规：合成违规检出率 = 100%，套件测试双面断言）；检出的 severity = 真值/oracle 交叉 S0、其余 S1（HLD §13.3 细化映射随 C0）。**C0 期义务（同条钉死，无需再裁）**：深化为 import-linter 契约测试 + 生产路径全覆盖运行时钩子 + DuckDB 数据查询三源；Sensorium/workspace/learner 层引入时其探针自动从缺席守卫升级为实检。**C0 期义务跟踪（2026-10-03，REV-0012 R7）**：P09 已升级实检（sensorium 禁 import action/goals/perception 平面，注入测试钉死）；余三项（import-linter 契约测试、生产路径全覆盖运行时钩子、DuckDB 数据查询）→ **C1 准备单元交付清单**（C0 退出不阻断：三源深化属探针形式演进，非 C0 判据；显式登记于此防静默滑期）。重开条件：C0 实践显示某路径三源形式不可判定 → 经新 Q | 2026-10-02 |
 | Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值（R0 交付前置；新增即裁） | **AI-v2：**① **根假设 = 复合 claim `r0_root_causal_auditability`**（root stat plan `stat_plans/r0_root.yaml` 运行前冻结）：判据 = M0 五类干预 signature 集 + M1 real_vs_pseudo_motive / wording_manipulation_null + M2 SC5 四臂签名 + **m2_continuity_carryover 首评（n=64 sealed，根结果的统计量化核——effect_size/CI/p 由其承载）** + leakage=0（14 探针）+ I1 bit-exact；全 SUPPORTED 且无 REFUTED → 根 SUPPORTED，任一 REFUTED → REFUTED，否则 INCONCLUSIVE。② 绑定物（HLD §10.3）= root stat plan digest + config/** 16 份合同 digest 集 + 系统版本（pyproject version + git HEAD digest）+ recorder manifest 分区 digest。③ sealed 分割定值：网格 = 3 regimes × 32 种子槽位 = 96 cells（Q-L01-03 regime 集）；**主种子 = hex `"19"×32`**（先于任何 sealed 数据消费钉死的任意常数；流派生 ⇒ 生成时刻不影响内容）。④ **REV-0009 R3 处置**：split policy `generated_at: F0_FREEZE` 未在 F0 执行——如实记录为 R0 准备期补执行（内容等价性由流派生保证；digest 入册后可复算），不另立 INC（R3 已立案跟踪）。重开条件：首评 INCONCLUSIVE/REFUTED → 按 ADR-G-0009 顺延终止条款处置（无顺延）；网格定值使 sealed 单元复用模式失效 → 经新 Q | 2026-10-02 |
 | Q-L13-12 | 评价运行级主种子与场景内容锚的裁决出处（REV-0010 R1 补裁：run master seed / hazard 内容锚此前为代码内无源常数） | **AI-v2（REV-0010 R1 强制补裁）：run 级主种子 = 任意但先于评价钉死的常数，性质同 Q-L13-11③ 分割主种子**——① M1 首评 master seed = `b"m1-first-evaluation"`；② R0 carryover 首评 master seed = `b"m2-carryover-sealed"`；③ SC6 场景内容锚 `_HAZARD_CONTENT = "hazard:energy_depleted"`（stat plan m2_continuity_sc5_sc6 v1.0 场景冻结的内容标记字符串，非行为参数）。**不受污染论证**：种子不进入判定逻辑（判定器 = 冻结代码；确定性阶段判定结构性饱和）；值已入 recorder manifest 分区（run 身份绑定，Q-T12）；REV-0010 独立双复现 n=64 分区 digest bit-exact 恒等——评价结果对值选择不敏感（任何常数产生同样有效的独立评价）。**④ C0 准备单元补充（SC4 cell 种子派生成文钉死）**：SC4 析因 cell 种子标签 = `sc4:{phrasing_key}:{requester_key}`（run_wording_cells 规范化，cell = (措辞键, 请求者键, 冻结文本) 三元组）——2026-09-26 M1 首评的 SC4 派生格式未随临时脚本入库且逆向不可判定（8 候选格式仅 1 cell 巧合命中），入口以此规范格式钉死；**冻结工件仍为 M1 wording claim 权威**（REV-0007 协议下预注册运行）；入口重推导如实记录方法学发现：χ² 同质性对种子派生格式在损坏噪声级敏感（8 cell 计数带 60–64 与主效应极差 0.0625 恒同，χ² p 于 0.033–0.379 间随格式浮动）——**实施细则：C1 起统计计划必须把种子派生格式入计划冻结**（顺延终止条款的具体化，禁评价程序级自由度）。重开条件：C1+ 噪声组件入世界后种子成为统计功效/方差参数 → 经新 Q 重标定（届时种子须入统计计划） | 2026-10-02 |
+| Q-L02-01 | 校准版本策略：单版本冻结 vs 允许受控漂移（漂移是否需 revision 谱系） | **AI-v2：**C1 延续单版本冻结 + 受控换版机制——校准版本 c1-static-v1（随 c1 profile 冻结）；换版仅经 profile 重冻结（新版本号 + FormationReceipt/GainReceipt 校准字段随之切换），运行期零漂移、零在线更新（校准参数无在线写者）；漂移统计口径 = 非 bound 版本帧计数（calibration.py 已实现，期望恒 0）。不设 revision 谱系（L02 §4.3 的 revision 是帧面机制，校准面无历史可改）。重开条件：C2 有界增益调制需要参数级在线更新 → 经新 Q | 2026-10-03 |
+| Q-L02-04 | 质量估计量纲与跨模态可比性（是否需归一到统一 [0,1] 精度标度） | **AI-v2：**统一 [0,1] 精度标度 + 分量离散面——质量全部分量归一 [0,1]（completeness 已然；跨模态比较仅允许 [0,1] 分量，禁止原始量纲跨模态直接比较）；C1 质量面 = completeness（present/expected fields）+ corruption_flags 枚举计数（离散）；snr_est 保持占位至 C2（L05 精度加权需要连续 SNR 时随 Q-L05-* 一并裁决，C1 不预支连续估计器）。复核点：C1 数据。重开条件：C1 实践显示 [0,1] 标度不足以区分失败模式 → 经新 Q | 2026-10-03 |
+| Q-L02-06 | 感觉层预测误差的特征空间定义（MW0 期是否直接用网格观测向量） | **AI-v2：**特征空间 = formed features 的规范化展平（无独立特征工程）——感觉层预测误差直接在各模态 SensoryFrame.features 上定义：EXT_LOCAL_OBS = 5×5 窗展平 25 维、EXT_EVENT = 冻结事件种类枚举 one-hot（Q-L01-08 事件集）、INTERO = 四 sensation 标量、PROPRIO = 朝向 one-hot；残差 = 同维 float64 向量差（Q-T10）；精度加权归 C2。理由：特征空间由形成层唯一决定，禁评价侧自造特征工程——防特征空间漂移使误差不可跨期比较。重开条件：C1 误差指标显示展平维度信息不足 → 经新 Q | 2026-10-03 |
+| Q-L03-01 | 置信度标度形式（直接概率 vs logit vs 离散档）与跨模态可比性 | **AI-v2：**直接概率 [0,1]——与 Q-L01-01 窗口增益、Q-G00-12④ 质量 completeness 同标度（全库 [0,1] 一致性，跨模块可比）；拒绝 logit（单调变换无行为意义且破坏标度统一）与离散档（量化伪影）。置信度写入 PerceptualBelief 时 float64（Q-T10）。重开条件：C2+ 证据聚合显示概率标度下溢/上溢病态 → 经新 Q（届时仅允许换 logit 域计算、[0,1] 对外交付面不变） | 2026-10-03 |
+| Q-L03-02 | `believe_threshold` 与 OOD 阈值默认值；abstain 是否分级（部分承诺） | **AI-v2：**believe_threshold = 0.5（最大熵决策点）——信念 ≥0.5 方可作决策依据输入，<0.5 保持假设集（无自由参数：二类决策的最大熵点）；OOD = 事件级零阈值（特征越定义域即 OOD，承 Q-L01-08 离散化纪律——不设连续告警阈）；abstain 不分级（C1 二元：abstain 或 believe；分级部分承诺留 C2 随 L05 精度调制——单看无行为意义）。全部为 C1 初值带数据复核点。重开条件：C1 数据显示 0.5 阈致 abstain 率异常（>20% 或 <1%）→ 经新 Q 重标定 | 2026-10-03 |
+| Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | **AI-v2：**先验与似然表由 L01 冻结表导出（机械可复核）——先验 π = regime 资源目标覆盖率均匀化（resource_density，Q-L01-09③ 冻结值派生）；似然 = 观测渲染模型 g(d)（Q-L01-01 冻结）+ render_noise σ 的 5 档确定性量化（2 的幂对齐；量化边界冻结入 profile）；禁止从数据学先验/似然（C1 无学习，Q-L11 C1 件仅为有界适应接口）。手算可复核性 = 全表可在 ADR 附录手算复演。重开条件：MW0-SC 判据显示量化致盲区 → 经新 Q 重标定档数 | 2026-10-03 |
+| Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | **AI-v2：**多假设保留上限 = 4，塌缩双条件——上限 4（2 的幂；与 T3 对齐窗同量级，Q-L00-01）；塌缩 = 单假设后验 ≥0.9 或窗关闭时首尾后验差 ≥0.6（任一触发；tie 保留全部至容量上限——tie-break 承既有 id 升序纪律）；塌缩后新证据可重开假设（信念非承诺——目标承诺归 L08，知觉保持可修正）。C2 面（情感调制假设集）留 C2。与 Q-L04-02 单值共用（世界信念同上限）。重开条件：C1 显示 4 上限致真假设被截断 → 经新 Q | 2026-10-03 |
+| Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | **AI-v2：**神经替换三段等价性判据（预置，C1 本体为表格不触发）——①同输入分布输出统计等价（χ²/KS 达冻结阈，阈值随替换时的统计计划冻结）；②下游判定分布不变（同 seed 流对照——非确定性下 bit-exact 不可达，以判定分布等价承载，承 ADR-G-0007 统计口径）；③消融选择性保持（替换后重跑消融电池）。换实现 = 新 EvidenceResult，旧主张不自动延续（换实现即换主张防线的正面表述：主张绑定实现 digest）。重开条件：无（判据骨架已定，阈值随届时统计计划） | 2026-10-03 |
+| Q-L04-01 | rollout 深度/宽度上界默认值与超预算裁剪策略 | **AI-v2：**rollout 深度 ≤8 / 宽度 ≤4，确定性裁剪——2 的幂对齐（Q-G00-08 先例）；8 步前瞻在 MW0 256 格世界覆盖 ~1/3 图（语义充分性初值）；超预算裁剪 = 宽度优先按后验降序保留、tie 按 id 升序（承既有 tie-break 纪律）；预算状态入 checkpoint（digest 引用制，Q-L00-05）。复核点：C1 数据。重开条件：C1 显示预算致 rollout 失真主导行为 → 经新 Q 重标定 | 2026-10-03 |
+| Q-L04-02 | 世界信念更新率与多假设保留上限 | **AI-v2：**世界信念每 T3 窗批更新 + 多假设上限与 Q-L03-05 单值共用（=4）——更新频率 = 每 4 cycles（与对齐窗同相，Q-L02-03；禁逐 cycle 更新——0.01 损坏噪声下逐拍更新即噪声驱动）；批更新 = 窗关闭的对齐组原子并入世界信念。重开条件：C1 显示 4-cycle 批更新致反应迟滞 → 经新 Q（降至 2 需连带 Q-L02-03 W_align 复核——成组） | 2026-10-03 |
+| Q-L04-04 | 自我预测误差的维度定义与时间常数 | **AI-v2：**自我预测误差双时间尺度 + 身体态维度——维度 = 身体态向量（energy/integrity/load 二阶差分 + 朝向变化 + 能力观测偏差，全部主体可见面——禁真值直通，承 P14）；时间常数 = 快分量 τ=4（T3）+ 慢分量 τ=64（T6），直接承 Q-L00-01 频率比（零新常数）；情感评价维度留 C2 随 Q-L05-*（本裁决不预支九维）。重开条件：C2 appraisal 需要额外维度 → 经新 Q（成组 Q-L05） | 2026-10-03 |
+| Q-L04-07 | C1+ 神经世界模型替换表格模型的等价性/泄漏验证方法 | **AI-v2：**与 Q-L03-07 同源成组（三段等价性 + 泄漏验证）——神经世界模型替换表格模型沿用三段判据（输出统计等价/下游判定分布不变/消融选择性保持）+ 模型面泄漏探针：模型输入输出不得含世界真值直通字段（P14 语义在模型接口的扩展——真值坐标信息量探针，注入可失败）。换实现 = 新 EvidenceResult 绑定实现 digest。重开条件：同 Q-L03-07 | 2026-10-03 |
+| Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一 | **AI-v2：**三层误差等权 + 禁跨层归一——感觉层:知觉层:模型层相对权重 = 1:1:1（C1 无先验理由偏置任何层；等权即零参数）；禁止跨层归一（层级化纪律 LOCKED 面：三层误差各自标度内比较、不得互相顶替——L02 §4.5/L03/L04 原文）；跨层聚合仅经元控制策略（C3，届时随元控制裁决）。重开条件：C3 元控制显示等权不可分 → 经新 Q（届时允许策略化权重，但跨层归一禁令维持） | 2026-10-03 |
+| Q-L11-01 | 三层可塑性的学习率谱（在线适应步长上界、adapter 秩/步长、巩固批大小） | **AI-v2：**C1 只钉在线适应上界 = 0.125（2^-3），神经谱留 C5——C1 无梯度组件（表格计数类适应），在线步长上界 0.125 = Laplace 平滑等价步长（2 的幂）；全部学习率入 frozen profile 纪律（禁实现期发明）；adapter 秩/巩固批大小等神经组件参数 C5 随 Q-T02 引入时成批裁决（本裁决显式不预支）。重开条件：C1 适应显示上界致欠适应/过适应 → 经新 Q（2 的幂内重标定） | 2026-10-03 |
+| Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | **AI-v2：**在线适应持久化进 checkpoint——适应产物 = 主体状态的一部分，重启复位 = 经历可被抹除（违反 HLD §10.2 M2 行连续性语义延伸）；承载 = checkpoint 增量 digest 引用制（Q-L00-05 纪律，C1 表格计数增量极小——R7 实测 checkpoint KB 级主张不变复核点）。重开条件：C5 巩固机制与增量持久化冲突 → 经新 Q（成组 C5 批） | 2026-10-03 |
 | Q-L02-03 | 对齐窗 `W_align` 默认值与迟到 revision 的最大回溯深度（C0/C1） | **AI-v2：W_align = 4 cycles**——与 T3 频率对齐（Q-L00-01 频率比 2/4/16/64 的 T3=4，2 的幂）；覆盖 m0 冻结通道延迟上界（exteroceptive/outcome/language = 1 cycle，Q-G00-08）有 3 倍余量，跨模态极差 ≤4。**迟到 revision 回溯深度 = 1 个对齐窗（4 cycles）**——窗关闭后 4 cycles 内到达的迟到信号以 revision 新帧引用旧帧表达（envelope 不可变纪律：只向前引用）；超窗龄迟到信号记 `Unknown(INSUFFICIENT_OBSERVATION)` 留痕、不产历史帧（禁改写已发布对齐组）。重开条件：C1 多模态对齐指标显示 4 cycles 不足（对齐成功率低/迟到率高）或过剩（延迟敏感）→ 经新 Q 重标定 | 2026-10-02 |
 | Q-L02-05 | 内感受模态最小集与"损伤事件"离散化阈值（C0；联动 Q-L01-08） | **AI-v2：C0 内感受最小集 = 四 sensation**——① energy_level（连续 [0,1]，源自 interoceptive_state 载荷 energy 字段）；② integrity_level（连续 [0,1]，同载荷 integrity 字段）；③ damage_event（离散，源自载荷事件列表含 integrity_damage_event）；④ energy_depleted（离散，源自事件列表）。**离散化阈值 = 零新参数**：damage_event 沿用 Q-L01-08 冻结的世界侧定义（单事件降幅 ≥ damage_event_min_delta=0.05 方记事件——离散化在世界结算层已完成，sensorium 只做事件面转写）；energy_depleted 沿用 Q-L01-09⑤ 首次触 0 锁存。energy 变化率 = 派生差分（本/上 cycle energy_level 之差，sensorium 侧确定性计算）非独立 sensation（C1 随 L05 驱力/评价接管）。重开条件：C2 L05 appraisal 需要更细粒度内感受（变化率升独立 sensation/阈下损伤检出）→ 经新 Q | 2026-10-02 |
 | Q-G00-12 | C0 初值集伞式（c0_sensorium.profile：C0 模态集/校准版本/C0 增益形态/质量度量纲——纯 profile 参数，不含认知语义参数） | **AI-v2：初值集成文采纳**（数值见 c0_sensorium.profile.yaml v1.0，均标注初值；定值原则承 Q-G00-08/Q-G00-11 先例）。① **C0 模态集四类** {EXT_LOCAL_OBS, EXT_EVENT, INTERO, PROPRIO}——≥2 外感受 + ≥1 内感受满足 L02 §9 C0 门槛；EXT_LOCAL_OBS 源 = observation_window 载荷、EXT_EVENT 源 = interoceptive_state 载荷事件列表（威胁观测形成面）、INTERO 源 = 同载荷水平字段（Q-L02-05 四 sensation）、PROPRIO 源 = proprioceptive_state 载荷；**OUTCOME 通道不入 sensorium**（效果回传归 L10 归属域，ReceivedOutcome 非感觉）；② 校准单版本 id = `c0-static-v1`（运行期只读常量；漂移策略 Q-L02-01 归 C1）；③ **C0 期增益 = 恒等 1.0**（PROFILE 来源、无调制入口——gain_max 上界与 GainReceipt 归 C2，Q-L02-02 不预支）；④ 质量度量纲 C0 = {completeness [0,1], corruption_flags 枚举, snr_est 占位}（跨模态归一标度 Q-L02-04 归 C1）。全部为 C0 初值带 C0 数据复核点。重开条件：C0 实现期对照实验显示任一初值致盲区/饱和 → 经新 Q 重标定（改值 = profile 新版本） | 2026-10-02 |
@@ -111,32 +126,20 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L02-01 | 校准版本策略：单版本冻结 vs 允许受控漂移（漂移是否需 revision 谱系） | — | C1 | UNCONFIRMED |
 | Q-L02-02 | `gain_max[modality]` 默认上界与裁剪是否计入"调制有效性"判据 | — | C2 | UNCONFIRMED |
-| Q-L02-04 | 质量估计量纲与跨模态可比性（是否需归一到统一 [0,1] 精度标度） | — | C1 | UNCONFIRMED |
-| Q-L02-06 | 感觉层预测误差的特征空间定义（MW0 期是否直接用网格观测向量） | — | C1 | UNCONFIRMED |
 | Q-L02-07 | C5 新模态适配是否需独立 protection 场景（防适配破坏既有模态） | — | C5 | UNCONFIRMED |
 
 ## F. L03 知觉（Perception）
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L03-01 | 置信度标度形式（直接概率 vs logit vs 离散档）与跨模态可比性 | [0,1] 概率 | C1 | UNCONFIRMED |
-| Q-L03-02 | `believe_threshold` 与 OOD 阈值默认值；abstain 是否分级（部分承诺） | — | C1 | UNCONFIRMED |
-| Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | — | C1 | UNCONFIRMED |
-| Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | — | C1/C2 | UNCONFIRMED |
 | Q-L03-06 | affordance 的 `action_class` 枚举与 L09/L10 能力契约的对齐方式 | — | C3/C4 | UNCONFIRMED |
-| Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | — | C1 | UNCONFIRMED |
 
 ## G. L04 世界/身体/自我模型
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L04-01 | rollout 深度/宽度上界默认值与超预算裁剪策略 | ≤8 / ≤4 | C1 | UNCONFIRMED |
-| Q-L04-02 | 世界信念更新率与多假设保留上限 | — | C1；联动 Q-L03-05 | UNCONFIRMED |
-| Q-L04-04 | 自我预测误差的维度定义与时间常数 | — | C1/C2；联动 Q-L05-* | UNCONFIRMED |
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度 | — | C3/C4；联动 Q-L03-06 | UNCONFIRMED |
-| Q-L04-07 | C1+ 神经世界模型替换表格模型的等价性/泄漏验证方法 | — | C1；同源 Q-L03-07 | UNCONFIRMED |
 
 ## H. L05 驱力/评价/情感（九维动力学）
 
@@ -192,7 +195,6 @@
 | Q-L09-04 | metacontrol 最小驻留（cycles）与抖动锁定策略 | — | C3 | UNCONFIRMED |
 | Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | — | C5；联动 Q-L11-* | UNCONFIRMED |
 | Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义（人类研究者？实验控制？）与其权限边界 | — | C3/C4；联动 Q-L12-08 | UNCONFIRMED |
-| Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一 | — | C1/C3；联动 Q-L02-06、Q-L03-01 | UNCONFIRMED |
 
 ## M. L10 行动/网关/PhysIO/归属
 
@@ -206,11 +208,9 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L11-01 | 三层可塑性的学习率谱（在线适应步长上界、adapter 秩/步长、巩固批大小） | — | C1/C5 | UNCONFIRMED |
 | Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | — | C5 | UNCONFIRMED |
 | Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束）与最小改善阈值 | — | C5；联动 Q-L13-07 | UNCONFIRMED |
 | Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量） | — | C5/E1；联动 Q-L06-05 | UNCONFIRMED |
-| Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | — | C1/C5 | UNCONFIRMED |
 | Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | — | C5/E1 | UNCONFIRMED |
 
 ## O. L12 语言/社会认知

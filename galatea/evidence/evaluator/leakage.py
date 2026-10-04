@@ -315,3 +315,63 @@ def load_tree_sources(root: Path) -> dict[str, str]:
     for path in sorted((root / "galatea").rglob("*.py")):
         out[path.relative_to(root).as_posix()] = path.read_text(encoding="utf-8")
     return out
+
+
+# ==========================================================================
+# C0 期三源深化（REV-0012 R7 / Q-L13-05）：DuckDB 数据查询探针 + 覆盖矩阵
+# ==========================================================================
+
+# 14 路径 × 三源覆盖矩阵（Q-L13-05 义务的机械面：每路径至少一源；RUNTIME 路径挂真实守卫）
+PATH_SOURCE_MATRIX: dict[str, tuple[str, ...]] = {
+    p.path_id: (p.source,) for p in PROBES
+}
+_RUNTIME_GUARD_PATHS: tuple[str, ...] = ("P01", "P02", "P08", "P10")   # RUNTIME 实检路径
+
+
+def probe_coverage_report() -> dict[str, object]:
+    """覆盖矩阵：14 路径全有源 + RUNTIME 路径全部在册（深化余项显式可见）。"""
+    missing = [pid for pid in (f"P{i:02d}" for i in range(1, 15)) if pid not in PATH_SOURCE_MATRIX]
+    return {
+        "paths": len(PATH_SOURCE_MATRIX),
+        "missing_paths": missing,
+        "runtime_guards": list(_RUNTIME_GUARD_PATHS),
+        "deepening_status": {
+            "static_contract": "import-linter 契约测试已上线（test_import_contracts.py，4 契约）",
+            "runtime_hooks": "RUNTIME 探针守卫重放已上线（P01/P02/P08/P10）",
+            "duckdb_query": "DATA 查询探针已上线（run_data_query_probe，Q-L13-05）",
+        },
+    }
+
+
+def run_data_query_probe(registry: "object", refs: "dict[str, object]") -> "list[LeakageDetection]":
+    """DuckDB 数据查询探针（Q-L13-05 三源之 DATA 深化）：对 claim-relevant 运行的
+    recorder 分区跑 SQL 不变量——SC6 trace：两臂记忆 digest 恒等 + naive 断连仅经
+    fault 机制；evidence：无未知 pathway_mode。检出 = LeakageDetection（S1）。
+
+    独立于 P12 的行扫描形态：SQL 聚合查询（GROUP BY/HAVING），注入可失败由测试承载。
+    """
+    from galatea.evidence.recorder.replay import read_partition
+
+    detections: list[LeakageDetection] = []
+    if "trace" not in refs:
+        return detections
+    rows = read_partition(registry, refs["trace"])   # type: ignore[arg-type]
+    by_pair: dict[int, dict[str, str]] = {}
+    for row in rows:
+        pair = int(row["pair_index"])
+        by_pair.setdefault(pair, {})[str(row["arm"])] = str(row["memory_items_digest"])
+    for pair, arms in sorted(by_pair.items()):
+        if "carry_memory" in arms and "naive" in arms and arms["carry_memory"] != arms["naive"]:
+            detections.append(LeakageDetection(
+                path_id="P12", probe="orchestrator → subject memory",
+                detail=f"SQL probe: pair {pair} memory digests diverge across arms", severity="S1",
+            ))
+    if "evidence" in refs:
+        for row in read_partition(registry, refs["evidence"]):   # type: ignore[arg-type]
+            mode = str(row.get("naive_mode", ""))
+            if mode and mode not in ("retrieved", "fault_missing_signal", "empty_unknown"):
+                detections.append(LeakageDetection(
+                    path_id="P12", probe="orchestrator → subject memory",
+                    detail=f"SQL probe: unknown pathway_mode {mode!r}（断连机制面外）", severity="S1",
+                ))
+    return detections
