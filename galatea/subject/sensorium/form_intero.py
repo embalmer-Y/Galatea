@@ -18,7 +18,7 @@ from galatea.subject.sensorium.unknowns import insufficient_observation
 
 def form_intero(
     signal: IngestedSignal, formed_time: int, calibration_version: str, gain: GainState,
-    prev_energy_level: float | None, revision_index: int = 0,
+    prev_energy_level: float | None, revision_of: str | None = None, revision_index: int = 0,
 ) -> tuple[SensoryFrame, tuple[Unknown, ...], float]:
     """内感受帧：四 sensation + 派生 rate；返回 (帧, 本帧 unknowns, 供下帧差分的 energy_level)。
 
@@ -52,6 +52,7 @@ def form_intero(
     )
     frame = SensoryFrame(
         frame_id=f"sf.INTERO.{signal.effective_time}" + (f".r{revision_index}" if revision_index else ""),
+        revision_of=revision_of,
         modality=SensoryModality.INTERO,
         source_received_ids=signal.source_received_ids,
         effective_time=signal.effective_time,

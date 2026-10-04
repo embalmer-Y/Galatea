@@ -15,7 +15,9 @@ from galatea.subject.sensorium.ports import (
     SchemaViolation,
     load_c0_sensorium_profile,
 )
-from galatea.subject.sensorium.tests.conftest import extero_packet, make_packet, outcome_packet
+from galatea.subject.sensorium.tests.conftest import (
+    extero_packet, make_packet, outcome_packet, time_basis,
+)
 
 _ROOT = Path(__file__).resolve().parents[4]
 _PROFILE_PATH = _ROOT / "config" / "profiles" / "c0_sensorium.profile.yaml"
@@ -32,14 +34,14 @@ def test_non_received_level_rejected() -> None:
         level=RepresentationLevel.PERCEIVED,
     )
     with pytest.raises(SchemaViolation):
-        ingest(packet, text, _profile())
+        ingest(packet, text, _profile(), time_basis())
 
 
 def test_excluded_carrier_rejected() -> None:
     """action_outcome 归 L10 归属域（Q-G00-12①）——感觉形成拒绝。"""
     packet, text = outcome_packet(0)
     with pytest.raises(SchemaViolation, match="excluded"):
-        ingest(packet, text, _profile())
+        ingest(packet, text, _profile(), time_basis())
 
 
 def test_world_truth_object_rejected() -> None:
@@ -47,7 +49,7 @@ def test_world_truth_object_rejected() -> None:
     with pytest.raises((SchemaViolation, AttributeError, TypeError)):
         truth_like = {"kind": "world_state", "grid": [[0] * 16] * 16}
         packet, _text = extero_packet(0)
-        ingest(packet, str(truth_like), _profile())   # 真值字符串当载荷 → schema 拒
+        ingest(packet, str(truth_like), _profile(), time_basis())   # 真值字符串当载荷 → schema 拒
 
 
 def test_sensorium_import_graph_no_world_truth() -> None:
@@ -63,4 +65,4 @@ def test_language_carrier_rejected_at_c0() -> None:
     """language 通道 C0 不在模态集（Q-G00-12① 四类）→ 拒绝。"""
     packet, text = make_packet("channel.language.received.v1", 0, {"kind": "typed_statement"})
     with pytest.raises(SchemaViolation):
-        ingest(packet, text, _profile())
+        ingest(packet, text, _profile(), time_basis())

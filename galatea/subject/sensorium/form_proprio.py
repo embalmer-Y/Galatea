@@ -15,7 +15,7 @@ from galatea.subject.sensorium.quality import quality_for
 
 def form_proprio(
     signal: IngestedSignal, formed_time: int, calibration_version: str, gain: GainState,
-    revision_index: int = 0,
+    revision_of: str | None = None, revision_index: int = 0,
 ) -> SensoryFrame:
     if signal.carrier != CARRIER_PROPRIO:
         raise ValueError("form_proprio requires proprioceptive carrier")
@@ -33,4 +33,5 @@ def form_proprio(
         features=ProprioFeatures(orientation=orientation),
         quality=quality,
         gain=gain,
+        revision_of=revision_of,
     )

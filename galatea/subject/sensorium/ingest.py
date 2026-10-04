@@ -38,11 +38,16 @@ class IngestedSignal:
     packet: CognitivePacket
     payload: dict[str, Any]
     carrier: str
+    delivery_basis: int   # 冻结通道延迟（REV-0012 R2：cycle_id = 投递时；世界时 = 投递时 − 延迟）
 
     @property
     def effective_time(self) -> int:
-        """世界时 = 包的 cycle_id（渲染时点；与形成时严格分离，L01 §4.5）。"""
-        return self.packet.cycle_id
+        """世界时（L01 §4.5：世界时/接收时严格分离）= cycle_id − 冻结通道延迟。
+
+        真实总线语义：包 cycle_id = 投递时（deliver_at）——extero 渲染于 t 被标记 t+1。
+        延迟补偿用冻结 m0_mw0 channel_delay_cycles（Q-G00-08），由装配层传入。
+        """
+        return self.packet.cycle_id - self.delivery_basis
 
     @property
     def source_received_ids(self) -> tuple[str, ...]:
@@ -50,7 +55,8 @@ class IngestedSignal:
 
 
 def ingest(
-    packet: CognitivePacket, payload_text: str, profile: C0SensoriumProfile
+    packet: CognitivePacket, payload_text: str, profile: C0SensoriumProfile,
+    time_basis: dict[str, int],
 ) -> IngestedSignal:
     """入口校验：层级/载体/字段逐项 fail-closed；返回只读信号视图。"""
     if packet.representation_level is not RepresentationLevel.RECEIVED:
@@ -82,4 +88,7 @@ def ingest(
     missing = [f for f in _REQUIRED_FIELDS[carrier] if f not in payload]
     if missing:
         raise SchemaViolation(f"packet {packet.event_id}: payload missing fields {missing}")
-    return IngestedSignal(packet=packet, payload=payload, carrier=carrier)
+    return IngestedSignal(
+        packet=packet, payload=payload, carrier=carrier,
+        delivery_basis=time_basis.get(carrier, 0),
+    )

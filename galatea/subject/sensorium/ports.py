@@ -71,7 +71,7 @@ def load_c0_sensorium_profile(path: Path | None = None) -> C0SensoriumProfile:
     if gain["c0_form"] != "identity_1.0":
         raise ValueError("C0 gain form must be identity_1.0（Q-G00-12③；调制面归 C2）")
     if determinism["rng_operators"] != "none_c0":
-        raise ValueError("C0 formation operators must be RNG-free（Q-G00-12④）")
+        raise ValueError("C0 formation operators must be RNG-free（Q-G00-12 伞式 + 流纪律 Q-G00-10：无算子不注册死流）")
     return C0SensoriumProfile(
         modalities=modalities,
         excluded_carriers=tuple(str(c) for c in sensorium["excluded_carriers"]),
