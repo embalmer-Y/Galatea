@@ -4,6 +4,10 @@
 #   登记载体，REV-0006 R5——每 claim 统计计划必须引用本册条目）；envelope 与既有条目不变。
 # 版本 v1.2（2026-09-26，ADR-G-0008 前置）：新增 m2_continuity_carryover 条目（Q-G00-11，M2 held-out 连续性
 #   携带效应判据）；envelope 与既有条目不变。
+# 版本 v1.3（2026-10-05，C1 实现期次单元前置）：新增 c1_perception_tracking / c1_world_prediction 两条目
+#   （C1 知觉 held-out 追踪与世界预测优于持续基线；标度 = per-run 配对差，试次单位 = 种子化 run，
+#   承 ADR-G-0007 口径与 m2 ITT 语义）；calibration_perception / body_incorporation（C1 判据）既有在位；
+#   envelope 与既有条目不变。
 # 初值属性：零实测数据期的功效推定初值（d=0.5/α=0.05/power=0.8 双侧 t 检验 ⇒ ~64/组），各对应门退出前按实测功效复核后入新版本。
 envelope:
   alpha: 0.05
@@ -61,6 +65,18 @@ entries:
     metric: three_criteria_vs_pre_incorporation_baseline
     min_effect: {type: cohens_d, value: 0.4}            # 三判据各 d≥0.4 且联合成立
     joint: true
+  - id: c1_perception_tracking                           # v1.3 新增（C1 实现期次单元）
+    q: Q-L03-01
+    claim_gate: C1
+    metric: per_cell_decision_accuracy_minus_majority_baseline  # 标度 = per-run 配对准确率差
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64                                           # 试次单位 = 种子化 run（sealed）
+  - id: c1_world_prediction                              # v1.3 新增（C1 实现期次单元）
+    q: Q-L04-01
+    claim_gate: C1
+    metric: post_move_window_mse_persistence_minus_model         # 标度 = per-run 配对 MSE 差（重叠格）
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64
   - id: effective_access
     q: Q-L07-07
     claim_gate: E1

@@ -17,20 +17,26 @@ from galatea.subject.models.world import WorldStateBelief
 def predict_window(
     belief: WorldStateBelief, profile: C1Profile, valid_time: int
 ) -> tuple[ModelPrediction, ...]:
-    """下一窗外感受窗预测（位姿歧义 → 空预测 + 调用方 Unknown 留痕）。"""
+    """下一窗外感受窗预测（**值空间**：期望渲染值 = posterior × g(d)——观察者
+    自身通道合同（Q-L03-03 同源），与渲染值/持续基线同标度可比）。
+
+    位姿歧义 → 空预测 + 调用方 Unknown 留痕（禁伪装）。"""
     if len(belief.pose_candidates) != 1:
         return ()
     pose = belief.pose_candidates[0]
     occupancy = dict(belief.occupancy)
     prior = profile.perception.prior_resource_density
+    gain = profile.perception.gain_by_distance
     offset = 2
     window: list[tuple[float, ...]] = []
     for r in range(5):
         row: list[float] = []
         for c in range(5):
-            subject_cell = (pose.position[0] + c - offset, pose.position[1] + r - offset)
+            dx, dy = c - offset, r - offset
+            subject_cell = (pose.position[0] + dx, pose.position[1] + dy)
             cell = occupancy.get(subject_cell)
-            row.append(cell.posterior_present if cell is not None else prior)
+            posterior = cell.posterior_present if cell is not None else prior
+            row.append(posterior * gain[f"d{max(abs(dx), abs(dy))}"])
         window.append(tuple(row))
     return (ModelPrediction(
         prediction_id=f"mp.EXT.{valid_time}",

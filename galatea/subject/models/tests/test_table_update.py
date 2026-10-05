@@ -51,18 +51,18 @@ def test_move_receipt_integration_dead_reckoning():
     assert belief.pose_candidates[0].orientation == "N"
 
 
-def test_missing_receipt_branches_pose_capped():
-    """回执缺口 → 位姿分支（cap 4，均匀后验；Q-L04-09③ + Q-L04-02）。"""
+def test_unreadable_receipt_integrates_per_contract():
+    """回执不可读（传输损坏）→ 位移按动作合同积分 + typed Unknown 留痕（Q-L04-09③⁺：
+    loss_rate=0 合同 + requested=effective——损坏非缺失，禁分支伪装不确定性）。"""
     prof, model, _, _ = world_with_observation(7, 0.9)
-    # 请求 3 次 move、回执全缺失 → 2^3 = 8 分支 → cap 4 确定性裁剪
     belief = model.update(
         11, (), move_receipts=(), forage_receipts=(),
         requested_moves=("N", "N", "E"),
     )
-    assert len(belief.pose_candidates) == 4
-    assert all(abs(p.posterior - 0.25) < 1e-9 for p in belief.pose_candidates)
-    assert belief.unknowns
-    assert any("branched" in u.detail for u in belief.unknowns)
+    # 合同积分：N+N+E → 位移 (1, 2)
+    assert belief.pose_candidates[0].position == (1, 2)
+    assert len(belief.pose_candidates) == 1
+    assert any("unreadable" in u.detail and "合同" in u.detail for u in belief.unknowns)
 
 
 def test_blocked_receipt_no_branch():
@@ -86,18 +86,16 @@ def test_pose_prune_deterministic():
     assert b1.pose_candidates == b2.pose_candidates
 
 
-def test_occupancy_withheld_during_ambiguity():
-    """位姿歧义期占据更新不落图（禁伪装映射，Q-L04-09③）——unknown 留痕。"""
+def test_blocked_receipt_no_displacement_but_others_integrate():
+    """blocked = 已解析无位移；同批可读回执正常积分（Q-L04-09③⁺ 语义分面）。"""
     prof, model, _, _ = world_with_observation(7, 0.9)
-    out = perception_output(7)
     belief = model.update(
-        11, out.cells, move_receipts=(), forage_receipts=(),
-        requested_moves=("N", "E", "S"),
+        11, (), move_receipts=("move_n_blocked", "move_e_arrived"), forage_receipts=(),
+        requested_moves=("N", "E"),
     )
-    assert len(belief.pose_candidates) > 1
-    assert any("withheld" in u.detail for u in belief.unknowns)
-    # 歧义后新观测未落图：占据图只含歧义前的格子
-    assert all(b.last_effective_time <= 7 for _, b in belief.occupancy)
+    assert belief.pose_candidates[0].position == (1, 0)   # N blocked 无位移；E 到达
+    assert len(belief.pose_candidates) == 1
+    assert not belief.unknowns                             # 全部回执可读 → 无缺口
 
 
 def test_observable_coverage_explicit():

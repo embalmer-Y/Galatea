@@ -25,7 +25,19 @@ from galatea.evidence.control.runs import (
     SubjectTrialRunner,
     seal_split_master_seed,
 )
+from galatea.evidence.control.runs_c1 import (
+    c1_accuracy_diffs,
+    c1_criterion_diffs,
+    c1_ece_samples,
+    c1_world_mse_diffs,
+    load_c1_scenario,
+    run_c1_evaluation,
+)
 from galatea.evidence.evaluator.hypotheses import (
+    evaluate_c1_body_incorporation,
+    evaluate_c1_composite,
+    evaluate_c1_perception_tracking,
+    evaluate_c1_world_prediction,
     ConfidenceInterval,
     EvidenceResult,
     HypothesisVerdict,
@@ -54,6 +66,7 @@ __all__ = [
 _M1_PLAN = Path("config") / "evidence" / "stat_plans" / "m1_goals_sc3_sc4.yaml"
 _M2_PLAN = Path("config") / "evidence" / "stat_plans" / "m2_continuity_sc5_sc6.yaml"
 _ROOT_PLAN = Path("config") / "evidence" / "stat_plans" / "r0_root.yaml"
+_C1_PLAN = Path("config") / "evidence" / "stat_plans" / "c1_perception_models.yaml"
 _EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②
 
 
@@ -311,6 +324,111 @@ def _write_result(path: Path, result: EvidenceResult, n: int | None, extras: dic
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def run_c1_first_evaluation(
+    root: Path, out_dir: Path, n_limit: int | None = None
+) -> "C1FirstEvaluation":
+    """C1 首评（stat plan c1_perception_models v1.0；顺延终止条款首次执行）。
+
+    三 claim（追踪+校准 / 世界预测 / 身体纳入）+ 解离机械判据 + leakage + I1
+    → 复合 EvidenceResult（Q-L13-11① 体例）。
+    """
+    from galatea.subject.perception.confidence import ece_equal_mass
+
+    plan_path = root / _C1_PLAN
+    plan = load_stat_plan(plan_path)
+    policy = load_split_policy(root)
+    grid = tuple(
+        GridCell(cell_id=f"{r}:{i}", regime=r, seed_index=i)
+        for r in ("abundance", "scarcity", "volatile")
+        for i in range(32)
+    )
+    split = generate_split(grid, seal_split_master_seed(), policy)
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    run_dir = out_dir / "run"
+    records, mechanical, plan_digest, split_digest, i1_match = run_c1_evaluation(
+        root, run_dir, out_dir / "runner-tmp", split.sealed.cells, plan_path,
+        split.split_digest, n_limit=n_limit,
+    )
+    scenario = load_c1_scenario(plan_path)
+    # ECE（Q-L03-04：等质量 15 箱；min_samples_per_bin 由样本量机械满足）
+    samples = c1_ece_samples(records)
+    ece = ece_equal_mass(
+        tuple(c for c, _ in samples), tuple(t for _, t in samples), n_bins=15
+    )
+    tracking = evaluate_c1_perception_tracking(
+        "R-c1-tracking-001", f"{_C1_PLAN.as_posix()}@{plan.version}",
+        c1_accuracy_diffs(records), ece, 0.05,
+        recompute_ok=i1_match, n_expected=len(records),
+    )
+    world_pred = evaluate_c1_world_prediction(
+        "R-c1-worldpred-002", f"{_C1_PLAN.as_posix()}@{plan.version}",
+        c1_world_mse_diffs(records, scenario),
+        recompute_ok=i1_match, n_expected=len(records),
+    )
+    crit1, crit2, crit3 = c1_criterion_diffs(records, scenario)
+    incorporation = evaluate_c1_body_incorporation(
+        "R-c1-body-003", f"{_C1_PLAN.as_posix()}@{plan.version}",
+        (crit1, crit2, crit3),
+        recompute_ok=i1_match, n_expected=len(records),
+    )
+    leakage = run_leakage_suite(load_tree_sources(root))
+    composite = evaluate_c1_composite(
+        "R-c1-models-001", f"{_C1_PLAN.as_posix()}@{plan.version}",
+        (tracking, world_pred, incorporation),
+        mechanical_ok=all(mechanical.values()),
+        leakage_free=leakage.leakage_free,
+        i1_match=i1_match,
+        recompute_ok=i1_match,
+        statistical_core=tracking,
+    )
+    _write_result(out_dir / "R-c1-models-001.json", composite, len(records), {
+        "tracking": {"verdict": tracking.verdict.value, "ece": round(ece, 6),
+                     "ece_max": 0.05,
+                     "mean_accuracy_diff": tracking.data_refs[0]},
+        "world_prediction": {"verdict": world_pred.verdict.value,
+                             "mean_mse_diff": world_pred.data_refs[0]},
+        "body_incorporation": {"verdict": incorporation.verdict.value,
+                               "criteria": list(incorporation.data_refs)},
+        "dissociation_mechanical": {k: bool(v) for k, v in mechanical.items()},
+        "split_digest": split_digest,
+        "stat_plan_digest": plan_digest,
+        "i1_match": i1_match,
+        "leakage_free": leakage.leakage_free,
+        "leakage_report_digest": leakage.digest,
+        "seed_note": "Q-L13-12④（master seed + 派生格式内嵌 stat plan）",
+    })
+    for name, result in (
+        ("R-c1-tracking-001", tracking), ("R-c1-worldpred-002", world_pred),
+        ("R-c1-body-003", incorporation),
+    ):
+        _write_result(out_dir / f"{name}.json", result, len(records))
+    return C1FirstEvaluation(
+        composite=composite, tracking=tracking, world_prediction=world_pred,
+        incorporation=incorporation, mechanical=mechanical, ece=ece,
+        i1_match=i1_match, leakage_free=leakage.leakage_free, out_dir=out_dir,
+    )
+
+
+class C1FirstEvaluation:
+    """C1 首评数据集（复合 + 三子主张 + 机械判据）。"""
+
+    def __init__(
+        self, composite: Any, tracking: Any, world_prediction: Any, incorporation: Any,
+        mechanical: dict[str, bool], ece: float, i1_match: bool, leakage_free: bool,
+        out_dir: Path,
+    ) -> None:
+        self.composite = composite
+        self.tracking = tracking
+        self.world_prediction = world_prediction
+        self.incorporation = incorporation
+        self.mechanical = mechanical
+        self.ece = ece
+        self.i1_match = i1_match
+        self.leakage_free = leakage_free
+        self.out_dir = out_dir
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     root = Path(__file__).resolve().parents[3]
@@ -329,6 +447,16 @@ def main(argv: list[str] | None = None) -> int:
     elif command == "root":
         root_result = assemble_root_evidence(root, out_dir)
         print(f"root: {root_result.verdict.value} effect={root_result.effect_size}")
+    elif command == "c1":
+        out_dir = root / "evidence" / "c1_models_first_evaluation"
+        first = run_c1_first_evaluation(root, out_dir, n_limit=None)
+        print(
+            f"c1: composite={first.composite.verdict.value} "
+            f"tracking={first.tracking.verdict.value} ece={first.ece:.4f} "
+            f"world={first.world_prediction.verdict.value} "
+            f"body={first.incorporation.verdict.value} "
+            f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
+        )
     else:
         print(f"unknown command: {command}（m1|carryover|root）")
         return 2

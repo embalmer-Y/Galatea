@@ -3,13 +3,14 @@
 #       v1.1 = M2 门版（2026-09-26，M2 退出单元增补 M2 场景——只增不减纪律）。
 #       v1.2 = R0 门版（2026-10-02，R0 退出单元增补 R0 场景——只增不减纪律）。
 #       v1.3 = C0 实现期首单元增补（2026-10-03，REV-0011 R7 义务——C0 场景随实现落成即冻，C0 退出时复核）。
+#       v1.4 = C1 实现期次单元增补（2026-10-05，INC-12 义务第四次执行——C1 场景随实现落成即冻，c1-exit 复核）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.3                 # v1.3（C0 实现期版）：新增 c0_* 8 场景；既有 32 场景原样保留（只增不减）
-  frozen_at: "2026-10-03"
+  version: v1.4                 # v1.4（C1 实现期版）：新增 c1_* 10 场景；既有 40 场景原样保留（只增不减）
+  frozen_at: "2026-10-05"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
@@ -180,3 +181,54 @@ protection_suite:
       source_test: galatea/subject/sensorium/tests/test_ablation_gain_receipt.py
       frozen_gate: C0
       assertion: 消融检出面可见且能失败——移除增益/形成回执或伪造绑定 → audit 全部检出（INC-08 教训成规）
+    - id: c1_fusion_likelihood_probe_spec
+      source_test: galatea/subject/perception/tests/test_fusion_table.py
+      frozen_gate: C1
+      assertion: 似然表 = ADR-G-0013 探针规格逐位同源（d0-present bin4=0.999968/行和 1e-6/随 d 单调）；
+        后验手算锚（d1@0.3 似然相等 → 后验=先验）；域出收集
+    - id: c1_perception_abstain_ood_domains
+      source_test: galatea/subject/perception/tests/test_abstain.py
+      frozen_gate: C1
+      assertion: 事件级 OOD 四冻结域（窗值/事件种/朝向/距离键）→ abstain 一等输出 + FIELD 低承诺；
+        believe_threshold 判定可复算
+    - id: c1_sensory_perception_dissociation
+      source_test: galatea/subject/perception/tests/test_dissociation.py
+      frozen_gate: C1
+      assertion: 解离双向——知觉故障下感觉形成完整性不变；降质输入下知觉选择性失败而形成照常
+    - id: c1_source_no_default_attribution
+      source_test: galatea/subject/perception/tests/test_source_ambiguity.py
+      frozen_gate: C1
+      assertion: 载体级来源判断（SELF/AMBIGUOUS/UNKNOWN）；证据不足禁默认归因；窗内容归因留 C4
+    - id: c1_no_raw_channel_bypass
+      source_test: galatea/subject/perception/tests/test_no_raw_channel.py
+      frozen_gate: C1
+      assertion: 知觉面 import 图零 env/行动/目标/下游模型依赖（静态 + 干净子进程动态）；线索不注入内容
+    - id: c1_world_persistence_event_semantics
+      source_test: galatea/subject/models/tests/test_table_update.py
+      frozen_gate: C1
+      assertion: Q-L04-09 语义——持续性（无事件无变化）+ 事件条件更新 + 航位推算积分 +
+        不可读回执按合同积分（③⁺）+ blocked 无位移 + coverage 显式承载
+    - id: c1_rollout_deterministic_imagined
+      source_test: galatea/subject/models/tests/test_rollout_determinism.py
+      frozen_gate: C1
+      assertion: 同 query 双跑 bit-exact；深度/宽度超预算 CLIPPED；恒 IMAGINED；价值摘要 = typed Unknown
+    - id: c1_body_ownership_criterion_ablation
+      source_test: galatea/subject/models/tests/test_body_ownership_ablation.py
+      frozen_gate: C1
+      assertion: 三判据量可计算且消融任一输入 → 判据不可计算可检；运行时禁发"已纳入"布尔（Q-L04-03 主张在 L13）
+    - id: c1_self_view_derivation_receipt
+      source_test: galatea/subject/models/tests/test_self_derived_receipt.py
+      frozen_gate: C1
+      assertion: 字段级 derivation_receipt 机械强制（无源即 Unknown）；EWMA τ=4/64 探针同式；clone ≠ identity
+    - id: c1_world_no_truth_copy
+      source_test: galatea/subject/models/tests/test_no_truth_copy.py
+      frozen_gate: C1
+      assertion: 转移面零 env import + 零世界侧常量（无源常量防线）；未观测格预测 = 声明先验×g(d)
+    - id: c1_stack_bit_exact_replay
+      source_test: galatea/subject/models/tests/test_stack_bit_exact.py
+      frozen_gate: C1
+      assertion: 全栈（sensorium→perception→world→prediction→感觉层误差）同流双跑 digest 逐位恒等
+    - id: c1_bounded_adaptation_proposal_only
+      source_test: galatea/subject/learning/tests/test_bounded_proposals.py
+      frozen_gate: C1
+      assertion: 步长 0.125 机械上界越界即拒；RECORDED_ONLY 恒定无 apply 面；台账 digest = checkpoint 增量承载

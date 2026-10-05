@@ -462,3 +462,280 @@ def evaluate_wording_null(
         ),
         recompute_ok=recompute_ok,
     )
+
+
+# ==========================================================================
+# C1 判定执行（stat plan c1_perception_models v1.0；顺延终止条款首次执行）
+# ==========================================================================
+
+_Z_95 = 1.959963984540054
+
+
+def _paired_continuous_stats(
+    diffs: tuple[float, ...], n_expected: int, detected_by: str
+) -> tuple[EvidenceResult | None, float, float, float, float, float, float]:
+    """per-run 配对连续差统计：返回 (insufficient_result|None, mean, sd, d, ci_lo, ci_hi, p)。
+
+    Wald 正态近似（n=64；承 M1/M2 Wald 先例）；d = mean/sd（sd=0 → 饱和处理，
+    上层按 estimand 单调性判定——ADR-G-0007 口径）；p = 双侧正态 z 检验。
+    """
+    if len(diffs) != n_expected:
+        result = EvidenceResult(
+            result_id="", hypothesis_refs=(), stat_plan_ref="",
+            estimand="", effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=(Unknown(
+                reason=UnknownReason.INSUFFICIENT_OBSERVATION, evidence_refs=("trial_count",),
+                detail=f"n={len(diffs)} < frozen n={n_expected}",
+                detected_by=detected_by, virtual_time=0,
+            ),),
+            refutations=(), data_refs=(), recompute_ok=False,
+        )
+        return result, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0
+    n = len(diffs)
+    mean = sum(diffs) / n
+    variance = sum((d - mean) ** 2 for d in diffs) / (n - 1) if n > 1 else 0.0
+    sd = math.sqrt(variance)
+    if sd == 0.0:
+        d = float("inf") if mean > 0 else (float("-inf") if mean < 0 else 0.0)
+        half = 0.0
+        p = 0.0 if mean != 0 else 1.0
+    else:
+        d = mean / sd
+        half = _Z_95 * sd / math.sqrt(n)
+        p = min(1.0, 2.0 * (1.0 - _normal_cdf(abs(mean) / (sd / math.sqrt(n)))))
+    return None, mean, sd, d, mean - half, mean + half, p
+
+
+def _normal_cdf(x: float) -> float:
+    """标准正态 CDF（erf；与 c1profile.normal_cdf 同式——评价面独立实现防循环导入）。"""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def _c1_verdict_from_diff(
+    mean: float, d: float, ci_lo: float, p: float, recompute_ok: bool, d_threshold: float
+) -> tuple[HypothesisVerdict, tuple[str, ...], list[Unknown]]:
+    """配对差判定共享核：d≥阈 且 CI 下界>0 且 p<0.05 → SUPPORTED；
+    mean ≤ 0（方向反转）→ REFUTED；饱和（sd=0, mean>0）→ 阈值单调满足。"""
+    unknowns: list[Unknown] = []
+    refutations: list[str] = []
+    saturated = math.isinf(d) and mean > 0
+    if saturated:
+        unknowns.append(Unknown(
+            reason=UnknownReason.CALIBRATION_UNCERTAIN, evidence_refs=("cohens_d",),
+            detail="cohens_d undefined: zero variance across runs（estimand 单调承载阈值，ADR-G-0007 口径）",
+            detected_by="evidence.evaluator", virtual_time=0,
+        ))
+    if mean <= 0.0:
+        refutations.append("paired_difference_non_positive")
+    saturated_pass = saturated or (d >= d_threshold and ci_lo > 0.0 and p < 0.05)
+    if refutations:
+        return HypothesisVerdict.REFUTED, tuple(refutations), unknowns
+    if recompute_ok and saturated_pass:
+        return HypothesisVerdict.SUPPORTED, (), unknowns
+    return HypothesisVerdict.INCONCLUSIVE, (), unknowns
+
+
+def evaluate_c1_perception_tracking(
+    result_id: str,
+    stat_plan_ref: str,
+    accuracy_diffs: tuple[float, ...],
+    ece: float,
+    ece_max: float,
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c1_perception_tracking 判定（stat plan v1.0 claim 1）。
+
+    EP1 = per-run 准确率差（d≥0.5 + CI 下界>0 + p<0.05，Holm 族内单终点即本点）；
+    EP2 = ECE ≤ ece_max（Q-L03-04 确定性阈值断言）。双 EP 满足 → SUPPORTED；
+    EP1 方向反转 → REFUTED；EP2 越阈 → REFUTED（校准失败 = C1 硬条件失败）。
+    """
+    insufficient, mean, _sd, d, ci_lo, _ci_hi, p = _paired_continuous_stats(
+        accuracy_diffs, n_expected, detected_by
+    )
+    hypothesis_refs = ("c1_perception_tracking",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_cell_decision_accuracy_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(), recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    if ece > ece_max and verdict is not HypothesisVerdict.REFUTED:
+        refutations = ("ece_above_frozen_threshold",)
+        verdict = HypothesisVerdict.REFUTED
+    elif ece > ece_max:
+        refutations = refutations + ("ece_above_frozen_threshold",)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_cell_decision_accuracy_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=_ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}", f"ece={ece:.6f}/{ece_max}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c1_world_prediction(
+    result_id: str,
+    stat_plan_ref: str,
+    mse_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c1_world_prediction 判定（stat plan v1.0 claim 2；阈值 d≥0.5）。"""
+    insufficient, mean, _sd, d, ci_lo, _ci_hi, p = _paired_continuous_stats(
+        mse_diffs, n_expected, detected_by
+    )
+    hypothesis_refs = ("c1_world_prediction",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_post_move_window_mse_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(), recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_post_move_window_mse_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=_ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+
+def evaluate_c1_body_incorporation(
+    result_id: str,
+    stat_plan_ref: str,
+    criterion_diffs: tuple[tuple[float, ...], tuple[float, ...], tuple[float, ...]],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c1_body_incorporation 判定（stat plan v1.0 claim 3；Q-L04-03：三判据各 d≥0.4 且联合）。
+
+    joint = 三判据全部 SUPPORTED；任一方向反转 → REFUTED；否则 INCONCLUSIVE。
+    effect_size = 三判据最小 d（联合短板，Q-L04-03 联合判定的保守估计量）。
+    """
+    names = ("criterion1_sensory_motor", "criterion2_cross_modal", "criterion3_efference")
+    verdicts: list[HypothesisVerdict] = []
+    ds: list[float] = []
+    refutations: list[str] = []
+    unknowns: list[Unknown] = []
+    p_values: list[float] = []
+    for name, diffs in zip(names, criterion_diffs):
+        insufficient, mean, _sd, d, ci_lo, _ci_hi, p = _paired_continuous_stats(
+            diffs, n_expected, detected_by
+        )
+        if insufficient is not None:
+            verdicts.append(HypothesisVerdict.INCONCLUSIVE)
+            ds.append(float("nan"))
+            continue
+        v, refs, unks = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.4)
+        verdicts.append(v)
+        ds.append(d if not math.isinf(d) else mean)
+        refutations.extend(f"{name}:{r}" for r in refs)
+        unknowns.extend(unks)
+        p_values.append(p)
+    if HypothesisVerdict.REFUTED in verdicts:
+        verdict = HypothesisVerdict.REFUTED
+    elif all(v is HypothesisVerdict.SUPPORTED for v in verdicts) and recompute_ok:
+        verdict = HypothesisVerdict.SUPPORTED
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+    finite_ds = [x for x in ds if not math.isnan(x)]
+    effect = min(finite_ds) if finite_ds else None
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("c1_body_incorporation",) + names,
+        stat_plan_ref=stat_plan_ref,
+        estimand="per_run_three_criteria_paired_differences",
+        effect_size=effect,
+        ci=None if effect is None else ConfidenceInterval(lower=effect, upper=effect, level=0.95),
+        p_or_bayes=max(p_values) if p_values else None,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=tuple(refutations),
+        data_refs=tuple(
+            f"{n}:d={d:.4f}" if not math.isnan(d) else f"{n}:n/a" for n, d in zip(names, ds)
+        ),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c1_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: tuple[EvidenceResult, ...],
+    mechanical_ok: bool,
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """C1 复合判定（解离机械判据 + leakage=0 + I1 + 子主张全 SUPPORTED → SUPPORTED）。
+
+    承 evaluate_root_composite 体例（Q-L13-11①）；effect_size/CI/p 由统计核
+    （c1_perception_tracking）承载；mechanical_ok = 解离三断言全过（M2 SC5 先例：
+    机械判据与统计 claim 分立、联合判定）。
+    """
+    if not constituent_results:
+        raise ValueError("c1 composite requires constituent results")
+    refuted = [r for r in constituent_results if r.verdict is HypothesisVerdict.REFUTED]
+    supported = [r for r in constituent_results if r.verdict is HypothesisVerdict.SUPPORTED]
+    refutation_codes = [code for r in refuted for code in r.refutations]
+    if refutation_codes:
+        verdict = HypothesisVerdict.REFUTED
+    elif (
+        len(supported) == len(constituent_results) and mechanical_ok
+        and leakage_free and i1_match and recompute_ok
+    ):
+        verdict = HypothesisVerdict.SUPPORTED
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+    unknowns: list[Unknown] = list(statistical_core.unknowns)
+    if not mechanical_ok:
+        unknowns.append(Unknown(
+            reason=UnknownReason.CONFLICTING_EVIDENCE, evidence_refs=("dissociation_checks",),
+            detail="dissociation mechanical checks failed（解离判据失败：形成/知觉选择性面破损）",
+            detected_by=detected_by, virtual_time=0,
+        ))
+    if not leakage_free:
+        unknowns.append(Unknown(
+            reason=UnknownReason.CONFLICTING_EVIDENCE, evidence_refs=("leakage_report",),
+            detail="leakage probes reported detections（C1 判定不得在泄漏未清时 SUPPORTED）",
+            detected_by=detected_by, virtual_time=0,
+        ))
+    if not i1_match:
+        unknowns.append(Unknown(
+            reason=UnknownReason.CONFLICTING_EVIDENCE, evidence_refs=("recompute_report",),
+            detail="I1 recompute mismatch（recorder 数据复算不 bit-exact）",
+            detected_by=detected_by, virtual_time=0,
+        ))
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("c1_models_formation",)
+        + tuple(ref for r in constituent_results for ref in r.hypothesis_refs),
+        stat_plan_ref=stat_plan_ref,
+        estimand="c1_composite_model_formation",
+        effect_size=statistical_core.effect_size,
+        ci=statistical_core.ci,
+        p_or_bayes=statistical_core.p_or_bayes,
+        verdict=verdict,
+        unknowns=tuple(unknowns),
+        refutations=tuple(refutation_codes),
+        data_refs=statistical_core.data_refs,
+        recompute_ok=recompute_ok,
+    )

@@ -263,7 +263,13 @@ galatea/evidence/                           # 科学平面（非 subject；stric
                          种子标签 `sc4:{phrasing_key}:{requester_key}`（Q-L13-12④；
                          入口规范化钉死——原首评 SC4 派生格式逆向不可判定，
                          冻结工件仍为 M1 wording claim 权威，χ² 敏感性见 Q-L13-12④）
+    runs_c1.py           【C1 实现期次单元交付】C1 正式评价 runner（stat plan
+                         c1_perception_models v1.0：三 claim + 解离机械判据双跑 +
+                         两相动作消费（渲染时序对齐）+ 值空间预测对齐 + I1 复算；
+                         c1_accuracy_diffs/c1_world_mse_diffs/c1_criterion_diffs/
+                         c1_ece_samples 指标纯函数 = I1 复算共用核）
     entry.py             【C0 准备单元交付（REV-0010 R5 收敛项）】正式评价入口
+                         （C1 实现期次单元增补 c1 子命令——run_c1_first_evaluation）
                          （m1|carryover|root 子命令；冻结计划 + Q-L13-12 种子 → 确定性
                          复现 + 工件落盘；ExpansionDecision 签发不在入口——Q-L13-03 gate act）
   recorder/              【R0 准备单元交付（最小范围：四分区 batch 落盘；流式 per-record 入册 C0+）】

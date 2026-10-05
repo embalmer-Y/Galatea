@@ -69,7 +69,7 @@
 - `lld/L10_action_gateway_physio_attribution.md`: 280 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 242 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
 - `lld/L12_language_social.md`: 242 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
-- `lld/L13_evidence_evaluation_registry.md`: 339 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
+- `lld/L13_evidence_evaluation_registry.md`: 345 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）
 
@@ -90,10 +90,10 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：20
+- 扫描 YAML 文件数：21
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：5（只增不减）
+- 清单条目：9（只增不减）
 - OK：本地存在的全部工件与归档锚一致

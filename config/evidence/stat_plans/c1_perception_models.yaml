@@ -1,0 +1,129 @@
+# Galatea C1 冻结统计计划 — 知觉追踪/校准 + 世界预测 + 身体纳入（L03 §1/L04 §1 C1 退出判据）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集）。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式**内嵌本计划**（SC4 χ² 敏感性教训）。
+# 解离判据 = 确定性机械判据（承 M2 SC5 先例：机械判据不入统计 claim），由 runner 机械断言承载。
+stat_plan:
+  id: c1_perception_models
+  version: v1.0
+  frozen_at: "2026-10-05"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L03_perception.md    # 联动 L04 §1/L11 §9 C1 行/L13 §4.3
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死（禁实现期发明）
+    master_seed_hex: "63312d6d6f64656c732d7365616c6564"   # = b"c1-models-sealed".hex()（Q-L13-12① 同族：任意但先于评价钉死）
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes   # ExperimentRunControl._trial_seed 同式
+    label: "c1.models"
+    trial_unit: seeded_run                   # 试次单位 = 种子化 run（ADR-G-0007 口径；m2 ITT 语义同源）
+
+  claims:
+    - claim_id: c1_perception_tracking
+      hypothesis: >
+        可反驳假设：形成层 → 表格贝叶斯融合链在 sealed held-out 上产出的占格后验
+        追踪世界真值——逐格二值判定（posterior ≥ believe_threshold=0.5 → present）
+        的准确率显著优于多数类基线（恒判 absent），且后验标度校准（ECE ≤ 0.05，
+        Q-L03-04 冻结阈值）。若追踪不优于基线或校准越阈 → C1 知觉判据失败。
+      estimand: per_run_cell_decision_accuracy_difference   # per-run：model 准确率 − 基线准确率
+      primary_endpoints:
+        - per_run_accuracy_advantage           # 配对 d ≥ 0.5（min_effects#c1_perception_tracking）
+        - ece_calibration_gate                 # ECE ≤ 0.05（min_effects#calibration_perception；确定性阈值断言）
+      n_per_arm: 64                            # 64 sealed runs（单条件配对设计；"arm" = per-run 配对差条件序列）
+      power: 0.80
+      test: paired_continuous_wald             # per-run 配对差：Wald CI + z 检验（n=64 正态近似，承 M1 Wald 先例）
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c1_perception_tracking}
+      unknown_handling: >
+        域出窗（事件级 OOD，Q-L03-02）整窗剔除并留痕；0.01 冻结损坏率致帧缺失的窗
+        照常剔除（缺失非数据）；abstain 为窗级事件不剔除逐格后验（校准针对后验标度
+        本身）；abstain 率作为描述性指标另报。truth join = evaluator 侧世界快照
+        （body_pos_t + offset 格 patch.kind==resource 且 level≥1）——主体平面不可见。
+
+    - claim_id: c1_world_prediction
+      hypothesis: >
+        可反驳假设：航位推算积分（Q-L04-08：主体动作合同方向语义 × 执行回执）使世界
+        模型对请求位移后的下一窗预测优于持续基线（不积分位移、原样外推上一窗）。
+        若积分不产生预测优势 → efference 跟踪无因果贡献 → C1 世界模型判据失败。
+      estimand: per_run_post_move_window_mse_difference       # per-run：persistence MSE − model MSE（重叠格，>0 为优）
+      primary_endpoints:
+        - per_run_mse_advantage                # 配对 d ≥ 0.5（min_effects#c1_world_prediction）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c1_world_prediction}
+      unknown_handling: >
+        位姿歧义（回执缺口 → 候选分支）的 run 的窗预测缺席（Q-L04-09③ 禁伪装）——
+        本场景请求动作回执齐全、歧义不发生；若发生即记 unknown 并整 run 剔除（禁静默）。
+        重叠格 = 预测值来自占据图（非先验填充）的格——先验填充面（Q-L04-11 声明先验）
+        不入本 claim（其行为另行描述性记录）。
+
+    - claim_id: c1_body_incorporation
+      hypothesis: >
+        可反驳假设：身体纳入三判据（Q-L04-03：各 d≥0.4 且联合成立）在 C1 机械化为
+        三个可干预对照——判据 1（感觉运动一致性）：身体预测与形成内感受帧的残差
+        显著小于陈旧预测对照（模型跟踪具因果承载）；判据 2（跨模态一致性）：真实
+        方向映射的位移积分预测显著优于扰动映射对照（本体/回执面与外感受面耦合）；
+        判据 3（归属侧证 C1 机械型）：有回执的请求位移预测误差显著小于无回执外源
+        位移（efference 缺席 → 预测退化）。任一判据不达 d≥0.4 → 联合主张失败。
+      estimand: per_run_three_criteria_paired_differences      # 三判据各 per-run 配对差
+      primary_endpoints:
+        - criterion1_sensory_motor_staleness_contrast
+        - criterion2_cross_modal_scramble_contrast
+        - criterion3_efference_receipt_contrast
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald             # 三判据各自配对；joint = 全部 SUPPORTED（min_effects joint:true）
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#body_incorporation}
+      unknown_handling: >
+        内感受帧缺失（损坏）的窗从判据 1 剔除并留痕；判据 3 的外源位移窗全程无回执
+        （操纵本体），位姿陈旧不可再同步（Q-L04-09 持续性语义的诚实后果）——对照窗
+        集按计划冻结，不做事后选择；三判据任一 n 不足 → INCONCLUSIVE（unknown ≠ 阴性）。
+
+  scenario:                                    # 场景冻结（机械可复算；全部世界/主体可见面）
+    cycles: 40
+    window_closing: w_align_4                 # 窗 t 于 delivery t+4 关闭（Q-L02-03）；t ∈ [0,35]
+    action_schedule:                          # 请求动作（经 gateway，回执经 outcome 通道延迟 1）
+      moves: {2: N, 3: E, 4: S, 5: W, 6: N, 7: E, 8: S, 9: W, 10: N, 11: E, 12: S, 13: W,
+              14: N, 15: E, 16: S, 17: W, 18: N, 19: E}
+      rests: [21, 26]                         # energy +0.10（m0 冻结 action_energy_delta）
+      energy_headroom_note: 预耗能相（18 步 × −0.01 → 1.0→0.82）使 rest 效应不被
+        energy_max 截断掩没（冒烟诊断发现）；双 rest → 判据 1 对照窗 4 个
+        （{22,23,27,28}）——单 rest 仅 2 窗、5% 帧损坏即清空整 run（正式运行
+        run#11 崩止诊断），4 窗全灭概率 ~1e-10；正式运行前修订（首次完成运行前）
+    uncommanded_displacement:                 # 判据 3 操纵（无命令外源位移；efference 缺席）
+      cycles: {20: S, 22: W, 24: E, 26: N, 28: S, 30: W, 32: E, 34: N, 36: S, 38: W}
+                                              # 10 处（处理臂窗数功效——稀薄 regime 条件化清空的冒烟诊断；
+                                              # world.apply_primitive 直施；不投递 outcome 回执）
+      note: 与 M0 coercion 干预（回执带 coerced 标记）语义区分——本操纵无任何主体可见动作信号
+    action_integration_rule: >                # T1 先行发布语义（时间忠实，两相消费）
+      窗 t 处理：合并相消费 cycle ≤ t 的动作与回执（观测写位于渲染时位姿）；推进相
+      消费 cycle == t+1（预测位姿面 = 窗 t+1 渲染前状态）。外源位移永不进入消费流。
+    endpoint_domains:                         # 各判据取数域（冻结，禁事后选择）
+      tracking_cells: all_25_cells_per_closed_window          # 后验 + evaluator 侧真值 join（位姿无关）
+      post_move_windows: t_in_moves_keys                       # = {2..19}（判别窗：模型已积分位移）
+      overlap_cells: model_prediction_map_based_cells          # 预测来自占据图（非先验填充）的格
+      scramble_control: permuted_direction_map_N-S_E-W         # 评估侧反事实实例（同主体可见输入）
+      criterion2_cell_set: all_25                              # 判据 2 全窗 MSE（双臂同格集）
+      requested_phase_windows: t_in_moves_keys                 # 判据 3 对照臂 = 请求位移窗
+      coercion_windows: t_in_uncommanded_keys                   # 判据 3 处理臂 = 外源位移窗（无回执 →
+                                                               # 模型未积分；位姿陈旧不可再同步 Q-L04-09）
+      criterion3_conditioning: actual_window_peak_ge_0.1       # 条件于实际观测（与条件独立；level-1@d1 可见）
+      criterion1_contrast_windows: rest_in_[u-2,u]_and_no_rest==u           # = {22,23,27,28}（rest@21,26）
+      criterion1_residual: real=abs(pred(u)-frame(u)); lagged=abs(pred(u-2)-frame(u))   # L1（energy+integrity）
+    dissociation_mechanical:                  # 机械判据（不入统计 claim；M2 SC5 先例）
+      run_index: 0                            # 冻结 run 种子复用
+      fault: perception_input_domain_exit     # 知觉输入面注入（窗[0][0]=5.0）——严格下游于形成
+      assertions:
+        - formation_digests_bit_identical     # 双跑形成面 digest 恒等（fault 不上溯）
+        - faulted_abstains_without_objects    # 故障面 abstain + 无对象（对照面：完好面有对象则形成）
+        - degraded_input_confidence_drop      # 降质输入 → 后验/置信同步下降（描述性记录）
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: regimes_x_seeds
+    sealed_fraction: 0.30
+    run_to_cell: sealed_cells[p % len(sealed_cells)]           # 承 run_carryover 分配式
+
+  correction: holm_bonferroni                 # 族 = 本 EvidenceResult 全部主终点（Q-L13-01）

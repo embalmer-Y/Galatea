@@ -1,4 +1,6 @@
 """禁真值拷贝测试（L04 §7 leakage 行 + Q-L04-09/Q-L04-10；oracle 泄漏主防线）。"""
+import pytest
+
 from pathlib import Path
 
 from galatea.subject.models.tests.conftest import profile, world_with_observation
@@ -45,7 +47,7 @@ def test_no_respawn_or_storm_constants_in_world_model():
 
 
 def test_prediction_prior_source_declared():
-    """窗预测的未观测格 = 冻结先验（Q-L04-11 声明来源，非真值）。"""
+    """窗预测的未观测格 = 声明先验 × g(d)（值空间；Q-L04-11 声明来源，非真值）。"""
     from galatea.subject.models.prediction import predict_window
     from galatea.subject.models.world import WorldModel
 
@@ -57,17 +59,22 @@ def test_prediction_prior_source_declared():
     window = preds[0].expected_window
     assert window is not None
     assert len(window) == 5 and all(len(r) == 5 for r in window)
-    # 零观测世界：全部格 = 声明先验 0.35（非真值、非观测冒充）
-    assert all(v == prof.perception.prior_resource_density for row in window for v in row)
+    prior = prof.perception.prior_resource_density
+    gain = prof.perception.gain_by_distance
+    # 零观测世界：值 = 先验 × g(d)（d2 角 = 0.35×0.2 = 0.07；d0 中心 = 0.35）
+    assert window[0][0] == pytest.approx(prior * gain["d2"])
+    assert window[2][2] == pytest.approx(prior * gain["d0"])
+    assert window[0][2] == pytest.approx(prior * gain["d2"])   # (0,-2): d = max(0,2) = 2
 
 
-def test_pose_ambiguity_withholds_predictions():
-    """位姿歧义 → 不发窗预测（禁伪装精确位姿，Q-L04-09③）。"""
+def test_unreadable_receipt_keeps_predictions_flowning():
+    """回执不可读 → 位移合同积分、预测继续发布（Q-L04-09③⁺；Unknown 留痕可审计）。"""
     from galatea.subject.models.prediction import predict_window
 
     prof, model, _, _ = world_with_observation(7, 0.9)
-    model.update(11, (), (), (), requested_moves=("N", "E", "S"))
-    ambiguous = model.pose
-    assert len(ambiguous) > 1
+    belief_gap = model.update(11, (), (), (), requested_moves=("N", "E", "S"))
+    assert any("unreadable" in u.detail for u in belief_gap.unknowns)   # 不可读留痕可审计
+    assert len(model.pose) == 1                      # 合同积分 → 无分支
     belief = model.update(15, (), (), (), requested_moves=())
-    assert predict_window(belief, prof, 16) == ()
+    preds = predict_window(belief, prof, 16)
+    assert len(preds) == 1                           # 预测流不被中断

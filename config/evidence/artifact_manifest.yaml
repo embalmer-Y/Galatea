@@ -1,10 +1,11 @@
 # Galatea 证据工件归档清单（ADR-G-0012 R8：evidence/ gitignore 域的门前工件 digest 锚）
 # 机械核验 = _audit/check_docs.py §8：本地文件 sha256 必须与本清单一致（改动即 FAIL）
 # 纪律：每门退出追加（只增不减）；工件内容修正 = 新条目 + 注记，禁原地改 digest
+# v1.1（2026-10-05，C1 实现期次单元）：新增 C1 首评四工件（复合 + 三子主张）
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.0
-  frozen_at: "2026-10-03"
+  version: v1.1
+  frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
     - name: R-m1-sc3-001
@@ -27,3 +28,19 @@ artifact_manifest:
       path: evidence/r0_expansion/EXP-R0-001.json
       sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
       gate: ExpansionDecision ALLOW
+    - name: R-c1-models-001
+      path: evidence/c1_models_first_evaluation/R-c1-models-001.json
+      sha256: 378dae01e2e3287d8584f238c9eac05d16459b88e9a241588349a63f31b3250a
+      gate: C1 首评复合判定（顺延终止条款首次执行）
+    - name: R-c1-tracking-001
+      path: evidence/c1_models_first_evaluation/R-c1-tracking-001.json
+      sha256: 51a11865888aef79f8b009dc460579df9d1a35effcbc540a7bd565d0f85fdb6e
+      gate: C1 首评——知觉追踪+校准
+    - name: R-c1-worldpred-002
+      path: evidence/c1_models_first_evaluation/R-c1-worldpred-002.json
+      sha256: d2697ec0db04dc09f8bf6464be0881f0424276fb252ef2a981aa91944ce529b5
+      gate: C1 首评——世界预测优于持续基线
+    - name: R-c1-body-003
+      path: evidence/c1_models_first_evaluation/R-c1-body-003.json
+      sha256: af7bcbe6748bef48343fdcb848f41894904665ed79d59a2e331dc997738d2721
+      gate: C1 首评——身体纳入三判据

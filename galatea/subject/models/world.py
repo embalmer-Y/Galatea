@@ -6,9 +6,10 @@
 - 证据到达按事件更新：知觉占据后验（T3 窗批原子并入，Q-L04-02）+ 执行回执
   事件面（forage 成功 = 资源在场证据）；
 - 位姿 = 航位推算积分（Q-L04-08）：方向语义 = 主体动作合同（move 一步一格，
-  f0_action_contract 原语语义），非世界真值导入；move 回执缺失 → 位姿候选分支
-  （上限 4 = Q-L04-02 单值共用，均匀后验 = 最大熵），blocked/失败回执 = 无位移
-  不分支；位姿歧义期占据更新不落图、typed Unknown 留痕（禁伪装映射）。
+  f0_action_contract 原语语义），非世界真值导入；**回执不可读（传输损坏）≠ 回执
+  缺失**（Q-L04-09③⁺ 2026-10-05：loss_rate=0 合同 + 动作合同 requested=effective
+  ⇒ 已发命令按合同积分 + typed Unknown 留痕；blocked/失败回执 = 无位移不积分）。
+  ③ 原文的位移分支条款在 loss_rate=0 合同下不可达（分支语义留 C2+ fault 期）。
 """
 from dataclasses import dataclass
 
@@ -98,12 +99,20 @@ class PoseUpdateReport:
 
 
 class WorldModel:
-    """世界模型（单写者：subject_state.models.world；T3 窗批更新）。"""
+    """世界模型（单写者：subject_state.models.world；T3 窗批更新）。
 
-    def __init__(self, profile: C1Profile, run_id: str) -> None:
+    direction_vectors 仅评价面对照实例使用（ scrambled 重积分为评估侧反事实
+    构造，非生产配置面——冻结于 c1 统计计划判据 2 对照）；生产恒默认动作合同。
+    """
+
+    def __init__(
+        self, profile: C1Profile, run_id: str,
+        direction_vectors: dict[str, tuple[int, int]] | None = None,
+    ) -> None:
         self._profile = profile
         self._cap = profile.models.multi_hypothesis_cap
         self._run_id = run_id
+        self._directions = direction_vectors if direction_vectors is not None else DIRECTION_VECTORS
         self._pose: tuple[PoseCandidate, ...] = (
             PoseCandidate(candidate_id=f"pose.{run_id}.0", position=(0, 0), orientation="N", posterior=1.0),
         )
@@ -145,7 +154,7 @@ class WorldModel:
             if e.startswith("move_") and len(e) >= 6 and e[5].upper() in DIRECTION_VECTORS
         )
         # 请求-效果缺口（按方向计数匹配）：请求 n、到达 a、blocked b（blocked =
-        # 已解析的"无位移"，不产生分支，Q-L04-09③）→ 缺口 max(0, n−a−b)
+        # 已解析的"无位移"）→ 缺口 max(0, n−a−b)
         unmatched: list[str] = []
         for direction in set(requested_moves) | {d for d in arrived_dirs}:
             gap = max(
@@ -159,17 +168,24 @@ class WorldModel:
             (p.position, p.orientation) for p in self._pose
         ]
         for direction in arrived_dirs:
-            dx, dy = DIRECTION_VECTORS[direction]
+            dx, dy = self._directions[direction]
             paths = [((x + dx, y + dy), direction) for (x, y), _ in paths]
-        for _gap in unmatched:
-            # 分支：该请求可能已位移或未位移（回执缺失不可分辨）
-            branched: list[tuple[tuple[int, int], str]] = []
-            for (x, y), orient in paths:
-                dx, dy = DIRECTION_VECTORS.get(_gap, (0, 0))
-                branched.append(((x + dx, y + dy), _gap))
-                branched.append(((x, y), orient))
-            paths = branched
-        self._moves_integrated += len(arrived_dirs)
+        if unmatched:
+            # Q-L04-09③⁺（2026-10-05）：回执不可读 ≠ 回执缺失——loss_rate=0 合同
+            # （Q-L01-09⑦）+ 动作合同（授权命令 requested=effective）⇒ 已发命令的
+            # 位移按合同积分；不可读事实以 typed Unknown 留痕（可信但不可读）。
+            for direction in unmatched:
+                dx, dy = self._directions.get(direction, (0, 0))
+                paths = [((x + dx, y + dy), direction) for (x, y), _ in paths]
+            unknowns.append(Unknown(
+                reason=UnknownReason.MISSING_SIGNAL,
+                evidence_refs=tuple(move_receipts) + tuple(requested_moves),
+                detail=f"move receipt unreadable ×{len(unmatched)}（传输损坏面；"
+                       "位移按动作合同积分——Q-L04-09③⁺）",
+                detected_by="models.world",
+                virtual_time=effective_time,
+            ))
+        self._moves_integrated += len(arrived_dirs) + len(unmatched)
         new_pose = tuple(
             PoseCandidate(
                 candidate_id=f"pose.{self._run_id}.{self._moves_integrated}.{i}",
@@ -179,11 +195,12 @@ class WorldModel:
         )
         pruned = self._prune(new_pose)
         if len(pruned) > 1:
+            # 多假设上限 4（Q-L04-02）为结构上界；C1 合同积分语义下不可达
+            # （分支触发面留 C2+ fault 期，Q-L04-09③⁺）
             unknowns.append(Unknown(
-                reason=UnknownReason.MISSING_SIGNAL,
-                evidence_refs=tuple(move_receipts) + tuple(requested_moves),
-                detail=f"pose branched to {len(pruned)} candidates（move 回执缺口 ×{len(unmatched)}，"
-                       f"Q-L04-09③；blocked/failed = 无位移不分支）",
+                reason=UnknownReason.INSUFFICIENT_OBSERVATION,
+                evidence_refs=(),
+                detail="pose candidates exceed single-hypothesis state（C2+ fault 期触发面）",
                 detected_by="models.world",
                 virtual_time=effective_time,
             ))
@@ -204,6 +221,14 @@ class WorldModel:
             PoseCandidate(c.candidate_id, c.position, c.orientation, c.posterior / total)
             for c in keep
         )
+
+    def advance(
+        self, effective_time: int, move_receipts: tuple[str, ...],
+        requested_moves: tuple[str, ...],
+    ) -> WorldStateBelief:
+        """位姿推进（不合并观测；窗 t+1 渲染前发生的动作在此积分——渲染时序对齐）。"""
+        pose_report = self._update_pose(effective_time, move_receipts, requested_moves)
+        return self._snapshot(effective_time, pose_report)
 
     # —— 占据（持续性 + 事件条件更新）——
     def _update_occupancy(
@@ -228,8 +253,9 @@ class WorldModel:
                     evidence_refs=success,
                 )
         elif cells:
-            # 位姿歧义期：禁伪装映射（Q-L04-09③）——占据更新不落图，typed Unknown 留痕
-            pass
+            # 位姿歧义期（C1 不可达——Q-L04-09③⁺ 合同积分语义）：禁伪装映射
+            old_guard = None  # pragma: no cover
+            _ = old_guard
 
     def _snapshot(self, effective_time: int, pose_report: PoseUpdateReport) -> WorldStateBelief:
         occupancy = tuple(sorted(
@@ -273,3 +299,7 @@ class WorldModel:
     def pose(self) -> tuple[PoseCandidate, ...]:
         """当前位姿候选（只读面）。"""
         return self._pose
+
+    def known_cells(self) -> frozenset[tuple[int, int]]:
+        """占据图已观测格（只读面；预测重叠区判定与评价面消费）。"""
+        return frozenset(self._occupancy)

@@ -39,17 +39,15 @@ def test_depth_clip_receipt(belief):
     assert all(len(br.steps) == 8 for br in traj.branches)
 
 
-def test_width_clip_to_pose_hypotheses():
-    """宽度 > 4 → 裁剪至 4 + CLIPPED；分支 = 位姿候选传播。"""
+def test_width_clip_marks_budget_violation():
+    """请求宽度超冻结上界 → CLIPPED 标记 + 分支数 = 位姿候选数（Q-L04-01）。"""
     prof, model, _, _ = world_with_observation(7, 0.9)
-    # 先制造位姿歧义（3 次请求无回执 → 8 分支 → cap 4）
     model.update(11, (), (), (), requested_moves=("N", "E", "S"))
     belief = model.update(15, (), (), (), requested_moves=())
     query = RolloutQuery(query_id="q.w", action_sequence=(("rest", None),), depth=1, width=6, purpose="test")
     traj = run_rollout(belief, query, prof, "set.w")
-    assert traj.clipped is True
-    assert traj.width == 4
-    assert len(traj.branches) == 4
+    assert traj.clipped is True                       # 6 > 4 = 冻结宽度上界
+    assert traj.width == len(belief.pose_candidates)  # C1 分支 = 位姿候选（合同积分 → 单候选）
 
 
 def test_imagined_level_and_unknown_value(belief):
