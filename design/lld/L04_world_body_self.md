@@ -1,6 +1,6 @@
 # L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差
 
-> LLD: L04/14 · v1.0 · 2026-09-13 · 状态：WORKING（C1 冻结前）
+> LLD: L04/14 · v1.0.1 · 2026-10-03（v1.0.1：§11 C1 阻断四项转 CONFIRMED——成批裁决；egocentric+dead-reckoning 范围发现见 ADR-G-0013）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
 > 上游：`HLD.md` §4/§5/§6 · `L02_sensorium.md`（内感受/本体感受帧）· `L03_perception.md`（PerceptualBelief）· `L00_kernel.md`
 > 下游消费者：L05（appraisal）、L07（workspace 候选）、L08（可行性）、L09（model-based 控制器/主动感知）、L10（forward model）、L11（学习提案）
 > 引入门槛：**C1**（世界/身体/自我模型、rollout、主动感知、OOD）→ **C4**（forward/inverse、EfferenceCopy 关联）→ **C5**（模型更新经 promotion）
@@ -216,10 +216,10 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L04-01 | rollout 深度/宽度上界默认值（建议 8/4）与超预算裁剪策略 | C1 | UNCONFIRMED |
-| Q-L04-02 | 世界信念更新率与多假设保留上限（与 Q-L03-05 联动） | C1 | UNCONFIRMED |
+| Q-L04-01 | rollout 深度/宽度上界默认值（建议 8/4）与超预算裁剪策略 | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
+| Q-L04-02 | 世界信念更新率与多假设保留上限（与 Q-L03-05 联动） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L04-03 | 身体纳入三判据的冻结阈值与最小效应量（需 L13 统计计划） | C1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：三判据各 d≥0.4 且联合成立） |
-| Q-L04-04 | 自我预测误差的维度定义与时间常数（联动 Q-L05-*） | C1/C2 | UNCONFIRMED |
+| Q-L04-04 | 自我预测误差的维度定义与时间常数（联动 Q-L05-*） | C1/C2 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度（与 L03-06 affordance 枚举、L10 能力契约对齐） | C3/C4 | UNCONFIRMED |
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照） | M2 | CONFIRMED（AI-v2 2026-09-26：主判据=谱系断裂；延续主张 gap=0、分支主张允许，见 A 区） |
-| Q-L04-07 | C1+ 神经世界模型替换表格模型时的等价性/泄漏验证方法（与 Q-L03-07 同源） | C1 | UNCONFIRMED |
+| Q-L04-07 | C1+ 神经世界模型替换表格模型时的等价性/泄漏验证方法（与 Q-L03-07 同源） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |

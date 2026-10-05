@@ -1,0 +1,72 @@
+# Galatea C1 冻结规格 — 知觉信念 + 三模型接口（L03/L04/L11 C1 件 + L02 C1 件）
+# 效力：C1 门冻结合同（拟 ADR-G-0013 · tag c1-freeze · 2026-10-03）。
+# 纪律：全部数值溯源既有裁决（Q-L02-01/04/06、Q-L03-01/02/03/05/07、Q-L04-01/02/04/07、
+# Q-L09-08、Q-L11-01/06 + Q-L00-01 频率比 + m0_mw0 冻结参数派生）；冻结前可行性探针
+# 已执行（结论入 ADR-G-0013：似然表派生 ✓/确定性 ✓/连贯响应 ✓/egocentric 范围发现）。
+profile:
+  id: c1_perception_models
+  version: v1.0
+  frozen_at: "2026-10-03"
+  authority: AI-v2
+  spec_ref: design/lld/L03_perception.md   # 联动 L04/L11/L02 §11
+
+perception:                                  # L03 C1（Q-L03-01/02/03/05）
+  confidence_scale: probability_[0,1]        # Q-L03-01：直接概率，拒 logit/离散档；float64（Q-T10）
+  believe_threshold: 0.5                     # Q-L03-02：最大熵决策点（零自由参数）
+  ood_rule: event_level_domain_exit          # Q-L03-02：特征越定义域即 OOD（零连续阈值）
+  abstain: binary                            # Q-L03-02：分级承诺留 C2
+  hypothesis_cap: 4                          # Q-L03-05：多假设保留上限（2 的幂）
+  collapse_confidence: 0.9                   # Q-L03-05：塌缩条件一（单假设后验）
+  collapse_margin: 0.6                       # Q-L03-05：塌缩条件二（窗关闭首尾后验差）
+  collapse_tie: keep_all_to_cap              # Q-L03-05：tie 保留至容量（id 升序）
+  belief_reopenable: true                    # Q-L03-05：信念非承诺（承诺归 L08）
+  tabular_fusion:
+    prior_source: regime_resource_density    # Q-L03-03：π 由 regime 覆盖率派生（Q-L01-09③）
+    likelihood_source: m0_gain_map_plus_sigma_quantization   # Q-L03-03：g(d)（Q-L01-01）+ σ 5 档
+    bin_edges: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]   # 5 档确定性量化（Q-L03-03）
+    tail_merge: outer_bins                   # 左右尾并入端 bin
+    learning_from_data: forbidden            # C1 无学习（Q-L03-03）
+  distance_metric: chebyshev_egocentric      # 窗结构已知距离（可行性探针 ② 语义）
+
+models:                                      # L04 C1（Q-L04-01/02/04/07）
+  world_model:
+    scope: egocentric_plus_dead_reckoning    # 可行性探针发现：位置不在主体平面（Q-L01-09⑥）——
+                                             # 绝对地图不可达；C1 = egocentric 占据信念 + 航位推算位姿
+                                             # （不确定性入 typed unknown；allocentric 留 C2+ 新 Q）
+    update_period_cycles: 4                  # Q-L04-02：T3 窗批更新（Q-L00-01）
+    multi_hypothesis_cap: 4                  # Q-L04-02：与 Q-L03-05 单值共用
+  rollout:
+    depth_max: 8                             # Q-L04-01
+    width_max: 4                             # Q-L04-01
+    over_budget_prune: width_desc_by_posterior   # Q-L04-01：确定性裁剪（tie id 升序）
+    budget_in_checkpoint: true               # Q-L04-01：digest 引用制（Q-L00-05）
+  self_model:
+    error_dimensions: body_state_vector      # Q-L04-04：energy/integrity/load 二阶差分+朝向变化+能力偏差
+    tau_fast_cycles: 4                       # Q-L04-04：T3（Q-L00-01，零新常数）
+    tau_slow_cycles: 64                      # Q-L04-04：T6（同上）
+  error_layer_weights: [1, 1, 1]             # Q-L09-08：感觉:知觉:模型 = 1:1:1（等权零参数）
+  cross_layer_normalization: forbidden       # Q-L09-08：层级化纪律（禁互相顶替）
+  neural_replacement:                        # Q-L03-07/Q-L04-07 同源成组（C1 本体表格，不触发）
+    three_part_equivalence: [output_distribution, downstream_decision_distribution, ablation_selectivity]
+    model_leakage_probe: forbidden_truth_fields   # 真值直通字段探针（注入可失败）
+    implementation_change_requires_new_evidence_result: true
+
+learning:                                    # L11 C1（Q-L11-01/06）
+  online_step_cap: 0.125                     # Q-L11-01：2^-3（Laplace 等价步长）
+  learning_rate_in_frozen_profile: mandatory # Q-L11-01：禁实现期发明
+  neural_components: deferred_to_c5          # Q-L11-01：显式不预支
+  persistence: checkpoint_incremental        # Q-L11-06：重启复位 = 经历可抹除（违反连续性语义）
+  proposal_only: true                        # L11 §9 C1 行：误差驱动提案雏形不生效只记录
+
+sensorium_c1:                                # L02 C1（Q-L02-01/04/06）
+  calibration:
+    version_id: c1-static-v1                 # Q-L02-01：单版本延续；换版仅经 profile 重冻结
+    runtime_drift: forbidden                 # Q-L02-01：运行期零漂移零在线更新
+  quality:
+    scale: [0.0, 1.0]                        # Q-L02-04：跨模态比较仅允许 [0,1] 分量
+    snr_est: placeholder_to_c2               # Q-L02-04：连续估计器随 Q-L05-* （不预支）
+  pred_error_feature_space: formed_features_flat   # Q-L02-06：5×5 展平/事件 one-hot/四 sensation/朝向 one-hot
+  precision_weighting: deferred_to_c2        # Q-L02-06：精度加权随 L05
+
+determinism:
+  rng_operators: none_c1                     # 表格贝叶斯/更新/EWMA 全确定性（无流注册，Q-G00-10）

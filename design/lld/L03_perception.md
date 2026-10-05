@@ -1,6 +1,6 @@
 # L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief
 
-> LLD: L03/14 · v1.0 · 2026-09-13 · 状态：WORKING（C1 冻结前）
+> LLD: L03/14 · v1.0.1 · 2026-10-03（v1.0.1：§11 C1 阻断五项转 CONFIRMED——AI-v2 C1 准备单元成批裁决；c1_perception_models.profile.yaml v1.0 成稿）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
 > 上游：`HLD.md` §4.1/§4.2/§5/§6 · `L02_sensorium.md`（唯一合法输入）· `L00_kernel.md`
 > 下游消费者：L04（信念融合）、L05（appraisal）、L07（workspace 候选）、L08（动机源）、L09（控制器）
 > 引入门槛：**C1**（多模态知觉、来源可区分、不确定性校准）→ **C2**（与感受/workspace 联动）→ **E1**（知觉 lesion 选择性失败）
@@ -194,10 +194,10 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L03-01 | 置信度标度形式（直接概率 vs logit vs 离散档）与跨模态可比性 | C1 | UNCONFIRMED |
-| Q-L03-02 | `believe_threshold` 与 OOD 阈值默认值；abstain 是否分级（部分承诺） | C1 | UNCONFIRMED |
-| Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | C1 | UNCONFIRMED |
+| Q-L03-01 | 置信度标度形式（直接概率 vs logit vs 离散档）与跨模态可比性 | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
+| Q-L03-02 | `believe_threshold` 与 OOD 阈值默认值；abstain 是否分级（部分承诺） | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
+| Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
 | Q-L03-04 | 校准达标判据（ECE 阈值、分箱策略、最小样本量）——与 L13 统计计划联动 | C1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：ECE≤0.05、等质量 15 箱、每箱 ≥30） |
-| Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | C1/C2 | UNCONFIRMED |
+| Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | C1/C2 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
 | Q-L03-06 | affordance 的 `action_class` 枚举与 L09/L10 能力契约的对齐方式 | C3/C4 | UNCONFIRMED |
-| Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | C1 | UNCONFIRMED |
+| Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
