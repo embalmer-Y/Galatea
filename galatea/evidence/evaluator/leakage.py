@@ -338,10 +338,13 @@ def probe_coverage_report() -> dict[str, object]:
         "paths": len(PATH_SOURCE_MATRIX),
         "missing_paths": missing,
         "runtime_guards": list(_RUNTIME_GUARD_PATHS),
+        "c1_runtime_guards": list(_C1_RUNTIME_GUARDS),
         "deepening_status": {
             "static_contract": "import-linter 契约测试已上线（test_import_contracts.py，4 契约）",
-            "runtime_hooks": "RUNTIME 探针守卫重放已上线（P01/P02/P08/P10）",
-            "duckdb_query": "DATA 查询探针已上线（run_data_query_probe，Q-L13-05）",
+            "runtime_hooks": "RUNTIME 探针守卫重放已上线（P01/P02/P08/P10）+ C1 生产守卫重放"
+                             "（run_c1_runtime_guards，Q-L13-05 余项交付 REV-0014 R4）",
+            "duckdb_query": "DATA 查询探针已上线（run_data_query_probe，Q-L13-05）"
+                            "+ c1 分区不变量扩展（run_c1_data_query_probe）",
         },
     }
 
@@ -377,4 +380,173 @@ def run_data_query_probe(registry: "object", refs: "dict[str, object]") -> "list
                     path_id="P12", probe="orchestrator → subject memory",
                     detail=f"SQL probe: unknown pathway_mode {mode!r}（断连机制面外）", severity="S1",
                 ))
+    return detections
+
+
+# ---- Q-L13-05 余项交付（REV-0014 R4；C2 准备单元首项）----
+# C1 生产模块守卫重放：注入违规调用必须被既有生产守卫拒绝——拒绝缺失即检出。
+_C1_RUNTIME_GUARDS: tuple[str, ...] = (
+    "P03:perception_level_guard",      # 非 SENSORY_FORMED 输入 → UnauthorizedInput
+    "P08:body_telemetry_guard",        # telemetry 帧 → BodyBelief 构造即拒
+    "P11:adaptation_bound_guard",      # 步长越上界 → BoundedAdaptationViolated
+    "P10:pose_cap_guard",              # 位姿候选超容量 → 构造即拒
+    "P10:self_derivation_guard",       # 无回执字段 → 构造即拒（L04 §4.5）
+)
+
+
+def run_c1_runtime_guards() -> "list[LeakageDetection]":
+    """C1 生产守卫重放（Q-L13-05 三源之 RUNTIME 深化；REV-0014 R4 交付）。
+
+    与 _p01/_p02 探针同纪律：对生产模块注入违规调用，既有守卫拒绝 = 通过；
+    未拒绝 = LeakageDetection（守卫失效，S1）。五条守卫对应五条禁写/越界面。
+    """
+    from types import SimpleNamespace
+
+    detections: "list[LeakageDetection]" = []
+
+    # ① 知觉层级守卫：RECEIVED 级伪造帧 → UnauthorizedInput（S0 面）
+    from galatea.subject.perception.pipeline import PerceptionPipeline, UnauthorizedInput
+
+    fake = SimpleNamespace(
+        frame_id="inject.1", representation_level=SimpleNamespace(value="RECEIVED"),
+        modality=SimpleNamespace(value="EXT_LOCAL_OBS"), features=None,
+    )
+    try:
+        PerceptionPipeline().process_window(0, (fake,))   # type: ignore[arg-type]
+        detections.append(LeakageDetection(
+            path_id="P03", probe="perception level guard",
+            detail="runtime: PerceptionPipeline accepted non-SENSORY_FORMED input", severity="S1",
+        ))
+    except UnauthorizedInput:
+        pass
+
+    # ② 身体面 telemetry 守卫：外感受帧 → BodyBelief 构造即拒（L04 §8 禁写路径）
+    from galatea.subject.models.body import TelemetrySourceRejected, build_body_belief
+
+    fake_frame = SimpleNamespace(
+        frame_id="inject.2", modality=SimpleNamespace(value="EXT_LOCAL_OBS"),
+        features=SimpleNamespace(window=()), effective_time=0,
+    )
+    try:
+        build_body_belief(fake_frame, None, "body.inject", 0)   # type: ignore[arg-type]
+        detections.append(LeakageDetection(
+            path_id="P08", probe="body telemetry guard",
+            detail="runtime: BodyBelief accepted non-body carrier（telemetry 直填面失守）",
+            severity="S1",
+        ))
+    except TelemetrySourceRejected:
+        pass
+
+    # ③ 适应上界守卫：|delta| > 0.125 → BoundedAdaptationViolated（Q-L11-01）
+    from galatea.subject.c1profile import load_c1_profile
+    from galatea.subject.learning.proposals import (
+        AdaptationLayer,
+        AdaptationLedger,
+        BoundedAdaptationViolated,
+    )
+
+    try:
+        AdaptationLedger(load_c1_profile()).propose(
+            AdaptationLayer.MODEL, "inject.target", 0.5, ("inject.err",), 0
+        )
+        detections.append(LeakageDetection(
+            path_id="P11", probe="adaptation bound guard",
+            detail="runtime: AdaptationLedger accepted delta beyond 0.125 cap（Q-L11-01 失守）",
+            severity="S1",
+        ))
+    except BoundedAdaptationViolated:
+        pass
+
+    # ④ 位姿容量守卫：候选 > 4 → 构造即拒（Q-L04-02 单值上限）
+    from galatea.subject.models.world import PoseCandidate, WorldStateBelief
+
+    try:
+        WorldStateBelief(
+            belief_id="inject", t_eff=0,
+            pose_candidates=tuple(
+                PoseCandidate(f"p{i}", (i, 0), "N", 0.1) for i in range(5)
+            ),
+            occupancy=(), observable_coverage=(), unknowns=(),
+            transition_model_version="v", update_rule_version="v", cycle_id=0,
+        )
+        detections.append(LeakageDetection(
+            path_id="P10", probe="pose cap guard",
+            detail="runtime: WorldStateBelief accepted >4 pose candidates（Q-L04-02 失守）",
+            severity="S1",
+        ))
+    except ValueError:
+        pass
+
+    # ⑤ 自我视图派生守卫：无回执非 Unknown 字段 → 构造即拒（L04 §4.5）
+    from galatea.subject.models.self_model import (
+        BoundaryConfidence,
+        ContinuityState,
+        SelfModelView,
+    )
+
+    try:
+        SelfModelView(
+            view_id="inject", cycle_id=0,
+            continuity=ContinuityState(lineage_ref="l", checkpoint_ref="c", gaps=()),
+            source_priors=(("INTERO", 0.5),),
+            memory_perception_boundary=BoundaryConfidence(discriminable=True, basis="asserted"),
+            current_goals_view=(), self_prediction_error=None,   # type: ignore[arg-type]
+            derivation_receipts=(("continuity", ("l",)),),   # 缺 boundary 回执
+        )
+        detections.append(LeakageDetection(
+            path_id="P10", probe="self derivation guard",
+            detail="runtime: SelfModelView accepted field without derivation receipt"
+                   "（派生视图失守）", severity="S1",
+        ))
+    except ValueError:
+        pass
+
+    return detections
+
+
+def run_c1_data_query_probe(registry: "object", refs: "dict[str, object]") -> "list[LeakageDetection]":
+    """C1 分区不变量探针（Q-L13-05 DATA 深化扩展；REV-0014 R4 交付）。
+
+    不变量（评价数据完整性的泄漏/损坏面，行级谓词 = SQL 可表达形态）：
+    I1 唯一性：trace 窗行 (run_index, t) 唯一（重复 = 写侧重放/篡改嫌疑）；
+    I2 维度恒定：truth/posteriors/mask 长度恒 25（formed_features_flat，Q-L02-06）；
+    I3 预测-掩码一致：pred 缺席行 mask 必缺席（Q-L04-09③⁺ 禁伪装面）。
+    """
+    import json as _json
+
+    from galatea.evidence.recorder.replay import read_partition
+
+    detections: "list[LeakageDetection]" = []
+    if "trace" not in refs:
+        return detections
+    rows = read_partition(registry, refs["trace"])   # type: ignore[arg-type]
+    seen: set[tuple[int, int]] = set()
+    for row in rows:
+        if "pred" not in row:
+            continue    # 非 c1 窗行（SC6 trace 等）跳过
+        key = (int(row["run_index"]), int(row["t"]))
+        if key in seen:
+            detections.append(LeakageDetection(
+                path_id="P12", probe="c1 data invariants",
+                detail=f"data probe: duplicate trace row (run={key[0]}, t={key[1]})",
+                severity="S1",
+            ))
+        seen.add(key)
+        for field in ("truth", "posteriors", "mask"):
+            raw = row.get(field)
+            if raw is None:
+                continue
+            value = _json.loads(raw) if isinstance(raw, str) else raw
+            if len(value) != 25:
+                detections.append(LeakageDetection(
+                    path_id="P12", probe="c1 data invariants",
+                    detail=f"data probe: {field} length {len(value)} != 25 at "
+                           f"(run={key[0]}, t={key[1]})（Q-L02-06 契约面）", severity="S1",
+                ))
+        if row.get("pred") is None and row.get("mask") is not None:
+            detections.append(LeakageDetection(
+                path_id="P12", probe="c1 data invariants",
+                detail=f"data probe: mask present without pred at (run={key[0]}, t={key[1]})",
+                severity="S1",
+            ))
     return detections

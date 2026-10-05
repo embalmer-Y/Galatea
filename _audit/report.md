@@ -10,15 +10,17 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**150**
-  - CONFIRMED: 90
-  - UNCONFIRMED: 59
+- 登记册声明 Q 号：**148**
+  - CONFIRMED: 93
+  - UNCONFIRMED: 54
   - CLOSED: 1
-  - 分区分佈：{'A': 90, 'B': 4, 'C': 3, 'D': 1, 'E': 2, 'F': 1, 'G': 1, 'H': 6, 'I': 8, 'J': 6, 'K': 4, 'L': 6, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
+  - 分区分佈：{'A': 93, 'B': 3, 'C': 3, 'D': 1, 'E': 2, 'F': 1, 'G': 1, 'H': 2, 'I': 8, 'J': 6, 'K': 4, 'L': 6, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
 
 - OK：无重复声明
 
-- **WARNING 被引用但登记册未声明（1）**：
+- **WARNING 被引用但登记册未声明（3）**：
+  - `Q-G00-05` → HLD.md, README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
+  - `Q-L05-05` → README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-T08b` → HLD.md, README.md
 
 - 仅在登记册出现（未被任何 LLD/HLD 引用）的 Q 号数：0

@@ -1,6 +1,6 @@
 # L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值
 
-> LLD: L05/14 · v1.0 · 2026-09-13 · 状态：WORKING（C2/C3 冻结前）
+> LLD: L05/14 · v1.0.1 · 2026-10-05（v1.0.1：C2 阻断清零——§4.1/§4.2/§4.3/§4.5 内联 UNCONFIRMED 标记转 CONFIRMED（Q-L05-01/02/03 + Q-L05-05/Q-G00-05 成组，AI-v2 经 owner 备案程序）+ §11 表同步）· v1.0 2026-09-13 · 状态：WORKING（C2 冻结前）
 > 上游：`HLD.md` §1.2/§5/§6/§11.1 · `L02_sensorium.md`（内感受帧）· `L04_world_body_self.md`（BodyBelief/mismatch）· `L00_kernel.md`
 > 下游消费者：L02/L03/L04（有界调制）、L07（显著性）、L08（Motive 源）、L09（metacontrol）、L11（学习信号之一，**不是** reward）
 > 引入门槛：**C2**（drive/appraisal/持续感受态 + 有界调制 + 增益回执）→ **C3**（驱动 Motive）→ **C5**（情感记忆联动）
@@ -82,27 +82,27 @@ FunctionalExperientialState(
   provenance, content_digest )
 ```
 
-**取值域与量纲**：九维统一 [0,1] 或 [-1,1] 的具体规定 UNCONFIRMED → Q-L05-01；`tendencies` 的 `action_class` 枚举须与 L03 affordance / L10 能力契约对齐 → Q-L05-06。
+**取值域与量纲（Q-L05-01 CONFIRMED，AI-v2 2026-10-05）**：valence ∈ [−1,1] 对称（改善正/恶化负——§4.2 定义的字面操作化）；其余八维 ∈ [0,1]；跨维可比性 = 禁跨维聚合（向量态，单标量折叠 = Q-L05-07 塌缩面）；全维 float64。`tendencies` 的 `action_class` 枚举须与 L03 affordance / L10 能力契约对齐 → Q-L05-06（C3/C4）。
 
 ### 4.2 内稳态价值（valence 的定义，承 D-10 与第一性原理公理 C）
 
 - 每个驱力 $d$ 有 set-point $s_d$ 与当前信念值 $x_d$（来自 `BodyBelief`），稳态误差 $e_d = |x_d - s_d|$。
 - **效价 = 加权稳态误差的变化方向**：$\text{valence} \propto -\frac{d}{dt}\sum_d w_d\, e_d$（改善为正、恶化为负），并对趋势做有界平滑。
 - 这不是外部 reward：不存在环境提供的标量奖励项；不存在"最大化累积奖励"的目标函数。viability 风险由 `HomeostaticAlert` 表达，而非以 reward 塑形行为。
-- $w_d$ 来自 profile（UNCONFIRMED → Q-L05-02），且可被 `persistence`/appraisal 有界调制；权重重置须经 promotion（L11），禁在线自改（防"价值自我放大"）。
+- $w_d$（Q-L05-02 CONFIRMED，AI-v2 2026-10-05）：**1:1:1 等权**（Q-L09-08 零参数先例同源）；**set-point = 冻结满值**（energy_max/integrity_max/0——m0 冻结参数派生，初始态零误差）；appraisal 动态调整 C2 = 0（禁在线自改，防"价值自我放大"）；权重重置须经 promotion（L11，C5 面裁决）。
 
 ### 4.3 动力学（积分、迟滞、衰减、饱和、恢复、重新评价）
 
 | 机制 | 实现 | 可测痕迹 |
 |---|---|---|
-| 积分 | 各维一阶低通 + 累积项（时间常数 τ_dim，UNCONFIRMED → Q-L05-03） | 阶跃输入下的上升时间常数 |
-| 迟滞 | 上升/下降阈值不同（band），防止抖动切换 | 同一刺激在升/降路径产生不同输出 |
-| 衰减 | 无新证据时按 τ 衰减回基线 | 刺激撤除后的回落曲线 |
+| 积分 | 各维一阶低通 + 累积项（**τ_int = 4 cycles**，T3 同拍——Q-L05-03 CONFIRMED） | 阶跃输入下的上升时间常数 |
+| 迟滞 | 上升/下降阈值不同（**band = 0.1 = 2×render_noise_sigma**，噪声免疫间隙——Q-L05-03），防止抖动切换 | 同一刺激在升/降路径产生不同输出 |
+| 衰减 | 无新证据时按 **τ_dec = 16 cycles**（T4 拍——Q-L05-03）衰减回基线 | 刺激撤除后的回落曲线 |
 | 饱和 | 有界 clip + `saturation_hits` 计数 | 强刺激下不再线性增长且计数上升 |
 | 恢复 | 稳态误差回落 → `recovery_phase` 标记 | 恢复期与告警期的可区分状态 |
 | 重新评价 | `ReappraisalRequest` 触发对既有 appraisal 的重算（引用旧事件，产 revision） | 重新评价前后 valence 轨迹差 + 回执 |
 
-全部算子确定性（无全局 RNG；若需噪声用 L00 派生流 `("affect", dim, stream_name)`）；参数冻结于 profile。
+全部算子确定性（**C2 零噪声算子**——不注册派生流，Q-G00-10 纪律；需噪声时经新 Q + 流名册登记）；参数冻结于 c2_affect.profile（冻结前可行性探针复核）。
 
 ### 4.4 ModulationField（有界、可回执、有 TTL）
 
@@ -124,7 +124,7 @@ ModulationField(
 
 - 驱力集合 MW0 期最小集：`ENERGY`、`INTEGRITY`、`LOAD`（联动 Q-L01-08 阈值）；后续可扩展但须新 profile。
 - `HomeostaticAlert(severity)` 分级触发 → 交 L09 metacontrol（策略切换）与 L08（Motive 升级），**不**直接触发动作。
-- 伦理边界（承 Q-G00-05）：持续极端 aversive-like 状态（`valence` 低于阈值且 `persistence` 高于阈值达冻结持续时长）→ 触发 `EthicsReviewTrigger` 事件，暂停 claim-relevant 运行并交人工评审；阈值 UNCONFIRMED → Q-L05-05，且须与 Q-G00-05 owner 裁决一致。
+- 伦理边界（**Q-L05-05 + Q-G00-05 成组 CONFIRMED，AI-v2 2026-10-05，经 owner 备案程序**）：触发判据 = **valence ≤ −0.8 且 persistence ≥ 0.8 持续 ≥ 64 cycles**（域边缘 20% + T6 拍）；触发即 `EthicsReviewTrigger` 事件 → 暂停 claim-relevant 运行 → **人工评审（owner）**：恢复须 owner 显式批准、终止 = owner 决定；保守默认维持（触发即暂停）。消融注入面随实现交付（移除 ethics_guard → 触发消失且其余动力学不变）。
 
 ### 4.6 三情感模式与 MW0 regime 的对应
 
@@ -223,11 +223,11 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L05-01 | 九维的取值域与量纲（[0,1] vs [-1,1]，valence 是否对称）与跨维可比性 | C2 | UNCONFIRMED |
-| Q-L05-02 | 内稳态误差权重 `w_d` 默认值与是否允许 appraisal 有界动态调整（调整幅度上界） | C2 | UNCONFIRMED |
-| Q-L05-03 | 各维时间常数 τ、迟滞带宽、衰减率的默认谱（与 T 级频率联动 Q-L00-01） | C2 | UNCONFIRMED |
+| Q-L05-01 | 九维的取值域与量纲与跨维可比性 | C2 | CONFIRMED（AI-v2 2026-10-05，见 A 区：valence ∈ [−1,1] 对称、其余 [0,1]、禁跨维聚合） |
+| Q-L05-02 | 内稳态误差权重 `w_d` 与 appraisal 调整 | C2 | CONFIRMED（AI-v2 2026-10-05，见 A 区：1:1:1 等权 + set-point = 冻结满值 + C2 调整为 0） |
+| Q-L05-03 | 各维时间常数 τ、迟滞带宽、衰减率 | C2 | CONFIRMED（AI-v2 2026-10-05，见 A 区：τ_int=4/τ_dec=16/band=0.1=2σ/零噪声算子） |
 | Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化（与 Q-L01-03 必须一致裁决） | C2 + L01 | CONFIRMED（AI-v2 2026-09-25，随 Q-L01-03 成组：初步对应采纳，C2 统计检验） |
-| Q-L05-05 | 持续极端 aversive-like 状态的触发阈值与持续时长（**须与 Q-G00-05 owner 裁决一致**） | E1 前，伦理 | UNCONFIRMED |
+| Q-L05-05 | 持续极端 aversive-like 阈值与处置（成组 Q-G00-05） | 伦理 | CONFIRMED（AI-v2 2026-10-05，见 A 区：valence≤−0.8 ∧ persistence≥0.8 持续 64 cycles → owner 人工评审；**经 owner 备案程序**） |
 | Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | C3/C4 | UNCONFIRMED |
 | Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：最优单维线性重构 R²<0.9） |
 | Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | C4 | UNCONFIRMED |
