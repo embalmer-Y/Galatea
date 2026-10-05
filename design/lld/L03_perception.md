@@ -1,6 +1,6 @@
 # L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief
 
-> LLD: L03/14 · v1.0.1 · 2026-10-03（v1.0.1：§11 C1 阻断五项转 CONFIRMED——AI-v2 C1 准备单元成批裁决；c1_perception_models.profile.yaml v1.0 成稿）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
+> LLD: L03/14 · v1.0.2 · 2026-10-05（v1.0.2：REV-0013 R6——§4.2/§4.4 内联标记转 CONFIRMED + §10 文件名勘误）· v1.0.1 2026-10-04（§11 C1 阻断五项转 CONFIRMED——AI-v2 C1 准备单元成批裁决；c1_perception_models.profile.yaml v1.0 成稿）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
 > 上游：`HLD.md` §4.1/§4.2/§5/§6 · `L02_sensorium.md`（唯一合法输入）· `L00_kernel.md`
 > 下游消费者：L04（信念融合）、L05（appraisal）、L07（workspace 候选）、L08（动机源）、L09（控制器）
 > 引入门槛：**C1**（多模态知觉、来源可区分、不确定性校准）→ **C2**（与感受/workspace 联动）→ **E1**（知觉 lesion 选择性失败）
@@ -94,7 +94,7 @@ PerceptualBelief(
 ### 4.4 OOD 检测与 abstain
 
 - OOD 评分：MW0 期为观测特征超出冻结枚举域的检测（距离/计数式），C1+ 可换神经评分器。
-- 触发 OOD 或后验最高假设低于 `believe_threshold`（UNCONFIRMED → Q-L03-02）→ 发 `AbstainEvent`，并仍可发布 `kind=FIELD` 的低承诺信念（"我看到了什么但无法归类"），**不得**伪造高置信度归类。
+- 触发 OOD 或后验最高假设低于 `believe_threshold`（CONFIRMED Q-L03-02：0.5 最大熵点）→ 发 `AbstainEvent`，并仍可发布 `kind=FIELD` 的低承诺信念（"我看到了什么但无法归类"），**不得**伪造高置信度归类。
 - abstain 必须可复算：`candidates_considered[]` + `threshold_ref` 完整留存。
 
 ### 4.5 调制回执与知觉层预测误差
@@ -187,7 +187,7 @@ galatea/subject/perception/tests/
   test_dissociation.py test_source_ambiguity.py test_no_raw_channel.py
   test_level_invariance.py test_modulation_whitelist.py test_ablation_ood.py
 config/profiles/
-  c1_perception.profile.yaml   融合先验/似然表/阈值/OOD 参数/校准版本（冻结前 UNCONFIRMED）
+  c1_perception_models.profile.yaml   【已冻结 v1.0，与 L04/L11 共档】融合先验/似然表/阈值/OOD 参数/校准版本（Q-L03 批裁决；REV-0013 R6 勘误文件名）
 ```
 
 ## 11. 未决问题（→ open_questions.md）

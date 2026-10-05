@@ -1,6 +1,6 @@
 # L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol
 
-> LLD: L09/14 · v1.0 · 2026-09-13 · 状态：WORKING（C3 冻结前）
+> LLD: L09/14 · v1.0.1 · 2026-10-05（v1.0.1：§11 Q-L09-08 转 CONFIRMED——REV-0013 R5 补漏）· v1.0 2026-09-13 · 状态：WORKING（C3 冻结前）
 > 上游：`HLD.md` §1.2（归属与控制）/§5（预测误差）/§6/§9.2 · `L03/L04/L05/L06/L07/L08`（提案素材与目标） · `L00_kernel.md`（T 级调度）
 > 下游：L10（`ControllerProposal → ActionIntention` 仲裁与提交）
 > 引入门槛：**M1**（最小授权与选择证据）→ **C3**（五类控制器 + metacontrol）→ **C4**（forward/inverse 与主动感知闭环）→ **E1**（控制器 lesion）
@@ -227,4 +227,4 @@ config/profiles/
 | Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | C5，与 L11 联动 | UNCONFIRMED |
 | Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | C0/C3 | CONFIRMED（AI-v2 2026-09-25：MW0 禁用，C0 复核，随 Q-L10-09 成组，见 A 区） |
 | Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义（人类研究者？实验控制？）与其权限边界 | C3/C4，联动 L12 | UNCONFIRMED |
-| Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一（联动 Q-L02-06、Q-L03-01） | C1/C3 | UNCONFIRMED |
+| Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一（联动 Q-L02-06、Q-L03-01） | C1/C3 | CONFIRMED（AI-v2 2026-10-04，见 A 区：等权 1:1:1 + 禁跨层归一；C3 面留元控制裁决） |

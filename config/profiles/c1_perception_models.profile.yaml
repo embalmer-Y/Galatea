@@ -30,9 +30,10 @@ perception:                                  # L03 C1（Q-L03-01/02/03/05）
 
 models:                                      # L04 C1（Q-L04-01/02/04/07）
   world_model:
-    scope: egocentric_plus_dead_reckoning    # 可行性探针发现：位置不在主体平面（Q-L01-09⑥）——
-                                             # 绝对地图不可达；C1 = egocentric 占据信念 + 航位推算位姿
-                                             # （不确定性入 typed unknown；allocentric 留 C2+ 新 Q）
+    scope: egocentric_plus_dead_reckoning    # Q-L04-08（REV-0012 R2 裁定）：位置不在主体平面
+                                             #（Q-L01-01 禁真值坐标 + proprio 载荷 orientation-only）——
+                                             # C1 = egocentric 占据信念 + 航位推算位姿
+                                             #（不确定性入 typed unknown；allocentric 留 C2+ 新 Q）
     update_period_cycles: 4                  # Q-L04-02：T3 窗批更新（Q-L00-01）
     multi_hypothesis_cap: 4                  # Q-L04-02：与 Q-L03-05 单值共用
   rollout:

@@ -1,6 +1,6 @@
 # L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差
 
-> LLD: L04/14 · v1.0.1 · 2026-10-03（v1.0.1：§11 C1 阻断四项转 CONFIRMED——成批裁决；egocentric+dead-reckoning 范围发现见 ADR-G-0013）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
+> LLD: L04/14 · v1.0.2 · 2026-10-05（v1.0.2：REV-0013 R3 同步——§4.3 C1 确定性裁剪无 RNG/§4.4 判据 2 egocentric 化（Q-L04-08）/§10 文件名勘误；§4.3 内联标记转 CONFIRMED）· v1.0.1 2026-10-04（§11 C1 阻断四项转 CONFIRMED——成批裁决；egocentric+dead-reckoning 范围发现见 ADR-G-0013）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
 > 上游：`HLD.md` §4/§5/§6 · `L02_sensorium.md`（内感受/本体感受帧）· `L03_perception.md`（PerceptualBelief）· `L00_kernel.md`
 > 下游消费者：L05（appraisal）、L07（workspace 候选）、L08（可行性）、L09（model-based 控制器/主动感知）、L10（forward model）、L11（学习提案）
 > 引入门槛：**C1**（世界/身体/自我模型、rollout、主动感知、OOD）→ **C4**（forward/inverse、EfferenceCopy 关联）→ **C5**（模型更新经 promotion）
@@ -98,8 +98,8 @@ SelfModelView(                                    # 派生视图，非第一手�
 
 ### 4.3 多未来 rollout（IMAGINED）
 
-- `RolloutQuery(depth, width)` 受 frozen profile 上界约束（默认 depth ≤ 8、width ≤ 4，UNCONFIRMED → Q-L04-01）；超限裁剪并回执 `CLIPPED`。
-- 分支随机数仅取 L00 派生流 `("world_model","rollout", query_id)`；同 (seed, query) → 同轨迹集（bit-exact，可复算）。
+- `RolloutQuery(depth, width)` 受 frozen profile 上界约束（depth ≤ 8、width ≤ 4，CONFIRMED Q-L04-01）；超限裁剪并回执 `CLIPPED`。
+- **C1 = 确定性裁剪，无 RNG 算子**（c1_perception_models `rng_operators: none_c1`；同 query → 同轨迹集 bit-exact）；C2+ 若需随机分支，派生流 `("world_model","rollout", query_id)` 按 Q-G00-10 注册后启用（REV-0013 R3a 同步）。
 - 输出恒为 `ImaginedTrajectory`，层级 **IMAGINED**；任何消费者将其当作 PERCEIVED 使用即触发 `RepresentationEscalation`（S0）。
 - rollout 价值摘要只作 L08/L09 的**候选评估输入**，不得直接生成 `OwnedGoal` 或 `ActionIntention`。
 
@@ -107,7 +107,7 @@ SelfModelView(                                    # 派生视图，非第一手�
 
 - 身体纳入判据（C1 硬条件，必须由证据支持而非声明）：
   1. **感觉运动一致性**：`ModelPrediction`（本体感受/内感受）与实际形成帧的残差在冻结阈值内；
-  2. **跨模态一致性**：外感受观测的身体位置与本体感受信念一致（MW0：网格位置 vs `BodyTruth` 的信念侧对应）；
+  2. **跨模态一致性**：外感受观测窗中心与本体感受信念的 **egocentric 对应**（C1 世界模型 = egocentric + 航位推算，Q-L04-08——绝对网格位置不在主体平面，Q-L01-01/ proprio 载荷 orientation-only）；
   3. **归属侧证**：自发动作的预测误差显著小于强迫（coercion）动作（L01 干预电池提供，L10 归属消费）。
 - 反例检测：把 MW0 身体边界写进配置就宣称"已纳入" → E1 lesion 应显示移除一致性检验后主张不变（即主张无因果依赖）→ 判定为伪身体纳入（HLD §13.1 泄漏/自欺类风险）。
 - `CapabilityEstimate` 只依据实际经历的动作后果与预测误差更新；能力不可由语言输入（L12）提升。
@@ -209,7 +209,7 @@ galatea/subject/models/tests/
   test_body_ownership_ablation.py test_self_derived_receipt.py
   test_continuity_gap.py test_capability_calibration.py test_no_truth_copy.py
 config/profiles/
-  c1_models.profile.yaml   rollout 深度/宽度、信念更新率、纳入阈值、自我误差权重（冻结前 UNCONFIRMED）
+  c1_perception_models.profile.yaml   【已冻结 v1.0】rollout 深度/宽度、信念更新率、自我误差权重等（Q-L03/L04 批裁决；REV-0013 R6 勘误文件名）
 ```
 
 ## 11. 未决问题（→ open_questions.md）

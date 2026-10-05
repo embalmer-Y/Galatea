@@ -1,6 +1,6 @@
 # L02 Sensorium：感觉形成、校准、对齐与增益
 
-> LLD: L02/14 · v1.0.3 · 2026-10-03（v1.0.3：§11 Q-L02-01/04/06 转 CONFIRMED——C1 件裁决；校准 c1-static-v1）· v1.0.2 2026-10-03（v1.0.2：§10 实现期首批交付标注——十二件 + pipeline 装配面补录 + tests/conftest 装置 + 测试八件全绿；C0 实现期首单元）· v1.0.1 2026-10-02（§11 Q-L02-03/-05 转 CONFIRMED——AI-v2 C0 准备单元裁决；`config/profiles/c0_sensorium.profile.yaml` v1.0 随 C0 门冻结单元成稿，Q-G00-12 伞式）· v1.0 2026-09-13 · 状态：**C0 实现期**（冻结物 c0_sensorium v1.0；门退出待 REV-0012）
+> LLD: L02/14 · v1.0.3 · 2026-10-03（v1.0.3：§11 Q-L02-01/04/06 转 CONFIRMED——C1 件裁决；校准 c1-static-v1）· v1.0.2 2026-10-03（v1.0.2：§10 实现期首批交付标注——十二件 + pipeline 装配面补录 + tests/conftest 装置 + 测试八件全绿；C0 实现期首单元）· v1.0.1 2026-10-02（§11 Q-L02-03/-05 转 CONFIRMED——AI-v2 C0 准备单元裁决；`config/profiles/c0_sensorium.profile.yaml` v1.0 随 C0 门冻结单元成稿，Q-G00-12 伞式）· v1.0 2026-09-13 · 状态：**C1 冻结前置**（c0_sensorium v1.0 已随 c0-exit 交付；C1 件锚 c1_perception_models v1.0）
 > 上游：`HLD.md` §4.2/§4.3/§5/§6/§9 · `L01_environment_channels.md`（唯一合法输入源）· `L00_kernel.md`（envelope/RNG/时钟）
 > 下游消费者：L03（知觉，唯一合法消费 SensoryFrame 的模块）、L04（身体模型消费内感受帧）
 > 引入门槛：**C0**（形成回执与旁路保护）→ **C2**（有界增益 + 增益回执）→ **C5**（设备/模态适配）
