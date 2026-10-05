@@ -203,6 +203,9 @@ LearningProposal(
 galatea/subject/learning/                   # strict 类型
   ports.py             PortIn/PortOut、禁写路径断言（policy/权限/保护集只读）
   proposal.py          LearningProposal 构造、parent_digest 强制、metrics 向量
+  proposals.py         【交付 C1】有界适应提案接口（Q-L11-01 步长 0.125 机械强制 /
+                       Q-L11-06 台账 digest 持久化承载 / Q-L04-10 proposal_only——
+                       C1 提案不生效只记录；test_bounded_proposals.py）
   layers/
     fast.py            T5 快速经历写入路径（adapter/calibration 候选）
     online.py          T2–T4 BoundedAdaptation + 回执消费 + bound 校验

@@ -194,7 +194,11 @@ galatea/subject/sensorium/              # strict 类型
   calibration.py      【交付】CalibrationVersion 绑定/digest/漂移统计（c0-static-v1，Q-G00-12②）
   quality.py          【交付】QualityMetrics、completeness/损坏标记/OOD 标记（Q-G00-12④）
   gain.py             【交付】C0 恒等增益 + GainReceipt + 调制入口即拒（Q-G00-12③）
-  pred_error.py       【交付】C0 合同面：无预测源 → 不产误差（禁伪造零误差；C1/C4 接线）
+  pred_error.py       【交付 C0 合同面 + C1 接线】C1 实装感觉层误差（Q-L02-06
+                       formed_features_flat：EXT 25 维展平/EXT_EVENT 事件 one-hot/
+                       INTERO 四标量/PROPRIO 朝向 one-hot；ModelPrediction 匹配 +
+                       float64 残差；无匹配预测 → unmatched 留痕禁伪造零误差；
+                       test_pred_error_c1.py）
   receipt.py          【交付】FormationReceipt 构造与发布（digest 双绑定、完整性 fail-closed）
   unknowns.py         【交付】本档 Unknown 产生点（MISSING_SIGNAL/INSUFFICIENT/
                       CALIBRATION_UNCERTAIN/OOD，统一走 L00 类型）

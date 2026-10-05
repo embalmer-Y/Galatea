@@ -93,6 +93,7 @@ SelfModelView(                                    # 派生视图，非第一手�
 
 - 更新规则：$p(h_t \mid o_{1:t}) \propto p(o_t \mid h_t)\sum_{h_{t-1}} p(h_t \mid h_{t-1}, a_{t-1})\,p(h_{t-1}\mid o_{1:t-1})$；MW0 期状态空间枚举可手算复核（承 L01 §4.4）。
 - 转移模型 `p(h_t|h_{t-1},a)` 是**主体自己的学习产物**（L11 提案 + promotion），不是 L01 dynamics 真值表的拷贝——拷贝即 oracle 泄漏（L01 §7 LeakageProbe 覆盖）。
+- **C1 转移语义（Q-L04-09，AI-v2 2026-10-05）**：持续性 + 事件条件更新——不可观测期占据信念持续（partial observability 由 `observable_coverage` + Unknown 承载）；禁在信念内模拟隐藏真值过程（respawn/风暴/漂移/regime 切换非主体可知对象）；证据到达按事件更新（T3 窗批原子并入 + 执行回执事件面）；位姿 = 航位推算积分（Q-L04-08），move 回执缺失 → 位姿候选分支（≤4）+ Unknown(MISSING_SIGNAL)，blocked = 无位移不分支。C1 无学习生效（Q-L04-10：适应表零计数起步、提案只记录）。
 - 观测缺失 → 只做预测步并写 `Unknown(MISSING_SIGNAL)`，禁用先验冒充观测。
 - 冲突证据 → 保留多假设 + `Unknown(CONFLICTING_EVIDENCE)`；不得为"信念一致性"强行塌缩。
 
@@ -193,23 +194,32 @@ SelfModelView(                                    # 派生视图，非第一手�
 
 ```text
 galatea/subject/models/                     # strict 类型
-  ports.py               PortIn/PortOut、层级白名单断言
-  world.py               WorldStateBelief、表格贝叶斯更新、假设管理
-  rollout.py             RolloutQuery 执行、深度/宽度裁剪、IMAGINED 构造、确定性分支 RNG
-  body.py                BodyBelief、InteroceptiveBodyBelief、CapabilityEstimate
-  ownership.py           身体纳入三判据检验与降级逻辑
-  self_model.py          SelfModelView、derivation_receipt 强制、连续性/gap
-  self_error.py          自我预测误差累积
-  prediction.py          ModelPrediction 发布（T1 先行）
-  mismatch.py            ModelMismatch 检测
-  active_perception.py   信息增益估计与提案
-  receipt.py             ModelUpdateReceipt
+  ports.py               【交付】ModelPrediction/RolloutQuery/ImaginedTrajectory
+                         构造期层级常量 + 输入白名单断言
+  world.py               【交付】WorldStateBelief + Q-L04-09 转移语义（持续性 +
+                         事件条件更新 + 航位推算位姿分支 cap4/裁剪）
+  rollout.py             【交付】确定性 rollout（C1 无 RNG——Q-G00-10 流预留；
+                         深度/宽度裁剪 + CLIPPED；价值摘要 Unknown）
+  body.py                【交付】BodyBelief（telemetry 拒）+ CapabilityEstimate
+                         （静态合同 Q-L08-09①）
+  ownership.py           【交付】三判据量计算 + BodyOwnershipUnresolved（主张
+                         统计面在 L13，Q-L04-03；运行时禁发"已纳入"布尔）
+  self_model.py          【交付】SelfModelView 字段级 derivation_receipt 机械强制
+                         + 连续性/gap（clone ≠ identity）
+  self_error.py          【交付】双时间尺度 EWMA（Q-L04-04；ADR-G-0013 探针同式）
+  prediction.py          【交付】T1 先行发布（EXTERO 占据投影/INTERO 持续性/
+                         PROPRIO 朝向；位姿歧义 → 窗预测缺席）
+  mismatch.py            【交付】结构性失配（无阈值判定——量级解释归消费者）
+  active_perception.py   【交付】look 提案（H(p) 熵上界；cost = Unknown）
+  receipt.py             【交付】ModelUpdateReceipt（fail-closed）
 galatea/subject/models/tests/
   test_table_update.py test_rollout_determinism.py test_level_guard.py
   test_body_ownership_ablation.py test_self_derived_receipt.py
   test_continuity_gap.py test_capability_calibration.py test_no_truth_copy.py
+  test_stack_bit_exact.py
+  【交付】上列九件全量（stack_bit_exact = 全栈双跑 digest 恒等集成面）
 config/profiles/
-  c1_perception_models.profile.yaml   【已冻结 v1.0】rollout 深度/宽度、信念更新率、自我误差权重等（Q-L03/L04 批裁决；REV-0013 R6 勘误文件名）
+  c1_perception_models.profile.yaml   【已冻结·typed loader 已交付 = galatea/subject/c1profile.py（补录件：INC-11 纪律；先验/似然原料自 m0 冻结初始条件派生 Q-L04-11）】 v1.0】rollout 深度/宽度、信念更新率、自我误差权重等（Q-L03/L04 批裁决；REV-0013 R6 勘误文件名）
 ```
 
 ## 11. 未决问题（→ open_questions.md）

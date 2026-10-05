@@ -81,7 +81,7 @@ PerceptualBelief(
 ### 4.2 多模态融合（贝叶斯式，MW0 期为表格化）
 
 - MW0 期融合以**枚举/表格后验**实现（承 L01 §4.4"表格化动力学"精神，保证可手算复核）：$\text{posterior}(h) \propto \pi(h)\prod_m \mathcal{L}_m(o_m \mid h)^{w_m}$，其中权重 $w_m$ 由模态质量（L02 `QualityMetrics`）与调制精度共同决定，全部有界。
-- 融合权重先验 `π` 与似然表冻结于 profile（UNCONFIRMED → Q-L03-03）；C1+ 可替换为神经 encoder，但**合同不变**（同样的输入/输出/层级/回执）。
+- 融合权重先验 `π` 与似然表冻结于 profile（Q-L03-03 CONFIRMED）；**C1 先验 regime 语义（Q-L04-11，AI-v2 2026-10-05）**：π = initial_regime（abundance）resource_density = 0.35 恒定（冻结初始条件合同；regime 切换无主体可知信号，运行期跟随 = 真值直通；regime 感知留 C2+）。C1+ 可替换为神经 encoder，但**合同不变**（同样的输入/输出/层级/回执）。
 - 冲突处理：模态间冲突产生 `Unknown(CONFLICTING_EVIDENCE)` + 保留 `alternatives`，**禁止**用置信度强行调和。
 - 来源判断：以本体感受 + efference 相关线索 + 时间一致性联合估计；证据不足必须返回 `AMBIGUOUS` 或 `UNKNOWN`（不可默认 `SELF` 或 `EXTERNAL`）。
 
@@ -171,23 +171,30 @@ PerceptualBelief(
 
 ```text
 galatea/subject/perception/                # strict 类型
-  ports.py             PortIn/PortOut、层级常量断言、拒绝路径
-  believe.py           PerceptualBelief 构造/冻结构造/digest
-  fusion.py            多模态表格后验（MW0）、权重 w_m、冲突处理
-  objects.py events.py affordance.py
-  source.py            SourceJudgement（SELF/EXTERNAL/AMBIGUOUS/UNKNOWN）
-  ood.py               OOD 评分与 abstain 判定（believe_threshold）
-  confidence.py        置信度标度、校准表加载、ECE 计算接口（评估在 L13）
-  pred_error.py        知觉层预测误差（与 L04 预测比较）
-  modulation.py        ModulationReceipt、允许/禁止调制项白名单
-  receipt.py           PerceptionReceipt
-  workspace_prop.py    向 L07 的 WorkspaceProposal 构造（显著性分量）
+  ports.py             （C1 期职责由 c1profile.py + believe.py 承载——层级常量断言
+                       在 believe 构造期；拒绝路径 = UnauthorizedInput/pipeline）
+  believe.py           【交付】PerceptualBelief 构造/冻结构造/digest + content_ref
+  fusion.py            【交付】表格后验（Q-L03-03 似然表 g(d)+σ 5 档正态积分、
+                       Q-L04-11 先验、域出收集 fuse_window、塌缩判定 Q-L03-05）
+  objects.py           【交付】OBJECT 信念（塌缩 alternatives 语义）
+  events.py            【交付】事件信念（INTERO/EXT_EVENT 双模态融合 + 冲突处理）
+  affordance.py        【交付】Affordance（forage/eat/rest/look；Q-L08-09⑩ 台账）
+  source.py            【交付】SourceJudgement（载体级：SELF/AMBIGUOUS/UNKNOWN；
+                       窗内容归因归 C4 efference）
+  ood.py               【交付】事件级域出 OOD + AbstainEvent（Q-L03-02）
+  confidence.py        【交付】校准标度 c1-static-v1 + ECE 等质量 15 箱接口
+  pred_error.py        【交付】知觉层误差（占据后验比较空间；precision=Unknown C1）
+  modulation.py        【交付】C1 恒拒面 + 白名单（L05 归 C2）
+  receipt.py           【交付】PerceptionReceipt + audit（fail-closed）
+  workspace_prop.py    【交付】WorkspaceProposal 构造（C1 存证不投递）
+  pipeline.py          【交付·补录件】T2 门面（层级守卫/OOD/融合/abstain/回执审计）
 galatea/subject/perception/tests/
   test_fusion_table.py test_abstain.py test_calibration_scale.py
   test_dissociation.py test_source_ambiguity.py test_no_raw_channel.py
   test_level_invariance.py test_modulation_whitelist.py test_ablation_ood.py
+  【交付】上列九件 + conftest（真实总线忠实装置）全量；level_invariance 系 F0 件
 config/profiles/
-  c1_perception_models.profile.yaml   【已冻结 v1.0，与 L04/L11 共档】融合先验/似然表/阈值/OOD 参数/校准版本（Q-L03 批裁决；REV-0013 R6 勘误文件名）
+  c1_perception_models.profile.yaml   【已冻结·typed loader 已交付 = galatea/subject/c1profile.py（补录件：INC-11 纪律；先验/似然原料自 m0 冻结初始条件派生 Q-L04-11）】 v1.0，与 L04/L11 共档】融合先验/似然表/阈值/OOD 参数/校准版本（Q-L03 批裁决；REV-0013 R6 勘误文件名）
 ```
 
 ## 11. 未决问题（→ open_questions.md）

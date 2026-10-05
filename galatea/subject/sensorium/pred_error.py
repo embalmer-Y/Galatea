@@ -1,24 +1,113 @@
-"""感觉层预测误差（L02 §4.5/§10 pred_error.py；C0 范围）。
+"""感觉层预测误差（L02 §4.5/§10 pred_error.py；C1 接线——L04 预测源已存在）。
 
-C0 无预测源（L03/L04/L09 的 SensoryPrediction 归 C1/C4）——本档 C0 行为 =
-无匹配预测 → 只形成、不产误差（**禁伪造零误差**，L02 §4.5）；预测无匹配帧的
-处置面归 L09/L04，本档记 typed Unknown（C1 接线）。C0 交付合同面：
-predictions 为空序列 → 空误差序列（恒真行为，C1 换统计/精度加权实现）。
+特征空间 = formed features 的规范化展平（Q-L02-06：特征空间由形成层唯一决定，
+禁评价侧自造特征工程）：
+- EXT_LOCAL_OBS = 5×5 窗展平 25 维（行优先，窗载荷约定）；
+- EXT_EVENT = 冻结事件种枚举 one-hot（Q-L01-08 M0 事件集，EVENT_KINDS）；
+- INTERO = 四 sensation 标量（Q-L02-05 集合 + Q-L02-06 展平序）；
+- PROPRIO = 朝向 one-hot（载荷域 ORIENTATION_TOKENS）。
+残差 = 同维 float64 向量差（Q-T10）；精度加权归 C2（Q-L02-06）——无权残差。
+预测无匹配帧 / 帧无匹配预测 → typed Unknown 留痕（禁伪造零误差，C0 成规）。
+层级化纪律：本函数只产**感觉层**分量，禁与知觉层（L03 pred_error）/模型层
+（L04 mismatch）顶替或合并（Q-L09-08 1:1:1 禁跨层归一）。
 """
-from typing import Any
+from dataclasses import dataclass
 
-from galatea.subject.sensorium.ports import SensoryFrame
+from galatea.subject.c1profile import EVENT_KINDS, INTERO_SCALARS, ORIENTATION_TOKENS
+from galatea.subject.models.ports import ModelPrediction
+from galatea.subject.sensorium.ports import (
+    ExtEventFeatures,
+    ExtLocalObsFeatures,
+    InteroSensations,
+    SensoryFrame,
+)
 
 
-def sense_errors(predictions: tuple[Any, ...], frames: tuple[SensoryFrame, ...]) -> tuple[Any, ...]:
-    """感觉层预测误差（层级化三分量的感觉层分量，禁与知觉层/模型层顶替）。
+@dataclass(frozen=True, slots=True)
+class SensoryPredictionError:
+    """感觉层预测误差（层级化三分量之一；predicted_ref = 预测 id）。"""
 
-    C0：predictions 恒空（无预测源）→ 返回 ()；任何非空 predictions 在 C0 即
-    合同违规（预测源 C1 才存在）——fail closed 防伪造误差面。
-    """
-    if predictions:
-        raise ValueError(
-            "SensoryPrediction sources do not exist at C0（L02 §9：预测误差比较归 C1/C4）；"
-            "禁伪造零误差或凭空误差"
+    frame_id: str
+    predicted_ref: str
+    modality: str
+    residual: tuple[float, ...]
+    cycle_id: int
+
+
+def flatten_frame(frame: SensoryFrame) -> tuple[float, ...]:
+    """formed_features_flat 展平（Q-L02-06；维度域由形成层唯一决定）。"""
+    features = frame.features
+    if isinstance(features, ExtLocalObsFeatures):
+        return tuple(float(v) for row in features.window for v in row)
+    if isinstance(features, ExtEventFeatures):
+        return tuple(1.0 if kind in features.events else 0.0 for kind in EVENT_KINDS)
+    if isinstance(features, InteroSensations):
+        values: dict[str, float] = {
+            "energy_level": features.energy_level,
+            "integrity_level": features.integrity_level,
+            "damage_event": 1.0 if features.damage_event else 0.0,
+            "energy_depleted": 1.0 if features.energy_depleted else 0.0,
+        }
+        return tuple(values[name] for name in INTERO_SCALARS)
+    # 剩余分支 = ProprioFeatures（联合已穷尽）
+    return tuple(1.0 if features.orientation == token else 0.0 for token in ORIENTATION_TOKENS)
+
+
+def _expected_vector(prediction: ModelPrediction) -> tuple[float, ...] | None:
+    """预测 → 同一特征空间向量（模态互斥面）。"""
+    if prediction.expected_window is not None:
+        return tuple(float(v) for row in prediction.expected_window for v in row)
+    if prediction.expected_body is not None:
+        return (prediction.expected_body[0], prediction.expected_body[1], 0.0, 0.0)
+    if prediction.expected_orientation is not None:
+        return tuple(
+            1.0 if prediction.expected_orientation == token else 0.0
+            for token in ORIENTATION_TOKENS
         )
-    return ()
+    return None
+
+
+def _modality_of(prediction: ModelPrediction) -> str:
+    return prediction.target_modality
+
+
+def sense_errors(
+    predictions: tuple[ModelPrediction, ...], frames: tuple[SensoryFrame, ...]
+) -> tuple[tuple[SensoryPredictionError, ...], tuple[str, ...]]:
+    """感觉层预测误差（同模态 valid_time 匹配；float64 残差；确定性序）。
+
+    返回 (errors, unmatched_predictions)：预测无匹配帧 → unmatched 留痕
+    （处置面归 L09/L04——禁伪造零误差）。无预测 → ((), ())（C0 成规保持）。
+    """
+    if not predictions:
+        return (), ()
+    errors: list[SensoryPredictionError] = []
+    matched: set[str] = set()
+    for prediction in predictions:
+        expected = _expected_vector(prediction)
+        if expected is None:
+            continue
+        modality = _modality_of(prediction)
+        candidates = [
+            frame for frame in frames
+            if frame.modality.value == modality and frame.effective_time == prediction.valid_time
+        ]
+        if not candidates:
+            continue
+        frame = candidates[0]
+        observed = flatten_frame(frame)
+        if len(observed) != len(expected):
+            raise ValueError(
+                f"feature space dimension mismatch for {frame.frame_id}: "
+                f"{len(observed)} vs {len(expected)}（Q-L02-06 特征空间由形成层唯一决定）"
+            )
+        errors.append(SensoryPredictionError(
+            frame_id=frame.frame_id,
+            predicted_ref=prediction.prediction_id,
+            modality=modality,
+            residual=tuple(o - e for o, e in zip(observed, expected)),
+            cycle_id=frame.effective_time,
+        ))
+        matched.add(prediction.prediction_id)
+    unmatched = tuple(p.prediction_id for p in predictions if p.prediction_id not in matched)
+    return tuple(errors), unmatched

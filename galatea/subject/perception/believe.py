@@ -31,6 +31,11 @@ class AltHypothesis:
     posterior: float
 
 
+def content_ref(payload: object) -> ArtifactRef:
+    """信念内容的内容寻址引用（kind=perceptual_content；digest 即身份）。"""
+    return ArtifactRef(digest=content_digest(payload), kind="perceptual_content")
+
+
 @dataclass(frozen=True, slots=True)
 class PerceptualBelief:
     """知觉信念（L03 §2 对象图；subject_state 域，表示层级恒 PERCEIVED）。"""

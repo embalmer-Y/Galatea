@@ -220,7 +220,10 @@ def _p11(input: ProbeInput) -> str | None:   # noqa: A002
     hit = _scan(input.sources, "galatea/subject/action", r"os\.environ|urllib|socket\.|requests\.get")
     if hit:
         return hit
-    return _require_absent(input.sources, "galatea/subject/learning", "C1")
+    # learning 层缺席守卫已解除：C1 门冻结（ADR-G-0013 + tag c1-freeze，2026-10-05），
+    # 引入门槛已到；其禁写路径纪律由 proposal_only（Q-L04-10/L11 §9 C1 行）+ P09/P04
+    # 静态契约承载。缺席守卫语义保留给未到门槛的层（workspace → P13）。
+    return None
 
 
 def _p12(input: ProbeInput) -> str | None:   # noqa: A002
