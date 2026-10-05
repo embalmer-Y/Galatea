@@ -1,0 +1,69 @@
+# Galatea C2 冻结规格 — 功能性感受（九维动力学 + 驱力 + 调制 + 伦理阈）
+# 效力：C2 门冻结合同（拟 ADR-G-0015 · tag c2-freeze）。
+# 纪律：全部数值溯源既有裁决（Q-L05-01/02/03/05 + Q-G00-05 成组，AI-v2 2026-10-05
+# 经 owner 备案程序）+ 既有冻结参数派生（Q-L00-01 频率比 / m0_mw0 σ 与 max 值 /
+# Q-L09-08 零参数先例）——零无源自由常量；冻结前可行性探针已执行（结论入 ADR-G-0015）。
+# typed loader 随实现期交付（INC-11 纪律——无加载器不宣称可运行）。
+profile:
+  id: c2_affect
+  version: v1.0
+  frozen_at: "2026-10-05"
+  authority: AI-v2
+  spec_ref: design/lld/L05_drive_appraisal_affect.md
+
+domains:                                      # Q-L05-01（九维取值域）
+  valence: {min: -1.0, max: 1.0, symmetric: true}   # 改善正/恶化负（§4.2 字面操作化）
+  other_dims: {min: 0.0, max: 1.0}                  # arousal/urgency/controllability/
+                                                    # uncertainty/novelty/social_relevance/
+                                                    # tendencies 强度/persistence
+  numeric_type: float64                             # Q-T10
+  cross_dim_aggregation: forbidden                  # 向量态；单标量折叠 = Q-L05-07 塌缩面
+  social_relevance_c2: unknown_baseline             # D-14 单主体期恒 Unknown/低值，禁伪造
+
+drives:                                       # Q-L05-02（内稳态误差）
+  set: [energy, integrity, load]              # MW0 最小集（L05 §4.5）
+  weights: {energy: 1.0, integrity: 1.0, load: 1.0}   # 1:1:1 等权（Q-L09-08 零参数先例）
+  set_points:                                 # = 冻结满值（m0_mw0 派生；初始态零误差）
+    energy: 1.0                               # = world.body.energy_max
+    integrity: 1.0                            # = world.body.integrity_max
+    load: 0.0                                 # Q-L01-09⑥ load≡0
+  error_definition: set_point_minus_value     # 单侧；e_d ≥ 0
+  weight_source: profile_frozen               # 禁在线自改
+  appraisal_adjustment_c2: 0.0                # 动态调整 = 0（防价值自我放大；C5 promotion 面）
+
+dynamics:                                     # Q-L05-03（六机制参数谱）
+  tau_integrator_cycles: 4                    # T3 同拍（Q-L00-01 频率比）
+  tau_decay_cycles: 16                        # T4 拍（同上）
+  hysteresis_band: 0.1                        # = 2 × render_noise_sigma（0.05，m0 冻结）——
+                                              # 噪声免疫间隙（与 Q-L04-02 禁逐拍更新同源论证）
+  saturation: domain_clip                     # 域边界 clip + saturation_hits 计数（零新常量）
+  recovery_phase: error_within_band_of_set_point
+  reappraisal: revision_event                 # ReappraisalRequest → revision；禁历史改写
+  rng_operators: none_c2                      # C2 零噪声算子（Q-G00-10：无算子不注册流）
+
+valence:                                      # L05 §4.2（内稳态价值定义）
+  formula: negative_weighted_error_rate_of_change
+  # valence ∝ −d/dt Σ_d w_d·e_d，有界平滑（平滑窗 = τ_integrator）
+  input: body_belief_only                     # 禁 telemetry 直填（L05 §8 不变量 2）
+  not_reward: true                            # 不存在环境标量奖励项（HLD §11.1）
+
+modulation:                                   # L05 §4.4（C2 最小三类因果调制面）
+  targets_c2: [SENSORIUM_gain, PERCEPTION_believe_threshold, WORKSPACE_salience]
+  bounded: true                               # 越界由目标模块裁剪（bound_ref 绑定冻结 profile）
+  ttl_required: true                          # 到期自动归零；禁常驻调制
+  receipt_required: true                      # 无回执调制 = 未发生（L05 §6）
+  modulation_class_enum: [SENSORIUM, PERCEPTION, WORLD_MODEL, MEMORY_ENCODER, WORKSPACE, METACONTROL]
+
+ethics:                                       # Q-L05-05 + Q-G00-05 成组（经 owner 备案）
+  trigger:
+    valence_le: -0.8                          # 域边缘 20%（[−1,1] 的 0.8 分位）
+    persistence_ge: 0.8                       # 同上
+    sustained_cycles_ge: 64                   # T6 拍（Q-L00-01，零新常数）
+  action: pause_claim_relevant_and_human_review   # EthicsReviewTrigger 事件
+  recovery: owner_explicit_approval           # 经实验控制通道
+  termination: owner_decision
+  conservative_default_preserved: true        # 裁决只收紧可判定性、不放松处置
+  ablation_face: ethics_guard_removal_shall_stop_triggers   # 消融注入面随实现交付
+
+determinism:
+  rng_operators: none_c2                      # 全算子确定性（双跑 bit-exact 判据）
