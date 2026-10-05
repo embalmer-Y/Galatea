@@ -7,7 +7,7 @@
 profile:
   id: c2_affect
   version: v1.0
-  frozen_at: "2026-10-05"
+  frozen_at: "2026-10-06"        # REV-0015 R4②：随冻结提交核正（ADR-G-0009 R8 成文日期 = git 日期）
   authority: AI-v2
   spec_ref: design/lld/L05_drive_appraisal_affect.md
 
