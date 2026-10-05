@@ -633,20 +633,23 @@ def evaluate_c1_body_incorporation(
     names = ("criterion1_sensory_motor", "criterion2_cross_modal", "criterion3_efference")
     verdicts: list[HypothesisVerdict] = []
     ds: list[float] = []
+    cis: list[ConfidenceInterval | None] = []
     refutations: list[str] = []
     unknowns: list[Unknown] = []
     p_values: list[float] = []
     for name, diffs in zip(names, criterion_diffs):
-        insufficient, mean, _sd, d, ci_lo, _ci_hi, p = _paired_continuous_stats(
+        insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
             diffs, n_expected, detected_by
         )
         if insufficient is not None:
             verdicts.append(HypothesisVerdict.INCONCLUSIVE)
             ds.append(float("nan"))
+            cis.append(None)
             continue
         v, refs, unks = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.4)
         verdicts.append(v)
         ds.append(d if not math.isinf(d) else mean)
+        cis.append(ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95))
         refutations.extend(f"{name}:{r}" for r in refs)
         unknowns.extend(unks)
         p_values.append(p)
@@ -656,22 +659,56 @@ def evaluate_c1_body_incorporation(
         verdict = HypothesisVerdict.SUPPORTED
     else:
         verdict = HypothesisVerdict.INCONCLUSIVE
-    finite_ds = [x for x in ds if not math.isnan(x)]
-    effect = min(finite_ds) if finite_ds else None
+    # REV-0014 R2：effect = 联合短板（min-d 判据），CI = 该判据的 Wald 95% 区间
+    #（REV-0014 R2 前为点估计占位——评审发现 S3，修复）
+    finite = [(d, ci) for d, ci in zip(ds, cis) if not math.isnan(d)]
+    if finite:
+        effect, effect_ci = min(finite, key=lambda pair: pair[0])
+    else:
+        effect, effect_ci = None, None
+    max_p = max(p_values) if p_values else None
     return EvidenceResult(
         result_id=result_id,
         hypothesis_refs=("c1_body_incorporation",) + names,
         stat_plan_ref=stat_plan_ref,
         estimand="per_run_three_criteria_paired_differences",
         effect_size=effect,
-        ci=None if effect is None else ConfidenceInterval(lower=effect, upper=effect, level=0.95),
-        p_or_bayes=max(p_values) if p_values else None,
+        ci=effect_ci,
+        p_or_bayes=max_p,
         verdict=verdict, unknowns=tuple(unknowns), refutations=tuple(refutations),
         data_refs=tuple(
             f"{n}:d={d:.4f}" if not math.isnan(d) else f"{n}:n/a" for n, d in zip(names, ds)
-        ),
+        )
+        + (("p<1e-16（float64 下溢呈现，REV-0014 R2）",) if max_p == 0.0 else ()),
         recompute_ok=recompute_ok,
     )
+
+
+def holm_bonferroni(
+    p_values: tuple[float, ...], alpha: float = 0.05
+) -> tuple[tuple[bool, ...], tuple[float, ...]]:
+    """Holm–Bonferroni 逐步下降校正（Q-L13-01 冻结默认；族 = 单 EvidenceResult 内
+    全部主终点）。返回 (rejected_mask, adjusted_stepdown_ps)。
+
+    程序：p 升序，p_(i) ≤ α/(m−i+1) → 拒绝并继续；首个不拒绝处停止，其后全保留。
+    adjusted p（step-down）= max over j≤i of (m−j+1)·p_(j)（单调化，截 1.0）。
+    """
+    m = len(p_values)
+    if m == 0:
+        return (), ()
+    order = sorted(range(m), key=lambda i: p_values[i])
+    rejected = [False] * m
+    adjusted = [1.0] * m
+    running_max = 0.0
+    for i, idx in enumerate(order):
+        stepdown = (m - i) * p_values[idx]
+        running_max = max(running_max, stepdown)
+        adjusted[idx] = min(1.0, running_max)
+        if p_values[idx] <= alpha / (m - i):
+            rejected[idx] = True
+        else:
+            break   # 首个不拒绝处停止——其后（更大 p）全部保留
+    return tuple(rejected), tuple(adjusted)
 
 
 def evaluate_c1_composite(
@@ -683,6 +720,7 @@ def evaluate_c1_composite(
     i1_match: bool,
     recompute_ok: bool,
     statistical_core: EvidenceResult,
+    alpha: float = 0.05,
     detected_by: str = "evidence.evaluator",
 ) -> EvidenceResult:
     """C1 复合判定（解离机械判据 + leakage=0 + I1 + 子主张全 SUPPORTED → SUPPORTED）。
@@ -690,22 +728,57 @@ def evaluate_c1_composite(
     承 evaluate_root_composite 体例（Q-L13-11①）；effect_size/CI/p 由统计核
     （c1_perception_tracking）承载；mechanical_ok = 解离三断言全过（M2 SC5 先例：
     机械判据与统计 claim 分立、联合判定）。
+    REV-0014 R3：Holm–Bonferroni 校正机械执行——族 = 各 claim 主判定 p
+    （stat plan correction: holm_bonferroni）；校正后任一 claim 不再显著 → 该
+    主张的 SUPPORTED 降级 INCONCLUSIVE（unknown ≠ negative，禁升格）。
     """
     if not constituent_results:
         raise ValueError("c1 composite requires constituent results")
-    refuted = [r for r in constituent_results if r.verdict is HypothesisVerdict.REFUTED]
-    supported = [r for r in constituent_results if r.verdict is HypothesisVerdict.SUPPORTED]
+    # Holm 族：各子主张的主判定 p（body claim 取其 max p = 最保守）
+    claim_ps = tuple(
+        float(r.p_or_bayes) if r.p_or_bayes is not None else 1.0
+        for r in constituent_results
+    )
+    rejected, adjusted = holm_bonferroni(claim_ps, alpha)
+    downgraded: list[str] = []
+    effective: list[EvidenceResult] = []
+    for res, rej, adj in zip(constituent_results, rejected, adjusted):
+        if res.verdict is HypothesisVerdict.SUPPORTED and not rej:
+            downgraded.append(f"{res.hypothesis_refs[0]}:holm_nonsignificant(adj_p={adj:.4g})")
+            effective.append(EvidenceResult(
+                result_id=res.result_id,
+                hypothesis_refs=res.hypothesis_refs,
+                stat_plan_ref=res.stat_plan_ref,
+                estimand=res.estimand,
+                effect_size=res.effect_size, ci=res.ci, p_or_bayes=res.p_or_bayes,
+                verdict=HypothesisVerdict.INCONCLUSIVE,
+                unknowns=res.unknowns, refutations=res.refutations,
+                data_refs=res.data_refs, recompute_ok=res.recompute_ok,
+            ))
+        else:
+            effective.append(res)
+    refuted = [r for r in effective if r.verdict is HypothesisVerdict.REFUTED]
+    supported = [r for r in effective if r.verdict is HypothesisVerdict.SUPPORTED]
     refutation_codes = [code for r in refuted for code in r.refutations]
     if refutation_codes:
         verdict = HypothesisVerdict.REFUTED
     elif (
-        len(supported) == len(constituent_results) and mechanical_ok
+        len(supported) == len(effective) and mechanical_ok
         and leakage_free and i1_match and recompute_ok
     ):
         verdict = HypothesisVerdict.SUPPORTED
     else:
         verdict = HypothesisVerdict.INCONCLUSIVE
     unknowns: list[Unknown] = list(statistical_core.unknowns)
+    for res, rej, adj in zip(constituent_results, rejected, adjusted):
+        if f"{res.hypothesis_refs[0]}:" in "".join(downgraded):
+            unknowns.append(Unknown(
+                reason=UnknownReason.DECISION_PATH_UNRESOLVED,
+                evidence_refs=(f"holm.adj_p={adj:.6g}",),
+                detail=f"REV-0014 R3：Holm 校正后降级 {res.hypothesis_refs[0]}"
+                       f"（族 m={len(claim_ps)}，α={alpha}，adj_p={adj:.4g}）",
+                detected_by=detected_by, virtual_time=0,
+            ))
     if not mechanical_ok:
         unknowns.append(Unknown(
             reason=UnknownReason.CONFLICTING_EVIDENCE, evidence_refs=("dissociation_checks",),

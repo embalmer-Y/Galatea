@@ -381,6 +381,7 @@ def run_c1_first_evaluation(
         i1_match=i1_match,
         recompute_ok=i1_match,
         statistical_core=tracking,
+        alpha=0.05,   # REV-0014 R3：Holm 校正机械执行（族 = 三 claim 主判定 p）
     )
     _write_result(out_dir / "R-c1-models-001.json", composite, len(records), {
         "tracking": {"verdict": tracking.verdict.value, "ece": round(ece, 6),
@@ -396,6 +397,10 @@ def run_c1_first_evaluation(
         "i1_match": i1_match,
         "leakage_free": leakage.leakage_free,
         "leakage_report_digest": leakage.digest,
+        "p12_scope_note": (
+            "P12（DATA 探针）为 SC6 专摄——c1 入口无 SC6 trace 行，结构上不适用"
+            "（REV-0014 R9 范围注记）"
+        ),
         "seed_note": "Q-L13-12④（master seed + 派生格式内嵌 stat plan）",
     })
     for name, result in (

@@ -1,6 +1,6 @@
 """C1 正式评价 runner（stat plan c1_perception_models v1.0；顺延终止条款首次执行）。
 
-场景（冻结于统计计划 scenario 节）：32 cycles 真实 MW0+ChannelBus 流——请求动作
+场景（冻结于统计计划 scenario 节）：40 cycles 真实 MW0+ChannelBus 流——请求动作
 （gateway 签名路径 + outcome 回执）与无命令外源位移（world.apply_primitive 直施、
 无任何主体可见动作信号——判据 3 的 efference 缺席操纵）冻结编排；主体平面 =
 sensorium → perception → world/body 模型（生产实现，非测试替身）。
@@ -327,8 +327,12 @@ class C1ModelsRunner:
                     and payload.get("kind") == "observation_window"
                 ):
                     payload = {"kind": "observation_window", "window": _faulted_window(payload["window"])}
-                    blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-                packets.append((packet, str(blob)))
+                    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                # REV-0014 R1：registry blob 恒为 bytes（kernel/registry.py）——必须显式
+                # decode；str(bytes) 产生 repr 包装使每一包被判损坏（提交态序列化回归，
+                # 评审实证 run#0 修复后 digest 与归档 bit-exact 恒等）
+                text_payload = blob.decode("utf-8")
+                packets.append((packet, text_payload))
             cycle_out = sensorium.process_cycle(delivery, packets)
             formation_counts = (
                 formation_counts[0] + len(cycle_out.frames),
@@ -579,7 +583,7 @@ def c1_criterion_diffs(
         if not diffs2:
             raise ValueError(f"run #{record.run_index}: no criterion-2 pairs")
         crit2.append(sum(diffs2) / len(diffs2))
-        # 判据 3：模型预测误差（重叠格）请求位移窗 vs 外源位移窗，条件 peak ≥ 0.2
+        # 判据 3：模型预测误差（重叠格）请求位移窗 vs 外源位移窗，条件 peak ≥ 0.1（冻结阈）
         req = [row["mse_model_overlap"] for row in record.window_rows
                if row["t"] in req_windows and row["mse_model_overlap"] is not None
                and row["peak"] >= 0.1]

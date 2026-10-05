@@ -49,18 +49,26 @@ def load_calibration_version(c1_profile_path: Any = None) -> CalibrationScale:
 
 
 def ece_equal_mass(
-    confidences: tuple[float, ...], correct: tuple[bool, ...], n_bins: int = 15
+    confidences: tuple[float, ...], correct: tuple[bool, ...], n_bins: int = 15,
+    min_samples_per_bin: int = 30,
 ) -> float:
-    """等质量分箱 ECE（Q-L03-04：15 箱；评价面接口——判定在 L13 统计计划）。
+    """等质量分箱 ECE（Q-L03-04：15 箱、每箱 ≥30；评价面接口——判定在 L13）。
 
     每箱样本数 = ⌈n/15⌉ 等质量切分（排序后切片）；ECE = Σ (n_b/N)·|acc_b − conf_b|。
+    REV-0014 R9：每箱最小样本量机械断言（Q-L03-04 冻结阈值此前仅由样本量构造性
+    满足、无断言——不足即拒，fail closed）。
     """
     if len(confidences) != len(correct):
         raise ValueError("confidences/correct length mismatch")
     if not confidences:
-        return 0.0
+        raise ValueError("ece requires samples（空样本禁伪造 0.0——Q-L03-04 每箱 ≥30）")
     pairs = sorted(zip(confidences, correct), key=lambda p: p[0])
     size = -(-len(pairs) // n_bins)
+    if size < min_samples_per_bin:
+        raise ValueError(
+            f"ece bin size {size} < frozen min_samples_per_bin {min_samples_per_bin}"
+            "（Q-L03-04：每箱 ≥30 fail closed，REV-0014 R9）"
+        )
     ece = 0.0
     for start in range(0, len(pairs), size):
         chunk = pairs[start:start + size]

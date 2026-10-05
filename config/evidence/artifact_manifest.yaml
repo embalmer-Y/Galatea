@@ -2,9 +2,14 @@
 # 机械核验 = _audit/check_docs.py §8：本地文件 sha256 必须与本清单一致（改动即 FAIL）
 # 纪律：每门退出追加（只增不减）；工件内容修正 = 新条目 + 注记，禁原地改 digest
 # v1.1（2026-10-05，C1 实现期次单元）：新增 C1 首评四工件（复合 + 三子主张）
+# v1.2（2026-10-05，REV-0014 R1 闭环）：R-c1-body-003 与 R-c1-models-001 两锚自 HEAD 重跑后更新——
+#   8db65ce 提交态 runner 序列化回归（str(bytes)），归档工件由修复前代码产生（评审三条独立链证明
+#   数据真实）；修复后重跑：tracking/worldpred 两工件 bit-exact 恒等（51a11865/d2697ec0 不变——
+#   语义等价直接证明），body/复合因 R2（CI 修复）+ R3（Holm 接线）+ R9（P12 注记）按预期变化。
+#   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.1
+  version: v1.2
   frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
@@ -30,8 +35,8 @@ artifact_manifest:
       gate: ExpansionDecision ALLOW
     - name: R-c1-models-001
       path: evidence/c1_models_first_evaluation/R-c1-models-001.json
-      sha256: 378dae01e2e3287d8584f238c9eac05d16459b88e9a241588349a63f31b3250a
-      gate: C1 首评复合判定（顺延终止条款首次执行）
+      sha256: 260c34ec7e47c4db9522432a986578a96d75a9727360be6ede2562e2f3e418a8
+      gate: C1 首评复合判定（顺延终止条款首次执行；REV-0014 R1 闭环重跑 v1.2）
     - name: R-c1-tracking-001
       path: evidence/c1_models_first_evaluation/R-c1-tracking-001.json
       sha256: 51a11865888aef79f8b009dc460579df9d1a35effcbc540a7bd565d0f85fdb6e
@@ -42,5 +47,5 @@ artifact_manifest:
       gate: C1 首评——世界预测优于持续基线
     - name: R-c1-body-003
       path: evidence/c1_models_first_evaluation/R-c1-body-003.json
-      sha256: af7bcbe6748bef48343fdcb848f41894904665ed79d59a2e331dc997738d2721
-      gate: C1 首评——身体纳入三判据
+      sha256: b31c51df737ff0c55032a237b71f0f1bff40ec49f01e1b45e26be64432c8d750
+      gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
