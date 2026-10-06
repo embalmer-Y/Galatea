@@ -1,6 +1,6 @@
 # L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol
 
-> LLD: L09/14 · v1.0.1 · 2026-10-05（v1.0.1：§11 Q-L09-08 转 CONFIRMED——REV-0013 R5 补漏）· v1.0 2026-09-13 · 状态：WORKING（C3 冻结前）
+> LLD: L09/14 · v1.1 · 2026-10-06（C3 准备单元：Q-L09-01/02/03/04/07 CONFIRMED + c3_motivation.profile v1.0 冻结；实现件 = C3 实现期）· 原版见 git 历史 · 状态：WORKING（C3 冻结评审前置）
 > 上游：`HLD.md` §1.2（归属与控制）/§5（预测误差）/§6/§9.2 · `L03/L04/L05/L06/L07/L08`（提案素材与目标） · `L00_kernel.md`（T 级调度）
 > 下游：L10（`ControllerProposal → ActionIntention` 仲裁与提交）
 > 引入门槛：**M1**（最小授权与选择证据）→ **C3**（五类控制器 + metacontrol）→ **C4**（forward/inverse 与主动感知闭环）→ **E1**（控制器 lesion）
@@ -220,11 +220,11 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L09-01 | 仲裁权重 ω_g/ω_c/ω_cost/ω_u/ω_a 默认值与 affect_factor 上界 | C3 | UNCONFIRMED |
-| Q-L09-02 | 五类控制器优先级偏序是否成立及例外条件（与 Q-L08-04 联动） | C3 | UNCONFIRMED |
-| Q-L09-03 | 五类元决策的触发阈值（尤其 `loss_of_control` 的窗长 L_c 与误差阈值） | C3/C4 | UNCONFIRMED |
-| Q-L09-04 | metacontrol 最小驻留（cycles）与抖动锁定策略 | C3 | UNCONFIRMED |
+| Q-L09-01 | 仲裁权重 ω_g/ω_c/ω_cost/ω_u/ω_a 默认值与 affect_factor 上界 | **AI-v2（2026-10-06）：**五项等权 1:1:1:1:1；affect_factor 界 [0.5,2.0]（与 Q-L02-02/Q-L07-02 同值同源）；affect ≠ command 结构面 = 占比 ≤1/5 + 消融判据；入 c3_motivation.profile | CONFIRMED |
+| Q-L09-02 | 五类控制器优先级偏序是否成立及例外条件（与 Q-L08-04 联动） | **AI-v2（2026-10-06）：**采纳（viability 保护 > ACTIVE 目标 > 信息增益 > 习惯 > 语言/社会）；C3 启用电 = {Habit, ModelBased, ActivePerception}（Reflex 白名单未定义延续禁用、Language C4）；偏序仅在元决策轮内 tie-break | CONFIRMED |
+| Q-L09-03 | 五类元决策的触发阈值（尤其 `loss_of_control` 的窗长 L_c 与误差阈值） | **AI-v2（2026-10-06）：**全部事件级或锚定常数——OBSERVE = OOD/abstain 事件；THINK = 冲突∧front>1∨模型误差快分量升（τ=4）；SEEK_HELP = 能力边界 ∨ loss_of_control（L_c=16=T4 拍、阈=band 0.1=2σ）；ABANDON = BLOCKED≥TTL/2(128) ∨ CRITICAL(0.8)；ACT 默认 | CONFIRMED |
+| Q-L09-04 | metacontrol 最小驻留（cycles）与抖动锁定策略 | **AI-v2（2026-10-06）：**驻留 = 4 cycles（T3 对齐窗同锚）；切换 = 连续 2 驻留窗确认（滞回防抖，Q-L05-03 同构）；状态入 checkpoint（Q-L11-06） | CONFIRMED |
 | Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | C5，与 L11 联动 | UNCONFIRMED |
 | Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | C0/C3 | CONFIRMED（AI-v2 2026-09-25：MW0 禁用，C0 复核，随 Q-L10-09 成组，见 A 区） |
-| Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义（人类研究者？实验控制？）与其权限边界 | C3/C4，联动 L12 | UNCONFIRMED |
+| Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义与其权限边界 | **AI-v2（2026-10-06）：**C3 对象 = 实验控制通道（非个体他者——D-14）；经 gateway 记录不耗动作预算；频次 ≤1/64 cycles（T6 拍；超界留痕不发送）；求助是一等能力；C4 L12 扩展经新 Q | CONFIRMED |
 | Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一（联动 Q-L02-06、Q-L03-01） | C1/C3 | CONFIRMED（AI-v2 2026-10-04，见 A 区：等权 1:1:1 + 禁跨层归一；C3 面留元控制裁决） |

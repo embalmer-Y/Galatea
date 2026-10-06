@@ -11,10 +11,10 @@
 ## 2. Q 编号闭合（声明 vs 引用）
 
 - 登记册声明 Q 号：**148**
-  - CONFIRMED: 105
-  - UNCONFIRMED: 42
+  - CONFIRMED: 113
+  - UNCONFIRMED: 34
   - CLOSED: 1
-  - 分区分佈：{'A': 105, 'B': 3, 'C': 3, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'H': 1, 'I': 4, 'K': 4, 'L': 6, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
+  - 分区分佈：{'A': 113, 'B': 3, 'C': 3, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'H': 1, 'I': 4, 'K': 1, 'L': 1, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
 
 - OK：无重复声明
 
@@ -83,8 +83,8 @@
 - `lld/L05_drive_appraisal_affect.md`: OK
 - `lld/L06_memory.md`: OK
 - `lld/L07_workspace.md`: OK
-- `lld/L08_motivation_goals.md`: OK
-- `lld/L09_controllers_metacontrol.md`: OK
+- `lld/L08_motivation_goals.md`: 缺 2026-09-
+- `lld/L09_controllers_metacontrol.md`: 缺 2026-09-
 - `lld/L10_action_gateway_physio_attribution.md`: OK
 - `lld/L11_learning_consolidation.md`: OK
 - `lld/L12_language_social.md`: OK
@@ -92,7 +92,7 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：25
+- 扫描 YAML 文件数：26
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）

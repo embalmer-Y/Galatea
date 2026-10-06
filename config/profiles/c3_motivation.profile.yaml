@@ -1,0 +1,89 @@
+# Galatea C3 冻结规格 — 自主动机（Pareto 仲裁 + 控制器仲裁 + metacontrol 五元决策）
+# 效力：C3 门冻结合同（拟 ADR-G-0017 · tag c3-freeze）。
+# 纪律：全部数值溯源既有裁决（Q-L08-03/04/07 + Q-L09-01/02/03/04/07，AI-v2 2026-10-06）
+# + 既有冻结常数派生（Q-L00-01 频率比 / Q-L08-02 TTL / Q-L02-03 W_align / Q-L05-03 band /
+# Q-L01-08 告警分级）——零无源自由常量；冻结前可行性探针随本单元执行（结论入 ADR-G-0017）。
+# typed loader 随实现期交付（INC-11 纪律）。
+profile:
+  id: c3_motivation
+  version: v1.0
+  frozen_at: "2026-10-06"
+  authority: AI-v2
+  spec_ref: design/lld/L08_motivation_goals.md    # 联动 L09 §9 C3 行
+
+pareto:                                       # Q-L08-03（L08 §4.3 冻结面）
+  components: [viability_benefit, norm_satisfaction, info_value,
+               affective_consistency, cost_inverse]   # 成本以 (1−cost) 归一为收益向
+  weights: {viability_benefit: 1.0, norm_satisfaction: 1.0, info_value: 1.0,
+            affective_consistency: 1.0, cost_inverse: 1.0}   # 等权 1:1:1:1:1
+  domain: [0.0, 1.0]                          # Q-L05-01 域纪律
+  front_rule: dominance_not_weighted_sum      # 支配关系判定；权重仅用于 front 内 tie-break
+  trace_dropped_required: true                # ArbitrationTrace 必留 dropped[]+理由
+
+priority_order:                               # Q-L08-04（viability > 规范 > 承诺 > 其余）
+  classes: [VIABILITY, NORM, COMMITMENT, OTHER]
+  tie_break: [priority_class, pareto_score_desc, candidate_id_asc]
+  rng_stream: none_c3                         # RNG 选项删除（零噪声先例）
+  exception: unresolved_viability_conflict_to_metacontrol   # 禁静默违反优先序
+
+arbitration:                                  # Q-L09-01（L09 §4.2）
+  weights: {goal_align: 1.0, confidence: 1.0, cost: 1.0,
+            expected_info_gain: 1.0, affect_factor: 1.0}   # 等权
+  affect_factor_bound: [0.5, 2.0]             # 与 Q-L02-02/Q-L07-02 同值同源（单一有界调制因子界）
+  affect_bound_ref: c2_affect.profile@v1.0/modulation     # 调制台账必回执
+  affect_not_sole_decider: structural_fifth_share_max     # 等权下 affect 占比 ≤1/5（结构面）
+  tie_break: [score_desc, controller_kind_rank, proposal_id]
+  rng_stream: none_c3
+
+controllers:                                  # Q-L09-02（L09 §4.1/§4.2）
+  enabled_c3: [Habit, ModelBased, ActivePerception]
+  deferred: {Reflex: whitelist_undefined_c3, Language: c4_d14_no_social}
+  priority_order: [viability_protection, active_goal, info_gain, habit_low_cost, language_social]
+  exception: order_within_meta_decision_round_only          # 元决策先于控制器选择
+  rationale_refs_required: true               # 提案必带理由引用（非空）
+  predicted_outcome_ref_required: true        # Reflex 豁免条款随启用裁决生效（C3 无 Reflex）
+
+metacontrol:                                  # Q-L09-03（L09 §4.3；事件级/锚定常数）
+  decisions: [ACT, OBSERVE, THINK, SEEK_HELP, ABANDON]
+  triggers:
+    ACT: default_when_feasible_proposal       # 有可行提案且能力非 INFEASIBLE
+    OBSERVE: window_ood_or_abstain_event      # 事件级零阈值（Q-L03-02 同源）
+    THINK: conflict_and_front_gt1_no_viability_pressure_or_model_pred_error_rising
+                                              # τ=4 快分量窗（Q-L04-04 同锚）
+    SEEK_HELP: capability_boundary_event_or_loss_of_control
+                                              # L_c=16（T4 拍 Q-L00-01）；误差阈 = band 0.1（2σ，Q-L05-03③）
+    ABANDON: blocked_gt_ttl_half_or_viability_critical
+                                              # 128 = TTL/2（Q-L08-02）；CRITICAL 锚 0.8（Q-L01-08 补裁）
+  trigger_refs_required: true
+  min_dwell_cycles: 4                         # Q-L09-04（T3 对齐窗 Q-L02-03 同锚）
+  switch_confirm_windows: 2                   # 连续 2 驻留窗触发方切换（滞回防抖）
+  state_checkpointed: true                    # Q-L11-06 连续性纪律
+
+seek_help:                                    # Q-L09-07（L09 §4.3）
+  addressee_c3: experiment_control_channel    # L01 typed 面（D-14：非个体他者）
+  via_gateway_logged: true                    # 观察类动作不消耗动作预算
+  frequency_cap_per_64_cycles: 1              # T6 拍（Q-L00-01）；超界 = 留痕不发送
+  overflow_handling: record_unknown_capability_limit
+  is_first_class_capability: true             # 求助非失败（receipt 留痕）
+
+norm_source:                                  # Q-L08-07（L08 §4.2 C-4 C3 激活面）
+  legal_source_c3: experiment_control_typed_injection   # L01 language 通道（D-14）
+  derivation_refs: registry_resolvable_event_ids_required  # RECEIVED 事件引用强制
+  self_authored_norm: rejected_unsourced      # REJECT(UNSOURCED_NORM)
+  c4_extension: l12_typed_other_model         # 届时经新 Q
+
+wired_sources_c3:                             # L08 §9 C3"七类动机源全接入"
+  sources: [VIABILITY, MISMATCH, AFFECTIVE, REQUEST, OPPORTUNITY, COMMITMENT, NORM, CURIOSITY]
+  producers:
+    VIABILITY: homeostatic_alert_events       # Q-L01-08 告警分级（L05 drives.py）
+    MISMATCH: model_pred_error_rising         # Q-L04-04 快分量
+    AFFECTIVE: affect_urgency_motive_proposal # C2 AffectPipeline（motive.py 提案面）
+    REQUEST: language_typed_injection         # is_request_only 强制（M1 语义）
+    OPPORTUNITY: affordance_window_detection  # M1 语义（窗增益派生）
+    COMMITMENT: owned_goal_active_set         # 已有 OwnedGoal 承诺持续
+    NORM: experiment_control_typed            # Q-L08-07
+    CURIOSITY: active_perception_entropy      # L04 active_perception 熵提案（C1 件）
+  affect_not_sole: motive_source_nonexclusive # L05 §9 C3：AFFECTIVE 源不得独占
+
+determinism:
+  rng_streams: none_c3                        # Q-G00-10 纪律：无算子不注册流
