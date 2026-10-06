@@ -92,10 +92,10 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：26
+- 扫描 YAML 文件数：27
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：13（只增不减）
+- 清单条目：17（只增不减）
 - OK：本地存在的全部工件与归档锚一致

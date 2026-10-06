@@ -117,27 +117,36 @@ def test_loss_of_control_constants_anchored() -> None:
 
 
 def test_metacontrol_dwell_and_hysteresis() -> None:
-    """驻留 4 拍 + 连续 2 驻留窗确认（Q-L09-04）——切换时序。"""
+    """驻留 4 拍 + 2 驻留窗累计确认（Q-L09-04；REV-0017 R4 滞回累计语义）——切换时序。"""
     st = MetaControlState(now_cycle=0)
     obs = MetaTriggers(ood_or_abstain_event=True)
     # 驻留期内（<4）不切
     for c in range(4):
         d, switched = st.step(obs, c)
         assert d == "ACT" and not switched
-    # 驻留期满 + 第 1 确认窗：pending 建立，仍 ACT
+    # 驻留期满 + 第 1 确认窗（4//4=0）：pending 建立，仍 ACT
     d, switched = st.step(obs, 4)
     assert d == "ACT" and not switched
-    # 第 2 确认窗（cycle 8 = 4+4）：切换
+    # 第 2 确认窗（8//4=2 ≠ 0）：累计 2 窗 → 切换
     d, switched = st.step(obs, 8)
     assert d == "OBSERVE" and switched
     # 切换后驻留期：条件消失也不立即回切
     d, switched = st.step(MetaTriggers(), 9)
     assert d == "OBSERVE" and not switched
-    # 条件解除连续 2 窗（13、17）→ 回 ACT
+    # 条件解除跨 2 驻留窗（13、17）→ 回 ACT（累计制：13//4=3 一窗、17//4=4 二窗）
     _, _ = st.step(MetaTriggers(), 13)
     d, switched = st.step(MetaTriggers(), 17)
     assert d == "ACT" and switched
     assert st.digest() == st.digest()
+
+
+def test_metacontrol_sparse_events_accumulate() -> None:
+    """稀疏事件（每 8 拍 OOD）跨窗累计可切（连续制构造性不可切换的修正语义）。"""
+    st = MetaControlState()
+    # 注入拍 0（驻留内不切）、8、16：pending 自 8，16 落第二窗 → 切
+    for c in range(0, 20):
+        d, _ = st.step(MetaTriggers(ood_or_abstain_event=(c % 8 == 0)), c)
+    assert d == "OBSERVE"
 
 
 def test_seek_help_frequency_cap() -> None:

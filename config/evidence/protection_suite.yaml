@@ -9,13 +9,14 @@
 #       v1.6 = C2 实现期次单元增补（2026-10-06，INC-12 义务第六次执行——记忆/workspace 场景随实现落成即冻）。
 #       v1.7 = C2 门退出版增补（2026-10-06，INC-12 义务第七次执行——统计评价/值域发现/判定器场景）。
 #       v1.8 = C3 实现期首单元增补（2026-10-06，INC-12 义务第八次执行——仲裁/元决策/权限测试场景）。
+#       v1.9 = C3 门退出版增补（2026-10-06，INC-12 义务第九次执行——统计评价场景）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.8                 # v1.8（C3 实现期首单元版）：新增 c3_* 8 场景至 88（INC-12 义务第八次执行；
-                                # 既有 80 场景原样保留，只增不减）
+  version: v1.9                 # v1.9（C3 门退出版）：新增 c3_* 评价场景 8 至 96（INC-12 义务第九次执行；
+                                # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
@@ -419,3 +420,40 @@ protection_suite:
       frozen_gate: C3
       assertion: action 域全模块源零 affect import（字符串扫描第二防线，P03 同型）；元决策产出 = 决策枚举
         非命令；AffectiveMotiveProposal 无执行面字段（affect 侧套件承载）
+
+    - id: c3_stat_plan_frozen_claims
+      source_test: galatea/evidence/control/entry.py::run_c3_first_evaluation
+      frozen_gate: C3
+      assertion: stat plan c3_motivation_metacontrol v1.0 三 claim（优先序因果/元决策切换/AFFECTIVE
+        不独占上界）typed loader 冻结加载 + 种子派生内嵌（Q-L13-12④）
+    - id: c3_runner_four_arm_protocol
+      source_test: galatea/evidence/control/runs_c3.py
+      frozen_gate: C3
+      assertion: 四臂（full_priority/score_only/ood_full/clean_full）同 seed 同世界流——差异唯一来源 =
+        仲裁序/OOD 注入（D-10）；blob 显式 decode（REV-0014 R1 教训在案）
+    - id: c3_priority_causal_supported
+      source_test: evidence/c3_motivation_first_evaluation/R-c3-priority-001.json
+      frozen_gate: C3
+      assertion: 优先序消融配对差 mean 0.390 SUPPORTED（d≥0.5）——front 内优先序具因果贡献
+    - id: c3_metacontrol_observe_switching
+      source_test: evidence/c3_motivation_first_evaluation/R-c3-switching-002.json
+      frozen_gate: C3
+      assertion: OOD 注入臂 OBSERVE 占比差 mean 0.153 SUPPORTED——元决策对证据响应（驻留+累计滞回承载）
+    - id: c3_affective_share_upper_bound
+      source_test: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
+      frozen_gate: C3
+      assertion: AFFECTIVE 被选占比 mean 0.0 < 0.5 SUPPORTED（L05 §9 C3 不得独占——结构性 + 统计双面）
+    - id: c3_mismatch_threshold_anchored
+      source_test: galatea/evidence/control/runs_c3.py
+      frozen_gate: C3
+      assertion: MISMATCH 源事件阈 0.05 = Q-L01-08 damage_event_min_delta 同标度（零新常数——
+        rest 回升 +0.10 触发/move −0.01 不触发）
+    - id: c3_hysteresis_accumulated_semantics
+      source_test: galatea/subject/action/tests/test_c3_metacontrol.py
+      frozen_gate: C3
+      assertion: 滞回确认 = 跨驻留窗累计制（稀疏事件每 8 拍可切——连续制构造性不可切换的修正语义，
+        确认窗仅切换/目标变更时重置）
+    - id: c3_i1_four_arm_recompute
+      source_test: galatea/evidence/control/runs_c3.py::run_c3_evaluation
+      frozen_gate: C3
+      assertion: I1 复算 = 四臂全指标向量（divergence/observe/aff_share）content_digest bit-exact

@@ -1,0 +1,98 @@
+# Galatea C3 冻结统计计划 — 优先序仲裁因果 + 元决策切换 + AFFECTIVE 不独占（L08 §9/L09 §9 C3 判据）
+# 效力：运行前冻结（运行后改动 = StatPlanMutation 拒绝）；种子派生内嵌（Q-L13-12④）。
+# **Holm 族定义（REV-0014 复核关切① 显式钉死）**：族 = 本 EvidenceResult 的 3 个
+# claim 级主判定 p 值。机械判据（源覆盖/滞回时序/帽）不入统计 claim。
+stat_plan:
+  id: c3_motivation_metacontrol
+  version: v1.0
+  frozen_at: "2026-10-06"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L08_motivation_goals.md    # 联动 L09 §9 C3 行
+
+  seed_derivation:
+    master_seed_hex: "63332d6d6f7469766174696f6e"   # = b"c3-motivation".hex()
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes
+    label: "c3.motivation"
+    trial_unit: seeded_run                   # 每 run 四臂
+
+  claims:
+    - claim_id: c3_priority_arbitration_causal
+      hypothesis: >
+        可反驳假设：front 内优先序（Q-L08-04：viability 类压倒高分 OTHER）具因果作用——
+        同 seed 同流同候选集下，优先序臂与纯分数序臂的仲裁选择在 LOW 告警×机会共存拍
+        系统性分化（priority 选 VIABILITY 类、score 选高分量 OTHER）。若两臂选择不可
+        区分（差 d < 0.5）→ 优先序无因果贡献 → C3 仲裁判据失败。
+      estimand: per_run_priority_vs_score_choice_divergence_rate
+      primary_endpoints:
+        - per_run_choice_divergence_rate       # 分歧拍数 / 共存仲裁拍数（配对 d ≥ 0.5）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c3_priority_arbitration_causal}
+      unknown_handling: >
+        取数域 = 两臂均存在 ≥2 front 候选的仲裁拍（共存拍——分歧只可能在共存拍产生）；
+        某 run 共存拍为空 → 整 run 剔除留痕；帧缺失拍照常剔除。
+
+    - claim_id: c3_metacontrol_switching
+      hypothesis: >
+        可反驳假设：metacontrol 元决策对证据响应（L09 §9 C3 硬条件"可在规划/观察间
+        切换"）——OOD 注入臂（每 8 拍域出窗）经 abstain 事件触发 OBSERVE（驻留+滞回
+        门后），切换率显著高于干净臂（恒 ACT）。若切换率差 d < 0.5 → 元决策不响应
+        证据 → C3 metacontrol 判据失败。
+      estimand: per_run_observe_rate_difference
+      primary_endpoints:
+        - per_run_observe_rate_difference      # 注入臂 − 干净臂（OBSERVE 拍占比差，d ≥ 0.5）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c3_metacontrol_switching}
+      unknown_handling: >
+        OBSERVE 拍占比 = 处于 OBSERVE 状态的拍 / 总拍（状态机时序——驻留/滞回语义承载
+        切换延迟）；OOD 注入窗的 abstain 事件为触发源（窗口 [0][0]=5.0 域出——C2 解离
+        同手法）；帧缺失拍剔除留痕。
+
+    - claim_id: c3_affective_nonexclusive
+      hypothesis: >
+        可反驳假设（上界型）：AFFECTIVE 源在仲裁中不独占（L05 §9 C3"不得独占"）——
+        全优先序臂的 AFFECTIVE 类被选中占比 < 0.5。若 ≥0.5 → 情感源独占仲裁
+        （affect ≠ command 结构面失败）→ C3 判据失败。方向性锚：分量映射下 AFFECTIVE
+        仅占独占维（无加权路径——结构面）+ 七源共存分流。
+      estimand: per_run_affective_pick_share
+      primary_endpoints:
+        - per_run_affective_pick_share         # 上界判据：均值 < 0.5 + CI 上界 < 0.5
+      n_per_arm: 64
+      power: 0.80
+      test: upper_bound_one_sample
+      effect_ci_rule: one_sample_mean_ci_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c3_affective_nonexclusive}
+      unknown_handling: >
+        分母 = 有候选被选中的仲裁拍（none 拍不计入）；无 AFFECTIVE 候选的拍计入分母
+        （占比 0——真实源出现频率的诚实呈现）；机械判据（源覆盖 ≥6 kind）另立不入本 claim。
+
+  scenario:
+    cycles: 64
+    moves: {2: N, 3: E, 4: S, 5: W, 6: N, 7: E, 8: S, 9: W, 10: N, 11: E, 12: S, 13: W,
+            14: N, 15: E, 16: S, 17: W, 18: N, 19: E, 20: S, 21: W, 22: N, 23: E, 24: S,
+            25: W}                            # 24 步（energy 0.99→0.75——LOW 告警段供
+                                              # VIABILITY 源与 OPPORTUNITY 共存竞争）
+    rests: [30, 40]
+    arm_protocol:
+      full_priority: 优先序仲裁（Q-L08-04 全序）+ 七源 + metacontrol（无注入）
+      score_only:     同 full_priority 但 front 内 tie-break = 纯分数序（优先序消融臂）
+      ood_full:       同 full_priority + OOD 注入（每 8 拍窗[0][0]=5.0 域出——abstain 事件）
+      clean_full:     同 full_priority 无注入（claim 2 对照臂）
+    ood_injection: every_8_cycles_window00_5.0   # C2 解离同手法（观察面域出）
+    motive_producers: c3_motivation.profile@v1.0 wired_sources 冻结映射
+    arbitration_vectors: arbitration.vector_of 冻结映射（Q-L08-03② 实现补裁）
+    mechanical_note: 源覆盖 ≥6 kind / 滞回时序 / SEEK_HELP 帽 = 机械判据不入统计 claim。
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: regimes_x_seeds
+    sealed_fraction: 0.30
+    run_to_cell: sealed_cells[p % len(sealed_cells)]
+
+  correction: holm_bonferroni                 # 族 = 3 claim 级主判定 p（头注显式钉死）

@@ -111,33 +111,41 @@ class MetaControlState:
         self._entered_at: int = now_cycle
         self._pending: str | None = None
         self._pending_since: int | None = None
+        self._confirm_windows: set[int] = set()   # 条件成立的驻留窗（累计制——稀疏事件可切）
         self._help_last_sent: int | None = None
         self._transitions: tuple[tuple[int, str, str], ...] = ()
 
     def step(self, triggers: MetaTriggers, cycle: int) -> tuple[str, bool]:
-        """单拍推进（返回 (决策, 是否切换)）——驻留 + 滞回门。"""
+        """单拍推进（返回 (决策, 是否切换)）——驻留 + 滞回门。
+
+        滞回确认 = **累计制**：pending 目标在 ≥SWITCH_CONFIRM_WINDOWS 个不同驻留窗内
+        条件成立即切换（窗 = cycle // MIN_DWELL；稀疏事件如每 8 拍 OOD 注入可跨窗
+        累计——连续制会使其构造性不可切换，与 C2 修订 2 的读者滞回同族语义）。
+        """
         target = decide(triggers)
         dwell_ok = cycle - self._entered_at >= MIN_DWELL
         if target == self.current:
-            self._pending = None
-            self._pending_since = None
+            # 条件回落到 current 不清确认窗（稀疏事件间隔是预期——REV-0017 R4 语义；
+            # 确认窗仅在切换或出现不同 pending 目标时重置）
             return self.current, False
         if not dwell_ok:
             return self.current, False
         if self._pending == target:
             assert self._pending_since is not None
-            confirmed_windows = (cycle - self._pending_since) // MIN_DWELL
-            if confirmed_windows + 1 >= SWITCH_CONFIRM_WINDOWS:
+            self._confirm_windows.add(cycle // MIN_DWELL)
+            if len(self._confirm_windows) >= SWITCH_CONFIRM_WINDOWS:
                 prev = self.current
                 self.current = target
                 self._entered_at = cycle
                 self._pending = None
                 self._pending_since = None
+                self._confirm_windows = set()
                 self._transitions = self._transitions + ((cycle, prev, target),)
                 return target, True
             return self.current, False
         self._pending = target
         self._pending_since = cycle
+        self._confirm_windows = {cycle // MIN_DWELL}
         return self.current, False
 
     def request_help(self, cycle: int) -> tuple[bool, str]:

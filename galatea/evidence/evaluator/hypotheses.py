@@ -1043,3 +1043,148 @@ def evaluate_c2_composite(
         detected_by=detected_by,
         composite_label="c2_affect_workspace",
     )
+
+# ---- C3 判定器（stat plan c3_motivation_metacontrol v1.0） ----
+
+def evaluate_c3_priority_arbitration(
+    result_id: str,
+    stat_plan_ref: str,
+    divergence_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c3_priority_arbitration_causal 判定（claim 1；阈值 d≥0.5）。"""
+    insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
+        divergence_diffs, n_expected, detected_by
+    )
+    hypothesis_refs = ("c3_priority_arbitration_causal",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_priority_vs_score_choice_divergence_rate",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_priority_vs_score_choice_divergence_rate",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c3_metacontrol_switching(
+    result_id: str,
+    stat_plan_ref: str,
+    observe_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c3_metacontrol_switching 判定（claim 2；阈值 d≥0.5）。"""
+    insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
+        observe_diffs, n_expected, detected_by
+    )
+    hypothesis_refs = ("c3_metacontrol_switching",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_observe_rate_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_observe_rate_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c3_affective_nonexclusive(
+    result_id: str,
+    stat_plan_ref: str,
+    affective_shares: tuple[float, ...],
+    bound: float = 0.5,
+    recompute_ok: bool = True,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c3_affective_nonexclusive 判定（claim 3 上界型：mean share < 0.5——L05 §9 C3）。"""
+    insufficient, mean, ci_lo, ci_hi, p_lower = _upper_bound_stats(
+        affective_shares, bound, n_expected, detected_by
+    )
+    hypothesis_refs = ("c3_affective_nonexclusive",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_affective_pick_share",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    assert mean is not None and ci_hi is not None and p_lower is not None and ci_lo is not None
+    if mean >= bound:
+        verdict = HypothesisVerdict.REFUTED
+        refutations = ("affective_share_at_or_above_bound",)
+    elif ci_hi < bound and p_lower < 0.05 and recompute_ok:
+        verdict = HypothesisVerdict.SUPPORTED
+        refutations = ()
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+        refutations = ()
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_affective_pick_share",
+        effect_size=mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p_lower if p_lower > 1e-16 else 0.0,
+        verdict=verdict, unknowns=(), refutations=refutations,
+        data_refs=(f"mean_share={mean:.6f}", f"bound={bound}",
+                   f"p_lower={'<1e-16' if p_lower <= 1e-16 else f'{p_lower:.3g}'}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c3_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: "tuple[EvidenceResult, ...]",
+    mechanical_checks: "dict[str, bool]",
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    alpha: float = 0.05,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """C3 复合判定（evaluate_c1_composite 同体例；Holm 族 = 3 claim 级 p；R5 标签参数化）。"""
+    return evaluate_c1_composite(
+        result_id=result_id,
+        stat_plan_ref=stat_plan_ref,
+        constituent_results=constituent_results,
+        mechanical_ok=all(mechanical_checks.values()),
+        leakage_free=leakage_free,
+        i1_match=i1_match,
+        recompute_ok=recompute_ok,
+        statistical_core=statistical_core,
+        alpha=alpha,
+        detected_by=detected_by,
+        composite_label="c3_motivation_metacontrol",
+    )

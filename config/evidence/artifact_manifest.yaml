@@ -5,6 +5,7 @@
 # v1.2（2026-10-05，REV-0014 R1 闭环）：R-c1-body-003 与 R-c1-models-001 两锚自 HEAD 重跑后更新——
 #       v1.3 = C2 门退出（2026-10-06）：+4 C2 首评工件锚（只增不减；顺延终止条款第三次执行）。
 #       v1.4 = REV-0016 R5 闭环（2026-10-06）：C2 四锚 sha256 原地更新——composite 标签勘误
+#       v1.5 = C3 门退出（2026-10-06）：+4 C3 首评工件锚（只增不减；顺延终止条款第四次执行）。
 #         （composite_label 参数化，工件不再携带 C1 硬编码标签）；判定数字 bit-exact 恒等，
 #         旧锚 v1.3 留痕 ADR-G-0016（REV-0014 R1 同型纪律）。
 #   8db65ce 提交态 runner 序列化回归（str(bytes)），归档工件由修复前代码产生（评审三条独立链证明
@@ -13,7 +14,7 @@
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.4
+  version: v1.5
   frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
@@ -69,3 +70,19 @@ artifact_manifest:
       path: evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json
       sha256: 3705aeeb8135a242c235772259a936c410da329cd181ec7708e1a6f8177696b1
       gate: C2 首评——感受态输入驱动性（耗能流 vs 恒满流配对）
+    - name: R-c3-motivation-001
+      path: evidence/c3_motivation_first_evaluation/R-c3-motivation-001.json
+      sha256: 3f11a6e218f1ff85c5b85d12c7d17e87f966d9ef4904fbb135b8ec95c9d2bbfe
+      gate: C3 首评复合判定（顺延终止条款第四次执行；Holm 族 = 3 claim 级 p）
+    - name: R-c3-priority-001
+      path: evidence/c3_motivation_first_evaluation/R-c3-priority-001.json
+      sha256: 94527c378cdd8ce0bf0d371d2061419fe22a2d5c7a462f07ca698ba688251b82
+      gate: C3 首评——优先序仲裁因果（配对消融 d≥0.5）
+    - name: R-c3-switching-002
+      path: evidence/c3_motivation_first_evaluation/R-c3-switching-002.json
+      sha256: 8c0c909ad30430d5daf09b670b0e212ca5edc98c8d8a19a09be2d8c92e67e179
+      gate: C3 首评——metacontrol 切换响应（OOD 注入配对）
+    - name: R-c3-nonexclusive-003
+      path: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
+      sha256: 01a58dd57c0ce9e1c0d1c16530809e4d0b28801106636bc8ef5abcd4f919a62c
+      gate: C3 首评——AFFECTIVE 不独占上界（mean share 0.0 < 0.5）

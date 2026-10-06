@@ -33,6 +33,12 @@ from galatea.evidence.control.runs_c1 import (
     load_c1_scenario,
     run_c1_evaluation,
 )
+from galatea.evidence.control.runs_c3 import (
+    c3_affective_shares,
+    c3_divergence_diffs,
+    c3_observe_diffs,
+    run_c3_evaluation,
+)
 from galatea.evidence.control.runs_c2 import (
     c2_dynamics_diffs,
     c2_gain_diffs,
@@ -44,6 +50,10 @@ from galatea.evidence.control.runs_c2 import (
 from galatea.evidence.evaluator.hypotheses import (
     evaluate_c2_anti_reward_collapse,
     evaluate_c2_composite,
+    evaluate_c3_affective_nonexclusive,
+    evaluate_c3_composite,
+    evaluate_c3_metacontrol_switching,
+    evaluate_c3_priority_arbitration,
     evaluate_c2_dynamics_input_driven,
     evaluate_c2_modulation_causality,
     evaluate_c1_body_incorporation,
@@ -80,6 +90,7 @@ _M2_PLAN = Path("config") / "evidence" / "stat_plans" / "m2_continuity_sc5_sc6.y
 _ROOT_PLAN = Path("config") / "evidence" / "stat_plans" / "r0_root.yaml"
 _C1_PLAN = Path("config") / "evidence" / "stat_plans" / "c1_perception_models.yaml"
 _C2_PLAN = Path("config") / "evidence" / "stat_plans" / "c2_affect_workspace.yaml"
+_C3_PLAN = Path("config") / "evidence" / "stat_plans" / "c3_motivation_metacontrol.yaml"
 _EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②
 
 
@@ -523,6 +534,97 @@ def run_c2_first_evaluation(
     )
 
 
+def run_c3_first_evaluation(
+    root: Path, out_dir: Path, n_limit: int | None = None,
+) -> "C3FirstEvaluation":
+    """C3 首评（stat plan c3_motivation_metacontrol v1.0；顺延终止条款第四次执行）。"""
+    plan_path = root / _C3_PLAN
+    plan = load_stat_plan(plan_path)
+    policy = load_split_policy(root)
+    grid = tuple(
+        GridCell(cell_id=f"{r}:{i}", regime=r, seed_index=i)
+        for r in ("abundance", "scarcity", "volatile")
+        for i in range(32)
+    )
+    split = generate_split(grid, seal_split_master_seed(), policy)
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    run_dir = out_dir / "run"
+    records, mechanical, plan_digest, split_digest, i1_match = run_c3_evaluation(
+        root, run_dir, out_dir / "runner-tmp", split.sealed.cells, plan_path,
+        split.split_digest, n_limit=n_limit,
+    )
+    full = tuple(r for r in records if r.arm == "full_priority")
+    by_arm = {arm: tuple(r for r in records if r.arm == arm)
+              for arm in ("score_only", "ood_full", "clean_full")}
+    divergence = c3_divergence_diffs(full, by_arm["score_only"])
+    observe = c3_observe_diffs(by_arm["ood_full"], by_arm["clean_full"])
+    shares = c3_affective_shares(full)
+    priority = evaluate_c3_priority_arbitration(
+        "R-c3-priority-001", f"{_C3_PLAN.as_posix()}@{plan.version}",
+        divergence, recompute_ok=i1_match, n_expected=len(full))
+    switching = evaluate_c3_metacontrol_switching(
+        "R-c3-switching-002", f"{_C3_PLAN.as_posix()}@{plan.version}",
+        observe, recompute_ok=i1_match, n_expected=len(full))
+    nonexclusive = evaluate_c3_affective_nonexclusive(
+        "R-c3-nonexclusive-003", f"{_C3_PLAN.as_posix()}@{plan.version}",
+        shares, recompute_ok=i1_match, n_expected=len(full))
+    leakage = run_leakage_suite(load_tree_sources(root))
+    composite = evaluate_c3_composite(
+        "R-c3-motivation-001", f"{_C3_PLAN.as_posix()}@{plan.version}",
+        (priority, switching, nonexclusive),
+        mechanical_checks=mechanical,
+        leakage_free=leakage.leakage_free,
+        i1_match=i1_match,
+        recompute_ok=i1_match,
+        statistical_core=priority,
+        alpha=0.05,   # Holm 族 = 3 claim 级主判定 p（REV-0014 复核关切①）
+    )
+    _write_result(out_dir / "R-c3-motivation-001.json", composite, len(full), {
+        "priority_arbitration": {"verdict": priority.verdict.value,
+                                 "mean_divergence": round(sum(divergence) / len(divergence), 6)},
+        "metacontrol_switching": {"verdict": switching.verdict.value,
+                                  "mean_observe_diff": round(sum(observe) / len(observe), 6)},
+        "affective_nonexclusive": {"verdict": nonexclusive.verdict.value,
+                                   "mean_share": round(sum(shares) / len(shares), 6)},
+        "mechanical_checks": {k: bool(v) for k, v in mechanical.items()},
+        "split_digest": split_digest,
+        "stat_plan_digest": plan_digest,
+        "i1_match": i1_match,
+        "leakage_free": leakage.leakage_free,
+        "leakage_report_digest": leakage.digest,
+        "seed_note": "Q-L13-12④（master seed = b\"c3-motivation\".hex() 内嵌 stat plan）",
+    })
+    for name, result in (
+        ("R-c3-priority-001", priority), ("R-c3-switching-002", switching),
+        ("R-c3-nonexclusive-003", nonexclusive),
+    ):
+        _write_result(out_dir / f"{name}.json", result, len(full))
+    return C3FirstEvaluation(
+        composite=composite, priority=priority, switching=switching,
+        nonexclusive=nonexclusive, mechanical=mechanical,
+        i1_match=i1_match, leakage_free=leakage.leakage_free, out_dir=out_dir,
+    )
+
+
+class C3FirstEvaluation:
+    """C3 首评数据集（复合 + 三子主张 + 机械判据）。"""
+
+    def __init__(
+        self, composite: Any, priority: Any, switching: Any, nonexclusive: Any,
+        mechanical: dict[str, bool], i1_match: bool, leakage_free: bool,
+        out_dir: Path,
+    ) -> None:
+        self.composite = composite
+        self.priority = priority
+        self.switching = switching
+        self.nonexclusive = nonexclusive
+        self.mechanical = mechanical
+        self.i1_match = i1_match
+        self.leakage_free = leakage_free
+        self.out_dir = out_dir
+
+
 class C2FirstEvaluation:
     """C2 首评数据集（复合 + 三子主张 + 机械判据）。"""
 
@@ -578,6 +680,16 @@ def main(argv: list[str] | None = None) -> int:
     elif command == "root":
         root_result = assemble_root_evidence(root, out_dir)
         print(f"root: {root_result.verdict.value} effect={root_result.effect_size}")
+    elif command == "c3":
+        out_dir = root / "evidence" / "c3_motivation_first_evaluation"
+        first = run_c3_first_evaluation(root, out_dir, n_limit=None)
+        print(
+            f"c3: composite={first.composite.verdict.value} "
+            f"priority={first.priority.verdict.value} "
+            f"switching={first.switching.verdict.value} "
+            f"nonexclusive={first.nonexclusive.verdict.value} "
+            f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
+        )
     elif command == "c2":
         out_dir = root / "evidence" / "c2_affect_first_evaluation"
         first = run_c2_first_evaluation(root, out_dir, n_limit=None)
