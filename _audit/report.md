@@ -83,8 +83,8 @@
 - `lld/L05_drive_appraisal_affect.md`: OK
 - `lld/L06_memory.md`: OK
 - `lld/L07_workspace.md`: OK
-- `lld/L08_motivation_goals.md`: 缺 2026-09-
-- `lld/L09_controllers_metacontrol.md`: 缺 2026-09-
+- `lld/L08_motivation_goals.md`: OK
+- `lld/L09_controllers_metacontrol.md`: OK
 - `lld/L10_action_gateway_physio_attribution.md`: OK
 - `lld/L11_learning_consolidation.md`: OK
 - `lld/L12_language_social.md`: OK

@@ -1,6 +1,6 @@
 # L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算
 
-> LLD: L08/14 · v1.1 · 2026-10-06（C3 准备单元：Q-L08-03/04/07 CONFIRMED + c3_motivation.profile v1.0 冻结；实现件 = C3 实现期）· 原版见 git 历史 · 状态：WORKING（C3 冻结评审前置）
+> LLD: L08/14 · v1.1 · 2026-10-06（C3 准备单元：Q-L08-03/04/07 CONFIRMED + c3_motivation.profile v1.0 冻结；实现件 = C3 实现期）· 原版 2026-09-13 · 状态：WORKING（C3 冻结评审前置）
 > 上游：`HLD.md` §1.2（目标自主）/§6/§9/§11.1（`request ≠ candidate ≠ goal ≠ intention`） · `L03/L04/L05/L06/L07`（动机源与素材） · `L00_kernel.md`
 > 下游消费者：L09（控制器选择）、L07（目标相关性分量）、L06（prospective）、L10（意图来源之一，经仲裁）、L13（M1 证据评价）
 > 引入门槛：**M1**（最小目标拥有 + 理由仲裁）→ **C3**（完整承诺/冲突/Pareto 仲裁/规范）→ **C4**（社会规范与他者承诺）→ **C5**（长期目标持续与修订）
@@ -198,7 +198,7 @@ galatea/subject/goals/tests/
   test_llm_to_goal_blocked.py
 config/profiles/
   m1_goals_min.profile.yaml   最小 checklist 项/理由检验协议/TTL（M1 冻结）
-  c3_goals.profile.yaml       仲裁权重/优先序/冲突阈值/复核周期（冻结前 UNCONFIRMED）
+  c3_goals.profile.yaml（注记：C3 冻结物实为 c3_motivation.profile.yaml v1.0——八节合一承载 L08+L09 参数，REV-0017 R8）       仲裁权重/优先序/冲突阈值/复核周期（冻结前 UNCONFIRMED）
 ```
 
 ## 11. 未决问题（→ open_questions.md）
