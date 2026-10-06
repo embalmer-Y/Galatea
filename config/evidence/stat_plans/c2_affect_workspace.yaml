@@ -1,0 +1,173 @@
+# Galatea C2 冻结统计计划 — 三类调制因果消融 + anti-reward-collapse + 感受态输入驱动（L05 §1 C2 退出判据）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式内嵌本计划。
+# **Holm 族定义（REV-0014 复核关切① 显式钉死）**：族 = 本 EvidenceResult 的 3 个
+# claim 级主判定 p 值（c2_modulation_causality joint p / c2_anti_reward_collapse p /
+# c2_dynamics_input_driven p）——claim 内分判据不单独入族（joint 判据族内一次判定）。
+# 解离/机械判据（六机制辨识、ethics 消融、affect≠command、effective_access 可达）
+# 不入统计 claim（M2 SC5 先例），由 runner 机械断言承载。
+stat_plan:
+  id: c2_affect_workspace
+  version: v1.0
+  frozen_at: "2026-10-06"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L05_drive_appraisal_affect.md    # 联动 L06 §9/L07 §9 C2 行
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死
+    master_seed_hex: "63322d6166666563742d7365616c6564"   # = b"c2-affect-sealed".hex()
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes   # runs_c1 同式
+    label: "c2.affect"
+    trial_unit: seeded_run                   # 试次单位 = 种子化 run（每 run 五臂）
+
+  claims:
+    - claim_id: c2_modulation_causality
+      hypothesis: >
+        可反驳假设：C2 三类有界调制在真实流中具下游因果作用且各自可分离——判据 1
+        （SENSORIUM.gain）：增益调制应用臂的内感受强度显著偏离消融臂（intero
+        energy/integrity 帧值差，调制 ON 窗）；判据 2（PERCEPTION.believe_threshold）：
+        阈值调制应用臂的窗级 abstain 率显著高于消融臂（0.5→0.6 承诺面上移）；判据 3
+        （WORKSPACE.salience）：显著性调制应用臂的入帧集显著偏离消融臂（affect 分量
+        ×2 缩放改变竞争排名）。三判据各 per-run 配对差 d≥0.4 且联合成立；消融臂与
+        应用臂同 seed 同世界流（差异唯一来源 = 调制路径——D-10 因果可干预）。
+        任一判据不达 → C2 调制因果判据失败。
+      estimand: per_run_three_modulation_paired_differences
+      primary_endpoints:
+        - criterion1_gain_intero_contrast      # 应用臂 − 消融臂，调制 ON 窗 intero 强度差
+        - criterion2_salience_admission_contrast # 应用臂 − 消融臂，ON 竞争拍入帧集对称差比例
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald             # 两行为判据各自配对；joint = 全部 SUPPORTED（joint:true）
+      # —— 运行前修订 3（2026-10-06，运行前修订留痕；原判据 2 = threshold 行为面）——
+      # **值域结构性发现**：冒烟实证 13,650 格后验的值域 = {0, 0.2121, 0.9999, 1.0}
+      # （C1 冻结表格贝叶斯 Q-L03-03 五档量化似然 × 0.35 先验的离散不动点——数学属性）。
+      # believe_threshold ∈ [0.4, 0.6]（Q-L02-02 调制界）整段落在值域间隙 (0.2121, 0.9999)
+      # 内 → 阈在界内任意移动不改变任何格/窗判定 → threshold 调制的行为面效应在 MW0
+      # **恒零（结构性，非链路失效）**。处置（AI-v2 运行前裁决，Q-L02-02 行内补裁③）：
+      # 行为判据 = gain + salience 两判据（joint d≥0.4）；threshold 判据移出统计 claim，
+      # 以机械判据承载（dissociation_mechanical：值域间隙证明 + 调制链完整性——发放/接收/
+      # 回执 CONFIRMED/管线 applied 生效/threshold_ref 传播）；行为效应判据随 C3+ 知觉
+      # 值域扩展（连续后验或多档量化重标定）重评——重开条件成文。
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c2_modulation_causality}
+      unknown_handling: >
+        帧损坏致窗缺失照常剔除（缺失非数据）；判据取数域 = 各调制门 ON 窗（门状态由
+        应用臂感受态动力学决定——迟滞 center 0.5/band 0.1，ADR-G-0015 层A 规格），
+        窗集由应用臂逐拍记录机械派生（禁事后选择）；某 run 某判据 ON 窗为空 → 该
+        run 该判据剔除并留痕；判据任一 n 不足 → INCONCLUSIVE（unknown ≠ 阴性）。
+        回执核：调制消费后必须 record_receipt（无回执调制 = 未发生——L05 §6 行 3），
+        台账 digest 入 trace 行。
+
+    - claim_id: c2_anti_reward_collapse
+      hypothesis: >
+        可反驳假设（上界型判据，Q-L05-07 冻结）：真实流感受态九维（八标量维 +
+        tendencies 聚合强度）不可被任一单维线性重构——per-run 最优单维对其余维的
+        平均决定系数 R² < 0.9。若某单维可高比例线性重构其余维（≥0.9），则九维可
+        塌缩为单一标量目标函数（anti-reward-collapse 判据失败——感受态退化为一维
+        reward 等价物）。方向性锚：valence = 误差变化率（非水平）、tendencies 由
+        affordance 独立驱动、social_relevance 恒 Unknown 基线（D-14）——结构性
+        去相关来源已在冻结公式面成立，本 claim 检验其在真实流轨迹上的保持。
+      estimand: per_run_max_single_dim_mean_r2     # per-run：max_d mean_{d'≠d} R²(x_d → x_d')
+      primary_endpoints:
+        - per_run_max_single_dim_mean_r2       # 上界判据：均值 < 0.9（Q-L05-07；确定性阈值）
+      n_per_arm: 64
+      power: 0.80
+      test: upper_bound_one_sample             # 上界型：样本均值 < 0.9 + 单样本 t/CI（无配对臂）
+      effect_ci_rule: one_sample_mean_ci_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#anti_reward_collapse}
+      unknown_handling: >
+        social_relevance 恒 0（零方差）→ 作为源维 R² 定义为 0（常量维不可预测非常量维，
+        测试面同式）；controllability 无归属事件窗保持上一值（分段常量）——如实入轨
+        迹参与重构统计（不剔除——真实感受态行为）；轨迹长度不足（全 run 帧损毁）→
+        整 run 剔除留痕。九维取值 = 感受态发布值（valence 已 clip、其余域内）。
+
+    - claim_id: c2_dynamics_input_driven
+      hypothesis: >
+        可反驳假设：感受态是输入驱动的持续动力学状态（非静态标签/非自激振荡）——
+        耗能流臂（move 步进使驱力误差上升）的唤醒轨迹显著高于恒满流臂（同 seed，
+        同拍动作用 rest 替换、energy 恒饱和），且耗能臂 valence 均值方向为负
+        （§4.2 恶化方向）。若两臂感受态轨迹不可区分（差 d < 0.5）→ 感受态对
+        内稳态输入不响应（非动力学状态）→ C2 感受态判据失败。
+      estimand: per_run_arousal_trajectory_mean_difference
+      primary_endpoints:
+        - per_run_arousal_mean_contrast        # 耗能臂 − 恒满流臂（arousal 轨迹均值差，d≥0.5）
+        - valence_direction_anchor             # 耗能臂 valence 均值 ≤ 0（方向锚；确定性断言）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald             # per-run 配对差（同 seed 配对——输入面唯一差异）
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c2_dynamics_input_driven}
+      unknown_handling: >
+        两臂世界轨迹因输入不同而分叉（预期——实验操纵在输入面，D-10 可干预）；
+        帧/感受态缺失窗剔除留痕；方向锚任一 run 违反 → 该 run 记 negative_anchor
+        （主判据仍按配对差统计；锚违反率作为描述性指标另报——若 >0 即 §4.2 公式
+        面问题，触发重开条件复核）。
+
+  scenario:                                    # 场景冻结（机械可复算）
+    # —— 冒烟诊断驱动的运行前修订（首次正式运行前，留痕）——
+    # 修订 1：cycles 64→96 + moves 24→60 步连续（深耗能段 0.99→0.39 使 arousal 门
+    #   输入 e_max>0.55 达迟滞阈——64/24 步方案 arousal 峰 0.25 永不触发，gain 判据
+    #   窗为空构造性不可判定）；修订 2：三门输入面接线真实流（窗级 uncertainty =
+    #   1−p 均值 / novelty = 窗间对象集 Jaccard 距离——原 runner 缺省 None 恒保持 0）。
+    cycles: 96                                 # 1.5 个 T6 拍（衰减/恢复相位窗覆盖）
+    moves: {2: N, 3: E, 4: S, 5: W, 6: N, 7: E, 8: S, 9: W, 10: N, 11: E, 12: S, 13: W,
+            14: N, 15: E, 16: S, 17: W, 18: N, 19: E, 20: S, 21: W, 22: N, 23: E, 24: S,
+            25: W, 26: N, 27: E, 28: S, 29: W, 30: N, 31: E, 32: S, 33: W, 34: N, 35: E,
+            36: S, 37: W, 38: N, 39: E, 40: S, 41: W, 42: N, 43: E, 44: S, 45: W, 46: N,
+            47: E, 48: S, 49: W, 50: N, 51: E, 52: S, 53: W, 54: N, 55: E, 56: S, 57: W,
+            58: N, 59: E, 60: S, 61: W}        # 60 步连续（2..61；energy 0.99→0.39，
+                                               # e_max 峰 0.61 > 迟滞阈 0.55）
+    rests: [64, 70, 76, 82]                    # 恢复点（energy +0.10×4 → 0.79；恢复相位观测）
+    flat_arm_replacement: all_moves_to_rest    # claim 3 恒满流臂：moves 全部替换为 rest（同 seed；
+                                               # 输入面唯一差异 = 无位移无耗能）
+    gate_inputs:                               # 三门输入面映射（冻结——C2 评价协议）
+      arousal_input: drive_max_error           # e_max（原生——深耗能段达阈）
+      uncertainty_input: window_mean_1_minus_posterior   # 窗格 1−p 均值（Q-L05-01 域）
+      novelty_input: object_set_jaccard_distance         # 相邻窗对象格集 1−|∩|/|∪|（感觉面
+                                                         # 变化度量；双空集距离 0）
+    arm_protocol:                              # 五臂协议（claim 1 分面消融 + claim 3 输入对照）
+      full:        affect 全开 + 三调制接线（gain→sensorium override/threshold→perception
+                   override/salience→workspace 竞争因子）+ workspace 竞争
+      no_gain:     同 full 但 gain 调制不接线（发放面在——回执不产生、接收面零应用）
+      no_threshold: 同 full 但 threshold 调制不接线
+      no_salience: 同 full 但 salience 调制不接线（workspace 竞争因子恒 1.0）
+      flat_full:   输入面 rest 替换 + 调制接线同 full（claim 3 耗能臂对照 = full 臂）
+    # 调制生效时序（冻结，禁事后选择）
+    modulation_application_rule: >
+      调制 issued_at = c（affect step 末）→ 生效窗 = [c+1, c+ttl]（下一拍形成起，
+      含首尾；TTL=4 到期自动 clear——L05 §4.4）；消费回执 received_at = c+1
+      （首帧应用拍）；回执入 affect 台账后调制方可计入"已发生"。
+    # workspace 提案面（真实主体可见信号；冒烟修订：逐对象格提案——原单中心提案
+    # 每拍仅 2 项 < K=4 无淘汰，调制不改变入帧集）
+    workspace_feed: >
+      perception 逐对象格提案（posterior ≥ believe_threshold 的每格一提案，affect
+      分量 = 该格后验——价值面代理占位：MW0 无独立价值估计器，Q-L08-09⑨ 同语义）
+      + affect 动机提案（affect 分量 = urgency）。提案源两模块；K=4 竞争真实发生。
+    # 读者面 watch digest 派生（Q-L07-06① 每声明读者一状态 digest；runner 为声明
+    # 读者的记录代理）
+    reader_watch_digests: >
+      perception = 本拍窗 posterior 25 元组 digest；models = WorldModel 占据信念 digest
+      （真实实例消费窗 cells——runs_c1 同构）；affect = 感受态 content_digest；
+      memory = 入帧集 digest（working 缓冲内容 = 当前广播集，L06 §2.1 encode_working
+      广播后写入语义的记录代理）。digest 变化即 watch changed（预注册面）。
+    endpoint_domains:                          # 取数域（冻结，禁事后选择）
+      modulated_windows: full 臂各调制门 ON 窗（门状态逐拍记录机械派生）
+      intero_rows: INTERO 帧 energy/integrity level（分类面豁免面不入判据）
+      abstain_windows: 窗级 abstain 事件计数 / 窗总数
+      admission_symdiff: per 竞争拍 |admitted(full) △ admitted(no_salience)| / K
+      affect_trajectory: full/flat 两臂九维标量轨迹（valence/arousal/urgency/controllability/
+        uncertainty/novelty/social_relevance/persistence/tendencies_max）
+    mechanical_mechanical_note: 六机制辨识/ethics 消融/affect≠command/回执核/effective_access
+      可达/threshold 链路（值域间隙 + 传播面）= 机械判据（不入统计 claim），runs_c2._mechanical_checks 承载。
+    threshold_chain_mechanical:                # 判据 2 机械承载（运行前修订 3）
+      value_domain_gap: posterior_value_set_intersection_open_0.4_0.6_is_empty   # 值域间隙证明
+      behavior_surface_zero_effect: full_vs_no_threshold_object_counts_identical # 行为面零效应确证
+      chain_integrity: issued_received_applied_threshold_ref_propagated          # 调制链完整性
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: regimes_x_seeds
+    sealed_fraction: 0.30
+    run_to_cell: sealed_cells[p % len(sealed_cells)]           # 承 runs_c1 分配式
+
+  correction: holm_bonferroni                 # 族 = 3 claim 级主判定 p（本文件头注显式钉死）

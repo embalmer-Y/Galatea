@@ -8,6 +8,9 @@
 #   （C1 知觉 held-out 追踪与世界预测优于持续基线；标度 = per-run 配对差，试次单位 = 种子化 run，
 #   承 ADR-G-0007 口径与 m2 ITT 语义）；calibration_perception / body_incorporation（C1 判据）既有在位；
 #   envelope 与既有条目不变。
+# 版本 v1.4（2026-10-06，C2 收尾单元前置）：新增 c2_modulation_causality / c2_dynamics_input_driven 两条目
+#   （C2 三类调制因果消融与感受态输入驱动性；anti_reward_collapse 条目既有在位供 c2 claim 引用）；
+#   envelope 与既有条目不变。
 # 初值属性：零实测数据期的功效推定初值（d=0.5/α=0.05/power=0.8 双侧 t 检验 ⇒ ~64/组），各对应门退出前按实测功效复核后入新版本。
 envelope:
   alpha: 0.05
@@ -82,3 +85,16 @@ entries:
     claim_gate: E1
     metric: broadcast_to_2sep_modules_vs_shuffle_baseline
     min_effect: {type: cohens_d, value: 0.5}
+  - id: c2_modulation_causality                          # v1.4 新增（C2 收尾单元前置）
+    q: Q-L02-02
+    claim_gate: C2
+    metric: three_modulation_ablation_paired_differences        # 标度 = per-run 配对差（全开臂 vs 分面消融臂）
+    min_effect: {type: cohens_d, value: 0.4}            # 三判据各 d≥0.4 且联合成立（body_incorporation 同型）
+    joint: true
+    min_n: 64
+  - id: c2_dynamics_input_driven                         # v1.4 新增（C2 收尾单元前置）
+    q: Q-L05-03
+    claim_gate: C2
+    metric: experiential_state_response_energy_depleted_vs_saturated  # 标度 = per-run 配对差（耗能流 − 恒满流）
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64

@@ -60,3 +60,40 @@ def scale_intensity(value: float, factor: float) -> float:
     if scaled > 1.0:
         return 1.0
     return scaled
+
+
+def scale_frame_features(frame: Any, factor: float) -> Any:
+    """帧特征缩放（C2 调制应用面——L02 §4.4"作用于当期形成的特征缩放"）。
+
+    连续强度面缩放：EXT_LOCAL_OBS 窗值、INTERO energy/integrity level 与其差分
+    rate（线性变换下差分同因子——rate × factor 数学一致）；分类面豁免：
+    EXT_EVENT one-hot、PROPRIO 朝向、INTERO 离散事件（damage/depleted——事件是
+    发生与否非强度，缩放即语义畸变）。帧经 dataclasses.replace 重建（digest 重算）。
+    """
+    from dataclasses import replace
+
+    from galatea.subject.sensorium.ports import (
+        ExtLocalObsFeatures,
+        InteroSensations,
+    )
+
+    feats = frame.features
+    if isinstance(feats, ExtLocalObsFeatures):
+        return replace(frame, content_digest="", features=ExtLocalObsFeatures(
+            window=tuple(tuple(scale_intensity(float(v), factor) for v in row) for row in feats.window),
+        ))
+    if isinstance(feats, InteroSensations):
+        rate = feats.energy_rate
+        scaled_rate: Any
+        if isinstance(rate, float):
+            scaled_rate = scale_intensity(rate, factor) if rate >= 0.0 else -scale_intensity(-rate, factor)
+        else:
+            scaled_rate = rate   # Unknown（首帧）保持——禁伪造数值
+        return replace(frame, content_digest="", features=InteroSensations(
+            energy_level=scale_intensity(feats.energy_level, factor),
+            integrity_level=scale_intensity(feats.integrity_level, factor),
+            damage_event=feats.damage_event,
+            energy_depleted=feats.energy_depleted,
+            energy_rate=scaled_rate,
+        ))
+    return frame   # 分类面豁免（EXT_EVENT/PROPRIO）

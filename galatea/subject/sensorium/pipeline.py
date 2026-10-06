@@ -22,7 +22,7 @@ from galatea.subject.sensorium.calibration import CalibrationVersion
 from galatea.subject.sensorium.form_extero import form_ext_event, form_ext_local_obs
 from galatea.subject.sensorium.form_intero import form_intero
 from galatea.subject.sensorium.form_proprio import form_proprio
-from galatea.subject.sensorium.gain import C0_GAIN, apply_gain
+from galatea.subject.sensorium.gain import C0_GAIN, apply_gain, apply_gain_c2, scale_frame_features
 from galatea.subject.sensorium.ingest import (
     CARRIER_EXTERO,
     CARRIER_INTERO,
@@ -68,6 +68,20 @@ class SensoriumPipeline:
         self._prev_energy: float | None = None
         self._published_count: dict[tuple[int, str], int] = {}   # (effective_time, modality) → 已发布帧数
         self._closed: set[int] = set()                            # 已原子关闭的 effective_time
+        # C2 增益调制面（Q-L02-02：apply_gain_c2 接收——None = 无调制恒等路径，
+        # C0/C1 行为不变；override 在位时连续强度特征缩放 + MODULATION 来源回执）
+        self._gain_override: float | None = None
+
+    def apply_gain_modulation(self, requested: float) -> GainReceipt:
+        """C2 增益调制接收面（clip [0.5,2.0] + CLIPPED；applied 生效于后续形成窗，
+        回执由调用方交 affect 台账——无回执调制 = 未发生，L05 §4.4）。"""
+        _state, receipt = apply_gain_c2("sensorium.pipeline", requested)
+        self._gain_override = receipt.applied_gain
+        return receipt
+
+    def clear_gain_modulation(self) -> None:
+        """TTL 到期归零（L05 §4.4：禁常驻调制）。"""
+        self._gain_override = None
 
     def process_cycle(
         self, delivery_cycle: int, packets: list[tuple[CognitivePacket, str]]
@@ -106,7 +120,10 @@ class SensoriumPipeline:
                 if signal is None:
                     unknowns.append(missing_carrier_unknown(carrier, t, delivery_cycle))
                     continue
-                group_frames.extend(self._form_for_carrier(signal, delivery_cycle, is_revision=t in self._closed))
+                formed = self._form_for_carrier(signal, delivery_cycle, is_revision=t in self._closed)
+                if self._gain_override is not None and self._gain_override != 1.0:
+                    formed = [scale_frame_features(f, self._gain_override) for f in formed]
+                group_frames.extend(formed)
             for frame in group_frames:
                 receipt, gain_receipt = self._receipt_for(frame)
                 frames.append(frame)
@@ -154,7 +171,10 @@ class SensoriumPipeline:
         return formed
 
     def _receipt_for(self, frame: SensoryFrame) -> tuple[FormationReceipt, GainReceipt]:
-        _state, gain_receipt = apply_gain(frame.frame_id, None)
+        if self._gain_override is None:
+            _state, gain_receipt = apply_gain(frame.frame_id, None)
+        else:
+            _state, gain_receipt = apply_gain_c2(frame.frame_id, self._gain_override)
         return build_receipt(frame, gain_receipt), gain_receipt
 
     def _last_frame_id(self, t: int, modality: str) -> str | None:

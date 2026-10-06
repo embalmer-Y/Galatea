@@ -92,10 +92,13 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：24
-- OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
+- 扫描 YAML 文件数：25
+- FAIL `config/evidence/protection_suite.yaml`: ScannerError: mapping values are not allowed here
+  in "<unicode string>", line 360, column 26:
+          assertion: 上界型判定（H0: μ ≥ 0.9）——mean < bound ∧ CI 上界 ... 
+                             ^
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：9（只增不减）
+- 清单条目：13（只增不减）
 - OK：本地存在的全部工件与归档锚一致

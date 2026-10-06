@@ -33,7 +33,19 @@ from galatea.evidence.control.runs_c1 import (
     load_c1_scenario,
     run_c1_evaluation,
 )
+from galatea.evidence.control.runs_c2 import (
+    c2_dynamics_diffs,
+    c2_gain_diffs,
+    c2_r2_max,
+    c2_salience_diffs,
+    c2_valence_anchor_violations,
+    run_c2_evaluation,
+)
 from galatea.evidence.evaluator.hypotheses import (
+    evaluate_c2_anti_reward_collapse,
+    evaluate_c2_composite,
+    evaluate_c2_dynamics_input_driven,
+    evaluate_c2_modulation_causality,
     evaluate_c1_body_incorporation,
     evaluate_c1_composite,
     evaluate_c1_perception_tracking,
@@ -67,6 +79,7 @@ _M1_PLAN = Path("config") / "evidence" / "stat_plans" / "m1_goals_sc3_sc4.yaml"
 _M2_PLAN = Path("config") / "evidence" / "stat_plans" / "m2_continuity_sc5_sc6.yaml"
 _ROOT_PLAN = Path("config") / "evidence" / "stat_plans" / "r0_root.yaml"
 _C1_PLAN = Path("config") / "evidence" / "stat_plans" / "c1_perception_models.yaml"
+_C2_PLAN = Path("config") / "evidence" / "stat_plans" / "c2_affect_workspace.yaml"
 _EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②
 
 
@@ -415,6 +428,119 @@ def run_c1_first_evaluation(
     )
 
 
+def run_c2_first_evaluation(
+    root: Path, out_dir: Path, n_limit: int | None = None,
+) -> "C2FirstEvaluation":
+    """C2 首评（stat plan c2_affect_workspace v1.0；顺延终止条款）。
+
+    三 claim（调制因果两判据 joint / anti-reward-collapse 上界 / 感受态输入驱动）
+    + 八项机械判据（含 threshold 值域间隙——运行前修订 3）+ leakage + I1
+    → 复合 EvidenceResult（Q-L13-11① 体例；Holm 族 = 3 claim 级主判定 p，
+    REV-0014 复核关切① 显式钉死）。
+    """
+    plan_path = root / _C2_PLAN
+    plan = load_stat_plan(plan_path)
+    policy = load_split_policy(root)
+    grid = tuple(
+        GridCell(cell_id=f"{r}:{i}", regime=r, seed_index=i)
+        for r in ("abundance", "scarcity", "volatile")
+        for i in range(32)
+    )
+    split = generate_split(grid, seal_split_master_seed(), policy)
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    run_dir = out_dir / "run"
+    records, mechanical, plan_digest, split_digest, i1_match = run_c2_evaluation(
+        root, run_dir, out_dir / "runner-tmp", split.sealed.cells, plan_path,
+        split.split_digest, n_limit=n_limit,
+    )
+    full = tuple(r for r in records if r.arm == "full")
+    by_arm = {arm: tuple(r for r in records if r.arm == arm)
+              for arm in ("no_gain", "no_threshold", "no_salience", "flat_full")}
+    gain = c2_gain_diffs(full, by_arm["no_gain"])
+    salience = c2_salience_diffs(full, by_arm["no_salience"])
+    r2max = c2_r2_max(full)
+    dynamics = c2_dynamics_diffs(full, by_arm["flat_full"])
+    anchor_violations = c2_valence_anchor_violations(full)
+    modulation = evaluate_c2_modulation_causality(
+        "R-c2-modulation-001", f"{_C2_PLAN.as_posix()}@{plan.version}",
+        (gain, salience),
+        recompute_ok=i1_match, n_expected=len(full),
+    )
+    collapse = evaluate_c2_anti_reward_collapse(
+        "R-c2-collapse-002", f"{_C2_PLAN.as_posix()}@{plan.version}",
+        r2max, recompute_ok=i1_match, n_expected=len(full),
+    )
+    dynamics_result = evaluate_c2_dynamics_input_driven(
+        "R-c2-dynamics-003", f"{_C2_PLAN.as_posix()}@{plan.version}",
+        dynamics, anchor_violations,
+        recompute_ok=i1_match, n_expected=len(full),
+    )
+    leakage = run_leakage_suite(load_tree_sources(root))
+    composite = evaluate_c2_composite(
+        "R-c2-affect-001", f"{_C2_PLAN.as_posix()}@{plan.version}",
+        (modulation, collapse, dynamics_result),
+        mechanical_checks=mechanical,
+        leakage_free=leakage.leakage_free,
+        i1_match=i1_match,
+        recompute_ok=i1_match,
+        statistical_core=modulation,
+        alpha=0.05,   # Holm 族 = 3 claim 级主判定 p（REV-0014 复核关切①）
+    )
+    _write_result(out_dir / "R-c2-affect-001.json", composite, len(full), {
+        "modulation_causality": {"verdict": modulation.verdict.value,
+                                 "criteria": list(modulation.data_refs),
+                                 "mean_gain_diff": round(sum(gain) / len(gain), 6),
+                                 "mean_salience_diff": round(sum(salience) / len(salience), 6)},
+        "anti_reward_collapse": {"verdict": collapse.verdict.value,
+                                 "data_refs": list(collapse.data_refs)},
+        "dynamics_input_driven": {"verdict": dynamics_result.verdict.value,
+                                  "mean_arousal_diff": round(sum(dynamics) / len(dynamics), 6),
+                                  "anchor_violations": anchor_violations},
+        "mechanical_checks": {k: bool(v) for k, v in mechanical.items()},
+        "threshold_note": (
+            "运行前修订 3（值域结构性发现）：believe_threshold 行为面在 MW0 量化后验值域"
+            " {0, 0.2121, 0.9999, 1.0} 下结构性恒零——判据以机械面承载"
+            "（threshold_value_domain_gap / chain_integrity / behavior_zero_effect），"
+            "行为判据随 C3+ 值域扩展重评（Q-L02-02 行内补裁③）"
+        ),
+        "split_digest": split_digest,
+        "stat_plan_digest": plan_digest,
+        "i1_match": i1_match,
+        "leakage_free": leakage.leakage_free,
+        "leakage_report_digest": leakage.digest,
+        "seed_note": "Q-L13-12④（master seed + 派生格式内嵌 stat plan）",
+    })
+    for name, result in (
+        ("R-c2-modulation-001", modulation), ("R-c2-collapse-002", collapse),
+        ("R-c2-dynamics-003", dynamics_result),
+    ):
+        _write_result(out_dir / f"{name}.json", result, len(full))
+    return C2FirstEvaluation(
+        composite=composite, modulation=modulation, collapse=collapse,
+        dynamics=dynamics_result, mechanical=mechanical,
+        i1_match=i1_match, leakage_free=leakage.leakage_free, out_dir=out_dir,
+    )
+
+
+class C2FirstEvaluation:
+    """C2 首评数据集（复合 + 三子主张 + 机械判据）。"""
+
+    def __init__(
+        self, composite: Any, modulation: Any, collapse: Any, dynamics: Any,
+        mechanical: dict[str, bool], i1_match: bool, leakage_free: bool,
+        out_dir: Path,
+    ) -> None:
+        self.composite = composite
+        self.modulation = modulation
+        self.collapse = collapse
+        self.dynamics = dynamics
+        self.mechanical = mechanical
+        self.i1_match = i1_match
+        self.leakage_free = leakage_free
+        self.out_dir = out_dir
+
+
 class C1FirstEvaluation:
     """C1 首评数据集（复合 + 三子主张 + 机械判据）。"""
 
@@ -452,6 +578,16 @@ def main(argv: list[str] | None = None) -> int:
     elif command == "root":
         root_result = assemble_root_evidence(root, out_dir)
         print(f"root: {root_result.verdict.value} effect={root_result.effect_size}")
+    elif command == "c2":
+        out_dir = root / "evidence" / "c2_affect_first_evaluation"
+        first = run_c2_first_evaluation(root, out_dir, n_limit=None)
+        print(
+            f"c2: composite={first.composite.verdict.value} "
+            f"modulation={first.modulation.verdict.value} "
+            f"collapse={first.collapse.verdict.value} "
+            f"dynamics={first.dynamics.verdict.value} "
+            f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
+        )
     elif command == "c1":
         out_dir = root / "evidence" / "c1_models_first_evaluation"
         first = run_c1_first_evaluation(root, out_dir, n_limit=None)

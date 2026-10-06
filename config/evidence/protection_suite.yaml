@@ -7,13 +7,14 @@
 #         REV-0014 R5 勘误：实际 +12 场景至 52，提交信息"+10/50"系计数失实）。
 #       v1.5 = C2 实现期首单元增补（2026-10-06，INC-12 义务第五次执行——c2 场景随 affect/ 落成即冻）。
 #       v1.6 = C2 实现期次单元增补（2026-10-06，INC-12 义务第六次执行——记忆/workspace 场景随实现落成即冻）。
+#       v1.7 = C2 门退出版增补（2026-10-06，INC-12 义务第七次执行——统计评价/值域发现/判定器场景）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.6                 # v1.6（C2 实现期次单元版）：新增 c2_* 记忆/workspace 10 场景至 70（INC-12 义务
-                                # 第六次执行；既有 60 场景原样保留，只增不减）
+  version: v1.7                 # v1.7（C2 门退出版）：新增 c2_* 评价/收尾 10 场景至 80（INC-12 义务第七次执行；
+                                # 既有 70 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
@@ -326,3 +327,55 @@ protection_suite:
       source_test: galatea/subject/memory/tests/test_forget_tombstone.py::test_overflow_demotes_oldest_labile
       frozen_gate: C2
       assertion: ARCHIVED 退出默认活跃检索集（降级语义；M2 路径无 ARCHIVED 行为恒等）；容量恢复非删除
+
+    - id: c2_stat_plan_frozen_claims
+      source_test: galatea/evidence/tests/test_evaluation_entry.py
+      frozen_gate: C2
+      assertion: stat plan c2_affect_workspace v1.0（运行前修订 1-3 留痕）经 typed loader 冻结加载；
+        三 claim 十字段集 + min_effects v1.4 引用 + 种子派生内嵌（Q-L13-12④）
+    - id: c2_runner_five_arm_protocol
+      source_test: galatea/evidence/control/runs_c2.py
+      frozen_gate: C2
+      assertion: 五臂协议（full/no_gain/no_threshold/no_salience/flat_full）同 seed 同世界流——
+        差异唯一来源 = 输入面/调制面（D-10 可干预）；gateway 签名路径 + blob 显式 decode
+        （REV-0014 R1 教训在案）
+    - id: c2_threshold_value_domain_gap
+      source_test: galatea/evidence/control/runs_c2.py::_threshold_chain_probe
+      frozen_gate: C2
+      assertion: 值域 {0,0.2121,0.9999,1.0} ∩ (0.4,0.6) = ∅ 机械证明；调制链完整性
+        （发放→接收→CONFIRMED→applied→threshold_ref 传播）；行为面零效应如实确证
+    - id: c2_gain_modulation_real_pipeline
+      source_test: galatea/subject/sensorium/tests/test_gain_bound.py
+      frozen_gate: C2
+      assertion: SensoriumPipeline.apply_gain_modulation（Q-L02-02）——恒等路径（override=None）
+        与 C0/C1 行为逐位不变；override 在位时连续强度特征缩放 + MODULATION 来源逐帧回执
+    - id: c2_holm_family_claim_level
+      source_test: galatea/evidence/evaluator/hypotheses.py::evaluate_c2_composite
+      frozen_gate: C2
+      assertion: Holm 族 = 3 claim 级主判定 p（REV-0014 复核关切① 显式钉死——claim 内分判据
+        不单独入族）；joint claim 主判定 p = max(判据 p) 保守体例
+    - id: c2_upper_bound_collapse_test
+      source_test: galatea/evidence/evaluator/hypotheses.py::evaluate_c2_anti_reward_collapse
+      frozen_gate: C2
+      assertion: 上界型判定（H0: μ ≥ 0.9）——mean < bound ∧ CI 上界 < bound ∧ p_lower < 0.05
+        → SUPPORTED；mean ≥ bound → REFUTED（塌缩检出）
+    - id: c2_effective_access_in_production_runner
+      source_test: galatea/evidence/control/runs_c2.py
+      frozen_gate: C2
+      assertion: 正式 runner 内 effective_access 可达（≥2 分离模块预注册变化 + ≥2 回执）——
+        L07 四判据之 2 在真实流成立
+    - id: c2_anchor_violation_honest_reporting
+      source_test: galatea/evidence/evaluator/hypotheses.py::evaluate_c2_dynamics_input_driven
+      frozen_gate: C2
+      assertion: valence 方向锚违反 >0 时 typed unknown 留痕（§4.2 复核重开条件）——
+        主判据仍按配对差统计，锚违反率描述性另报（禁静默）
+    - id: c2_i1_five_arm_recompute
+      source_test: galatea/evidence/control/runs_c2.py::run_c2_evaluation
+      frozen_gate: C2
+      assertion: I1 复算 = 五臂全指标向量（gain/threshold/salience/r2max/dynamics/anchor）
+        content_digest bit-exact；Parquet 往返 list 字段 JSON 解码
+    - id: c2_register_bookkeeping_exact
+      source_test: design/open_questions.md
+      frozen_gate: C2
+      assertion: 登记册 A 区机械实点 = 头部宣称（Q-L02-02 补裁③ 行内裁决计数不变）；
+        min_effects v1.4 / stat plan 修订留痕与交付文一致

@@ -812,3 +812,231 @@ def evaluate_c1_composite(
         data_refs=statistical_core.data_refs,
         recompute_ok=recompute_ok,
     )
+
+# ---- C2 判定器（stat plan c2_affect_workspace v1.0；运行前修订 3 在案） ----
+
+def _upper_bound_stats(
+    values: tuple[float, ...], bound: float, n_expected: int,
+    detected_by: str,
+) -> tuple[EvidenceResult | None, float | None, float | None, float | None, float | None]:
+    """上界型单样本统计（正态近似，n=64 与 Wald 同阶；H0: μ ≥ bound vs H1: μ < bound）。
+
+    返回 (insufficient, mean, ci_lo, ci_hi, p_lower)——p_lower = Φ((mean−bound)/se)。
+    """
+    if len(values) != n_expected:
+        result = EvidenceResult(
+            result_id="", hypothesis_refs=(), stat_plan_ref="",
+            estimand="", effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=(Unknown(
+                reason=UnknownReason.INSUFFICIENT_OBSERVATION, evidence_refs=("trial_count",),
+                detail=f"n={len(values)} < frozen n={n_expected}",
+                detected_by=detected_by, virtual_time=0,
+            ),),
+            refutations=(), data_refs=(), recompute_ok=False,
+        )
+        return result, None, None, None, None
+    n = len(values)
+    mean = sum(values) / n
+    var = sum((v - mean) ** 2 for v in values) / max(1, n - 1)
+    sd = math.sqrt(var)
+    if sd == 0.0:
+        se = 0.0
+        ci_lo = ci_hi = mean
+        t_stat = float("-inf") if mean < bound else float("inf")
+    else:
+        se = sd / math.sqrt(n)
+        t_stat = (mean - bound) / se
+        z = 1.959964
+        ci_lo, ci_hi = mean - z * se, mean + z * se
+    p_lower = _normal_cdf(t_stat)
+    return None, mean, ci_lo, ci_hi, p_lower
+
+
+def evaluate_c2_modulation_causality(
+    result_id: str,
+    stat_plan_ref: str,
+    criterion_diffs: "tuple[tuple[float, ...], tuple[float, ...]]",
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c2_modulation_causality 判定（stat plan v1.0 claim 1；运行前修订 3：两行为判据
+    gain/salience 各 d≥0.4 且联合——threshold 行为面在 MW0 值域下结构性恒零，以机械判据承载）。
+
+    joint = 两判据全部 SUPPORTED；任一方向反转 → REFUTED；否则 INCONCLUSIVE。
+    effect_size = 两判据最小 d（联合短板，Q-L04-03 同型保守估计量）。
+    """
+    names = ("criterion1_gain_intero", "criterion2_salience_admission")
+    verdicts: list[HypothesisVerdict] = []
+    ds: list[float] = []
+    cis: list[ConfidenceInterval | None] = []
+    refutations: list[str] = []
+    unknowns: list[Unknown] = []
+    p_values: list[float] = []
+    for name, diffs in zip(names, criterion_diffs):
+        insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
+            diffs, n_expected, detected_by
+        )
+        if insufficient is not None:
+            verdicts.append(HypothesisVerdict.INCONCLUSIVE)
+            ds.append(float("nan"))
+            cis.append(None)
+            continue
+        v, refs, unks = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.4)
+        verdicts.append(v)
+        ds.append(d if not math.isinf(d) else mean)
+        cis.append(ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95))
+        refutations.extend(f"{name}:{r}" for r in refs)
+        unknowns.extend(unks)
+        p_values.append(p)
+    if HypothesisVerdict.REFUTED in verdicts:
+        verdict = HypothesisVerdict.REFUTED
+    elif all(v is HypothesisVerdict.SUPPORTED for v in verdicts) and recompute_ok:
+        verdict = HypothesisVerdict.SUPPORTED
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+    # joint 短板 d + 该判据 CI（REV-0014 R2 同型）；claim 级主判定 p = max(判据 p)（保守，
+    # evaluate_c1_body_incorporation 同体例——Holm 族输入）
+    finite = [(d, ci) for d, ci in zip(ds, cis) if not math.isnan(d)]
+    effect, effect_ci = min(finite, key=lambda pair: pair[0]) if finite else (None, None)
+    max_p = max(p_values) if p_values else None
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("c2_modulation_causality",) + names,
+        stat_plan_ref=stat_plan_ref,
+        estimand="per_run_two_criteria_paired_differences",
+        effect_size=effect,
+        ci=effect_ci,
+        p_or_bayes=max_p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=tuple(refutations),
+        data_refs=tuple(
+            f"{n}:d={d:.4f}" if not math.isnan(d) else f"{n}:n/a" for n, d in zip(names, ds)
+        )
+        + (("p<1e-16（float64 下溢呈现，REV-0014 R2）",) if max_p == 0.0 else ()),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c2_anti_reward_collapse(
+    result_id: str,
+    stat_plan_ref: str,
+    r2_max_values: tuple[float, ...],
+    bound: float = 0.9,
+    recompute_ok: bool = True,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c2_anti_reward_collapse 判定（stat plan claim 2；Q-L05-07 上界型：mean R² < 0.9）。
+
+    SUPPORTED = mean < bound ∧ 95% CI 上界 < bound ∧ p_lower < 0.05（H0: μ ≥ 0.9）；
+    mean ≥ bound → REFUTED（塌缩检出）；否则 INCONCLUSIVE。
+    """
+    insufficient, mean, ci_lo, ci_hi, p_lower = _upper_bound_stats(
+        r2_max_values, bound, n_expected, detected_by
+    )
+    hypothesis_refs = ("c2_anti_reward_collapse",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_max_single_dim_mean_r2",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    assert mean is not None and ci_hi is not None and p_lower is not None and ci_lo is not None
+    if mean >= bound:
+        verdict = HypothesisVerdict.REFUTED
+        refutations = ("mean_r2_at_or_above_bound",)
+    elif ci_hi < bound and p_lower < 0.05 and recompute_ok:
+        verdict = HypothesisVerdict.SUPPORTED
+        refutations = ()
+    else:
+        verdict = HypothesisVerdict.INCONCLUSIVE
+        refutations = ()
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_max_single_dim_mean_r2",
+        effect_size=mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p_lower if p_lower > 1e-16 else 0.0,   # float64 下溢呈现约定（REV-0014 R2）
+        verdict=verdict, unknowns=(), refutations=refutations,
+        data_refs=(f"mean_r2={mean:.6f}", f"bound={bound}",
+                   f"p_lower={'<1e-16' if p_lower <= 1e-16 else f'{p_lower:.3g}'}",
+                   "upper_bound_one_sample（H0: mu >= 0.9）"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c2_dynamics_input_driven(
+    result_id: str,
+    stat_plan_ref: str,
+    dynamics_diffs: tuple[float, ...],
+    anchor_violations: int = 0,
+    recompute_ok: bool = True,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c2_dynamics_input_driven 判定（stat plan claim 3；阈值 d≥0.5 + 方向锚注记）。"""
+    insufficient, mean, _sd, d, ci_lo, _ci_hi, p = _paired_continuous_stats(
+        dynamics_diffs, n_expected, detected_by
+    )
+    hypothesis_refs = ("c2_dynamics_input_driven",)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+            estimand="per_run_arousal_trajectory_mean_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    if anchor_violations > 0:
+        unknowns = list(unknowns) + [Unknown(
+            reason=UnknownReason.CONFLICTING_EVIDENCE,
+            evidence_refs=(f"anchor_violations={anchor_violations}",),
+            detail="valence 方向锚违反 >0（§4.2 公式面复核——重开条件），主判据仍按配对差统计",
+            detected_by=detected_by, virtual_time=0,
+        )]
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=hypothesis_refs, stat_plan_ref=stat_plan_ref,
+        estimand="per_run_arousal_trajectory_mean_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=_ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}", f"anchor_violations={anchor_violations}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c2_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: "tuple[EvidenceResult, ...]",
+    mechanical_checks: "dict[str, bool]",
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    alpha: float = 0.05,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """C2 复合判定（evaluate_c1_composite 同体例；Holm 族 = 3 claim 级主判定 p——
+    REV-0014 复核关切① 显式钉死：claim 内分判据不单独入族）。"""
+    # Holm 族输入 = claim 级主判定 p（在 evaluate_c1_composite 内机械执行——
+    # 本函数只声明族定义：3 claim 级 p，claim 内分判据不单独入族）
+    return evaluate_c1_composite(
+        result_id=result_id,
+        stat_plan_ref=stat_plan_ref,
+        constituent_results=constituent_results,
+        mechanical_ok=all(mechanical_checks.values()),
+        leakage_free=leakage_free,
+        i1_match=i1_match,
+        recompute_ok=recompute_ok,
+        statistical_core=statistical_core,
+        alpha=alpha,
+        detected_by=detected_by,
+    )

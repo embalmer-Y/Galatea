@@ -3,13 +3,14 @@
 # 纪律：每门退出追加（只增不减）；工件内容修正 = 新条目 + 注记，禁原地改 digest
 # v1.1（2026-10-05，C1 实现期次单元）：新增 C1 首评四工件（复合 + 三子主张）
 # v1.2（2026-10-05，REV-0014 R1 闭环）：R-c1-body-003 与 R-c1-models-001 两锚自 HEAD 重跑后更新——
+#       v1.3 = C2 门退出（2026-10-06）：+4 C2 首评工件锚（只增不减；顺延终止条款第三次执行）。
 #   8db65ce 提交态 runner 序列化回归（str(bytes)），归档工件由修复前代码产生（评审三条独立链证明
 #   数据真实）；修复后重跑：tracking/worldpred 两工件 bit-exact 恒等（51a11865/d2697ec0 不变——
 #   语义等价直接证明），body/复合因 R2（CI 修复）+ R3（Holm 接线）+ R9（P12 注记）按预期变化。
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.2
+  version: v1.3
   frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
@@ -49,3 +50,19 @@ artifact_manifest:
       path: evidence/c1_models_first_evaluation/R-c1-body-003.json
       sha256: b31c51df737ff0c55032a237b71f0f1bff40ec49f01e1b45e26be64432c8d750
       gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
+    - name: R-c2-affect-001
+      path: evidence/c2_affect_first_evaluation/R-c2-affect-001.json
+      sha256: c2e032bf96fc42803ecb744321b55ef690d2af189357926ada2095d2d510d7be
+      gate: C2 首评复合判定（顺延终止条款第三次执行；Holm 族 = 3 claim 级 p）
+    - name: R-c2-modulation-001
+      path: evidence/c2_affect_first_evaluation/R-c2-modulation-001.json
+      sha256: d1667ba426446c7f021c04814da6b6f24f285a26e8f921795099ae6c39f2c868
+      gate: C2 首评——三类调制因果（两行为判据 joint；threshold 值域间隙机械承载）
+    - name: R-c2-collapse-002
+      path: evidence/c2_affect_first_evaluation/R-c2-collapse-002.json
+      sha256: 3ec990ad89b62a104dd7de983649b73cea214e8252b22e6adce432b27c4d63d2
+      gate: C2 首评——anti-reward-collapse 上界判据（Q-L05-07）
+    - name: R-c2-dynamics-003
+      path: evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json
+      sha256: 3705aeeb8135a242c235772259a936c410da329cd181ec7708e1a6f8177696b1
+      gate: C2 首评——感受态输入驱动性（耗能流 vs 恒满流配对）
