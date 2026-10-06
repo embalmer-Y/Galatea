@@ -5,9 +5,13 @@
 时显形但不构成伪更新——判定按身份主张分型（延续主张 gap=0；分支主张允许）。
 """
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from galatea.kernel.packet import RepresentationLevel
 from galatea.subject.memory.ports import ConsolidationState, MemorySubsystem, SourceType
+
+if TYPE_CHECKING:  # 运行时零依赖 affect 包（L05 提案类型仅在标注面引用——C2 affective.py 承载构造）
+    from galatea.subject.affect.value_tag import AffectiveValueTag
 
 __all__ = [
     "MemoryItem",
@@ -32,12 +36,16 @@ class MemoryItem:
     last_access_cycle: int
     consolidation_state: ConsolidationState = ConsolidationState.LABILE
     lineage_refs: tuple[str, ...] = ()   # 源事件 id / checkpoint digest（连续性证据链）
+    affective: "AffectiveValueTag | None" = None   # 情感标注（L06 唯一写者落盘，L05 只提案——C2）
+    access_count: int = 0                # 访问计数（Q-L06-03 访问增强的审计面）
 
     def __post_init__(self) -> None:
         if not self.item_id or not self.content_ref:
             raise ValueError("MemoryItem requires item_id and content_ref")
         if not 0.0 <= self.strength <= 1.0:
             raise ValueError("strength out of [0,1]")
+        if self.access_count < 0:
+            raise ValueError("access_count must be non-negative")
 
 
 class LineageBreak(ValueError):

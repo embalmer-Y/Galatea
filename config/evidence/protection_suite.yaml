@@ -6,13 +6,14 @@
 #       v1.4 = C1 实现期次单元增补（2026-10-05，INC-12 义务第四次执行——C1 场景随实现落成即冻，c1-exit 复核；
 #         REV-0014 R5 勘误：实际 +12 场景至 52，提交信息"+10/50"系计数失实）。
 #       v1.5 = C2 实现期首单元增补（2026-10-06，INC-12 义务第五次执行——c2 场景随 affect/ 落成即冻）。
+#       v1.6 = C2 实现期次单元增补（2026-10-06，INC-12 义务第六次执行——记忆/workspace 场景随实现落成即冻）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.5                 # v1.5（C2 实现期首单元版）：新增 c2_* 8 场景至 60（INC-12 义务第五次执行——
-                                # C2 场景随 affect/ 实现落成即冻，c2-exit 复核；既有 52 场景原样保留，只增不减）
+  version: v1.6                 # v1.6（C2 实现期次单元版）：新增 c2_* 记忆/workspace 10 场景至 70（INC-12 义务
+                                # 第六次执行；既有 60 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
@@ -271,3 +272,57 @@ protection_suite:
       frozen_gate: C2
       assertion: 触发 = valence≤-0.8 ∧ persistence≥0.8 持续恰 64 拍；闩锁一次；缓解重置；消融移除触发且
         轨迹 bit-exact 不变；C2 期驱力动力学构造性不可达（速率语义 + 有界状态空间——零误触发由构造保证）
+
+    - id: c2_memory_retrieval_equal_weights
+      source_test: galatea/subject/memory/tests/test_c2_retrieval_weights.py
+      frozen_gate: C2
+      assertion: 五分量等权 1:1:1:1:1（Q-L06-02）手算锚 2.0；recency 线性窗 64（age=32→0.5/≥64→0）；
+        cue 枚举匹配；缺省 valence 0；空子系统 Unknown；M2 retrieve 签名/行为冻结不变（SC6 I1 复算依赖）
+    - id: c2_memory_forget_tombstone
+      source_test: galatea/subject/memory/tests/test_forget_tombstone.py
+      frozen_gate: C2
+      assertion: 衰减 strength×(1−1/τ) 每 T6 拍（episodic τ=256 逐位）；PROTECTED 豁免；FORGOTTEN
+        tombstone 行保留默认排除（非删除）幂等；访问增强 +0.125 上界 1.0；溢出最旧 LABILE→ARCHIVED
+        确定性全序；不可降 PROTECTED 解决时 ProtectionViolation
+    - id: c2_affective_sole_writer
+      source_test: galatea/subject/memory/tests/test_affective_sole_writer.py
+      frozen_gate: C2
+      assertion: AffectiveValueTag 唯一写者 = L06（目标绑定 + AFFECTIVE_VALUE 条目 strength=persistence）；
+        禁凭空标注；语义抽象谱系强制 LineageBreak（防伪抽象）；prospective 源限 L08
+        （goal_ref+origin_receipt 双强制；LANGUAGE_INPUT 拒）
+    - id: c2_metamemory_confusion_counting
+      source_test: galatea/subject/memory/tests/test_metamemory_confusion.py
+      frozen_gate: C2
+      assertion: 2×2 交叉计数接口（Q-L06-06）；两误格/总数；超限如实 False；零试次 0.0 禁 0/0；digest 确定性
+    - id: c2_workspace_capacity_rejection
+      source_test: galatea/subject/workspace/tests/test_capacity_rejection.py
+      frozen_gate: C2
+      assertion: K=4 硬约束（帧构造面 >4 拒）；OVER_CAPACITY/LOW_SALIENCE 留痕可见（last_rejections）；
+        无入选不发布帧
+    - id: c2_workspace_effective_access
+      source_test: galatea/subject/workspace/tests/test_effective_access.py
+      frozen_gate: C2
+      assertion: broadcast ≠ causal access——缺回执不计入/迟到回执（>帧拍+N2）不计/≥2 分离模块预注册
+        变化方 true/单模块 false/广播无更新 false 如实呈现；事后注册与 changed-digest 不一致拒；
+        depth 4>3 Unknown；去重窗 TTL=4 DUPLICATE；StaleFrameReference；层级逐项继承（RECALLED 恒 RECALLED）；
+        双跑帧序列 digest bit-exact；四判据 FAIL 抛 PseudoWorkspaceSuspect + PENDING 不冒充
+    - id: c2_workspace_no_execution_path
+      source_test: galatea/subject/workspace/tests/test_effective_access.py::test_no_execution_path
+      frozen_gate: C2
+      assertion: workspace 包命名空间零行动/目标平面泄漏（第二防线，L07 §8 禁止路径）
+    - id: c2_three_modulation_closed_loop
+      source_test: galatea/subject/workspace/tests/test_salience_modulation_closed_loop.py
+      frozen_gate: C2
+      assertion: 三类调制全闭环——salience 门 ON 发放 → workspace 消费（clip [0.5,2.0]+回执入帧）→
+        affect 分量 ×2 改变入帧集（竞争 causality）；消融 enabled=∅ 零发放回等权基线；
+        选择性：sensorium 增益回执与 perception 阈值不受 salience 调制影响
+    - id: c2_p13_gateway_bypass_unshadowed
+      source_test: galatea/evidence/tests/test_leakage_14_paths.py
+      frozen_gate: C2
+      assertion: P13 活检面去遮蔽（C1 期检出实由缺席守卫承载，扫描面被 action 自匹配字典序遮蔽从未开火
+        ——INC-08 型）；扫描域显式排除 action 平面后注入可失败；workspace 缺席守卫随 c2-freeze 解除
+        （P11 于 C1 解除同型）
+    - id: c2_archived_exits_active_retrieval
+      source_test: galatea/subject/memory/tests/test_forget_tombstone.py::test_overflow_demotes_oldest_labile
+      frozen_gate: C2
+      assertion: ARCHIVED 退出默认活跃检索集（降级语义；M2 路径无 ARCHIVED 行为恒等）；容量恢复非删除

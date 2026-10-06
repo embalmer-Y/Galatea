@@ -1,6 +1,6 @@
 # L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制
 
-> LLD: L06/14 · v1.0.3 · 2026-10-06（C2 参数裁决批入册 Q-L06-01/02/03/06 CONFIRMED + c2_memory.profile v1.0 冻结；实现件 = C2 次单元）· v1.0.2 2026-10-02（交付计数勘误）· 原版 2026-09-13 · 状态：WORKING（C2 实现期；M2 依赖件已交付）
+> LLD: L06/14 · v1.0.4 · 2026-10-06（v1.0.4：C2 次单元交付标注——五子系统的 C2 件全量落地；v1.0.3：参数裁决批 + profile 冻结）· v1.0.2 2026-10-02（交付计数勘误）· 原版 2026-09-13 · 状态：WORKING（C2 实现期；M2 依赖件已交付）
 > 上游：`HLD.md` §4.2/§5/§6/§11.1（`recorder ≠ memory`） · `L02/L03/L04`（帧/信念/模型状态） · `L05`（AffectiveValueTag） · `L00_kernel.md`（三库分离，`subject_memory.db` 由本档独占写）
 > 下游消费者：L03（线索）、L04（回忆对照）、L07（候选）、L08（承诺/规范）、L09（经验策略）、L11（重放）
 > 引入门槛：**C2**（分层记忆 + 来源类型）→ **C5**（持续写入/巩固/遗忘控制/保护集，与 L11 联动）
@@ -204,6 +204,18 @@ galatea/subject/memory/tests/
   # ↑ M2 期交付 7 件（v1.0.1 标注并经 REV-0009 R5 勘误；原误记 6）；SC5/SC6 实验台在 tests/env/test_m2_sc5.py / test_m2_sc6.py
   # ↓ 以下 4 件属 C2/C5（protection.py/metamemory.py/forget.py 随完整分层记忆落地）
   test_protection_violation.py test_ablation_episodic.py test_metamemory_confusion.py test_forget_tombstone.py
+
+> **C2 次单元交付标注（2026-10-06）**：C2 门槛五行全量在位——affective.py（AffectiveValueTag
+> 唯一写者：目标绑定 + AFFECTIVE_VALUE 条目，L05 只提案）+ semantic.py（抽象谱系强制
+> LineageBreak 防伪抽象；完整巩固流水线 = Q-L06-04 C5）+ prospective.py（源限 L08：
+> goal_ref+origin_receipt 双强制，LANGUAGE_INPUT 拒；L08 接线 C3）+ forget.py（Q-L06-03
+> τ_sub 幂梯衰减每 T6 拍 + 访问增强 0.125 上界 1.0 + 显式 FORGOTTEN tombstone（行保留非删除，
+> PROTECTED 拒 = ProtectionViolation）+ Q-L06-01 溢出最旧 LABILE→ARCHIVED 确定性全序）+
+> metamemory.py（Q-L06-06 2×2 混淆计数接口，E1 协议首评）+ retrieve_c2（五分量等权 +
+> recency 线性窗 64 + tie-break；**M2 retrieve 签名/行为冻结不变**——SC6 I1 复算依赖）+
+> c2profile C2MemoryParams typed loader（INC-11）。ARCHIVED 退出默认活跃检索集（降级语义；
+> M2 路径无 ARCHIVED 行为恒等）。测试：test_c2_retrieval_weights / test_forget_tombstone /
+> test_affective_sole_writer / test_metamemory_confusion。
 config/profiles/
   c2_memory.profile.yaml   子系统容量/检索权重/τ_sub/巩固阈值/保护集策略（冻结前 UNCONFIRMED）
 ```

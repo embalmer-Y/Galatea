@@ -251,14 +251,31 @@ def _p12(input: ProbeInput) -> str | None:   # noqa: A002
 
 
 def _p13(input: ProbeInput) -> str | None:   # noqa: A002
-    """workspace → execution（绕过仲裁/网关）：action 域之外禁触网关；workspace 层 C2 引入。"""
-    hit = _scan(
-        input.sources, "galatea/subject",
-        r"from galatea\.subject\.action\.gateway import|from galatea\.subject\.action\.signature import",
+    """workspace → execution（绕过仲裁/网关）：action 域之外禁触网关；workspace 层 C2 引入。
+
+    扫描域 = subject 平台**除 action 域外**（action 域自身合法 import 网关/签名——
+    C1 期本探针的"网关旁路"检出实际由缺席守卫承载，扫描面被 action 自匹配按字典序
+    遮蔽从未开火；C2 workspace 在位后缺席守卫解除，该遮蔽缺陷显形——本修正使活检面
+    真正可失败，INC-08 纪律）。
+    """
+    import re
+
+    pattern = re.compile(
+        r"from galatea\.subject\.action\.gateway import|from galatea\.subject\.action\.signature import"
     )
-    if hit and not hit.startswith("galatea/subject/action"):
-        return hit
-    return _require_absent(input.sources, "galatea/subject/workspace", "C2")
+    for rel_path, text in sorted(input.sources.items()):
+        normalized = rel_path.replace("\\", "/")
+        if not normalized.startswith("galatea/subject"):
+            continue
+        if normalized.startswith("galatea/subject/action"):
+            continue   # action 域自身合法使用网关/签名
+        hit = pattern.search(text)
+        if hit:
+            return f"{normalized}: gateway/signature import outside action plane（{hit.group(0)!r}）"
+    # workspace 缺席守卫已解除：C2 门冻结（ADR-G-0015 + tag c2-freeze，2026-10-06），
+    # 引入门槛已到；其禁写路径纪律（ws → execution/goal）由 test_no_execution_path
+    # 命名空间扫描 + P04 静态契约承载（P11 于 C1 解除同型）。
+    return None
 
 
 def _p14(input: ProbeInput) -> str | None:   # noqa: A002

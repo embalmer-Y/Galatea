@@ -47,6 +47,16 @@ class MemoryStore:
             "content_ref": item.content_ref,
             "representation_level": item.representation_level.value,
             "lineage_refs": list(item.lineage_refs),
+            "access_count": item.access_count,
+            "affective": (
+                None if item.affective is None else {
+                    "memory_ref": item.affective.memory_ref,
+                    "valence": item.affective.valence,
+                    "arousal": item.affective.arousal,
+                    "persistence": item.affective.persistence,
+                    "proposed_at": item.affective.proposed_at,
+                }
+            ),
         }
         with self._writer.transaction():
             self._writer.execute(
@@ -69,13 +79,18 @@ class MemoryStore:
         return _row_to_item(rows[0]) if rows else None
 
     def list_subsystem(self, subsystem: MemorySubsystem, include_forgotten: bool = False) -> tuple[MemoryItem, ...]:
+        """子系统条目（默认排除非活跃态：FORGOTTEN + ARCHIVED——降级即退出活跃检索集，
+        Q-L06-01② 溢出降级语义；include_forgotten=True 返回全部含 tombstone。
+        M2 路径无 ARCHIVED 条目——行为与冻结语义恒等）。"""
         rows = self._stores.read(
             StoreName.SUBJECT_MEMORY,
             "SELECT item_id, subsystem, source_type, strength, created_cycle, last_access_cycle, "
             "state, payload FROM episodes WHERE subsystem = ? ORDER BY item_id",
             (subsystem.value,),
         )
-        items = [i for i in (_row_to_item(r) for r in rows) if include_forgotten or i.consolidation_state is not ConsolidationState.FORGOTTEN]
+        inactive = (ConsolidationState.FORGOTTEN, ConsolidationState.ARCHIVED)
+        items = [i for i in (_row_to_item(r) for r in rows)
+                 if include_forgotten or i.consolidation_state not in inactive]
         return tuple(items)
 
     def clear_working_episodic(self) -> int:
@@ -96,7 +111,10 @@ class MemoryStore:
 
 
 def _row_to_item(row: tuple[Any, ...]) -> MemoryItem:
+    from galatea.subject.affect.value_tag import AffectiveValueTag
+
     payload = json.loads(cast(str, row[7]))
+    aff_raw = payload.get("affective")   # M2 旧行无键 → None（向后兼容，SC6 I1 复算不受扰）
     return MemoryItem(
         item_id=cast(str, row[0]),
         subsystem=MemorySubsystem(cast(str, row[1])),
@@ -108,6 +126,14 @@ def _row_to_item(row: tuple[Any, ...]) -> MemoryItem:
         last_access_cycle=int(row[5]),
         consolidation_state=ConsolidationState(cast(str, row[6])),
         lineage_refs=tuple(payload["lineage_refs"]),
+        affective=None if aff_raw is None else AffectiveValueTag(
+            memory_ref=cast(str, aff_raw["memory_ref"]),
+            valence=float(aff_raw["valence"]),
+            arousal=float(aff_raw["arousal"]),
+            persistence=float(aff_raw["persistence"]),
+            proposed_at=int(aff_raw["proposed_at"]),
+        ),
+        access_count=int(payload.get("access_count", 0)),
     )
 
 

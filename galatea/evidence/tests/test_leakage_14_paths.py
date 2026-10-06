@@ -57,14 +57,15 @@ def test_injections_detected_static_paths() -> None:
 
 
 def test_injections_detected_absence_and_active_guards() -> None:
-    """缺席守卫（P13-workspace；P11-learner 缺席守卫已随 C1 冻结解除——ADR-G-0013，
-    learning 层引入门槛已到，其禁写路径由 P04/P09 契约 + proposal_only 承载）
-    + P09 实检（Q-L13-05 预案）。"""
+    """缺席守卫解除（P13-workspace 已随 C2 冻结解除——ADR-G-0015 + tag c2-freeze，
+    workspace 层引入门槛已到，其禁写路径由 test_no_execution_path 命名空间扫描 +
+    P04 契约承载；P11-learner 缺席守卫已随 C1 冻结解除同型）
+    + P09 实检（Q-L13-05 预案）+ P13 活检面（网关旁路仍检出）。"""
     sources = load_tree_sources(_ROOT)
-    sources["galatea/subject/workspace/frame.py"] = "# premature workspace\n"
+    sources["galatea/subject/workspace/extra.py"] = "# legitimate workspace module at C2\n"
     report = run_leakage_suite(sources)
     hit_ids = {d.path_id for d in report.detections}
-    assert "P13" in hit_ids
+    assert "P13" not in hit_ids    # workspace 层在位（C2 冻结后）：缺席不再检出
     assert "P11" not in hit_ids    # learning 层在位（C1）：缺席不再检出
     # P09 实检面：sensorium 注入对行动/目标平面的 import → 检出
     sources["galatea/subject/sensorium/pipeline.py"] += (
@@ -72,6 +73,12 @@ def test_injections_detected_absence_and_active_guards() -> None:
     )
     report = run_leakage_suite(sources)
     assert any(d.path_id == "P09" for d in report.detections)
+    # P13 活检面（引入后仍须可失败）：workspace 触网关 → 检出
+    sources["galatea/subject/workspace/frame.py"] += (
+        "\nfrom galatea.subject.action.gateway import CapabilityGateway  # injected bypass\n"
+    )
+    report = run_leakage_suite(sources)
+    assert any(d.path_id == "P13" for d in report.detections)
 
 
 def test_injection_detected_gateway_bypass_from_workspace() -> None:

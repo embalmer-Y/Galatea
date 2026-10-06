@@ -1,6 +1,6 @@
 # L07 递归全局工作空间：竞争、广播、读取回执与因果访问
 
-> LLD: L07/14 · v1.0.1 · 2026-10-06（C2 参数裁决批入册 Q-L07-01…06 CONFIRMED + c2_workspace.profile v1.0 冻结；实现件 = C2 次单元）· 原版 2026-09-13 · 状态：WORKING（C2 实现期）
+> LLD: L07/14 · v1.0.2 · 2026-10-06（v1.0.2：C2 次单元交付标注——十件 + pipeline 全量落地；v1.0.1：参数裁决批 + profile 冻结）· 原版 2026-09-13 · 状态：WORKING（C2 实现期）
 > 上游：`HLD.md` §5（递归全局工作空间）/§6/§11.1（`broadcast ≠ causal access`） · `L02/L03/L04/L05/L06`（候选来源）
 > 下游消费者：全体认知模块（广播读者）、L08（目标素材）、L09（metacontrol）、L13（因果访问证据评价）
 > 引入门槛：**C2**（workspace 回执 + 增益回执链）→ **E1**（workspace lesion 选择性失败为硬退出条件）
@@ -196,6 +196,20 @@ galatea/subject/workspace/tests/
   test_competition_causality.py test_pseudo_workspace_criteria.py test_no_execution_path.py
 config/profiles/
   c2_workspace.profile.yaml   K/w_c/TTL/回执超时/depth_max/separated 关系定义（冻结前 UNCONFIRMED）
+
+> **C2 次单元交付标注（2026-10-06）**：十件全量（ports/propose/compete/frame/broadcast/watch/
+> access/recurse/pseudo_check/receipt）+ pipeline 装配面 + c2profile C2WorkspaceParams typed
+> loader（INC-11）。要点：等权打分 + affect 分量调制缩放（consume_salience_modulation——
+> 三类调制第三类消费面闭环，clip [0.5,2.0] + 回执入帧）；K=4 帧构造面机械强制；回执超时
+> N2=2 迟到不计入 + 缺回执读者不计入 separated；watch 预注册（运行期冻结 + 事后注册拒 +
+> changed-digest 一致性）；effective_access = 回执 ≥2 ∧ ≥2 分离档根变化（单模块/无更新/
+> 缺回执均如实 false）；depth 4>3 Unknown(CAPABILITY_LIMIT)；去重窗 TTL=4 + DUPLICATE +
+> StaleFrameReference；伪判据四项（③④ E1/统计面 PENDING 不冒充）；无入选不发布帧；
+> 双跑帧序列 digest bit-exact。测试：test_capacity_rejection / test_effective_access /
+> test_salience_modulation_closed_loop（三类调制消融全闭环 + 选择性）。
+> **P13 去遮蔽**：C1 期泄漏探针的"网关旁路"检出实由缺席守卫承载（扫描面被 action 自匹配
+> 字典序遮蔽从未开火——INC-08 型）；C2 workspace 在位后显形并修正（扫描域显式排除
+> action 平面），leakage.py P13 注记在案。
 ```
 
 ## 11. 未决问题（→ open_questions.md）
