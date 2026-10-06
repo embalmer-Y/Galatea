@@ -1,6 +1,6 @@
 # L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值
 
-> LLD: L05/14 · v1.0.1 · 2026-10-05（v1.0.1：C2 阻断清零——§4.1/§4.2/§4.3/§4.5 内联 UNCONFIRMED 标记转 CONFIRMED（Q-L05-01/02/03 + Q-L05-05/Q-G00-05 成组，AI-v2 经 owner 备案程序）+ §11 表同步）· v1.0 2026-09-13 · 状态：WORKING（C2 冻结前）
+> LLD: L05/14 · v1.0.2 · 2026-10-06（v1.0.2：C2 实现期首单元交付标注 + Q-L05-06 翻转 + Q-L05-02 行内补裁告警分级同步）· v1.0.1 2026-10-05（C2 阻断清零）· v1.0 2026-09-13 · 状态：WORKING（C2 实现期）
 > 上游：`HLD.md` §1.2/§5/§6/§11.1 · `L02_sensorium.md`（内感受帧）· `L04_world_body_self.md`（BodyBelief/mismatch）· `L00_kernel.md`
 > 下游消费者：L02/L03/L04（有界调制）、L07（显著性）、L08（Motive 源）、L09（metacontrol）、L11（学习信号之一，**不是** reward）
 > 引入门槛：**C2**（drive/appraisal/持续感受态 + 有界调制 + 增益回执）→ **C3**（驱动 Motive）→ **C5**（情感记忆联动）
@@ -82,7 +82,7 @@ FunctionalExperientialState(
   provenance, content_digest )
 ```
 
-**取值域与量纲（Q-L05-01 CONFIRMED，AI-v2 2026-10-05）**：valence ∈ [−1,1] 对称（改善正/恶化负——§4.2 定义的字面操作化）；其余八维 ∈ [0,1]；跨维可比性 = 禁跨维聚合（向量态，单标量折叠 = Q-L05-07 塌缩面）；全维 float64。`tendencies` 的 `action_class` 枚举须与 L03 affordance / L10 能力契约对齐 → Q-L05-06（C3/C4）。
+**取值域与量纲（Q-L05-01 CONFIRMED，AI-v2 2026-10-05）**：valence ∈ [−1,1] 对称（改善正/恶化负——§4.2 定义的字面操作化）；其余八维 ∈ [0,1]；跨维可比性 = 禁跨维聚合（向量态，单标量折叠 = Q-L05-07 塌缩面）；全维 float64。`tendencies` 的 `action_class` 枚举（Q-L05-06 CONFIRMED，AI-v2 2026-10-06，自 C3/C4 提前——九维构造需要）= L10 五原语冻结枚举 {move,forage,eat,rest,look}；L03 affordance 为真子集；inhibited 默认 True（保守）。
 
 ### 4.2 内稳态价值（valence 的定义，承 D-10 与第一性原理公理 C）
 
@@ -217,6 +217,17 @@ galatea/subject/affect/tests/
   test_no_telemetry_input.py test_affect_not_command.py test_ethics_trigger.py
 config/profiles/
   c2_affect.profile.yaml   九维取值域/τ/迟滞带/w_d/调制 bound/TTL/告警阈值/伦理阈值（冻结前 UNCONFIRMED）
+
+> **C2 实现期首单元交付标注（2026-10-06）**：affect/ 十二件全量落地（ports/state/drives/
+> valence/appraisal/dynamics/reappraisal/modulation/motive/value_tag/ethics_guard + pipeline 装配面）
+> + c2profile.py typed loader（INC-11）+ L02 增益 C2 接收面（apply_gain_c2 + scale_intensity，
+> Q-L02-02）+ L03 believe_threshold C2 接收面（管线 override + TTL 归零，Q-L02-02② 派生界
+> [0.4,0.6]）+ 测试十件 43 测试全绿。实现期真实发现：**伦理触发经驱力动力学构造性不可达**
+> （valence = 有界误差变化率 ⇒ 64 拍窗 raw 均值 ≥ −E_range/64 = −0.03125，持续 ≤−0.8 不可能；
+> 守卫零误触发由构造保证——强于探针层B 实证；触发可达性随 C3+ 输入面扩展再评，重开条件已含
+> "构造性极端态未触达"）。tendencies/motive 为提案面（L08/L09 消费 = C3 接线）；
+> value_tag 提案面（L06 唯一写者消费 = C2 次单元）；三类调制中 WORKSPACE_salience 发放面
+> 在位、消费面 = L07 C2 次单元。
 ```
 
 ## 11. 未决问题（→ open_questions.md）
@@ -228,6 +239,6 @@ config/profiles/
 | Q-L05-03 | 各维时间常数 τ、迟滞带宽、衰减率 | C2 | CONFIRMED（AI-v2 2026-10-05，见 A 区：τ_int=4/τ_dec=16/band=0.1=2σ/零噪声算子） |
 | Q-L05-04 | MW0 三 regime 与"3 情感模式"的对应参数化（与 Q-L01-03 必须一致裁决） | C2 + L01 | CONFIRMED（AI-v2 2026-09-25，随 Q-L01-03 成组：初步对应采纳，C2 统计检验） |
 | Q-L05-05 | 持续极端 aversive-like 阈值与处置（成组 Q-G00-05） | 伦理 | CONFIRMED（AI-v2 2026-10-05，见 A 区：valence≤−0.8 ∧ persistence≥0.8 持续 64 cycles → owner 人工评审；**经 owner 备案程序**） |
-| Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | C3/C4 | UNCONFIRMED |
+| Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | **AI-v2（2026-10-06，自 C3/C4 提前——九维构造需要，新增即裁）：**= L10 五原语冻结枚举 {move,forage,eat,rest,look}（f0_action_contract 权威源）；L03 affordance 为真子集；inhibited 默认 True | CONFIRMED |
 | Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：最优单维线性重构 R²<0.9） |
 | Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | C4 | UNCONFIRMED |

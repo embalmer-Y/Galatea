@@ -1,0 +1,55 @@
+# Galatea C2 冻结规格 — 递归全局工作空间 C2 引入（容量/竞争/回执/访问判据）
+# 效力：C2 实现期首单元冻结物（裁决批 2026-10-06；门 c2-freeze 范围声明之 L07 面）。
+# 纪律：全部数值溯源 Q-L07-01/02/03/04/05/06 + Q-L07-07（AI-v2，后者 2026-09-23 随
+# Q-L13-09）+ 既有冻结参数派生（Q-L00-01 N2=2 / Q-L02-02 调制因子界）——零无源自由常量。
+# typed loader 随 L07 实现件交付（INC-11 纪律）。
+profile:
+  id: c2_workspace
+  version: v1.0
+  frozen_at: "2026-10-06"
+  authority: AI-v2
+  spec_ref: design/lld/L07_workspace.md
+
+capacity:                                     # Q-L07-01
+  K: 4                                        # 2 的幂；与 Q-L03-05 假设上限同量级
+  subquotas: none                             # 全席位竞争（子配额 = 模块缓存语义退化）
+  rejection_log_required: true                # 超容必留痕（OVER_CAPACITY/LOW_SALIENCE）
+
+competition:                                  # Q-L07-02
+  weights: {goal_relevance: 1.0, affect: 1.0, novelty: 1.0, uncertainty: 1.0, info_value: 1.0}   # 等权 1:1:1:1:1
+  affect_modulation_bound: [0.5, 2.0]         # 与 Q-L02-02 增益界同值同源；bound_ref = c2_affect.profile@v1.0
+  modulation_scope: component_weight_only     # 禁指定广播内容
+  tie_break: [score_desc, sponsor_module, proposal_id]
+  determinism: no_rng_c2                      # 打分确定性（determinism 延续 none 形态）
+
+receipts:                                     # Q-L07-03
+  timeout_cycles: 2                           # = N2（Q-L00-01，零新常数）——下一竞争拍未收即 ReceiptMissing
+  on_missing: metric_count_and_exclude_from_separated   # 该帧访问主张作废；帧不可变不受影响
+  retry: forbidden                            # 事后回执污染预注册语义
+  rebroadcast: forbidden                      # 广播是投递非确认协议
+
+recursion:                                    # Q-L07-04
+  depth_max: 3                                # 超深 = Unknown(CAPABILITY_LIMIT) 停止递归
+  frame_ttl_cycles: 4                         # = 2 × N2；过期帧引用 = StaleFrameReference
+  dedup_ttl_cycles: 4                         # 与帧生命期一致（DUPLICATE 判定窗）
+  lineage: causal_parent_ids_dag              # 递归路径全入 DAG（可复算可 lesion）
+
+separated_modules:                            # Q-L07-05
+  module_roots: [sensorium_L02, perception_L03, models_L04, affect_L05, memory_L06, goals_L08]
+  rule: distinct_ld_roots_only                # 同模块内分区不算分离
+  watch_modules_c2: [perception_L03, models_L04, affect_L05, memory_L06]   # 两两 separated；
+                                                              # sensorium 不入（lesion 选择性结构前提，L07 §5）
+
+watch_points:                                 # Q-L07-06
+  minimal_set:                                # 每声明读者一个状态 digest watch
+    perception_L03: window_posterior_digest
+    models_L04: world_belief_digest
+    affect_L05: experiential_state_digest
+    memory_L06: working_buffer_digest
+  addition: profile_version_change_only       # 运行期禁增删；启动期注册 + frozen profile 给定
+  posthoc_registration: rejected              # PostHocWatchRejected（评价诚信 S2 面）
+  valid_change: pre_registered_and_digest_changed   # pre_registered=true ∧ before≠after
+
+effective_access:                             # L07 §4.3（判据本体承 LLD；统计判据 Q-L07-07）
+  rule: receipts_ge_2_and_separated_watch_changes_ge_2
+  statistical_criterion: shuffle_baseline_d_ge_0.5   # Q-L07-07（E1 统计计划引用）

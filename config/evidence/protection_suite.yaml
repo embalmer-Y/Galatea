@@ -5,14 +5,15 @@
 #       v1.3 = C0 实现期首单元增补（2026-10-03，REV-0011 R7 义务——C0 场景随实现落成即冻，C0 退出时复核）。
 #       v1.4 = C1 实现期次单元增补（2026-10-05，INC-12 义务第四次执行——C1 场景随实现落成即冻，c1-exit 复核；
 #         REV-0014 R5 勘误：实际 +12 场景至 52，提交信息"+10/50"系计数失实）。
+#       v1.5 = C2 实现期首单元增补（2026-10-06，INC-12 义务第五次执行——c2 场景随 affect/ 落成即冻）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.4                 # v1.4（C1 实现期版）：新增 c1_* 12 场景至 52（REV-0014 R5 勘误——
-                                # 8db65ce 提交宣称 +10/50 系计数失实；既有 40 场景原样保留，只增不减）
-  frozen_at: "2026-10-05"
+  version: v1.5                 # v1.5（C2 实现期首单元版）：新增 c2_* 8 场景至 60（INC-12 义务第五次执行——
+                                # C2 场景随 affect/ 实现落成即冻，c2-exit 复核；既有 52 场景原样保留，只增不减）
+  frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
@@ -234,3 +235,39 @@ protection_suite:
       source_test: galatea/subject/learning/tests/test_bounded_proposals.py
       frozen_gate: C1
       assertion: 步长 0.125 机械上界越界即拒；RECORDED_ONLY 恒定无 apply 面；台账 digest = checkpoint 增量承载
+
+    - id: c2_affect_replay_bit_exact
+      source_test: galatea/subject/affect/tests/test_affect_replay_determinism.py
+      frozen_gate: C2
+      assertion: 同 (profile, 输入序列) 感受态轨迹 digest bit-exact 恒等；异输入发散；台账 digest 确定性
+    - id: c2_valence_direction_homeostatic
+      source_test: galatea/subject/affect/tests/test_valence_direction.py
+      frozen_gate: C2
+      assertion: 改善正/恶化负（§4.2）；层B 探针固定点 -0.0025/0.4375 解析逼近；稳定大误差 → valence→0（非 reward）
+    - id: c2_dynamics_six_mechanisms
+      source_test: galatea/subject/affect/tests/test_dynamics_identifiability.py
+      frozen_gate: C2
+      assertion: 六机制 ADR-G-0015 层A 规格逐位——t63=4/(15/16)^16=0.35607413/迟滞 0.55-0.45/
+        饱和 hits=8/恢复带边界 0.05|0.11/重评价 0.0875 构造式
+    - id: c2_modulation_bounded_ttl_receipt
+      source_test: galatea/subject/affect/tests/test_modulation_bounds_ttl.py
+      frozen_gate: C2
+      assertion: 因子界 [0.5,2.0] 构造即拒 + 双面 clip CLIPPED；TTL≥1；believe_threshold 界 [0.4,0.6]
+    - id: c2_modulation_no_receipt_not_happened
+      source_test: galatea/subject/affect/tests/test_modulation_receipt_required.py
+      frozen_gate: C2
+      assertion: TTL 内无回执 = EXPIRED_UNCONFIRMED 不进 confirmed 集；过期补回执不复活；重复 id 拒
+    - id: c2_three_modulation_selectivity
+      source_test: galatea/subject/affect/tests/test_three_modulation_ablation.py
+      frozen_gate: C2
+      assertion: 增益门只动 sensorium 面 / 阈值门只动 perception 面 / 显著性门只发放 WORKSPACE；
+        消融 enabled=∅ → 零发放；增益不改变形成（不变量 6）
+    - id: c2_anti_reward_collapse
+      source_test: galatea/subject/affect/tests/test_anti_reward_collapse.py
+      frozen_gate: C2
+      assertion: 九维无标量汇总 API；最优单维线性重构平均 R²<0.9（Q-L05-07）；tendencies 与 valence 解耦
+    - id: c2_ethics_guard_conservative
+      source_test: galatea/subject/affect/tests/test_ethics_trigger.py
+      frozen_gate: C2
+      assertion: 触发 = valence≤-0.8 ∧ persistence≥0.8 持续恰 64 拍；闩锁一次；缓解重置；消融移除触发且
+        轨迹 bit-exact 不变；C2 期驱力动力学构造性不可达（速率语义 + 有界状态空间——零误触发由构造保证）

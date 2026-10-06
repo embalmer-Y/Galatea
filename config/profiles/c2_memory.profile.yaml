@@ -1,0 +1,59 @@
+# Galatea C2 冻结规格 — 分层记忆 C2 扩展（八子系统容量/检索权重/衰减谱/混淆协议）
+# 效力：C2 实现期首单元冻结物（裁决批 2026-10-06；门 c2-freeze 范围声明之 L06 面）。
+# 纪律：全部数值溯源 Q-L06-01/02/03/06（AI-v2 2026-10-06）+ 既有冻结参数派生
+# （Q-L00-01 T6=64 / Q-L04-10 步长 0.125 / Q-L08-02 驻留窗 256）——零无源自由常量。
+# typed loader 随 L06 C2 实现件交付（INC-11 纪律）；M2 最小切片参数仍由
+# m2_continuity.profile 承载（Q-G00-11，本档不重复冻结）。
+profile:
+  id: c2_memory
+  version: v1.0
+  frozen_at: "2026-10-06"
+  authority: AI-v2
+  spec_ref: design/lld/L06_memory.md
+
+subsystems:                                   # L06 §1 八子系统全集（M2 已启 working/episodic）
+  enabled_c2: [working, episodic, semantic, affective_value, prospective]   # L06 §9 C2 门槛五行
+  deferred: [procedural, autobiographical, metamemory]    # procedural/autobiographical C3/C4 接线；
+                                                          # metamemory 统计面 C4（混淆接口本档在位）
+
+capacities:                                   # Q-L06-01①：2 的幂（Q-G00-08）
+  working: 16
+  episodic: 1024
+  semantic: 256
+  procedural: 256
+  affective_value: 1024
+  prospective: 64
+  autobiographical: 256
+  metamemory: 256
+
+overflow:                                     # Q-L06-01②③
+  policy: demote_oldest_labile_to_archived    # 显式状态转移 + 留痕；禁拒写禁删除
+  demotion_order: [last_access_asc, memory_id_asc]   # 确定性全序
+
+retrieval:                                    # Q-L06-02
+  weights: {cue_sim: 1.0, strength: 1.0, recency: 1.0, affective_valence: 1.0, reliability: 1.0}   # 等权 1:1:1:1:1
+  cue_sim: enum_match_binary                  # MW0 枚举匹配 0/1（L06 §4.2 原文）
+  recency: {form: max0_1_minus_age_over_64}   # max(0, 1 − age/64)——线性窗 = T6 拍（Q-L00-01）
+  affective_missing_default: 0.0              # 无标注条目缺省中性（禁伪造）
+  reliability_mapping: strength               # M2 已裁映射维持；metamemory 完整估计 C4
+  tie_break: [score_desc, subsystem, memory_id]
+  affect_modulation_c2: none                  # C2 三类调制面不含 MEMORY_ENCODER（C5 promotion 面）
+  top_k: 4                                    # = m2_continuity retrieval_top_k（Q-G00-11 冻结值沿用）
+
+decay:                                        # Q-L06-03
+  tau_sub: {working: 4, episodic: 256, affective_value: 256, prospective: 1024,
+            semantic: 1024, procedural: 1024, autobiographical: 1024, metamemory: 1024}
+  operator: strength_times_1_minus_1_over_tau # 一阶衰减 (τ−1)/τ——与 Q-L05-03 τ_dec 同式
+  trigger: consolidation_tick_only            # T6 唯一触发点（L06 §2.1）
+  access_boost: 0.125                         # 每命中 +0.125（Q-L04-10 Laplace 等价步长先例）
+  access_boost_cap: 1.0                       # strength 上界 = 域上界
+  protected_exempt: true                      # PROTECTED 不衰减（L06 §4.5）
+
+metamemory:                                   # Q-L06-06
+  confusion_protocol: presented_by_recalled_2x2   # 2×2 交叉（L06 §4.6）；E1 冻结统计计划首评
+  confusion_rate_upper_bound: 0.05            # 锚 Q-L03-04 校准容差同源
+  c2_scope: counting_interface_only           # C2 = 计数接口在位；完整测量 E1；主张权降级消费 C4
+
+affective_write:                              # L05→L06 写侧合同（L05 §2.2 value_annotation）
+  sole_writer: memory_l06                     # L06 是唯一写者，L05 只提案
+  tag_fields: [memory_ref, valence, arousal, persistence]

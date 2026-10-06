@@ -221,7 +221,7 @@ config/profiles/
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
 | Q-L02-01 | 校准版本策略：单版本冻结 vs 允许受控漂移（漂移是否需 revision 谱系） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
-| Q-L02-02 | `gain_max[modality]` 默认上界与裁剪是否计入"调制有效性"判据 | C2 | UNCONFIRMED |
+| Q-L02-02 | `gain_max[modality]` 默认上界与裁剪是否计入"调制有效性"判据 | **AI-v2（2026-10-06）：**调制因子界 [0.5,2.0]（2 的幂，与 Q-L07-02 同值同源）；CLIPPED 计入有效性（requested/applied 成对，evaluator 采信 applied）；形成义务无条件（不变量 6）——C2 首单元已实现 apply_gain_c2 + scale_intensity | CONFIRMED |
 | Q-L02-03 | 对齐窗 `W_align` 默认值（建议 4 cycles）与迟到 revision 的最大回溯深度 | C0/C1 | CONFIRMED（AI-v2 2026-10-02：W_align = 4 cycles（T3 对齐，覆盖通道延迟上界 3 倍余量）+ 迟到回溯 = 1 窗（超窗龄 = Unknown(INSUFFICIENT_OBSERVATION) 留痕，禁历史帧改写），见 open_questions A 区） |
 | Q-L02-04 | 质量估计量纲与跨模态可比性（是否需归一到统一 [0,1] 精度标度） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L02-05 | 内感受模态的最小集与"损伤事件"离散化阈值（联动 Q-L01-08、L05 驱力） | C0 | CONFIRMED（AI-v2 2026-10-02：C0 内感受最小集四 sensation——energy_level/integrity_level（连续 [0,1]）+ damage_event/energy_depleted（离散，零新阈值：Q-L01-08 世界侧离散化 + Q-L01-09⑤ 锁存）；energy_rate = 派生差分非独立 sensation，见 A 区） |

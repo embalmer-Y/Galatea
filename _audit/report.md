@@ -11,10 +11,10 @@
 ## 2. Q 编号闭合（声明 vs 引用）
 
 - 登记册声明 Q 号：**148**
-  - CONFIRMED: 93
-  - UNCONFIRMED: 54
+  - CONFIRMED: 105
+  - UNCONFIRMED: 42
   - CLOSED: 1
-  - 分区分佈：{'A': 93, 'B': 3, 'C': 3, 'D': 1, 'E': 2, 'F': 1, 'G': 1, 'H': 2, 'I': 8, 'J': 6, 'K': 4, 'L': 6, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
+  - 分区分佈：{'A': 105, 'B': 3, 'C': 3, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'H': 1, 'I': 4, 'K': 4, 'L': 6, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
 
 - OK：无重复声明
 
@@ -63,7 +63,7 @@
 - `lld/L02_sensorium.md`: 229 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 210 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 235 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
-- `lld/L05_drive_appraisal_affect.md`: 233 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
+- `lld/L05_drive_appraisal_affect.md`: 244 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
 - `lld/L06_memory.md`: 222 行 · 标题「# L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制」 · OK
 - `lld/L07_workspace.md`: 211 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
 - `lld/L08_motivation_goals.md`: 216 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
@@ -92,7 +92,7 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：22
+- 扫描 YAML 文件数：24
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）

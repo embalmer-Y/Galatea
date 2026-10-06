@@ -1,6 +1,6 @@
 # L07 递归全局工作空间：竞争、广播、读取回执与因果访问
 
-> LLD: L07/14 · v1.0 · 2026-09-13 · 状态：WORKING（C2 冻结前）
+> LLD: L07/14 · v1.0.1 · 2026-10-06（C2 参数裁决批入册 Q-L07-01…06 CONFIRMED + c2_workspace.profile v1.0 冻结；实现件 = C2 次单元）· 原版 2026-09-13 · 状态：WORKING（C2 实现期）
 > 上游：`HLD.md` §5（递归全局工作空间）/§6/§11.1（`broadcast ≠ causal access`） · `L02/L03/L04/L05/L06`（候选来源）
 > 下游消费者：全体认知模块（广播读者）、L08（目标素材）、L09（metacontrol）、L13（因果访问证据评价）
 > 引入门槛：**C2**（workspace 回执 + 增益回执链）→ **E1**（workspace lesion 选择性失败为硬退出条件）
@@ -202,10 +202,10 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L07-01 | 容量 K 默认值（建议 4）与是否按模态/子系统分配子配额 | C2 | UNCONFIRMED |
-| Q-L07-02 | 竞争权重 `w_c` 五项默认值及 L05 调制因子上界 | C2 | UNCONFIRMED |
-| Q-L07-03 | `ReadReceipt` 超时（cycles）与缺失回执的处置（重试/降级/指标） | C2 | UNCONFIRMED |
-| Q-L07-04 | 递归深度上界 `depth_max`（建议 3）与去重 TTL | C2 | UNCONFIRMED |
-| Q-L07-05 | "分离模块"的形式定义（哪些模块对算 separated；同模块内分区是否算） | C2/E1 | UNCONFIRMED |
-| Q-L07-06 | 预注册 watch point 的最小集合与新增流程（profile 变更 vs 冻结合同） | C2/E1 | UNCONFIRMED |
+| Q-L07-01 | 容量 K 默认值（建议 4）与是否按模态/子系统分配子配额 | **AI-v2（2026-10-06）：**K=4 采纳（2 的幂，与假设上限同量级）；不分子配额（全席位竞争 = 全局语义）；入 c2_workspace.profile v1.0；实现件 = C2 次单元 | CONFIRMED |
+| Q-L07-02 | 竞争权重 `w_c` 五项默认值及 L05 调制因子上界 | **AI-v2（2026-10-06）：**五项等权 1:1:1:1:1；L05 调制因子界 [0.5,2.0]（与 Q-L02-02 同值同源，作用于 affect 分量缩放）；禁指定广播内容；入 c2_workspace.profile | CONFIRMED |
+| Q-L07-03 | `ReadReceipt` 超时（cycles）与缺失回执的处置（重试/降级/指标） | **AI-v2（2026-10-06）：**超时 = N2=2 cycles（零新常数）；处置 = 指标计数 + 不计入 separated_modules；禁重试禁重发（预注册语义保护）；入 c2_workspace.profile | CONFIRMED |
+| Q-L07-04 | 递归深度上界 `depth_max`（建议 3）与去重 TTL | **AI-v2（2026-10-06）：**depth_max=3 采纳；帧 TTL = 去重 TTL = 4 cycles（= 2×N2——C2 调制 TTL 同锚）；超深 Unknown(CAPABILITY_LIMIT)；入 c2_workspace.profile | CONFIRMED |
+| Q-L07-05 | "分离模块"的形式定义（哪些模块对算 separated；同模块内分区是否算） | **AI-v2（2026-10-06）：**(m1,m2) separated ⟺ 不同 LLD 档模块根（sensorium/perception/models/affect/memory/goals）；同模块分区不算；C2 watch 最小集 = {perception, models, affect, memory}（sensorium 不入——lesion 选择性结构前提）；入 c2_workspace.profile | CONFIRMED |
+| Q-L07-06 | 预注册 watch point 的最小集合与新增流程（profile 变更 vs 冻结合同） | **AI-v2（2026-10-06）：**最小集 = 每声明读者一个状态 digest watch（perception 窗后验/models 世界信念/affect 感受态/memory working）；新增仅经 profile 版本变更（运行期禁增删）；事后注册拒绝机械在案；入 c2_workspace.profile | CONFIRMED |
 | Q-L07-07 | `effective_access` 的统计判据（是否需最小效应量，联动 L13 统计计划） | E1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：相对 shuffle 基线 d≥0.5） |

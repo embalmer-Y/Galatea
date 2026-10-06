@@ -8,11 +8,11 @@ abstain 判定（ood 或 top < believe_threshold）→ FIELD 低承诺信念 →
 确定性：全部 sorted；无 RNG 无墙钟（c1 profile determinism none_c1）。
 记忆线索（cues）只记引用进回执——禁注入信念内容（L03 §8 不变量 6）。
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from galatea.kernel.packet import Provenance
 from galatea.kernel.unknown import Unknown, UnknownReason
-from galatea.subject.c1profile import C1Profile, load_c1_profile
+from galatea.subject.c1profile import C1PerceptionParams, C1Profile, load_c1_profile
 from galatea.subject.perception.affordance import Affordance, build_affordances
 from galatea.subject.perception.believe import BeliefKind, PerceptualBelief, content_ref
 from galatea.subject.perception.confidence import CalibrationScale
@@ -23,6 +23,7 @@ from galatea.subject.perception.fusion import (
     build_likelihood_table,
     fuse_window,
 )
+from galatea.subject.perception.modulation import ModulationReceipt, apply_modulation
 from galatea.subject.perception.objects import PerceivedObject, build_objects
 from galatea.subject.perception.ood import AbstainEvent, OodAssessment, assess_ood, abstain_reason, should_abstain
 from galatea.subject.perception.pred_error import PerceptualPredictionError, perceptual_errors
@@ -69,6 +70,26 @@ class PerceptionPipeline:
             self._params.gain_by_distance, self._params.render_noise_sigma, self._params.bin_edges
         )
         self._calibration = CalibrationScale(version_id=self._profile.sensorium_c1.calibration_version)
+        # C2 调制面（Q-L02-02②/L03 §4.5）：None = 无调制（c1 冻结 0.5）；
+        # 有界 override 经 apply_threshold_modulation 设置（[0.4,0.6]）
+        self._threshold_override: float | None = None
+
+    def apply_threshold_modulation(self, requested: float) -> ModulationReceipt:
+        """C2 believe_threshold 有界调制接收面（回执必返；applied 生效于后续窗）。"""
+        receipt = apply_modulation("believe_threshold", requested)
+        if receipt.accepted and receipt.applied_value is not None:
+            self._threshold_override = receipt.applied_value
+        return receipt
+
+    def clear_threshold_modulation(self) -> None:
+        """TTL 到期/调制源关闭归零（L05 §4.4：到期自动失效，禁常驻）。"""
+        self._threshold_override = None
+
+    def _effective_params(self) -> C1PerceptionParams:
+        """生效参数（override 存在时 believe_threshold = applied 值）。"""
+        if self._threshold_override is None:
+            return self._params
+        return replace(self._params, believe_threshold=self._threshold_override)
 
     def process_window(
         self, effective_time: int, frames: tuple[SensoryFrame, ...],
@@ -76,6 +97,7 @@ class PerceptionPipeline:
         outcome_effects: tuple[str, ...] = (),
         cues: tuple[str, ...] = (),
     ) -> PerceptionOutput:
+        eff_params = self._effective_params()
         for frame in frames:
             if frame.representation_level.value != "SENSORY_FORMED":
                 raise UnauthorizedInput(
@@ -120,7 +142,7 @@ class PerceptionPipeline:
                     virtual_time=effective_time,
                 ))
             else:
-                object_pairs = build_objects(cells, self._params, effective_time, self._calibration.version_id)
+                object_pairs = build_objects(cells, eff_params, effective_time, self._calibration.version_id)
                 beliefs.extend(b for b, _ in object_pairs)
         elif ood.ood_flag:
             unknowns.append(Unknown(
@@ -140,7 +162,7 @@ class PerceptionPipeline:
             reasons=ood.reasons + domain_failures, evidence_refs=all_frame_ids,
         )
         top = max((c.posterior_present for c in cells), default=None)
-        if should_abstain(top, self._params, ood_effective):
+        if should_abstain(top, eff_params, ood_effective):
             abstains = (AbstainEvent(
                 abstain_id=f"abstain.{effective_time}",
                 reason=abstain_reason(effective_time, ood_effective),
@@ -148,7 +170,11 @@ class PerceptionPipeline:
                     content_ref({"cell": [c.dx, c.dy], "posterior": c.posterior_present}).digest
                     for c in sorted(cells, key=lambda c: (c.dy, c.dx))
                 ),
-                threshold_ref=f"believe_threshold={self._params.believe_threshold}@{self._profile.ref()}",
+                threshold_ref=(
+                    f"believe_threshold={eff_params.believe_threshold}@{self._profile.ref()}"
+                    if self._threshold_override is None else
+                    f"believe_threshold={eff_params.believe_threshold}@MODULATION:applied"
+                ),
                 cycle_id=effective_time,
             ),)
             if window is not None and window_frame is not None:
@@ -187,7 +213,7 @@ class PerceptionPipeline:
 
         sources = tuple(judge_frame_source(f) for f in sorted(frames, key=lambda f: f.frame_id))
         affordances = build_affordances(
-            cells if not (ood.ood_flag or domain_failures) else (), self._params, outcome_effects, effective_time
+            cells if not (ood.ood_flag or domain_failures) else (), eff_params, outcome_effects, effective_time
         )
         pred_errors, pred_unknowns = perceptual_errors(
             tuple(beliefs), cells, predictions or {}, effective_time
