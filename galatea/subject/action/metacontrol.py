@@ -9,7 +9,7 @@
 - **多触发全序 = SEEK_HELP > ABANDON > OBSERVE > THINK > ACT**（REV-0017 R4：
   安全优先 + 非 ACT 显式元决策优先产出）。
 
-驻留（Q-L09-04）：min_dwell=4 cycles；切换需连续 2 驻留窗确认（滞回防抖）；
+驻留（Q-L09-04）：min_dwell=4 cycles；切换需跨 2 驻留窗累计确认（REV-0018 R1 补裁）；
 状态入 checkpoint（digest 载体）。
 
 SEEK_HELP（Q-L09-07）：对象 = 实验控制通道；频次 ≤1/64 cycles（超界留痕不发送）；

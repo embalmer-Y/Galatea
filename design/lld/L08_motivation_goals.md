@@ -183,7 +183,7 @@ galatea/subject/goals/                      # strict 类型
   candidates.py       GoalCandidate、TTL 台账、过期日志
   request.py          ExternalRequest 接收（is_request_only 强制、措辞/请求者字段留证）
   checklist.py        C-1…C-7 判定、REJECT/DEFER reason code
-  conflicts.py        冲突检测（资源/规范/时序/viability）        # C3（Q-L08-01：C-3 随 Pareto 仲裁落地，M1 不产出）
+  conflicts.py（注记：C-3 冲突检测实现承载于 arbitration.py conflict_fronts——REV-0018 R7）        冲突检测（资源/规范/时序/viability）        # C3（Q-L08-01：C-3 随 Pareto 仲裁落地，M1 不产出）
   arbitrate.py        Pareto front、权重、确定性 RNG tie-break、ArbitrationTrace   # C3（Q-L08-03/-04）
   owned.py            OwnedGoal 冻结构造、rev 谱系、adopted_reasons 强制
   lifecycle.py        ACTIVE/BLOCKED/DEFERRED/MODIFIED/RELEASED/SUPERSEDED/SETTLED

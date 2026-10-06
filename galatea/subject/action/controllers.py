@@ -35,8 +35,9 @@ class ControllerKind:
     REFLEX = "Reflex"                # C3 禁用（构造面拒绝）
     LANGUAGE = "Language"            # C4 禁用
 
-    #: 控制器 tie-break 秩（Q-L09-01④）
-    RANK: dict[str, int] = {HABIT: 0, MODEL_BASED: 1, ACTIVE_PERCEPTION: 2,
+    #: 控制器 tie-break 秩（Q-L09-02① 偏序映射：ModelBased[ACTIVE 目标] > ActivePerception
+    #: [信息增益] > Habit[习惯低成本] > 语言/社会——REV-0018 R2 修正：初版 HABIT:0 系误序）
+    RANK: dict[str, int] = {MODEL_BASED: 0, ACTIVE_PERCEPTION: 1, HABIT: 2,
                             REFLEX: 3, LANGUAGE: 4}
 
 

@@ -4,9 +4,11 @@
 # + 既有冻结常数派生（Q-L00-01 频率比 / Q-L08-02 TTL / Q-L02-03 W_align / Q-L05-03 band /
 # Q-L01-08 告警分级）——零无源自由常量；冻结前可行性探针随本单元执行（结论入 ADR-G-0017）。
 # typed loader 随实现期交付（INC-11 纪律）。
+# v1.1（REV-0018 R5）：metacontrol 节注释锚定变更（L_c=16/128 显式标注）——零数值变化；
+# 滞回累计语义补裁见登记册 Q-L09-04 行内（REV-0018 R1）。
 profile:
   id: c3_motivation
-  version: v1.0
+  version: v1.1
   frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L08_motivation_goals.md    # 联动 L09 §9 C3 行

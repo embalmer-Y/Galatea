@@ -61,10 +61,10 @@ def test_affect_factor_passed_as_value_not_import() -> None:
 def test_arbitrate_tiebreak_rank_and_score() -> None:
     """tie-break (score desc, controller_rank, proposal_id)；落选留痕。"""
     a = _prop("a", controller=ControllerKind.MODEL_BASED, goal=0.9, cost=0.1)
-    b = _prop("b", controller=ControllerKind.HABIT, goal=0.9, cost=0.1)
+    b = _prop("b", controller=ControllerKind.HABIT, goal=0.9, cost=0.1)   # 同分 → 秩决定
     winner, dropped = arbitrate_proposals((a, b), 1.0, 0)
-    assert winner.proposal_id == "b"       # 同分 → HABIT 秩小优先（Q-L09-01④）
-    assert ("a",) == tuple(d[0] for d in dropped) or dropped[0][0] == "a"
+    assert winner.proposal_id == "a"       # 同分 → MODEL_BASED 秩小优先（Q-L09-02① 偏序，REV-0018 R2）
+    assert dropped[0][0] == "b"
 
 
 def test_disabled_controllers_rejected_at_construction() -> None:
