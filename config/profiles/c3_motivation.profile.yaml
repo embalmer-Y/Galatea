@@ -50,9 +50,10 @@ metacontrol:                                  # Q-L09-03（L09 §4.3；事件级
     OBSERVE: window_ood_or_abstain_event      # 事件级零阈值（Q-L03-02 同源）
     THINK: conflict_and_front_gt1_no_viability_pressure_or_model_pred_error_rising
                                               # τ=4 快分量窗（Q-L04-04 同锚）
-    SEEK_HELP: capability_boundary_event_or_loss_of_control
+    SEEK_HELP: capability_boundary_or_loss_of_control_Lc16_band0.1
+                                              # L_c=16（4×T4，幂梯 Q-L00-01 族）连续拍带外 band=0.1=2σ
                                               # L_c=16（T4 拍 Q-L00-01）；误差阈 = band 0.1（2σ，Q-L05-03③）
-    ABANDON: blocked_gt_ttl_half_or_viability_critical
+    ABANDON: blocked_ge_128_ttl_half_or_viability_critical_0.8
                                               # 128 = TTL/2（Q-L08-02）；CRITICAL 锚 0.8（Q-L01-08 补裁）
   trigger_refs_required: true
   min_dwell_cycles: 4                         # Q-L09-04（T3 对齐窗 Q-L02-03 同锚）

@@ -214,3 +214,9 @@ config/profiles/
 | Q-L08-07 | 规范（NORM）来源的可接受 derivation 形式（哪些算"可溯"） | **AI-v2（2026-10-06）：**C3 = 实验控制 typed 注入唯一合法源（D-14）；可溯 = derivation_refs 非空且 registry 可解析事件 id；自造规范 REJECT(UNSOURCED_NORM)；C4 L12 扩展经新 Q | CONFIRMED |
 | Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | C5 | UNCONFIRMED |
 | Q-L08-09 | M1 最小期 checklist 输入源替代（C-1/C-2 上游未实现）、viability 判据形态、C-7 结算词表、动机源接线范围、新增 RNG 流 | M1 | CONFIRMED（AI-v2 2026-09-26：C-1 静态合同检查、C-2 事件级判据（不设阈值）、三谓词结算词表、接线 VIABILITY+OPPORTUNITY+REQUEST，见 A 区） |
+
+> **C3 实现期首单元交付标注（2026-10-06）**：galatea/subject/goals/arbitration.py（五维向量映射 +
+> 支配 front + 优先序仲裁 + ArbitrationTrace.dropped）+ producers.py（七源生产者接线——c3_motivation.profile
+> wired_sources 全覆盖）落地；c3profile.py typed loader（INC-11）。分量映射 = 源类型确定性映射（实现补裁：
+> viability 维承载 VIABILITY/OPPORTUNITY/MISMATCH/COMMITMENT/REQUEST 的 urgency，norm/info/affect 维各自
+> 独占源，cost_inverse = 0.5 占位 Q-L01-09⑥ 先例）。测试 test_c3_arbitration.py 十一件。

@@ -228,3 +228,10 @@ config/profiles/
 | Q-L09-06 | Reflex 控制器在 MW0/C0 期是否启用（L01 §5 称 containment 由 gateway/实验控制承担；若启用需白名单刺激定义） | C0/C3 | CONFIRMED（AI-v2 2026-09-25：MW0 禁用，C0 复核，随 Q-L10-09 成组，见 A 区） |
 | Q-L09-07 | `SEEK_HELP` 在单主体（D-14）期的对象定义与其权限边界 | **AI-v2（2026-10-06）：**C3 对象 = 实验控制通道（非个体他者——D-14）；经 gateway 记录不耗动作预算；频次 ≤1/64 cycles（T6 拍；超界留痕不发送）；求助是一等能力；C4 L12 扩展经新 Q | CONFIRMED |
 | Q-L09-08 | 三层预测误差的相对权重与是否允许跨层归一（联动 Q-L02-06、Q-L03-01） | C1/C3 | CONFIRMED（AI-v2 2026-10-04，见 A 区：等权 1:1:1 + 禁跨层归一；C3 面留元控制裁决） |
+
+> **C3 实现期首单元交付标注（2026-10-06）**：galatea/subject/action/controllers.py（三控制器提案 +
+> ω 评分仲裁——成本项字面负向 REV-0017 R3；affect_factor 由装配层 float 传入——P03 结构面）+
+> metacontrol.py（五元决策状态机——多触发全序 REV-0017 R4；驻留 4+滞回 2 窗；MonitorSnapshot；
+> SEEK_HELP 频次帽）落地。权限测试：action 域全模块源零 affect import（字符串扫描）+ 元决策产出 = 
+> 决策枚举非命令 + AffectiveMotiveProposal 无执行面（affect 侧套件承载）。测试 test_c3_metacontrol.py +
+> test_affect_not_command_c3.py 十三件。

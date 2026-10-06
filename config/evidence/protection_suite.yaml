@@ -8,13 +8,14 @@
 #       v1.5 = C2 实现期首单元增补（2026-10-06，INC-12 义务第五次执行——c2 场景随 affect/ 落成即冻）。
 #       v1.6 = C2 实现期次单元增补（2026-10-06，INC-12 义务第六次执行——记忆/workspace 场景随实现落成即冻）。
 #       v1.7 = C2 门退出版增补（2026-10-06，INC-12 义务第七次执行——统计评价/值域发现/判定器场景）。
+#       v1.8 = C3 实现期首单元增补（2026-10-06，INC-12 义务第八次执行——仲裁/元决策/权限测试场景）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.7                 # v1.7（C2 门退出版）：新增 c2_* 评价/收尾 10 场景至 80（INC-12 义务第七次执行；
-                                # 既有 70 场景原样保留，只增不减）
+  version: v1.8                 # v1.8（C3 实现期首单元版）：新增 c3_* 8 场景至 88（INC-12 义务第八次执行；
+                                # 既有 80 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
@@ -378,3 +379,43 @@ protection_suite:
       frozen_gate: C2
       assertion: 登记册 A 区机械实点 = 头部宣称（Q-L02-02 补裁③ 行内裁决计数不变）；
         min_effects v1.4 / stat plan 修订留痕与交付文一致
+
+    - id: c3_pareto_front_dominance
+      source_test: galatea/subject/goals/tests/test_c3_arbitration.py
+      frozen_gate: C3
+      assertion: 五维齐向向量支配判定（Q-L08-03③ front=dominance 非加权和）；分量映射源类型确定性
+        （viability 维承载 5 源/norm·info·affect 独占/cost 0.5 占位 Q-L01-09⑥ 先例）；C-3 冲突 = front>1 事件级
+    - id: c3_priority_order_beats_score
+      source_test: galatea/subject/goals/tests/test_c3_arbitration.py
+      frozen_gate: C3
+      assertion: 优先序 VIABILITY>NORM>COMMITMENT>OTHER（Q-L08-04）压倒分量分；双跑 digest 恒等；
+        dropped 理由区分 DOMINATED/FRONT_LOST（理由敏感性反事实基础）
+    - id: c3_seven_source_producers_wired
+      source_test: galatea/subject/goals/tests/test_c3_arbitration.py::test_collect_motives_all_eight_kinds
+      frozen_gate: C3
+      assertion: 八 kind 全产出（VIABILITY 告警分级/AFFECTIVE urgency 门 0.1/MISMATCH 事件级/NORM typed+
+        C-4 构造面拒无源/OPPORTUNITY/REQUEST M1 冻结式/COMMITMENT ACTIVE 集/CURIOSITY 阈 0.6）
+    - id: c3_norm_unsourced_rejected
+      source_test: galatea/subject/goals/tests/test_c3_arbitration.py::test_norm_producer_rejects_unsourced
+      frozen_gate: C3
+      assertion: NORM 无 derivation_refs 构造即拒（UNSOURCED_NORM，Q-L08-07③——禁主体自造规范）
+    - id: c3_arbitration_score_cost_literal
+      source_test: galatea/subject/action/tests/test_c3_metacontrol.py
+      frozen_gate: C3
+      assertion: ω 评分成本项字面负向（REV-0017 R3 钉死锚 0.28|0.38）；tie-break (score,rank,id)；
+        启用电外控制器构造即拒（Reflex/Language）
+    - id: c3_affect_factor_value_injection
+      source_test: galatea/subject/action/tests/test_c3_metacontrol.py::test_affect_factor_passed_as_value_not_import
+      frozen_gate: C3
+      assertion: affect_factor 由装配层以 float 传入（P03 action 域零 affect import——affect 不直达执行
+        结构面）；越界因子 clip
+    - id: c3_metacontrol_full_order_and_dwell
+      source_test: galatea/subject/action/tests/test_c3_metacontrol.py
+      frozen_gate: C3
+      assertion: 多触发全序 SEEK_HELP>ABANDON>OBSERVE>THINK>ACT（REV-0017 R4）；驻留 4 拍+连续 2 窗
+        确认滞回（时序测试 4/8/9/13/17）；SEEK_HELP 频次帽 1/64 超界留痕不发送；状态 digest checkpoint 面
+    - id: c3_affect_not_command_structural
+      source_test: galatea/subject/action/tests/test_affect_not_command_c3.py
+      frozen_gate: C3
+      assertion: action 域全模块源零 affect import（字符串扫描第二防线，P03 同型）；元决策产出 = 决策枚举
+        非命令；AffectiveMotiveProposal 无执行面字段（affect 侧套件承载）

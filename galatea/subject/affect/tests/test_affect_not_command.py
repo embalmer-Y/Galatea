@@ -55,3 +55,38 @@ def test_no_command_path_assertion() -> None:
         mod = importlib.import_module(name)
         affect_ports.assert_no_command_path(vars(mod))   # 不抛 = 无违例
     assert issubclass(affect_ports.ProhibitedWritePath, RuntimeError)
+
+def test_affective_motive_proposal_no_execution_surface(affect_params) -> None:
+    """AffectiveMotiveProposal 无 ActionIntention/命令面（C3 权限测试——L08 §8 不变量 4）。"""
+    from galatea.subject.affect.ports import AffectCycleInputs
+    from galatea.subject.affect.motive import AffectiveMotiveProposal
+    from galatea.subject.affect.pipeline import AffectPipeline
+    from galatea.subject.control.intention import ActionIntention
+
+    pipe = AffectPipeline(affect_params)
+    out = pipe.step(AffectCycleInputs(cycle=0, body_energy=0.8, body_integrity=1.0))
+    p = out.motive_proposal
+    assert isinstance(p, AffectiveMotiveProposal)
+    assert not isinstance(p, ActionIntention)
+    for cmd_field in ("command_id", "requested_action", "budget", "deadline",
+                      "idempotency_key", "authorize"):
+        assert not hasattr(p, cmd_field), cmd_field
+    assert set(type(p).__dataclass_fields__) == {
+        "proposal_id", "urgency", "evidence_refs", "state_digest", "issued_at",
+    }
+
+
+def test_affective_motive_enters_arbitration_plane() -> None:
+    """AFFECTIVE 源经 L08 仲裁面向（goals/arbitration 五维映射——与各源平等）。"""
+    from galatea.subject.affect.motive import AffectiveMotiveProposal
+    from galatea.subject.goals.arbitration import arbitrate, vector_of
+    from galatea.subject.goals.motives import motive_affective
+
+    proposal = AffectiveMotiveProposal("p1", 0.8, ("e",), "digest", 0)
+    motive = motive_affective(
+        __import__("galatea.subject.goals.motives", fromlist=["AffectiveMotive"]).AffectiveMotive(
+            kind="c2_urgency", urgency=0.8, evidence_refs=proposal.evidence_refs), 0)
+    vec = vector_of("aff", motive)
+    assert vec.vector[3] == 0.8 and all(vec.vector[i] == 0.0 for i in (0, 1, 2))
+    trace = arbitrate((vec,), 0)
+    assert trace.picked == "aff"   # 单候选仲裁产出（无直达 gateway 路径）
