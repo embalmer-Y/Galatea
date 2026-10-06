@@ -4,13 +4,16 @@
 # v1.1（2026-10-05，C1 实现期次单元）：新增 C1 首评四工件（复合 + 三子主张）
 # v1.2（2026-10-05，REV-0014 R1 闭环）：R-c1-body-003 与 R-c1-models-001 两锚自 HEAD 重跑后更新——
 #       v1.3 = C2 门退出（2026-10-06）：+4 C2 首评工件锚（只增不减；顺延终止条款第三次执行）。
+#       v1.4 = REV-0016 R5 闭环（2026-10-06）：C2 四锚 sha256 原地更新——composite 标签勘误
+#         （composite_label 参数化，工件不再携带 C1 硬编码标签）；判定数字 bit-exact 恒等，
+#         旧锚 v1.3 留痕 ADR-G-0016（REV-0014 R1 同型纪律）。
 #   8db65ce 提交态 runner 序列化回归（str(bytes)），归档工件由修复前代码产生（评审三条独立链证明
 #   数据真实）；修复后重跑：tracking/worldpred 两工件 bit-exact 恒等（51a11865/d2697ec0 不变——
 #   语义等价直接证明），body/复合因 R2（CI 修复）+ R3（Holm 接线）+ R9（P12 注记）按预期变化。
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.3
+  version: v1.4
   frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
@@ -52,7 +55,7 @@ artifact_manifest:
       gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
     - name: R-c2-affect-001
       path: evidence/c2_affect_first_evaluation/R-c2-affect-001.json
-      sha256: c2e032bf96fc42803ecb744321b55ef690d2af189357926ada2095d2d510d7be
+      sha256: 266039b2c0b8452074302f1525ae30e20b53503a8605cf465999fe7847d97341
       gate: C2 首评复合判定（顺延终止条款第三次执行；Holm 族 = 3 claim 级 p）
     - name: R-c2-modulation-001
       path: evidence/c2_affect_first_evaluation/R-c2-modulation-001.json

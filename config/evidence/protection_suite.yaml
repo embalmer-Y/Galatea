@@ -357,8 +357,7 @@ protection_suite:
     - id: c2_upper_bound_collapse_test
       source_test: galatea/evidence/evaluator/hypotheses.py::evaluate_c2_anti_reward_collapse
       frozen_gate: C2
-      assertion: 上界型判定（H0: μ ≥ 0.9）——mean < bound ∧ CI 上界 < bound ∧ p_lower < 0.05
-        → SUPPORTED；mean ≥ bound → REFUTED（塌缩检出）
+      assertion: "上界型判定（H0: μ ≥ 0.9）——mean < bound ∧ CI 上界 < bound ∧ p_lower < 0.05 → SUPPORTED；mean ≥ bound → REFUTED（塌缩检出）"
     - id: c2_effective_access_in_production_runner
       source_test: galatea/evidence/control/runs_c2.py
       frozen_gate: C2

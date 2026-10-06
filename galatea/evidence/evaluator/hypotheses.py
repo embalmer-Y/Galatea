@@ -722,6 +722,7 @@ def evaluate_c1_composite(
     statistical_core: EvidenceResult,
     alpha: float = 0.05,
     detected_by: str = "evidence.evaluator",
+    composite_label: str = "c1_models_formation",
 ) -> EvidenceResult:
     """C1 复合判定（解离机械判据 + leakage=0 + I1 + 子主张全 SUPPORTED → SUPPORTED）。
 
@@ -799,10 +800,10 @@ def evaluate_c1_composite(
         ))
     return EvidenceResult(
         result_id=result_id,
-        hypothesis_refs=("c1_models_formation",)
+        hypothesis_refs=(composite_label,)
         + tuple(ref for r in constituent_results for ref in r.hypothesis_refs),
         stat_plan_ref=stat_plan_ref,
-        estimand="c1_composite_model_formation",
+        estimand=f"{composite_label}_composite",
         effect_size=statistical_core.effect_size,
         ci=statistical_core.ci,
         p_or_bayes=statistical_core.p_or_bayes,
@@ -1027,7 +1028,8 @@ def evaluate_c2_composite(
     """C2 复合判定（evaluate_c1_composite 同体例；Holm 族 = 3 claim 级主判定 p——
     REV-0014 复核关切① 显式钉死：claim 内分判据不单独入族）。"""
     # Holm 族输入 = claim 级主判定 p（在 evaluate_c1_composite 内机械执行——
-    # 本函数只声明族定义：3 claim 级 p，claim 内分判据不单独入族）
+    # 本函数只声明族定义：3 claim 级 p，claim 内分判据不单独入族）；
+    # composite_label 参数化（REV-0016 R5：工件标签不得携带跨门硬编码）
     return evaluate_c1_composite(
         result_id=result_id,
         stat_plan_ref=stat_plan_ref,
@@ -1039,4 +1041,5 @@ def evaluate_c2_composite(
         statistical_core=statistical_core,
         alpha=alpha,
         detected_by=detected_by,
+        composite_label="c2_affect_workspace",
     )
