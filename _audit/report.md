@@ -10,16 +10,18 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**148**
-  - CONFIRMED: 113
-  - UNCONFIRMED: 34
+- 登记册声明 Q 号：**146**
+  - CONFIRMED: 123
+  - UNCONFIRMED: 22
   - CLOSED: 1
-  - 分区分佈：{'A': 113, 'B': 3, 'C': 3, 'D': 1, 'E': 1, 'F': 1, 'G': 1, 'H': 1, 'I': 4, 'K': 1, 'L': 1, 'M': 3, 'N': 4, 'O': 7, 'P': 4}
+  - 分区分佈：{'A': 123, 'B': 3, 'C': 3, 'E': 1, 'I': 4, 'K': 1, 'L': 1, 'M': 2, 'N': 4, 'P': 4}
 
 - OK：无重复声明
 
-- **WARNING 被引用但登记册未声明（3）**：
+- **WARNING 被引用但登记册未声明（5）**：
   - `Q-G00-05` → HLD.md, README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
+  - `Q-L03-06` → lld/L03_perception.md, lld/L05_drive_appraisal_affect.md, open_questions.md
+  - `Q-L04-05` → lld/L04_world_body_self.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L05-05` → README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-T08b` → HLD.md, README.md
 
@@ -87,12 +89,12 @@
 - `lld/L09_controllers_metacontrol.md`: OK
 - `lld/L10_action_gateway_physio_attribution.md`: OK
 - `lld/L11_learning_consolidation.md`: OK
-- `lld/L12_language_social.md`: OK
+- `lld/L12_language_social.md`: 缺 2026-09-
 - `lld/L13_evidence_evaluation_registry.md`: OK
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：27
+- 扫描 YAML 文件数：28
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）

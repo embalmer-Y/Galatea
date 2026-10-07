@@ -1,0 +1,135 @@
+# Galatea C4 冻结规格 — 行动社会（概率 agency + typed LLM 角色 + 中央 LLM 消融 + 语言/社会面合同）
+# 效力：C4 门冻结合同（ADR-G-0019 · tag c4-freeze）。
+# 纪律：全部数值溯源既有裁决（Q-L01-07 + Q-L03-06/Q-L04-05 成组 + Q-L05-08 + Q-L10-05 +
+# Q-L12-01/03/04/05/06/07/08，AI-v2 2026-10-07）+ 既有冻结常数派生（Q-L03-02 believe_threshold
+# 0.5 最大熵点 / Q-L05-03③ band 0.1=2σ / Q-L10-04 |z|<=2 与 ECE<=0.10 / Q-L02-02 补裁③ [0.4,0.6] /
+# Q-L09-07 1/64 帽 / Q-L05-06 五原语枚举）——零无源自由常量。
+# LLM 资源：录制载体 = BigModel API（owner 呈递选定 2026-10-07，ADR-G-0019 §资源需求；
+# ADR-G-0012 重规划"C4 期向 owner 提出资源需求"兑现）。
+# 录制回放纪律 = Q-L12-03：claim-relevant 运行唯一允许方式，回放 miss fail closed。
+# 冻结前可行性探针随本单元执行（硬机制第四次执行；结论入 ADR-G-0019）。
+# typed loader 随实现期交付（INC-11 纪律）。
+profile:
+  id: c4_action_social
+  version: v1.0
+  frozen_at: "2026-10-07"
+  authority: AI-v2
+  spec_refs:
+    - design/lld/L10_action_gateway_physio_attribution.md   # §4.3/§4.4/§9 C4 行
+    - design/lld/L12_language_social.md                     # §4.1/§4.5/§4.6/§9 C4 行
+  ruling_refs: [Q-L01-07, Q-L03-06, Q-L04-05, Q-L05-08, Q-L10-05,
+                Q-L12-01, Q-L12-03, Q-L12-04, Q-L12-05, Q-L12-06, Q-L12-07, Q-L12-08,
+                Q-L09-07, Q-L12-02]
+
+second_agent:                                 # Q-L01-07（D-14 规范边界）
+  introduced: false                           # 多主体不在本规范范围内——重开 = D-14 修订（owner 决策级）
+  other_model_object_face: experiment_control_channel   # 单主体期唯一合法外部信道（Q-L12-08 同一）
+
+typed_llm:                                    # Q-L12-01（L12 §4.1 权威清单）
+  roles_enabled: [R-PARSE, R-CLARIFY, R-SEEKHELP, R-REPORT,
+                  R-NORMEXTRACT, R-OTHERINFER, R-CHECKCONSIST, R-TRANSLATE]
+  r_translate: restricted_must_cite_evidence  # 输出模板枚举受限 + 无引用即拒（L12 §4.1 原文）
+  central_role: none                          # 负清单 4——禁"总代理/规划者"型角色（HLD §13.1）
+  invocation: event_triggered                 # 输入事件在案方调用；禁自主周期调用（零频次帽常量）
+  seek_help_cap_per_64_cycles: 1              # 唯一频次帽 = Q-L09-07③ T6 拍锚（超界留痕不发送）
+  output_schema_violation: REJECT             # SchemaViolation 拒绝，不降级自由文本入库
+  provenance: LLM_DERIVED                     # 层级 EXTERNAL_STATEMENT，永不提升
+  permission_matrix:                          # L12 §4.2（Q-L12-02 双维粒度；矩阵外无运行时例外）
+    write_granularity: role_x_content_type
+    read_granularity: role_level
+    exception_path: new_profile_version_only
+    forbidden_writes: [WORLD_TRUTH, EPISODIC_EXPERIENCE, AUTOBIOGRAPHICAL_EXPERIENCE,
+                       OWNED_GOAL, ACTION_INTENTION, AUTHORIZATION, CAPABILITY,
+                       MEMORY_ITEM_DIRECT, PROTECTION_SUITE, EVIDENCE]
+
+replay:                                       # Q-L12-03（LLM 确定性纪律）
+  claim_relevant_mode: recorded_replay_only   # claim-relevant 运行唯一允许方式
+  online_calls_allowed: [exploration, recording_session]   # 均不入 claim 运行轨迹
+  replay_miss: fail_closed_unknown            # Unknown(LLM_REPLAY_MISS) 留痕；禁在线补调
+  replay_key: role_x_input_digest             # (role, input_digest) 寻址
+  recording_artifacts: digest_anchored_manifest   # prompt 模板版本+模型标识+原始响应 digest
+                                              # 入 artifact_manifest（Q-T08 同构；只增不减）
+  recording_provider: bigmodel_api            # owner 呈递选定 2026-10-07（ADR-G-0019 §资源需求）
+  evidence_metadata: model_id_and_params_in_evidenceresult   # 绑定实现 digest 先例（Q-L03-07 同族）
+
+attribution_probability:                      # Q-L10-05（L10 §4.4 概率 agency）
+  form: tabular_constructive                  # 零学习零 RNG——C1 表格贝叶斯同族
+  axes: [intent_match, receipt_executed, outcome_predicted]   # 全部主体可见面
+  outcome_axis_band: z_abs_le_2               # 残差一致带 = Q-L10-04 冻结值
+  settle_before_judgement: true               # 回执截止 settle 后判定（迟到 revision 语义不变）
+  cells:                                      # 8 格逐格规则溯源（六类判定规则构造性导出；
+                                              # 格-干预映射经冻结前可行性探针层B 对真实 M0
+                                              # 干预电池语义核验——no_op 回执如实报 effective=none）
+    "Y,Y,Y": 1.0    # SELF_PRODUCED 规则唯一命中（clean 自产动作）
+    "Y,Y,N": 0.5    # 回执报告成功而形成后结果未按预测出现——sham 主体可见不可分辨（最大熵锚 Q-L03-02）
+    "Y,N,Y": 0.5    # 回执失败而结果与预测一致——矛盾证据无规则唯一命中（最大熵锚；探针层B 实证：
+                    # fault 回执丢失而世界按预测变化落此格）
+    "Y,N,N": 0.0    # blocked/no_op/coerced-command/FAULT-结果缺失命中（回执如实报告未执行、
+                    # 无效果或非请求效果且结果未按预测出现）
+    "N,Y,Y": 0.0    # 无意图——选择记录缺失即非自产（必要条件）
+    "N,Y,N": 0.0    # COERCED 规则命中（结果偏离预测+无匹配意图）
+    "N,N,Y": 0.0    # 无意图
+    "N,N,N": 0.0    # 无意图+FAULT 面
+  calibration:
+    ece_max: 0.10                             # Q-L10-04 继承；等质量 15 箱 Q-L03-04 同构
+    battery: mw0_intervention_ground_truth    # 五类干预电池 evaluator 侧 ground truth
+    endpoint_cells_zero_error: true           # 机械判据
+  unknown_band: [0.4, 0.6]                    # 0.5±band（Q-L02-02 补裁③ 调制界同构）
+  unknown_tag: ATTRIBUTION_UNRESOLVED         # L10 §4.4 原文；禁默认自产
+  ambiguous_unknown_trace_rate: 1.0           # 机械：歧义格 UNKNOWN 留痕率 100%
+  sham_unknown_rate_reported: descriptive     # sham→UNKNOWN 期望率约 1——描述性诚实指标另报
+
+language_cue:                                 # Q-L12-06（防"听说即相信"）
+  statement_posterior_weight: 0.0             # 对 WorldStateBelief/PerceptualBelief 零直接贡献
+  statement_only_effect: trigger_verification # 唯一合法效应 = active_perception 提案/look 请求
+  parse_statement_confidence_max: 0.5         # Q-L03-02 believe_threshold 锚（最大熵点；clamp 越界留痕）
+  non_statement_routes_unrestricted: true     # request/norm/question/social 各走既有面（C-5/C-4）
+
+other_model:                                  # Q-L12-04（D-14 封锁）
+  fields: [existence, intent_hypothesis, knowledge_estimate, commitment_estimate]
+  field_states: [VALUE, UNKNOWN, ABSENT]      # 三态 typed
+  deterministic_mind_claim: forbidden         # R-OTHERINFER 输出恒带 Unknown（原文）
+  intent_default: UNKNOWN_CAPABILITY_LIMIT    # 仅显式 typed 请求可获得的陈述性内容可填
+  forbidden: [owned_goal_write, arbitration_vector_input, continuity_claim_evidence]
+  memory_source_types: [LANGUAGE_INPUT, PERCEIVED]   # 分型保留；禁用于连续性主张（L06 §7）
+
+self_report_consistency:                      # Q-L12-05（L12 §4.4）
+  layers: [self_model_view_fieldwise, belief_attribution_secondary]   # 两层独立判定
+  layer1_ref_source: r_report_derivation_refs # 逐字段比对（derivation_receipt 机械强制同构）
+  numeric_band: 0.1                           # Q-L05-03③ band=0.1=2σ 同锚（REV-0019 R4 钉死：
+                                              # 绝对差 |reported−derived| ≤ band，float64 直接比较；
+                                              # 边界对 (0.5,0.6)=CONSISTENT/(0.55,0.45)=DIVERGENT
+                                              # 的 float64 表示噪声如实成文——实现期测试钉死）
+  categorical: exact_match                    # 枚举不一致即 DIVERGENT
+  derived_unknown_verdict: UNKNOWN            # 禁将未知强判一致
+  divergent_handling: first_class_finding_no_modification   # LanguageInternalMismatch 零修改
+
+ablation:                                     # Q-L12-07（L12 §4.6 中央 LLM 消融）
+  configs: [ALL_ROLES_OFF, R_PARSE_ONLY_OFF, R_REPORT_ONLY_OFF, LANGUAGE_CHANNEL_OFF]
+  preservation_floor: 1.0                     # 机械判据——无语言注入基线流四配置 bit-exact 恒等
+  no_tolerance_band: true                     # 容忍带内差异 = 泄漏证据而非噪声
+  non_language_core: [formation, world_prediction, goal_settlement, attribution, effective_access]
+  injected_stream_rule: language_path_trace_only   # 路径外差异 = S1 CENTRAL_LLM_HIJACK
+  legal_path: request_to_externalrequest_to_motive_to_arbitration
+  mechanical_not_claim: true                  # M2 SC5 先例：机械判据不入统计 claim
+
+capability_alignment:                         # Q-L03-06 + Q-L04-05 成组（三处枚举收口）
+  authority_source: f0_action_contract@v1.0 containment_whitelist_mw0   # 枚举不自造
+  affordance_action_class: [forage, eat, rest, look]     # Q-L05-06② 真子集
+  capability_action_class: [move, forage, eat, rest, look]   # 全五原语（自持动作含 move）
+  granularity: primitive_level                # 参数级可行性由 affordance feasibility_est 承载
+  language_instruction_out_of_enum: REJECT    # 外部请求不扩展能力（Q-L12-02 同构语义）
+
+social_relevance:                             # Q-L05-08（防伪造社会情感）
+  cue_sources: [other_model_update, language_addressedness]   # 两类既有 typed 面
+  active_numeric_face: none                   # 恒 Unknown(CAPABILITY_LIMIT) 或 ABSENT——零数值
+  motive_urgency_contribution: 0.0            # 不产生 AFFECTIVE urgency（Q-L08-09④ 承载不变）
+
+sensorium_c4:                                 # L02 §9 C4 行 + L12 §4.3 唯一合法路径
+  modality_set_extension: [LANGUAGE]          # c0 冻结四类 + LANGUAGE 帧形成（EXTERNAL_STATEMENT 层级）
+  language_frame_formation: enabled           # ReceivedSignal(EXTERNAL_STATEMENT) → SensoryFrame(modality=LANGUAGE)
+  sensorimotor_loop: efference_compare_in_l02 # SensoryPrediction 来自 L04/L09，比较在本档（L02 §9 C4）
+
+determinism:
+  none_c4: zero_rng_c4                        # 无新增 RNG 流（Q-G00-10 名册不变）；
+                                              # 语言面确定性由录制回放承担（replay 节）

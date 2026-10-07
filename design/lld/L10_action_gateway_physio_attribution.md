@@ -1,6 +1,6 @@
 # L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统
 
-> LLD: L10/14 · v1.0.1 · 2026-09-26 · 状态：WORKING（**F0/M0 即须成立**）· v1.0.1（2026-09-26）：§10 测试清单补录 test_execution_branches.py / test_action_chain_receipt.py（ADR-G-0005 R5 移交件 branches.py/receipt.py 的 M1 落地测试）
+> LLD: L10/14 · v1.0.2 · 2026-10-07 · 状态：WORKING（**F0/M0 即须成立**）· v1.0.1（2026-09-26）：§10 测试清单补录 test_execution_branches.py / test_action_chain_receipt.py（ADR-G-0005 R5 移交件 branches.py/receipt.py 的 M1 落地测试）· v1.0.2（2026-10-07）：§4.4 UNKNOWN 行与概率 agency 行按 C4 冻结（ADR-G-0019/Q-L10-05）同步——no-op 在回执面为确定格（effective=none 如实报告），sham 落歧义格；概率 agency = 8 格构造性查表后验
 > 上游：`HLD.md` §8（全章）/§6.1/§6.2/§10.4（P1） · `L01_environment_channels.md`（`world.apply` 只接受 gateway 签名）· `L09_controllers_metacontrol.md`（`ActionIntention` 来源）· `L00_kernel.md`
 > 下游：L01 Environment（执行）、L08（GoalSettlement）、L09（回执反馈）、L04（预测/归属证据）、L13（证据评价）
 > 引入门槛：**F0**（对象图/权限矩阵合同）→ **M0**（gateway fail-closed + 五类干预 + 意图/执行可分）→ **M1**（归属经交叉操纵校准）→ **C4**（概率 agency）→ **P1**（PhysIO + 四类现实授权）
@@ -117,9 +117,9 @@ execution_branches[]: ExecutionBranch(
 | `REFLEX` | 无意图（或有 T0 白名单绑定）+ 刺激-反应时间约束满足 |
 | `FAULT` | 回执指示失败/超时/损坏（`ChannelFault`/`TimeoutEvent`）+ 结果缺失或异常 |
 | `COERCED` | **结果发生但与预测不一致 + 无匹配意图，或有意图但 effective≠requested 且来源含 EXTERNAL** → 归外因 |
-| `UNKNOWN` | 证据不足/冲突（no-op 与 sham 不可区分时）→ **保持 unknown**，禁默认自产 |
+| `UNKNOWN` | 证据不足/冲突 → **保持 unknown**，禁默认自产。C4 概率面细化（ADR-G-0019/Q-L10-05）：回执面确定性区分 no-op（回执如实报 `effective=none` → (Y,N,N) 确定格 0.0）与 sham（回执报伪效果而世界未变 → (Y,Y,N) 歧义格 0.5）；回执丢失而世界按预测变化（fault 型）落 (Y,N,Y) 歧义格 |
 
-- **概率 agency（C4）**：`probability` 为校准过的后验（多来源匹配测试：意图×回执×结果×预测误差的联合一致性）；低置信度必须落 `UNKNOWN` 或附 `Unknown(ATTRIBUTION_UNRESOLVED)`。
+- **概率 agency（C4，Q-L10-05 已裁 AI-v2 2026-10-07，见 open_questions A 区）**：`probability` = 证据模式构造性查表后验（三轴 intent_match/receipt_executed/outcome_predicted → 8 格，逐格六类规则溯源；零学习零 RNG）；校准判据 = 五类干预电池 ground truth 上 ECE≤0.10（Q-L10-04 继承）+ 端点格零错误；P∈[0.4,0.6] 或证据缺失 → `UNKNOWN(ATTRIBUTION_UNRESOLVED)`；多来源匹配测试：意图×回执×结果×预测误差的联合一致性。
 - **归属不盲信回执**：no-op（回执送达但无效果）与 sham（效果被替换）必须能区分——靠"形成后结果 vs 预测"的交叉，而非回执本身（承 L01 §4.3 干预电池设计）。
 - 强制动作（coercion）**永不得**归为 `SELF_PRODUCED`（HLD §8 明列）；该规则是硬性代码分支 + 测试断言双保障。
 - 迟到结果：以 revision 事件表达（新 attribution 引用旧），禁改写历史。

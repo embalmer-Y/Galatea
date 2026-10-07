@@ -1,6 +1,6 @@
 # L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型
 
-> LLD: L12/14 · v1.0 · 2026-09-13 · 状态：WORKING（C4 冻结前；语言通道 stub 在 M0/F0 即存在）
+> LLD: L12/14 · v1.0.1 · 2026-10-07 · 状态：WORKING（C4 冻结前；语言通道 stub 在 M0/F0 即存在）· v1.0.1（2026-10-07）：§9 C4 行补 R-TRANSLATE（受限，ADR-G-0019/Q-L12-01 8 角色全启用）；§5 unit 行 LLM 非确定性承载更正为录制回放（Q-L12-03 裁决本体）
 > 上游：`HLD.md` §2（D-13 赋予人类语言）/§6.2（LLM 禁写路径）/§10.4（C4 typed LLM、中央 LLM 消融）/§1.4（负清单 4：LLM 仅 typed 局部角色） · `L01_environment_channels.md`（Language 声明通道） · `L08`（ExternalRequest 入口） · `L00_kernel.md`
 > 下游：L08（请求→候选，**不写目标**）、L09（SEEK_HELP/语言动作提案）、L07（EXTERNAL_STATEMENT 提案）、L04（社会线索）、L06（LANGUAGE_INPUT 记忆，受限）
 > 引入门槛：**F0/M0**（语言通道 stub + 权限矩阵合同）→ **C4**（typed LLM 角色 + 中央 LLM 消融 + 他者/规范/承诺模型）→ **E1**（语言 lesion）
@@ -160,7 +160,7 @@ L01 Language 通道 → ReceivedSignal(EXTERNAL_STATEMENT) → L02 形成 Sensor
 
 | 层 | 测试 | 断言 |
 |---|---|---|
-| unit | 分型解析、schema 校验、权限查表、预算计数 | 确定性（同输入同输出；LLM 非确定性由 schema + typed 输出 + seed 控制，见 Q-L12-03） |
+| unit | 分型解析、schema 校验、权限查表、预算计数 | 确定性（同输入同输出；LLM 非确定性由 schema + typed 输出 + **录制回放承载**（Q-L12-03 裁决本体：claim-relevant 运行唯一允许方式，回放 miss fail closed）） |
 | contract | 权限矩阵强制；`is_request_only` 标记不可去除；`derivation_refs` 必填（指定角色） | schema 强制 |
 | invariant | **`LLM → world truth / episodic experience` 不存在**（import-linter + 运行时写路径检查 + CI 断言）；`EXTERNAL_STATEMENT` 不可被提升；`report ≠ model ≠ boundary` | HLD §6.2/§11.1 |
 | deterministic replay | 固定角色输出（录制回放模式）下，语言链路 bit-exact 重放 | C4/E1（录制回放承 card_06 §2） |
@@ -195,7 +195,7 @@ L01 Language 通道 → ReceivedSignal(EXTERNAL_STATEMENT) → L02 形成 Sensor
 
 - **F0/M0**：Language 通道 stub（承 L01 §2 五通道之一）+ 权限矩阵 schema 冻结 + `ExternalRequest(is_request_only)` 类型合同。M0 期不启用任何 LLM 角色（请求可经实验控制注入，用于干预电池与归属测试）。
 - **M1**：请求路径参与理由仲裁实验（承 L01 MW0-SC3/SC4、L08 §7 措辞操纵）；**仍不需要** LLM——请求可由 typed 结构注入，避免把 M1 主张建立在 LLM 行为上。
-- **C4**（核心）：typed LLM 角色最小集（R-PARSE/R-CLARIFY/R-SEEKHELP/R-REPORT/R-NORMEXTRACT/R-OTHERINFER/R-CHECKCONSIST）；权限矩阵强制；**中央 LLM 消融**；多来源匹配测试；语言不能写事实/经历/目标。
+- **C4**（核心）：typed LLM 角色最小集（R-PARSE/R-CLARIFY/R-SEEKHELP/R-REPORT/R-NORMEXTRACT/R-OTHERINFER/R-CHECKCONSIST/R-TRANSLATE（受限）——8 角色全启用，Q-L12-01 AI-v2 2026-10-07）；权限矩阵强制；**中央 LLM 消融**；多来源匹配测试；语言不能写事实/经历/目标。
 - **C5**：语言使用经验的学习回流（经 L11 promotion，不写权限）；报告一致性长程统计。
 - **E1**：语言 lesion（关角色/关通道）选择性失败；`core_decision_registry` 的"目标/规范自主"与"行动/委托/权限"路径中的语言侧证据（规范来源、求助委托）由本档台账承载。
 - **H1**：录制回放模式下语言链路可复现；工件（prompt 模板/适配器）进供应链 hash 审计（承 Q-T08）。
