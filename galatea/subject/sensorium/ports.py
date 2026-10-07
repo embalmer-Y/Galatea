@@ -15,12 +15,18 @@ from galatea.kernel.unknown import Unknown
 
 
 class SensoryModality(enum.StrEnum):
-    """C0 模态集四类（Q-G00-12①；扩展 = profile 新版本 + 模态枚举升级）。"""
+    """C0 模态集四类（Q-G00-12①）+ C4 LANGUAGE 扩展（c4_action_social.profile
+    sensorium_c4.modality_set_extension；扩展 = profile 新版本 + 模态枚举升级，L02 §9 C5 行同律）。
+
+    LANGUAGE 帧形成 = L12 §4.3 唯一合法路径（ReceivedSignal(EXTERNAL_STATEMENT) →
+    SensoryFrame(modality=LANGUAGE)）；层级恒 EXTERNAL_STATEMENT 源、永不提升。
+    """
 
     EXT_LOCAL_OBS = "EXT_LOCAL_OBS"
     EXT_EVENT = "EXT_EVENT"
     INTERO = "INTERO"
     PROPRIO = "PROPRIO"
+    LANGUAGE = "LANGUAGE"
 
 
 class SchemaViolation(ValueError):
@@ -135,7 +141,17 @@ class ProprioFeatures:
     orientation: str
 
 
-FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures
+@dataclass(frozen=True, slots=True)
+class LanguageFeatures:
+    """语言模态特征（L12 §4.3：typed statement 原文引用 + 分型原始面；零后验权重，
+    Q-L12-06①——本帧只供 R-PARSE 与验证行为触发，不入知觉融合）。"""
+
+    statement_text: str
+    requester: str
+    statement_level: str      # EXTERNAL_STATEMENT（层级永不提升，L12 §4.1）
+
+
+FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures | LanguageFeatures
 
 
 @dataclass(frozen=True, slots=True)

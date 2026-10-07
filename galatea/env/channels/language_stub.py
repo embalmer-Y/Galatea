@@ -27,3 +27,22 @@ class LanguageStubChannel:
             truth_ref,
             cycle,
         )
+
+    def submit_utterance(self, cycle: int, truth_ref: ArtifactRef, *, text: str, role: str) -> ArtifactRef:
+        """主体出边界话语投递（C4：R-SEEKHELP/R-CLARIFY/R-TRANSLATE 产出经本面出界）。
+
+        MW0 containment：仅实验者可见、无网络（L12 §4.4 / 负清单）；引用核验在
+        subject 侧 Utterance 构造面强制（UncitedClaimRejected），本面只承载投递。
+        """
+        signal = {
+            "kind": "typed_statement",     # 出边界仍为 typed 陈述面（层级永不提升）
+            "text": text,
+            "requester": f"subject:{role}",
+            "level": "EXTERNAL_STATEMENT",
+        }
+        return self._bus.submit(
+            ChannelKind.LANGUAGE,
+            json.dumps(signal, sort_keys=True, separators=(",", ":")).encode("utf-8"),
+            truth_ref,
+            cycle,
+        )

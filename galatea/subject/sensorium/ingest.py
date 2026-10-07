@@ -17,17 +17,20 @@ from galatea.subject.sensorium.ports import C0SensoriumProfile, SchemaViolation
 CARRIER_EXTERO = "channel.exteroceptive.received.v1"
 CARRIER_INTERO = "channel.interoceptive.received.v1"
 CARRIER_PROPRIO = "channel.proprioceptive.received.v1"
+CARRIER_LANGUAGE = "channel.language.received.v1"   # C4 扩展（c4_action_social sensorium_c4）
 
 _REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
     CARRIER_EXTERO: ("kind", "window"),
     CARRIER_INTERO: ("kind", "energy", "integrity", "events"),
     CARRIER_PROPRIO: ("kind", "orientation"),
+    CARRIER_LANGUAGE: ("kind", "text", "requester", "level"),
 }
 
 _REQUIRED_KIND: dict[str, str] = {
     CARRIER_EXTERO: "observation_window",
     CARRIER_INTERO: "interoceptive_state",
     CARRIER_PROPRIO: "proprioceptive_state",
+    CARRIER_LANGUAGE: "typed_statement",
 }
 
 

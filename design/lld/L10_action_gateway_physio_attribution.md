@@ -240,7 +240,13 @@ galatea/subject/action/                     # strict 类型
   command.py             SubmittedCommand、idempotency_key、deadline、预算
   branches.py            execution_branches[]、domain 分类、RequestedEffectiveDivergence
   efference.py           EfferenceCopy 同步产生、时序断言（先于效果）
+                         【C4 实现期首单元交付】issue_efference_copy + EfferenceTimingViolation
+                         （先行 PREDICTED 层强制 + issued≤valid_time 构造断言，test_efference_timing.py）
   attribution.py         六类判定规则、可见证据白名单、概率后验、UNKNOWN 保持
+                         【C4 实现期首单元交付】probability agency = 三轴八格构造性查表
+                         （c4 profile cells 冻结；歧义格→UNKNOWN(ATTRIBUTION_UNRESOLVED) 留痕率 100%
+                         + 端点格/kind 一致性断言 + coercion 永不自产，test_attribution_probability.py；
+                         Q-L10-05 AI-v2 2026-10-07）
   coercion_guard.py      硬规则：coercion 永不自产（代码分支 + 断言）
   settlement.py          GoalSettlement 构造（→ L08）、revision
   receipt.py             ActionChainReceipt

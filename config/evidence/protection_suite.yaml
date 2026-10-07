@@ -10,12 +10,13 @@
 #       v1.7 = C2 门退出版增补（2026-10-06，INC-12 义务第七次执行——统计评价/值域发现/判定器场景）。
 #       v1.8 = C3 实现期首单元增补（2026-10-06，INC-12 义务第八次执行——仲裁/元决策/权限测试场景）。
 #       v1.9 = C3 门退出版增补（2026-10-06，INC-12 义务第九次执行——统计评价场景）。
+#       v2.0 = C4 实现期首单元增补（2026-10-07，INC-12 义务第十次执行——c4 场景随 language//efference/attribution 落成即冻，c4-exit 复核）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v1.9                 # v1.9（C3 门退出版）：新增 c3_* 评价场景 8 至 96（INC-12 义务第九次执行；
+  version: v2.0                # v2.0（C4 实现期首单元增补）：新增 c4_* 场景 12 至 108（INC-12 义务第十次执行——
                                 # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
@@ -457,3 +458,64 @@ protection_suite:
       source_test: galatea/evidence/control/runs_c3.py::run_c3_evaluation
       frozen_gate: C3
       assertion: I1 复算 = 四臂全指标向量（divergence/observe/aff_share）content_digest bit-exact
+
+    - id: c4_llm_forbidden_write_targets
+      source_test: galatea/subject/language/tests/test_permission_matrix_enforced.py
+      frozen_gate: C4
+      assertion: 禁写面十目标（WORLD_TRUTH/OWNED_GOAL/CAPABILITY 等逐个）任意角色写入即拒
+        UnauthorizedWrite(LLM_TO_<target>)——矩阵外无运行时例外（Q-L12-02）
+    - id: c4_three_path_attack
+      source_test: galatea/subject/language/tests/test_llm_cannot_write_truth_goal_episodic.py
+      frozen_gate: C4
+      assertion: 语言不能写事实/经历/目标三路径逐项拒——OWNED_GOAL/WORLD_TRUTH 禁写（S0 级）+
+        LANGUAGE_INPUT×episodic store 层机械拒绝（L06 §7 守卫）+ instruction 越能力枚举拒
+    - id: c4_language_input_never_episodic
+      source_test: galatea/subject/memory/tests/test_language_to_episodic_blocked.py
+      frozen_gate: C4
+      assertion: LANGUAGE_INPUT 记忆写 episodic = MemoryStoreViolation（encode 面 + store 面
+        双层纵深——REV-0019 范围发现②兑现）
+    - id: c4_statement_zero_posterior_weight
+      source_test: galatea/subject/language/tests/test_parse_statement_clamp.py
+      frozen_gate: C4
+      assertion: statement 分型 confidence clamp ≤0.5（Q-L03-02 锚）+ 越界留痕 + 词表外分型拒 +
+        schema 违例不降级入库（Q-L12-06①②）
+    - id: c4_replay_miss_fail_closed
+      source_test: galatea/subject/language/tests/test_recorded_replay_determinism.py
+      frozen_gate: C4
+      assertion: 回放 miss = LLMReplayMiss fail closed + 模块无在线调用路径（结构排除事后选择，
+        Q-L12-03③）+ 命中两次 bit-exact + 规范化 digest 键序无关
+    - id: c4_central_ablation_bit_exact
+      source_test: galatea/subject/language/tests/test_central_llm_ablation.py
+      frozen_gate: C4
+      assertion: 无语言注入流四消融配置全链 digest bit-exact（保持率 1.0，Q-L12-07①）+
+        有语言注入流语言帧选择性缺席而非语言帧逐帧不变 + R-PARSE 禁用语言任务 fail closed
+    - id: c4_other_model_never_deterministic
+      source_test: galatea/subject/language/tests/test_other_model_unknown_coverage.py
+      frozen_gate: C4
+      assertion: 他者模型全字段具体值 = 确定性心智主张即拒 + intent 具体值须 typed_request_content +
+        D-14 期默认 Unknown(CAPABILITY_LIMIT)（Q-L12-04）
+    - id: c4_consistency_absolute_band
+      source_test: galatea/subject/language/tests/test_contradiction_internal_wins.py
+      frozen_gate: C4
+      assertion: 一致性绝对差 band 0.1 float64 边界对（0.5/0.6 CONSISTENT、0.55/0.45 DIVERGENT，
+        REV-0019 R4）+ derived Unknown 不强判一致 + 矛盾 = 一等发现零修改（Q-L12-05③）
+    - id: c4_uncited_quantitative_claim_rejected
+      source_test: galatea/subject/language/tests/test_uncited_claim_rejected.py
+      frozen_gate: C4
+      assertion: 量化主张无 cited_evidence 即拒 UncitedClaimRejected（L12 §4.4 防幻觉入规范链）
+    - id: c4_attribution_battery_cell_mapping
+      source_test: galatea/subject/action/tests/test_attribution_probability.py
+      frozen_gate: C4
+      assertion: 干预电池六条件格映射（clean→1.0/blocked、no_op→0.0/sham→0.5 UNKNOWN/
+        fault 型→0.5 UNKNOWN/无意图→0.0）+ 歧义格 UNKNOWN 留痕率 100% + coercion 永不自产
+        （HLD §8 硬规则）+ 证据缺失 UNKNOWN 不补默认（Q-L10-05）
+    - id: c4_efference_timing_precedes_effect
+      source_test: galatea/subject/action/tests/test_efference_timing.py
+      frozen_gate: C4
+      assertion: EfferenceCopy 同步产生 + 晚于预测目标窗 = 事后拟合即拒 EfferenceTimingViolation +
+        非 PREDICTED 层预测拒 + 禁无预测副本（L10 §4.3 时序纪律）
+    - id: c4_language_frame_formation_opportunistic
+      source_test: galatea/subject/sensorium/tests/test_language_frames_c4.py
+      frozen_gate: C4
+      assertion: LANGUAGE 帧机会型形成（缺席 = 静默非 MISSING_SIGNAL）+ level 永不提升 +
+        默认装配（C0–C3 冻结路径）语言信号不入形成面 + 双装配全链 digest 恒等

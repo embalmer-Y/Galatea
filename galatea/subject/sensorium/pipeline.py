@@ -21,18 +21,20 @@ from galatea.subject.sensorium.alignment import (
 from galatea.subject.sensorium.calibration import CalibrationVersion
 from galatea.subject.sensorium.form_extero import form_ext_event, form_ext_local_obs
 from galatea.subject.sensorium.form_intero import form_intero
+from galatea.subject.sensorium.form_language import form_language
 from galatea.subject.sensorium.form_proprio import form_proprio
 from galatea.subject.sensorium.gain import C0_GAIN, apply_gain, apply_gain_c2, scale_frame_features
 from galatea.subject.sensorium.ingest import (
     CARRIER_EXTERO,
     CARRIER_INTERO,
+    CARRIER_LANGUAGE,
     CARRIER_PROPRIO,
     IngestedSignal,
     SchemaViolation,
     ingest,
 )
 from galatea.subject.sensorium.unknowns import calibration_uncertain
-from galatea.subject.sensorium.ports import C0SensoriumProfile, SensoryFrame
+from galatea.subject.sensorium.ports import C0SensoriumProfile, GainState, SensoryFrame
 from galatea.subject.sensorium.receipt import FormationReceipt, GainReceipt, build_receipt
 
 _EXPECTED_CARRIERS: tuple[str, ...] = (CARRIER_EXTERO, CARRIER_INTERO, CARRIER_PROPRIO)
@@ -54,16 +56,22 @@ class SensoriumPipeline:
 
     def __init__(
         self, profile: C0SensoriumProfile, calibration: CalibrationVersion,
-        time_basis: dict[str, int],
+        time_basis: dict[str, int], *, language_enabled: bool = False,
     ) -> None:
         """time_basis = 冻结通道延迟表（REV-0012 R2：世界时恢复的唯一来源；
-        装配层从冻结 m0_mw0 profile 的 channel_delay_cycles 提取传入，禁运行时发明）。"""
+        装配层从冻结 m0_mw0 profile 的 channel_delay_cycles 提取传入，禁运行时发明）。
+
+        language_enabled = C4 LANGUAGE 模态机会型形成分支（c4_action_social.profile
+        sensorium_c4.modality_set_extension；默认 False——C0–C3 装配行为 bit-exact 不变：
+        语言通道为事件驱动稀疏面，缺席 = 正常静默，**不产** MISSING_SIGNAL unknown）。
+        """
         missing = [c for c in (CARRIER_EXTERO, CARRIER_INTERO, CARRIER_PROPRIO) if c not in time_basis]
         if missing:
             raise ValueError(f"time_basis missing frozen delays for: {missing}")
         self._time_basis = dict(time_basis)
         self._profile = profile
         self._calibration = calibration
+        self._language_enabled = language_enabled
         self._window = AlignmentWindow(profile)
         self._prev_energy: float | None = None
         self._published_count: dict[tuple[int, str], int] = {}   # (effective_time, modality) → 已发布帧数
@@ -112,25 +120,34 @@ class SensoriumPipeline:
                     )
                 )
 
-        for t in self._window.due_times(delivery_cycle):
-            signals = self._window.signals_at(t)
-            group_frames: list[SensoryFrame] = []
-            for carrier in _EXPECTED_CARRIERS:
-                signal = signals.get(carrier)
-                if signal is None:
-                    unknowns.append(missing_carrier_unknown(carrier, t, delivery_cycle))
-                    continue
-                formed = self._form_for_carrier(signal, delivery_cycle, is_revision=t in self._closed)
-                if self._gain_override is not None and self._gain_override != 1.0:
-                    formed = [scale_frame_features(f, self._gain_override) for f in formed]
-                group_frames.extend(formed)
-            for frame in group_frames:
-                receipt, gain_receipt = self._receipt_for(frame)
-                frames.append(frame)
-                formation_receipts.append(receipt)
-                gain_receipts.append(gain_receipt)
-            self._closed.add(t)
-            self._window.close(t)
+            for t in self._window.due_times(delivery_cycle):
+                signals = self._window.signals_at(t)
+                group_frames: list[SensoryFrame] = []
+                for carrier in _EXPECTED_CARRIERS:
+                    signal = signals.get(carrier)
+                    if signal is None:
+                        unknowns.append(missing_carrier_unknown(carrier, t, delivery_cycle))
+                        continue
+                    formed = self._form_for_carrier(signal, delivery_cycle, is_revision=t in self._closed)
+                    if self._gain_override is not None and self._gain_override != 1.0:
+                        formed = [scale_frame_features(f, self._gain_override) for f in formed]
+                    group_frames.extend(formed)
+                if self._language_enabled:
+                    # C4 机会型语言形成（L12 §4.3）：有 typed 陈述则成帧，缺席 = 正常静默；
+                    # 语言为分类面，增益缩放豁免（Q-L12-06① 零后验权重承载面）
+                    lang_signal = signals.get(CARRIER_LANGUAGE)
+                    if lang_signal is not None:
+                        group_frames.append(form_language(
+                            lang_signal, delivery_cycle, self._calibration.version_id,
+                            GainState(applied_factor=1.0, source="PROFILE"),
+                        ))
+                for frame in group_frames:
+                    receipt, gain_receipt = self._receipt_for(frame)
+                    frames.append(frame)
+                    formation_receipts.append(receipt)
+                    gain_receipts.append(gain_receipt)
+                self._closed.add(t)
+                self._window.close(t)
 
         return CycleOutput(
             frames=tuple(frames),

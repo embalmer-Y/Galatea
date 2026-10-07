@@ -62,7 +62,7 @@
 
 - `lld/L00_kernel.md`: 228 行 · 标题「# L00 横切基础：时钟、调度、状态、RNG、Packet、Registry 核心、typed unknown」 · OK
 - `lld/L01_environment_channels.md`: 207 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
-- `lld/L02_sensorium.md`: 229 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
+- `lld/L02_sensorium.md`: 234 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 210 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 235 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 244 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
@@ -70,9 +70,9 @@
 - `lld/L07_workspace.md`: 225 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
 - `lld/L08_motivation_goals.md`: 222 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
 - `lld/L09_controllers_metacontrol.md`: 237 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
-- `lld/L10_action_gateway_physio_attribution.md`: 280 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
+- `lld/L10_action_gateway_physio_attribution.md`: 286 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 242 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
-- `lld/L12_language_social.md`: 242 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
+- `lld/L12_language_social.md`: 251 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
 - `lld/L13_evidence_evaluation_registry.md`: 345 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）
@@ -89,7 +89,7 @@
 - `lld/L09_controllers_metacontrol.md`: OK
 - `lld/L10_action_gateway_physio_attribution.md`: OK
 - `lld/L11_learning_consolidation.md`: OK
-- `lld/L12_language_social.md`: 缺 2026-09-
+- `lld/L12_language_social.md`: OK
 - `lld/L13_evidence_evaluation_registry.md`: OK
 
 ## 7. 冻结配置 YAML 可解析性（config/**）

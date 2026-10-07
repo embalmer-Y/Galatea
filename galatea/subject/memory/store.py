@@ -43,6 +43,16 @@ class MemoryStore:
         self._stores.close()
 
     def put(self, item: MemoryItem) -> None:
+        # C4 守卫（L06 §7 / L12 §4.3：LANGUAGE_INPUT 记忆禁写 episodic/autobiographical
+        # 经历字段——语言来源条目只入 working/semantic/procedural 等非经历面；
+        # REV-0019 探针范围发现②兑现为 store 层机械拒绝）
+        if item.source_type is SourceType.LANGUAGE_INPUT and item.subsystem in (
+            MemorySubsystem.EPISODIC, MemorySubsystem.AUTOBIOGRAPHICAL,
+        ):
+            raise MemoryStoreViolation(
+                f"LANGUAGE_INPUT memory cannot write {item.subsystem.value} experience"
+                "（L06 §7：语言来源禁入经历面——伪造经历防线）"
+            )
         payload = {
             "content_ref": item.content_ref,
             "representation_level": item.representation_level.value,

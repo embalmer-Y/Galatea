@@ -19,6 +19,7 @@ from galatea.subject.sensorium.ports import (
     ExtEventFeatures,
     ExtLocalObsFeatures,
     InteroSensations,
+    ProprioFeatures,
     SensoryFrame,
 )
 
@@ -49,8 +50,14 @@ def flatten_frame(frame: SensoryFrame) -> tuple[float, ...]:
             "energy_depleted": 1.0 if features.energy_depleted else 0.0,
         }
         return tuple(values[name] for name in INTERO_SCALARS)
-    # 剩余分支 = ProprioFeatures（联合已穷尽）
-    return tuple(1.0 if features.orientation == token else 0.0 for token in ORIENTATION_TOKENS)
+    if isinstance(features, ProprioFeatures):
+        # C4：LANGUAGE 帧不参与 pred_error 特征空间（Q-L12-06① 零后验权重——
+        # flatten 的调用面为非语言模态；语言帧传入 = 调用方路由缺陷，显式拒绝）
+        return tuple(1.0 if features.orientation == token else 0.0 for token in ORIENTATION_TOKENS)
+    raise ValueError(
+        f"LANGUAGE frame {frame.frame_id} has no pred_error feature space"
+        "（语言帧零后验权重——不入误差特征空间，Q-L12-06①）"
+    )
 
 
 def _expected_vector(prediction: ModelPrediction) -> tuple[float, ...] | None:

@@ -189,6 +189,11 @@ galatea/subject/sensorium/              # strict 类型
                       excluded_carriers 拒绝路径（Q-G00-12①）
   alignment.py        【交付】对齐窗、槽位归一、迟到 revision、alignment_group（Q-L02-03）
   form_extero.py      【交付】外感受形成算子（EXT_LOCAL_OBS 观测窗 + EXT_EVENT 事件观测面）
+  form_language.py    【C4 实现期首单元交付】语言模态形成（modality=LANGUAGE 机会型分支——
+                       L12 §4.3 唯一合法路径；缺席=静默非 MISSING_SIGNAL；level 永不提升；
+                       帧不入知觉融合——Q-L12-06① 零后验权重承载面，pred_error 特征空间
+                       显式拒语言帧；c4_action_social.profile sensorium_c4 节承载；
+                       test_language_frames_c4.py）
   form_intero.py      【交付】内感受形成（Q-L02-05 四 sensation + energy_rate 派生差分，零新阈值）
   form_proprio.py     【交付】本体感受形成（orientation；位置不下发 Q-L01-09⑥）
   calibration.py      【交付】CalibrationVersion 绑定/digest/漂移统计（c0-static-v1，Q-G00-12②）

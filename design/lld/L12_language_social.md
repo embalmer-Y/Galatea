@@ -1,6 +1,6 @@
 # L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型
 
-> LLD: L12/14 · v1.0.1 · 2026-10-07 · 状态：WORKING（C4 冻结前；语言通道 stub 在 M0/F0 即存在）· v1.0.1（2026-10-07）：§9 C4 行补 R-TRANSLATE（受限，ADR-G-0019/Q-L12-01 8 角色全启用）；§5 unit 行 LLM 非确定性承载更正为录制回放（Q-L12-03 裁决本体）
+> LLD: L12/14 · v1.0.1 · 2026-10-07（v1.0 · 2026-09-13）· 状态：WORKING（C4 冻结前；语言通道 stub 在 M0/F0 即存在）· v1.0.1（2026-10-07）：§9 C4 行补 R-TRANSLATE（受限，ADR-G-0019/Q-L12-01 8 角色全启用）；§5 unit 行 LLM 非确定性承载更正为录制回放（Q-L12-03 裁决本体）
 > 上游：`HLD.md` §2（D-13 赋予人类语言）/§6.2（LLM 禁写路径）/§10.4（C4 typed LLM、中央 LLM 消融）/§1.4（负清单 4：LLM 仅 typed 局部角色） · `L01_environment_channels.md`（Language 声明通道） · `L08`（ExternalRequest 入口） · `L00_kernel.md`
 > 下游：L08（请求→候选，**不写目标**）、L09（SEEK_HELP/语言动作提案）、L07（EXTERNAL_STATEMENT 提案）、L04（社会线索）、L06（LANGUAGE_INPUT 记忆，受限）
 > 引入门槛：**F0/M0**（语言通道 stub + 权限矩阵合同）→ **C4**（typed LLM 角色 + 中央 LLM 消融 + 他者/规范/承诺模型）→ **E1**（语言 lesion）
@@ -205,6 +205,15 @@ L01 Language 通道 → ReceivedSignal(EXTERNAL_STATEMENT) → L02 形成 Sensor
 
 ```text
 galatea/subject/language/                   # strict 类型
+                                            # 【C4 实现期首单元交付】v1.0.1（2026-10-07）：
+                                            # ports/roles（8 角色注册表 + 实现分型 REPLAY_LLM|MECHANICAL）/
+                                            # permission（双维矩阵 + check_write fail closed）/
+                                            # replay（Q-L12-03 回放机：(role,input_digest) 寻址 + miss fail closed）/
+                                            # parse（R-PARSE + statement clamp 0.5）/request_out（from_typed_fields +
+                                            # instruction 原语子集校验）/norm（NormSource 无源拒）/other（R-OTHERINFER
+                                            # D-14 封锁 + 恒带 Unknown）/report（build_self_report 机械装配）/
+                                            # consistency（Q-L12-05 两层绝对差带机械判定）/clarify/help（模板受限）/
+                                            # utter（UncitedClaimRejected）/receipt（调用台账）
   ports.py             PortIn/PortOut、层级常量、禁写路径断言
   roles.py             typed 角色注册表、窄接口定义、schema 版本
   permission.py        权限矩阵加载/查表/CI 断言、预算与 deadline 校验
