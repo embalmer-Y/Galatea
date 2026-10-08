@@ -12,12 +12,13 @@
 #       v1.9 = C3 门退出版增补（2026-10-06，INC-12 义务第九次执行——统计评价场景）。
 #       v2.0 = C4 实现期首单元增补（2026-10-07，INC-12 义务第十次执行——c4 场景随 language//efference/attribution 落成即冻，c4-exit 复核）。
 #       v2.1 = C4 统计评价单元增补（2026-10-08，INC-12 义务第十一次执行——统计计划/runner/机械判据场景）。
+#       v2.2 = C5 实现期首单元增补（2026-10-08，INC-12 义务第十二次执行——c5 场景随 promotion/rollback/replay/巩固落成即冻，c5-exit 复核）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.1                # v2.1（C4 统计评价单元增补）：新增 c4 评价场景 4 至 112（INC-12 义务第十一次执行——
+  version: v2.2                # v2.2（C5 实现期首单元增补）：新增 c5 场景 6 至 118（INC-12 义务第十二次执行——
                                 # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-08"   # v2.1（REV-0021 R5 修正：随 v2.0/v2.1 升版同步——此前滞留 v1.9 日期）
   authority: AI-v2
@@ -541,3 +542,35 @@ protection_suite:
       frozen_gate: C4
       assertion: runner 语言面经录制回放唯一承载——miss = LLMReplayMiss fail closed
         （fixture 冒烟仅开发面；claim 运行用 BigModel 录制文件，Q-L12-03）
+
+    - id: c5_promotion_gate_order_frozen
+      source_test: galatea/evidence/tests/test_promotion_gate_c5.py
+      frozen_gate: C5
+      assertion: PromotionDecision 顺序固定（防刷→完整性→保护→多目标→签发）+ 保护硬约束
+        先于 held-out（L11 §4.6）+ d≥0.5 含等号 + 无维 |d|≥0.5 退化（0.55 触/0.7−0.2
+        浮点 0.4999… 边界对成文——REV-0021 R7 体例）
+    - id: c5_anti_resubmission_ledger
+      source_test: galatea/evidence/tests/test_promotion_gate_c5.py
+      frozen_gate: C5
+      assertion: REJECTED digest 台账重提即拒（L11 §4.5 防刷机械化——含 NO_GAIN 后同
+        digest 高分重提拒）
+    - id: c5_second_order_correction_loop
+      source_test: galatea/subject/learning/tests/test_second_order_and_bounds.py
+      frozen_gate: C5
+      assertion: 二阶纠偏闭环（M2 '有害更新可再次纠正'机制兑现）——回退优先于 promotion +
+        再提案 data_scope 可区分（原样重提拒）+ INTEGRITY 走谱系修复面不要求范围纠偏
+    - id: c5_online_bound_fourth_penetration
+      source_test: galatea/subject/learning/tests/test_second_order_and_bounds.py
+      frozen_gate: C5
+      assertion: adaptive_gain 界 [0.5,2.0]（单一调制因子界第四次贯穿）——界内漂移在线
+        适应/越界 BoundViolation 拒走 POLICY_PARAMS 提案（Q-L09-05）
+    - id: c5_consolidation_laplace_alpha8
+      source_test: galatea/subject/learning/tests/test_consolidate_replay_loader.py
+      frozen_gate: C5
+      assertion: 巩固合并 α=8 Laplace（Q-L04-10 物化，REV-0021 R3）——锚 0.425 逐位 +
+        域保持 + 零计数回先验 + TABLE 类提案永不直写 + 确定性 digest 恒等
+    - id: c5_learner_to_policy_blocked
+      source_test: galatea/subject/learning/tests/test_learner_to_policy_blocked.py
+      frozen_gate: C5
+      assertion: 学习面禁写五不可变面（权限矩阵/containment/保护集名册/sealed 命名空间/
+        核心决策登记）+ 源扫描零治理写形态 + gate 零 learner import（自批禁止结构面）

@@ -7,10 +7,14 @@
 # 架构约束（ADR-G-0020 评估结论落地）：记忆内容通路无模型——巩固 = 确定性合并；
 # LLM 面维持 C4 冻结态（本 profile 零语言面变更）。
 # 冻结前可行性探针随本单元执行（硬机制第五次执行；结论入 ADR-G-0021）。
+# v1.1：typed loader 已随 C5 实现期首单元交付（galatea/subject/c5profile.py——α=8 物化）。
 # typed loader 随实现期交付（INC-11 纪律）。
 profile:
   id: c5_continued_learning
-  version: v1.0
+  version: v1.1   # v1.1（2026-10-08，REV-0021 R3 闭环）：rollback.triggers 补第三值 INTEGRITY
+                   # （L11 §10 rollback.py 行三值枚举原文——谱系/工件完整性触发，lineage 伪更新检出面；
+                   # 与 protection/harmful 不同源：前者 = 场景回归，中者 = 能力退化，后者 = 谱系断裂）；
+                   # 零数值判据变化，注释锚定升版本（REV-0018 R5 先例）
   frozen_at: "2026-10-08"
   authority: AI-v2
   spec_ref: design/lld/L11_learning_consolidation.md    # 联动 L06 §9 C5 行/L09 §9/L13 §9/L10 §9
@@ -53,7 +57,7 @@ protection:                                   # Q-L06-05 + Q-L11-04 + Q-L13-06�
                           goal_commitment, effective_access]      # L11 §4.6 原文四项
 
 rollback:                                     # L11 §4.5 原文 + 二阶纠偏（M2 退出义务）
-  triggers: [PROTECTION_REGRESSION, HARMFUL_UPDATE]
+  triggers: [PROTECTION_REGRESSION, HARMFUL_UPDATE, INTEGRITY]   # 三值 = L11 §10 枚举原文（v1.1 补全）
   priority_over_promotion: true               # RollbackRequest 优先级高于任何 promotion
   second_order_correction_required: true      # 回退 + 修正 data_scope/规则 + 再提案可区分 + 证明可再通过
   archive_parent: true                        # 原工件与谱系完整保留（候选不覆盖）
