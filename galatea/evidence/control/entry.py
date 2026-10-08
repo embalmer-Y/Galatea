@@ -91,6 +91,7 @@ _ROOT_PLAN = Path("config") / "evidence" / "stat_plans" / "r0_root.yaml"
 _C1_PLAN = Path("config") / "evidence" / "stat_plans" / "c1_perception_models.yaml"
 _C2_PLAN = Path("config") / "evidence" / "stat_plans" / "c2_affect_workspace.yaml"
 _C3_PLAN = Path("config") / "evidence" / "stat_plans" / "c3_motivation_metacontrol.yaml"
+_C4_PLAN = Path("config") / "evidence" / "stat_plans" / "c4_action_social.yaml"
 _EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②
 
 
@@ -607,6 +608,125 @@ def run_c3_first_evaluation(
     )
 
 
+def run_c4_first_evaluation(
+    root: Path, out_dir: Path, recording_path: Path, n_limit: int | None = None,
+) -> "C4FirstEvaluation":
+    """C4 首评（stat plan c4_action_social v1.0；顺延终止条款第五次执行）。
+
+    recording_path = Q-L12-03 录制文件（BigModel 录制会话产物，digest 入 manifest）。
+    """
+    from galatea.evidence.control.runs_c4 import run_c4_evaluation
+    from galatea.evidence.evaluator.hypotheses import (
+        evaluate_c4_calibration,
+        evaluate_c4_composite,
+        evaluate_c4_efference,
+        evaluate_c4_switching,
+    )
+
+    plan_path = root / _C4_PLAN
+    plan = load_stat_plan(plan_path)
+    policy = load_split_policy(root)
+    grid = tuple(
+        GridCell(cell_id=f"{r}:{i}", regime=r, seed_index=i)
+        for r in ("abundance", "scarcity", "volatile")
+        for i in range(32)
+    )
+    split = generate_split(grid, seal_split_master_seed(), policy)
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    run_dir = out_dir / "run"
+    records, mechanical, plan_digest, split_digest, i1_match = run_c4_evaluation(
+        root, run_dir, out_dir / "runner-tmp", split.sealed.cells, plan_path,
+        split.split_digest, recording_path, n_limit=n_limit,
+    )
+    eff_full = tuple(r for r in records if r.arm == "eff_full")
+    eff_ab = tuple(r for r in records if r.arm == "eff_ablated")
+    sw_full = tuple(r for r in records if r.arm == "switch_full")
+    sw_clean = tuple(r for r in records if r.arm == "switch_clean")
+    battery = tuple(r for r in records if r.arm == "battery")
+
+    diffs = tuple(f.summary["self_attribution_correct"] - s.summary["self_attribution_correct"]
+                  for f, s in zip(eff_full, eff_ab))
+    sh_diffs = tuple(f.summary["seek_help_fired"] - c.summary["seek_help_fired"]
+                     for f, c in zip(sw_full, sw_clean))
+    ab_diffs = tuple(f.summary["abandon_fired"] - c.summary["abandon_fired"]
+                     for f, c in zip(sw_full, sw_clean))
+    ob_diffs = tuple(f.summary["observe_count"] - c.summary["observe_count"]
+                     for f, c in zip(sw_full, sw_clean))
+    ece = sum(r.summary["ece_resolved"] for r in battery) / max(1, len(battery))
+    endpoint_errors = sum(r.summary["endpoint_errors"] for r in battery)
+    amb_count = sum(r.summary["ambiguous_count"] for r in battery)
+    amb_traced = sum(r.summary["ambiguous_traced"] for r in battery)
+
+    plan_ref = f"{_C4_PLAN.as_posix()}@{plan.version}"
+    calibration = evaluate_c4_calibration(
+        "R-c4-calibration-001", plan_ref, ece, endpoint_errors, amb_count, amb_traced,
+        n_runs=len(battery), recompute_ok=i1_match)
+    efference = evaluate_c4_efference(
+        "R-c4-efference-002", plan_ref, diffs, recompute_ok=i1_match, n_expected=len(eff_full))
+    switching = evaluate_c4_switching(
+        "R-c4-switching-003", plan_ref, sh_diffs, ab_diffs, ob_diffs,
+        recompute_ok=i1_match, n_expected=len(sw_full))
+    leakage = run_leakage_suite(load_tree_sources(root))
+    composite = evaluate_c4_composite(
+        "R-c4-action-social-001", plan_ref,
+        (calibration, efference, switching),
+        mechanical_checks=mechanical,
+        leakage_free=leakage.leakage_free,
+        i1_match=i1_match,
+        recompute_ok=i1_match,
+        statistical_core=efference,
+        alpha=0.05,   # Holm 族 = 3 claim 级主判定 p（确定性 claim 1 通过承载 p=0.0）
+    )
+    _write_result(out_dir / "R-c4-action-social-001.json", composite, len(eff_full), {
+        "attribution_calibration": {"verdict": calibration.verdict.value,
+                                    "ece_resolved": round(ece, 6),
+                                    "endpoint_errors": endpoint_errors},
+        "efference_loop": {"verdict": efference.verdict.value,
+                           "mean_diff": round(sum(diffs) / max(1, len(diffs)), 6)},
+        "switching_surface": {"verdict": switching.verdict.value,
+                              "mean_seek_help_diff": round(sum(sh_diffs) / max(1, len(sh_diffs)), 6),
+                              "mean_abandon_diff": round(sum(ab_diffs) / max(1, len(ab_diffs)), 6),
+                              "mean_observe_diff": round(sum(ob_diffs) / max(1, len(ob_diffs)), 6)},
+        "mechanical_checks": {k: bool(v) for k, v in mechanical.items()},
+        "split_digest": split_digest,
+        "stat_plan_digest": plan_digest,
+        "recording_digest": __import__("hashlib").sha256(
+            recording_path.read_bytes()).hexdigest(),
+        "i1_match": i1_match,
+        "leakage_free": leakage.leakage_free,
+        "leakage_report_digest": leakage.digest,
+        "seed_note": "Q-L13-12④（master seed = b\"c4-action-social\".hex() 内嵌 stat plan）",
+    })
+    for name, result in (
+        ("R-c4-calibration-001", calibration), ("R-c4-efference-002", efference),
+        ("R-c4-switching-003", switching),
+    ):
+        _write_result(out_dir / f"{name}.json", result, len(eff_full))
+    return C4FirstEvaluation(
+        composite=composite, calibration=calibration, efference=efference,
+        switching=switching, mechanical=mechanical, i1_match=i1_match,
+        leakage_free=leakage.leakage_free, out_dir=out_dir)
+
+
+class C4FirstEvaluation:
+    """C4 首评数据集（复合 + 三子主张 + 机械判据）。"""
+
+    def __init__(
+        self, composite: Any, calibration: Any, efference: Any, switching: Any,
+        mechanical: dict[str, bool], i1_match: bool, leakage_free: bool,
+        out_dir: Path,
+    ) -> None:
+        self.composite = composite
+        self.calibration = calibration
+        self.efference = efference
+        self.switching = switching
+        self.mechanical = mechanical
+        self.i1_match = i1_match
+        self.leakage_free = leakage_free
+        self.out_dir = out_dir
+
+
 class C3FirstEvaluation:
     """C3 首评数据集（复合 + 三子主张 + 机械判据）。"""
 
@@ -688,6 +808,19 @@ def main(argv: list[str] | None = None) -> int:
             f"priority={first.priority.verdict.value} "
             f"switching={first.switching.verdict.value} "
             f"nonexclusive={first.nonexclusive.verdict.value} "
+            f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
+        )
+    elif command == "c4":
+        if len(argv) < 2:
+            print("c4 requires recording path: entry.py c4 <recording.json>", file=sys.stderr)
+            return 2
+        out_dir = root / "evidence" / "c4_action_social_first_evaluation"
+        first = run_c4_first_evaluation(root, out_dir, Path(argv[1]), n_limit=None)
+        print(
+            f"c4: composite={first.composite.verdict.value} "
+            f"calibration={first.calibration.verdict.value} "
+            f"efference={first.efference.verdict.value} "
+            f"switching={first.switching.verdict.value} "
             f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
         )
     elif command == "c2":

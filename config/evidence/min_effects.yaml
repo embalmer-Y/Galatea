@@ -14,6 +14,10 @@
 # 版本 v1.5（2026-10-06，C3 统计评价单元前置）：新增 c3_priority_arbitration_causal /
 #   c3_metacontrol_switching / c3_affective_nonexclusive 三条目（C3 优先序因果/元决策切换/
 #   AFFECTIVE 不独占上界）；envelope 与既有条目不变。
+# 版本 v1.6（2026-10-08，C4 统计评价单元前置）：新增 c4_efference_attribution_loop /
+#   c4_metacontrol_switching_extended 两条目（C4 Efference 闭环归属贡献/切换面扩展——
+#   REV-0018 R3 重评义务的判据承载）；c4_attribution_calibration 为确定性阈值断言
+#   （ECE ≤ 0.10 直引 Q-L10-04，不设 min_effect 条目）；envelope 与既有条目不变。
 # 初值属性：零实测数据期的功效推定初值（d=0.5/α=0.05/power=0.8 双侧 t 检验 ⇒ ~64/组），各对应门退出前按实测功效复核后入新版本。
 envelope:
   alpha: 0.05
@@ -118,3 +122,15 @@ entries:
     claim_gate: C3
     thresholds:
       max_affective_pick_share: 0.5                      # AFFECTIVE 被选占比 ≥0.5 即独占（L05 §9 C3）
+  - id: c4_efference_attribution_loop                    # v1.6 新增（C4 统计评价单元前置）
+    q: Q-L10-05
+    claim_gate: C4
+    metric: self_attribution_accuracy_full_vs_no_efference   # 标度 = per-run clean 格自产归属正确率（配对）
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64
+  - id: c4_metacontrol_switching_extended                # v1.6 新增（C4；REV-0018 R3 重评义务）
+    q: Q-L09-03
+    claim_gate: C4
+    metric: seek_help_and_abandon_counts_injected_vs_clean   # 标度 = per-run 触发计数差（配对；joint）
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64

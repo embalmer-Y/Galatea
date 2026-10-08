@@ -1,0 +1,154 @@
+# Galatea C4 冻结统计计划 — 概率 agency 校准 + Efference 闭环 + 切换面扩展（L10 §7 C4 行判据）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集）。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式**内嵌本计划**。
+# 语言面判据 = 机械面承载（Q-L12-06① 零后验权重 / Q-L12-07 消融 bit-exact /
+# 多来源匹配 = Q-L12-05 机械判定）——不入统计 claim（M2 SC5 先例）；
+# REPLAY_LLM 角色输出经录制回放（Q-L12-03；录制文件 digest 随运行入 manifest）。
+# 解离判据 = 确定性机械判据，由 runner 机械断言承载。
+stat_plan:
+  id: c4_action_social
+  version: v1.0
+  frozen_at: "2026-10-08"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md    # 联动 L12 §7/L04 §9 C4 行
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死（禁实现期发明）
+    master_seed_hex: "63342d616374696f6e2d736f6369616c"   # = b"c4-action-social".hex()（Q-L13-12① 同族）
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes   # ExperimentRunControl._trial_seed 同式
+    label: "c4.social"
+    trial_unit: seeded_run                   # 试次单位 = 种子化 run（ADR-G-0007 口径）
+
+  claims:
+    - claim_id: c4_attribution_calibration
+      hypothesis: >
+        可反驳假设：八格构造性查表后验（Q-L10-05）在五类干预电池 ground truth 上
+        校准达标——合并 ECE ≤ 0.10（Q-L10-04 冻结阈）且端点格零错误（机械）且歧义格
+        UNKNOWN 留痕率 = 1.0（机械，禁默认自产）。若校准越阈或端点格出现错误归属
+        或歧义格被默认裁决 → 概率 agency 判据失败。
+      estimand: pooled_ece_over_intervention_battery         # 全条件合并 ECE
+      primary_endpoints:
+        - ece_calibration_gate                  # ECE ≤ 0.10（确定性阈值断言；等质量 15 箱 Q-L03-04 同构）
+        - endpoint_cells_zero_error             # 机械：端点格（P∈{0.0,1.0}）kind 一致率 = 1.0
+        - ambiguous_unknown_trace_rate          # 机械：歧义格 UNKNOWN 留痕率 = 1.0
+      n_per_arm: 64                             # 64 runs × 6 条件格（battery 臂内）
+      power: 0.80
+      test: deterministic_gate                  # 阈值断言 + 机械三面（Q-L13-01 体例；无分布检验——构造表无采样噪声）
+      effect_ci_rule: none_deterministic
+      threshold: {ece_max: 0.10}                # Q-L10-04 继承（Q-L03-04 同构 15 箱）
+      unknown_handling: >
+        ground truth join = evaluator 侧干预记录（intervention registry 类型 + 选择记录 +
+        world digest twin）——主体平面不可见； sham 条件的 UNKNOWN 裁决率（期望 ≈1）
+        作为描述性诚实指标另报，不入判定。
+
+    - claim_id: c4_efference_attribution_loop
+      hypothesis: >
+        可反驳假设：EfferenceCopy→forward 预测闭环（L10 §4.3 + L04 §9 C4）对概率
+        agency 具因果贡献——完整臂（副本绑定先行预测供 outcome_predicted 轴）的
+        clean 动作自产归属正确率显著优于消融臂（不发副本 → 轴 3 证据缺失 →
+        归属退化为 UNKNOWN）。若消融不退化 → efference 闭环无因果承载 → L04 §9
+        C4 行"概率 agency 的模型侧证据"判据失败。
+      estimand: per_run_self_attribution_accuracy_difference    # per-run：full − ablated（clean 条件格）
+      primary_endpoints:
+        - per_run_self_attribution_advantage    # 配对 d ≥ 0.5（min_effects#c4_efference_attribution_loop）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald              # per-run 配对差：Wald CI + z 检验（承 C1–C3 先例）
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c4_efference_attribution_loop}
+      unknown_handling: >
+        消融臂 = 仅不发 EfferenceCopy（预测不发布 → outcome_predicted = None）——
+        世界流/干预/回执面与完整臂逐位相同（同 seed 同流，差异唯一来源 = 副本发布，
+        D-10）；帧损坏致窗缺失的 run 剔除并留痕（缺失非数据）。
+
+    - claim_id: c4_metacontrol_switching_surface
+      hypothesis: >
+        可反驳假设：元决策切换面在扩展场景（REV-0018 R3 登记的重评义务）下对各触发
+        响应——能力边界事件（越能力请求经 C-1 拒 → SEEK_HELP，频次帽 1/64）与
+        目标 BLOCKED≥128（TTL/2 → ABANDON）注入臂的触发次数显著高于清洁臂，
+        且 OBSERVE 面（每 8 拍 OOD 注入，C3 claim 2 同源）保持响应。若注入不产生
+        触发差 → 切换面扩展场景失效。
+      estimand: per_run_meta_decision_count_differences         # per-run：seek_help/abandon/observe 计数差
+      primary_endpoints:
+        - per_run_seek_help_diff                # 配对 d ≥ 0.5（min_effects#c4_metacontrol_switching_extended）
+        - per_run_abandon_diff                  # 联合成立（joint，body_incorporation 同律）
+      secondary_endpoints:
+        - per_run_observe_diff                  # C3 claim 2 同源面重评（描述性 + 配对报告）
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald              # 两主终点各自配对；joint = 全部 SUPPORTED
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c4_metacontrol_switching_extended}
+      unknown_handling: >
+        SEEK_HELP 触发含 R-SEEKHELP Utterance 链（录制回放，Q-L12-03）——回放 miss
+        = run 剔除并留痕（fail closed 非静默）；频次帽触顶（>1/64）留痕计入描述性；
+        BLOCKED 计时窗 = 目标采纳后 blocked 干预生效起算（冻结时序见 scenario）。
+
+  scenario:                                    # 场景冻结（机械可复算；全部世界/主体可见面）
+    battery_arm:                               # claim 1（每 run 六条件 mini-trial，同 seed 同世界流）
+      cycles: 10
+      command_cycle: 4
+      command: {primitive: move, param: N}
+      conditions: [clean, blocked, no_op, sham, fault, uncommanded]
+      uncommanded: {cycle: 4, primitive: move, param: S}   # 无命令外源位移（无回执无选择记录）
+      blocked: {primitive: fly}                # 越权拒绝（gateway 层，拒绝类型化）
+      fault_window: {from: 5, to: 5}           # 回执投递丢失（世界已执行）
+      axes_operationalization:
+        intent_match: gateway 选择记录在案（主体可见）
+        receipt_executed: OUTCOME 回执 effect 报告 ≠ none 且未损坏（主体可见）
+        outcome_predicted: |
+          forward 预测（models.predict_window，副本绑定臂 = 副本携带预测；消融臂缺席）
+          与形成后 EXT 窗的逐格平均绝对残差 ≤ 2σ_render（Q-L10-04 |z|≤2 带的窗级操作化；
+          σ_render = m0 冻结 render_noise_sigma）——命令致世界变化的对照 = 无命令 twin
+          同格预测差（探针层B 同构，实现轴 = 模型预测非内容对拍）
+    efference_arm:                             # claim 2（full/ablated 两臂，同 seed 同世界流）
+      cycles: 10
+      command_cycle: 4
+      command: {primitive: move, param: N}
+      full: efference_copy_issued_and_prediction_bound      # issue_efference_copy @4
+      ablated: no_efference_copy                # 不发副本 → 预测不发布 → 轴 3 = None
+      metric_windows: [4, 5, 6]                 # 归属判定于回执 settle 后（cycle 5+）
+    switching_arm:                             # claim 3（full/clean 两臂，同 seed 同世界流）
+      cycles: 176                              # 容纳 BLOCKED≥128（Q-L08-02 TTL/2 派生）
+      statement_request: {cycle: 12, text: "please move north"}       # R-PARSE（request 分型）
+                                                               # → REQUEST 动机 → 候选（C-5 支持动机
+                                                               # 由生产者真实知觉面供给）→ 采纳 goal
+      capability_request: {cycle: 20, text: "please fly north"}       # 越能力 → C-1 拒 →
+                                                               # CapabilityEstimate 事件 → SEEK_HELP
+      goal_adoption: {cycle: 24, from: statement_request, settle: primitive_completion_move}
+      goal_attempts: every_16_cycles_from_30   # move 尝试（结算面；clean 臂成功 → ACHIEVED）
+      blocked_window: {from: 30, to: 170, primitive: move}     # move 尝试 gateway 拒 → BLOCKED
+                                                               # ≥128 → ABANDON @~158+
+      ood_injection: every_8_cycles            # OBSERVE 面（C3 claim 2 同源）
+      seek_help_cap: 1_per_64_cycles           # Q-L09-07③（超界留痕不发送）
+      trigger_monitor_semantics: >             # 监控面操作化（L09 §4.4 MonitorSignal 调用方计算面）：
+        capability_boundary_hit = 越能力拒绝在案且该边界尚未求助（求助回执 = 已处理，
+        触发清除——后续可 Best-effort 继续）；blocked_over_threshold = ACTIVE goal 的
+        结算原语回执连续拒绝时长 ≥128（Q-L09-03⑤）。滞回/驻留由 MetaControlState 承载。
+    language_plane_mechanical:                 # 机械判据（不入统计 claim；运行面断言）
+      - statement_zero_posterior               # 陈述注入后知觉后验逐位不变（Q-L12-06①）
+      - seek_help_utterance_replay_exact       # SEEK_HELP→R-SEEKHELP→Utterance 链回放逐位
+      - consistency_matches_injection          # 一致/矛盾陈述 → 判定正确（Q-L12-05 机械面）
+      - ablation_bit_exact_preservation        # 无语言流四消融配置全链 digest 恒等（Q-L12-07①）
+    dissociation_mechanical:                   # 解离（不入统计 claim）
+      run_index: 0                             # 冻结 run 种子复用
+      assertions:
+        - battery_digest_bit_identical         # 双跑 battery 臂 digest 恒等
+        - fault_cell_unknown_not_self          # fault 条件格裁决 = UNKNOWN 非 SELF
+        - world_stream_arms_identical          # 各臂世界流 digest 与 clean 臂恒等（差异仅在主体面）
+
+  recording:                                   # Q-L12-03：录制回放（claim-relevant 唯一 LLM 方式）
+    roles_required: [R-PARSE, R-SEEKHELP]      # 本计划 claim 运行的 REPLAY_LLM 角色（最小录制集）
+    file: evidence/c4_recording/recording_v1.json
+    anchoring: digest_to_artifact_manifest     # 录制文件 + 模型标识入 manifest（v1.6+，只增不减）
+    replay_miss: fail_closed_drop_run          # miss = run 剔除留痕（unknown_handling 原文）
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: regimes_x_seeds
+    sealed_fraction: 0.30
+    run_to_cell: sealed_cells[p % len(sealed_cells)]           # 承 run_carryover 分配式
+
+  correction: holm_bonferroni                 # 族 = 本 EvidenceResult 全部主判定 = 3 claim 级
+                                              # p（REV-0014 复核关切①：族粒度显式钉死）

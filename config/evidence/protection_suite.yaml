@@ -11,12 +11,13 @@
 #       v1.8 = C3 实现期首单元增补（2026-10-06，INC-12 义务第八次执行——仲裁/元决策/权限测试场景）。
 #       v1.9 = C3 门退出版增补（2026-10-06，INC-12 义务第九次执行——统计评价场景）。
 #       v2.0 = C4 实现期首单元增补（2026-10-07，INC-12 义务第十次执行——c4 场景随 language//efference/attribution 落成即冻，c4-exit 复核）。
+#       v2.1 = C4 统计评价单元增补（2026-10-08，INC-12 义务第十一次执行——统计计划/runner/机械判据场景）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.0                # v2.0（C4 实现期首单元增补）：新增 c4_* 场景 12 至 108（INC-12 义务第十次执行——
+  version: v2.1                # v2.1（C4 统计评价单元增补）：新增 c4 评价场景 4 至 112（INC-12 义务第十一次执行——
                                 # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-06"
   authority: AI-v2
@@ -519,3 +520,24 @@ protection_suite:
       frozen_gate: C4
       assertion: LANGUAGE 帧机会型形成（缺席 = 静默非 MISSING_SIGNAL）+ level 永不提升 +
         默认装配（C0–C3 冻结路径）语言信号不入形成面 + 双装配全链 digest 恒等
+
+    - id: c4_stat_plan_seed_and_family_frozen
+      source_test: config/evidence/stat_plans/c4_action_social.yaml
+      frozen_gate: C4
+      assertion: 统计计划运行前冻结——Holm 族 = 3 claim 级显式（确定性 claim 门通过承载
+        p=0.0 单调安全）+ master seed = b"c4-action-social".hex() 内嵌（Q-L13-12④）
+    - id: c4_battery_endpoint_zero_error
+      source_test: galatea/evidence/tests/test_c4_runner_smoke.py
+      frozen_gate: C4
+      assertion: 干预电池六条件格映射（探针层B 同构）+ 端点格零错误 + 歧义格 UNKNOWN 留痕
+        率 1.0 + 双跑 bit-exact（runner 机械判据面；INC-08——runner 路径首单元即带覆盖）
+    - id: c4_switching_surface_expanded_recheck
+      source_test: galatea/evidence/tests/test_c4_runner_smoke.py
+      frozen_gate: C4
+      assertion: REV-0018 R3 重评义务兑现——能力边界→SEEK_HELP（帽 1/64）/BLOCKED≥128→
+        ABANDON/OOD→OBSERVE 三触发注入臂全显形且清洁臂全零（切换面统计承载扩展）
+    - id: c4_replay_miss_fail_closed_in_runner
+      source_test: galatea/evidence/tests/test_c4_runner_smoke.py
+      frozen_gate: C4
+      assertion: runner 语言面经录制回放唯一承载——miss = LLMReplayMiss fail closed
+        （fixture 冒烟仅开发面；claim 运行用 BigModel 录制文件，Q-L12-03）

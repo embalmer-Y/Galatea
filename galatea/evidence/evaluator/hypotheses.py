@@ -1188,3 +1188,165 @@ def evaluate_c3_composite(
         detected_by=detected_by,
         composite_label="c3_motivation_metacontrol",
     )
+
+
+# ==========================================================================
+# C4 判定执行（stat plan c4_action_social v1.0；顺延终止条款第五次执行）
+# ==========================================================================
+
+
+def evaluate_c4_calibration(
+    result_id: str,
+    stat_plan_ref: str,
+    ece_resolved: float,
+    endpoint_errors: int,
+    ambiguous_count: int,
+    ambiguous_traced: int,
+    n_runs: int,
+    recompute_ok: bool,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c4_attribution_calibration 判定（claim 1；确定性门：ECE≤0.10 + 端点零错误 + 歧义留痕 1.0）。
+
+    确定性 claim 无分布 p——Holm 族承载取 p=0.0（门通过时，确定性通过下界任意 α）/
+    p=1.0（门失败 → REFUTED）；保证族校正单调安全。
+    """
+    gates = {
+        "ece_le_0.10": ece_resolved <= 0.10,
+        "endpoint_zero_error": endpoint_errors == 0,
+        "ambiguous_trace_rate_1.0": (ambiguous_count == ambiguous_traced),
+    }
+    passed = all(gates.values()) and n_runs > 0
+    return EvidenceResult(
+        result_id=result_id,
+        hypothesis_refs=("c4_attribution_calibration",),
+        stat_plan_ref=stat_plan_ref,
+        estimand="pooled_ece_over_intervention_battery",
+        effect_size=ece_resolved if passed else max(ece_resolved, 0.10),
+        ci=ConfidenceInterval(lower=ece_resolved, upper=ece_resolved, level=1.0),
+        p_or_bayes=0.0 if passed else 1.0,
+        verdict=HypothesisVerdict.SUPPORTED if passed else HypothesisVerdict.REFUTED,
+        unknowns=(),
+        refutations=tuple(f"gate {name} failed" for name, ok in gates.items() if not ok),
+        data_refs=(f"n_runs={n_runs}", f"endpoint_errors={endpoint_errors}",
+                   f"ambiguous={ambiguous_traced}/{ambiguous_count}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c4_efference(
+    result_id: str,
+    stat_plan_ref: str,
+    accuracy_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c4_efference_attribution_loop 判定（claim 2；配对 d≥0.5；c3_priority 同体例）。"""
+    insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
+        accuracy_diffs, n_expected, detected_by)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=("c4_efference_attribution_loop",),
+            stat_plan_ref=stat_plan_ref,
+            estimand="per_run_self_attribution_accuracy_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=("c4_efference_attribution_loop",),
+        stat_plan_ref=stat_plan_ref,
+        estimand="per_run_self_attribution_accuracy_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"mean_diff={mean:.6f}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c4_switching(
+    result_id: str,
+    stat_plan_ref: str,
+    seek_help_diffs: tuple[float, ...],
+    abandon_diffs: tuple[float, ...],
+    observe_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c4_metacontrol_switching_surface 判定（claim 3；joint = seek_help ∧ abandon 各 d≥0.5）。
+
+    joint p = max(两主终点 p)（最保守；body_incorporation 同律）；observe = 次级
+    描述性配对报告（C3 claim 2 同源面重评）。
+    """
+    ins1, m1, _s1, d1, lo1, hi1, p1 = _paired_continuous_stats(
+        seek_help_diffs, n_expected, detected_by)
+    ins2, m2, _s2, d2, lo2, hi2, p2 = _paired_continuous_stats(
+        abandon_diffs, n_expected, detected_by)
+    _ins3, m3, _s3, d3, _lo3, _hi3, _p3 = _paired_continuous_stats(
+        observe_diffs, n_expected, detected_by)
+    insufficient = ins1 or ins2
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=("c4_metacontrol_switching_surface",),
+            stat_plan_ref=stat_plan_ref,
+            estimand="per_run_meta_decision_count_differences",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    joint_p = max(p1, p2)
+    joint_d = min(d1, d2)
+    if joint_d == 0.0 and (m1 > 0 and m2 > 0):
+        joint_d = min(d1, d2)
+    verdict, refutations, unknowns = _c1_verdict_from_diff(
+        min(m1, m2), joint_d, min(lo1, lo2), joint_p, recompute_ok, 0.5)
+    refutations = refutations + tuple(
+        f"secondary endpoint {name} diff {mean:.6f} d={'inf' if math.isinf(dd) else f'{dd:.3f}'}"
+        for name, mean, dd in (("observe", m3, d3),))
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=("c4_metacontrol_switching_surface",),
+        stat_plan_ref=stat_plan_ref,
+        estimand="per_run_meta_decision_count_differences",
+        effect_size=joint_d if not math.isinf(joint_d) else min(m1, m2),
+        ci=ConfidenceInterval(lower=min(lo1, lo2), upper=max(hi1, hi2), level=0.95),
+        p_or_bayes=joint_p,
+        verdict=verdict, unknowns=tuple(unknowns), refutations=refutations,
+        data_refs=(f"seek_help_diff={m1:.6f}", f"abandon_diff={m2:.6f}",
+                   f"observe_diff={m3:.6f}"),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c4_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: "tuple[EvidenceResult, ...]",
+    mechanical_checks: "dict[str, bool]",
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    alpha: float = 0.05,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """C4 复合判定（Holm 族 = 3 claim 级 p——确定性 claim 1 门通过承载 p=0.0，族校正单调安全）。"""
+    return evaluate_c1_composite(
+        result_id=result_id,
+        stat_plan_ref=stat_plan_ref,
+        constituent_results=constituent_results,
+        mechanical_ok=all(mechanical_checks.values()),
+        leakage_free=leakage_free,
+        i1_match=i1_match,
+        recompute_ok=recompute_ok,
+        statistical_core=statistical_core,
+        alpha=alpha,
+        detected_by=detected_by,
+        composite_label="c4_action_social",
+    )
