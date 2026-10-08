@@ -14,6 +14,8 @@
 # 版本 v1.5（2026-10-06，C3 统计评价单元前置）：新增 c3_priority_arbitration_causal /
 #   c3_metacontrol_switching / c3_affective_nonexclusive 三条目（C3 优先序因果/元决策切换/
 #   AFFECTIVE 不独占上界）；envelope 与既有条目不变。
+# 版本 v1.7（2026-10-08，C5 统计评价单元前置）：新增 c5_promotion_learning_gain / c5_protection_nonregression_gate /
+#   c5_second_order_correction_gate 三条目（学习增益配对 + 两确定性门）；envelope 不变。
 # 版本 v1.6（2026-10-08，C4 统计评价单元前置）：新增 c4_efference_attribution_loop /
 #   c4_metacontrol_switching_extended 两条目（C4 Efference 闭环归属贡献/切换面扩展——
 #   REV-0018 R3 重评义务的判据承载）；c4_attribution_calibration 为确定性阈值断言
@@ -141,3 +143,22 @@ entries:
       ece_max: 0.10
       endpoint_errors_max: 0
       ambiguous_trace_rate_min: 1.0
+  - id: c5_promotion_learning_gain                          # v1.7 新增（C5 统计评价单元前置）
+    q: Q-L11-03
+    claim_gate: C5
+    metric: posterior_tracking_error_baseline_minus_learn   # 标度 = per-run 追踪误差差（配对）
+    min_effect: {type: cohens_d, value: 0.5}
+    min_n: 64
+  - id: c5_protection_nonregression_gate                    # v1.7 新增（确定性门）
+    q: Q-L11-04
+    claim_gate: C5
+    thresholds:
+      harmful_proposal_rejected: true
+      pending_cleared_on_rollback: true
+      protection_result_unchanged: true
+  - id: c5_second_order_correction_gate                     # v1.7 新增（确定性门）
+    q: Q-L11-03
+    claim_gate: C5
+    thresholds:
+      correction_loop_four_steps: true
+      original_resubmission_rejected: true

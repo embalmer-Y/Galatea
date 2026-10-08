@@ -1350,3 +1350,117 @@ def evaluate_c4_composite(
         detected_by=detected_by,
         composite_label="c4_action_social",
     )
+
+
+# ==========================================================================
+# C5 判定执行（stat plan c5_continued_learning v1.0；顺延终止条款第六次执行）
+# ==========================================================================
+
+
+def evaluate_c5_learning_gain(
+    result_id: str,
+    stat_plan_ref: str,
+    improvement_diffs: tuple[float, ...],
+    recompute_ok: bool,
+    n_expected: int = 64,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c5_promotion_learning_gain 判定（claim 1；配对 d≥0.5；c3/c4 同体例）。"""
+    insufficient, mean, _sd, d, ci_lo, ci_hi, p = _paired_continuous_stats(
+        improvement_diffs, n_expected, detected_by)
+    if insufficient is not None:
+        return EvidenceResult(
+            result_id=result_id, hypothesis_refs=("c5_promotion_learning_gain",),
+            stat_plan_ref=stat_plan_ref,
+            estimand="per_run_posterior_tracking_error_difference",
+            effect_size=None, ci=None, p_or_bayes=None,
+            verdict=HypothesisVerdict.INCONCLUSIVE,
+            unknowns=insufficient.unknowns, refutations=(), data_refs=(),
+            recompute_ok=recompute_ok,
+        )
+    verdict, refutations, unknowns = _c1_verdict_from_diff(mean, d, ci_lo, p, recompute_ok, 0.5)
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=("c5_promotion_learning_gain",),
+        stat_plan_ref=stat_plan_ref,
+        estimand="per_run_posterior_tracking_error_difference",
+        effect_size=d if not math.isinf(d) else mean,
+        ci=ConfidenceInterval(lower=ci_lo, upper=ci_hi, level=0.95),
+        p_or_bayes=p, verdict=verdict, unknowns=tuple(unknowns),
+        refutations=refutations, data_refs=(f"mean_diff={mean:.6f}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+def _c5_gate_claim(
+    result_id: str, stat_plan_ref: str, claim_id: str, estimand: str,
+    gates: dict[str, bool], n_runs: int, recompute_ok: bool,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """确定性门 claim 通用体（c4_calibration 同式：门全过 p=0.0 / 任一失败 p=1.0）。"""
+    passed = all(gates.values()) and n_runs > 0
+    return EvidenceResult(
+        result_id=result_id, hypothesis_refs=(claim_id,),
+        stat_plan_ref=stat_plan_ref, estimand=estimand,
+        effect_size=1.0 if passed else 0.0,
+        ci=ConfidenceInterval(lower=1.0 if passed else 0.0, upper=1.0 if passed else 0.0, level=1.0),
+        p_or_bayes=0.0 if passed else 1.0,
+        verdict=HypothesisVerdict.SUPPORTED if passed else HypothesisVerdict.REFUTED,
+        unknowns=(),
+        refutations=tuple(f"gate {name} failed" for name, ok in gates.items() if not ok),
+        data_refs=(f"n_runs={n_runs}",),
+        recompute_ok=recompute_ok,
+    )
+
+
+def evaluate_c5_protection_nonregression(
+    result_id: str, stat_plan_ref: str,
+    harmful_rejected: bool, pending_cleared: bool, protection_unchanged: bool,
+    n_runs: int, recompute_ok: bool,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c5_protection_nonregression 判定（claim 2；确定性门三断言）。"""
+    return _c5_gate_claim(
+        result_id, stat_plan_ref, "c5_protection_nonregression",
+        "protection_gate_deterministic_assertions",
+        {"harmful_proposal_rejected": harmful_rejected,
+         "pending_cleared_on_rollback": pending_cleared,
+         "protection_result_unchanged": protection_unchanged},
+        n_runs, recompute_ok, detected_by)
+
+
+def evaluate_c5_second_order(
+    result_id: str, stat_plan_ref: str,
+    loop_four_steps: bool, resubmission_rejected: bool,
+    n_runs: int, recompute_ok: bool,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """c5_second_order_correction_loop 判定（claim 3；确定性门两断言）。"""
+    return _c5_gate_claim(
+        result_id, stat_plan_ref, "c5_second_order_correction_loop",
+        "second_order_loop_deterministic_assertions",
+        {"correction_loop_four_steps": loop_four_steps,
+         "original_resubmission_rejected": resubmission_rejected},
+        n_runs, recompute_ok, detected_by)
+
+
+def evaluate_c5_composite(
+    result_id: str,
+    stat_plan_ref: str,
+    constituent_results: "tuple[EvidenceResult, ...]",
+    mechanical_checks: "dict[str, bool]",
+    leakage_free: bool,
+    i1_match: bool,
+    recompute_ok: bool,
+    statistical_core: EvidenceResult,
+    alpha: float = 0.05,
+    detected_by: str = "evidence.evaluator",
+) -> EvidenceResult:
+    """C5 复合判定（Holm 族 = 3 claim 级 p；确定性门通过承载 p=0.0 单调安全）。"""
+    return evaluate_c1_composite(
+        result_id=result_id, stat_plan_ref=stat_plan_ref,
+        constituent_results=constituent_results,
+        mechanical_ok=all(mechanical_checks.values()),
+        leakage_free=leakage_free, i1_match=i1_match, recompute_ok=recompute_ok,
+        statistical_core=statistical_core, alpha=alpha, detected_by=detected_by,
+        composite_label="c5_continued_learning",
+    )

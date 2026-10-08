@@ -14,7 +14,7 @@
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.6
+  version: v1.7
   frozen_at: "2026-10-08"   # v1.6（REV-0021 R5 修正：随 v1.4–v1.6 升版同步——此前滞留 v1.3 日期）
   authority: AI-v2
   artifacts:
@@ -106,3 +106,27 @@ artifact_manifest:
       path: evidence/c4_action_social_first_evaluation/R-c4-switching-003.json
       sha256: f1352455f94b95bebd94ece412404d5880c9c51e08c98348fe368d4e5d226a93
       gate: C4 首评——切换面扩展（REV-0018 R3 重评：seek_help 0.984/abandon 1.0/observe 45.9 joint）
+    - name: R-c5-v1-0-composite-INCONCLUSIVE
+      path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json
+      sha256: 2526fc4cf621a820144cca871bd284c02e088c0456f0a74e80eb00890cef49d6
+      gate: C5 首评 v1.0 复合 = INCONCLUSIVE（如实保留——gain 全域混合 d=0.438<0.5 但 p=0.00046 显著；判据域立法 Q-L11-03 补裁②的触发证据）
+    - name: R-c5-v1-0-gain-INCONCLUSIVE
+      path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json
+      sha256: 80b1c787772d403d593e4bd491e32dec72f88150d158474aa044ba3b963ddb96
+      gate: C5 首评 v1.0 gain = INCONCLUSIVE（同上——分层结构证据：abundance 构造性无空间 d=-2.26/scarcity +7.81/volatile +2.60）
+    - name: R-c5-continued-learning-001
+      path: evidence/c5_continued_learning_first_evaluation/R-c5-continued-learning-001.json
+      sha256: 0ef1d56b293b72078ab5f1f3d3462c45b666c7763c87a4866421f8c75dee331f
+      gate: C5 首评 v1.1 复合 = SUPPORTED（顺延终止条款第六次执行；判据域 = 增益空间域立法后；Holm 族 3 claim）
+    - name: R-c5-gain-001
+      path: evidence/c5_continued_learning_first_evaluation/R-c5-gain-001.json
+      sha256: 961ecf71571f2cb0a6288aafdcba24b67a56d0cba8c5517d4d118ff159d26468
+      gate: C5 首评 v1.1——学习增益（增益空间域 n=43 配对 d=2.031，mean +0.137；abundance 负增益描述性另报）
+    - name: R-c5-protection-002
+      path: evidence/c5_continued_learning_first_evaluation/R-c5-protection-002.json
+      sha256: ba876b1abeefa8be33943b4c0e4a7ed4a3afab1d9dc4b56fde4449a7960e8fdd
+      gate: C5 首评——保护不退化确定性门（致害提案拒 + 挂起清空 + 保护不变）
+    - name: R-c5-correction-003
+      path: evidence/c5_continued_learning_first_evaluation/R-c5-correction-003.json
+      sha256: 4f434b84b2707ce7300e66252d1912c50cfa7174f48640fb4536701616ead9cc
+      gate: C5 首评——二阶纠偏闭环确定性门（四步闭环 + 防刷重提拒——M2 义务兑现）

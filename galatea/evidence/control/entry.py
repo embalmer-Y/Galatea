@@ -92,6 +92,7 @@ _C1_PLAN = Path("config") / "evidence" / "stat_plans" / "c1_perception_models.ya
 _C2_PLAN = Path("config") / "evidence" / "stat_plans" / "c2_affect_workspace.yaml"
 _C3_PLAN = Path("config") / "evidence" / "stat_plans" / "c3_motivation_metacontrol.yaml"
 _C4_PLAN = Path("config") / "evidence" / "stat_plans" / "c4_action_social.yaml"
+_C5_PLAN = Path("config") / "evidence" / "stat_plans" / "c5_continued_learning.yaml"
 _EVAL_MASTER_SEED_CARRYOVER = b"m2-carryover-sealed"   # Q-L13-12②
 
 
@@ -709,6 +710,114 @@ def run_c4_first_evaluation(
         leakage_free=leakage.leakage_free, out_dir=out_dir)
 
 
+def run_c5_first_evaluation(
+    root: Path, out_dir: Path, n_limit: int | None = None,
+) -> "C5FirstEvaluation":
+    """C5 首评（stat plan c5_continued_learning v1.0；顺延终止条款第六次执行）。"""
+    from galatea.evidence.control.runs_c5 import run_c5_evaluation
+    from galatea.evidence.evaluator.hypotheses import (
+        evaluate_c5_composite,
+        evaluate_c5_learning_gain,
+        evaluate_c5_protection_nonregression,
+        evaluate_c5_second_order,
+    )
+
+    plan_path = root / _C5_PLAN
+    plan = load_stat_plan(plan_path)
+    policy = load_split_policy(root)
+    grid = tuple(
+        GridCell(cell_id=f"{r}:{i}", regime=r, seed_index=i)
+        for r in ("abundance", "scarcity", "volatile")
+        for i in range(32)
+    )
+    split = generate_split(grid, seal_split_master_seed(), policy)
+    v10 = root / "evidence" / "c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE"
+    if (root / "evidence" / "c5_continued_learning_first_evaluation" / "R-c5-continued-learning-001.json").is_file():
+        shutil.rmtree(v10, ignore_errors=True)
+        (root / "evidence" / "c5_continued_learning_first_evaluation").rename(v10)   # v1.0 归档（只增不减）
+    shutil.rmtree(out_dir, ignore_errors=True)
+    out_dir.mkdir(parents=True)
+    run_dir = out_dir / "run"
+    records, plan_digest, split_digest, i1_match = run_c5_evaluation(
+        root, run_dir, out_dir / "runner-tmp", split.sealed.cells, plan_path,
+        split.split_digest, n_limit=n_limit,
+    )
+    learn = tuple(r for r in records if r.arm == "learn")
+    nolearn = tuple(r for r in records if r.arm == "nolearn")
+    protect = tuple(r for r in records if r.arm == "protect")
+    correct = tuple(r for r in records if r.arm == "correct")
+    # 修订 1（stat plan v1.1，Q-L11-03 补裁②）：增益空间域取数——abundance 构造性
+    # 无空间（prior=truth），其 trials 不入 gain claim（描述性另报）
+    domain_pairs = [(l, n) for l, n in zip(learn, nolearn)
+                    if l.summary.get("regime") in ("scarcity", "volatile")]
+    diffs = tuple(n.summary["tracking_error"] - l.summary["tracking_error"]
+                  for l, n in domain_pairs)
+    mechanical = {
+        "learning_stream_bit_exact": (
+            learn[0].summary["world_digest_final"] == nolearn[0].summary["world_digest_final"]),
+        "nolearn_prior_constant": nolearn[0].summary["posterior_resource"] == 0.35,
+    }
+    plan_ref = f"{_C5_PLAN.as_posix()}@{plan.version}"
+    gain = evaluate_c5_learning_gain(
+        "R-c5-gain-001", plan_ref, diffs, recompute_ok=i1_match, n_expected=len(domain_pairs))
+    protection = evaluate_c5_protection_nonregression(
+        "R-c5-protection-002", plan_ref,
+        all(bool(r.summary["harmful_proposal_rejected"]) for r in protect),
+        all(bool(r.summary["pending_cleared_on_rollback"]) for r in protect),
+        all(bool(r.summary["protection_result_unchanged"]) for r in protect),
+        n_runs=len(protect), recompute_ok=i1_match)
+    correction = evaluate_c5_second_order(
+        "R-c5-correction-003", plan_ref,
+        all(bool(r.summary["correction_loop_four_steps"]) for r in correct),
+        all(bool(r.summary["original_resubmission_rejected"]) for r in correct),
+        n_runs=len(correct), recompute_ok=i1_match)
+    leakage = run_leakage_suite(load_tree_sources(root))
+    composite = evaluate_c5_composite(
+        "R-c5-continued-learning-001", plan_ref,
+        (gain, protection, correction),
+        mechanical_checks=mechanical,
+        leakage_free=leakage.leakage_free, i1_match=i1_match,
+        recompute_ok=i1_match, statistical_core=gain, alpha=0.05,
+    )
+    _write_result(out_dir / "R-c5-continued-learning-001.json", composite, len(learn), {
+        "learning_gain": {"verdict": gain.verdict.value,
+                          "mean_improvement": round(sum(diffs) / max(1, len(diffs)), 6)},
+        "protection_nonregression": {"verdict": protection.verdict.value},
+        "second_order_correction": {"verdict": correction.verdict.value},
+        "mechanical_checks": {k: bool(v) for k, v in mechanical.items()},
+        "split_digest": split_digest, "stat_plan_digest": plan_digest,
+        "i1_match": i1_match, "leakage_free": leakage.leakage_free,
+        "leakage_report_digest": leakage.digest,
+        "seed_note": 'Q-L13-12④（master seed = b"c5-continued-learning".hex() 内嵌 stat plan）',
+    })
+    for name, result in (
+        ("R-c5-gain-001", gain), ("R-c5-protection-002", protection),
+        ("R-c5-correction-003", correction),
+    ):
+        _write_result(out_dir / f"{name}.json", result, len(learn))
+    return C5FirstEvaluation(
+        composite=composite, gain=gain, protection=protection, correction=correction,
+        mechanical=mechanical, i1_match=i1_match, leakage_free=leakage.leakage_free,
+        out_dir=out_dir)
+
+
+class C5FirstEvaluation:
+    """C5 首评数据集（复合 + 三子主张 + 机械判据）。"""
+
+    def __init__(
+        self, composite: Any, gain: Any, protection: Any, correction: Any,
+        mechanical: dict[str, bool], i1_match: bool, leakage_free: bool, out_dir: Path,
+    ) -> None:
+        self.composite = composite
+        self.gain = gain
+        self.protection = protection
+        self.correction = correction
+        self.mechanical = mechanical
+        self.i1_match = i1_match
+        self.leakage_free = leakage_free
+        self.out_dir = out_dir
+
+
 class C4FirstEvaluation:
     """C4 首评数据集（复合 + 三子主张 + 机械判据）。"""
 
@@ -821,6 +930,16 @@ def main(argv: list[str] | None = None) -> int:
             f"calibration={first.calibration.verdict.value} "
             f"efference={first.efference.verdict.value} "
             f"switching={first.switching.verdict.value} "
+            f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
+        )
+    elif command == "c5":
+        out_dir = root / "evidence" / "c5_continued_learning_first_evaluation"
+        first = run_c5_first_evaluation(root, out_dir, n_limit=None)
+        print(
+            f"c5: composite={first.composite.verdict.value} "
+            f"gain={first.gain.verdict.value} "
+            f"protection={first.protection.verdict.value} "
+            f"correction={first.correction.verdict.value} "
             f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
         )
     elif command == "c2":

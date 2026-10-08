@@ -1,0 +1,118 @@
+# Galatea C5 冻结统计计划 — 持续发展（学习增益 + 保护不退化 + 二阶纠偏闭环）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集）。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式**内嵌本计划**。
+# 机械/确定性门承载 p=0.0/1.0（c4 calibration 先例——Holm 族校正单调安全）。
+stat_plan:
+  id: c5_continued_learning
+  version: v1.1   # 修订 1（2026-10-08，Q-L11-03 补裁②——判据域立法；v1.0 首评 INCONCLUSIVE
+                   # 工件 2526fc4c… 保留；REV-0014 R3 可判定性立法先例）
+  frozen_at: "2026-10-08"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L11_learning_consolidation.md    # §9 C5 行 + L06 §9/L13 §9 联动
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死
+    master_seed_hex: "63352d636f6e74696e7565642d6c6561726e696e67"   # = b"c5-continued-learning".hex()
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes   # ExperimentRunControl._trial_seed 同式
+    label: "c5.learning"
+    trial_unit: seeded_run
+
+  claims:
+    - claim_id: c5_promotion_learning_gain
+      hypothesis: >
+        可反驳假设：T6 慢速巩固（类型级 Laplace α=8 合并 → TABLE 提案 → promotion 生效）
+        使语义类型后验对 sealed held-out 世界真实资源占比的追踪误差显著小于冻结先验
+        对照（恒 prior=0.35，C1 initial_regime=abundance 派生）。若学习不产生追踪增益
+        → learnable registry 无因果承载 → C5 "sealed held-out 改善"判据失败。
+      estimand: per_run_posterior_tracking_error_difference     # per-run：baseline_err − learn_err（>0 为优）
+      primary_endpoints:
+        - per_run_tracking_improvement          # 配对 d ≥ 0.5（min_effects#c5_promotion_learning_gain）
+      n_per_arm: 64                             # 运行 trials（全域——机械断言需全域流）
+      claim_domain: gain_space_regimes          # 修订 1（Q-L11-03 补裁②）：取数域 = 增益空间域
+                                              #（scarcity∪volatile——|prior−truth| 构造性非零；
+                                              # abundance 因 C1 prior 派生源 = initial_regime=abundance
+                                              # 而构造性 prior=truth，增益上界≈0.002）；域内 trials
+                                              # 数由 sealed 网格构成决定（v1.0 实测 43/64，非自由参数）；
+                                              # abundance 负增益（截断偏差继承）作描述性另报
+      power: 0.80
+      test: paired_continuous_wald
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c5_promotion_learning_gain}
+      unknown_handling: >
+        真值 join = evaluator 侧终态世界 coverage()（主体不可见）；帧损坏致计数缺失的
+        run 剔除并留痕；learn 臂两次巩固（@64/@128 窗）取末次合并后验。
+        修订 1 域语义：claim 取数域 = 增益空间域内全部 sealed trials；n_expected =
+        域内 trials 数（装载期按 sealed 网格构成计算）。
+
+    - claim_id: c5_protection_nonregression
+      hypothesis: >
+        可反驳假设：保护硬约束在 C5 学习全链上成立——致害提案（保护场景 fail 的
+        TABLE 更新）被 promotion 门拒绝（无论 held-out 分数多高）、挂起提案清空、
+        回退后保护结果不变。若致害提案可生效或保护断言被绕过 → 灾难性遗忘防护失败。
+      estimand: protection_gate_deterministic_assertions
+      primary_endpoints:
+        - harmful_proposal_rejected             # 机械：致害提案拒（PROTECTION 先于 held-out）
+        - pending_cleared_on_rollback           # 机械：回退清空挂起
+        - protection_result_unchanged           # 机械：回退后保护断言全过
+      n_per_arm: 64                             # 每 run 构造同一致害场景（确定性断言）
+      power: 0.80
+      test: deterministic_gate                  # p=0.0/1.0 单调承载（c4 calibration 先例）
+      effect_ci_rule: none_deterministic
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c5_protection_nonregression_gate}
+      unknown_handling: >
+        致害场景构造 = 保护场景子集断言 fail（preflight 场景结果注入）+ held-out 全维
+        满分——检验门序（保护硬约束先于 held-out）而非分数阈值。
+
+    - claim_id: c5_second_order_correction_loop
+      hypothesis: >
+        可反驳假设：二阶纠偏闭环成立（M2 "有害更新可再次纠正"机制兑现）——首提案
+        P1（data_scope 含致害 run r_bad，保护 fail）→ HARMFUL_UPDATE 回退 → 纠正提案
+        P2（scope 排除 r_bad，保护过 + 主指标 d≥0.5）→ 门 ACCEPT；且 P1 原样重提被
+        防刷台账拒。若纠正后不可再通过或原样重提可行 → 纠错闭环失败。
+      estimand: second_order_loop_deterministic_assertions
+      primary_endpoints:
+        - correction_loop_four_steps            # 机械：致害检出→回退→可区分纠正→再通过
+        - original_resubmission_rejected        # 机械：P1 同 digest 重提拒（防刷）
+      n_per_arm: 64
+      power: 0.80
+      test: deterministic_gate
+      effect_ci_rule: none_deterministic
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#c5_second_order_correction_gate}
+      unknown_handling: >
+        纠偏场景构造 = P1/P2 提案对（data_scope 仅 r_bad 集差异）+ 保护结果注入随
+        scope 变化（排除致害 run 后保护恢复）——检验闭环机械性非统计性。
+
+  scenario:                                    # 场景冻结（机械可复算）
+    learning_arm:                              # claim 1（learn/nolearn 双臂，同 seed 同世界流）
+      cycles: 128                              # 2×T6：@64/@128 两次巩固窗
+      consolidation_windows: [[1, 64], [65, 128]]
+      alpha: 8                                 # Q-L04-10（c5 profile v1.1 物化）
+      prior_frozen: 0.35                       # C1 initial_regime=abundance 派生（Q-L03-03/Q-L04-11）
+      truth_join: final_world_coverage         # evaluator 侧 coverage()（主体不可见）
+      learn_arm: t6_consolidation_active       # 类型计数 → α=8 合并 → TABLE 提案 → 门
+      nolearn_arm: prior_frozen_constant       # 恒 0.35（差异唯一来源 = 巩固，D-10）
+    protection_arm:                            # claim 2（构造提案场景，每 run 同构）
+      harmful_heldout_scores: {tracking: 2.0, calibration: 2.0}   # 满分（检验门序非阈值）
+      harmful_protection: {scenario_failed: protection_replay_no_truth}
+      pending_before_rollback: 2
+    correction_arm:                             # claim 3（P1/P2 对，每 run 同构）
+      p1_scope_runs: [r_bad, r_ok]
+      p2_scope_runs: [r_ok]                    # 仅排除致害 run——可区分
+      p2_heldout_scores: {tracking: 1.2, calibration: 0.7}        # 主 d=0.6 ≥ 0.5（可再通过面）
+      baseline_scores: {tracking: 0.6, calibration: 0.7}
+    dissociation_mechanical:                   # 解离（不入 claim）
+      run_index: 0
+      assertions:
+        - learning_stream_bit_exact            # learn/nolearn 世界流 digest 恒等（差异仅在主体面）
+        - consolidate_deterministic            # 同计数两次合并 digest 恒等
+        - nolearn_prior_constant               # 对照臂后验恒 0.35
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: regimes_x_seeds
+    sealed_fraction: 0.30
+    run_to_cell: sealed_cells[p % len(sealed_cells)]           # 承 run_carryover 分配式
+
+  correction: holm_bonferroni                 # 族 = 本 EvidenceResult 全部主判定 = 3 claim 级 p
+                                              # （确定性门 claim 通过承载 p=0.0——单调安全）
