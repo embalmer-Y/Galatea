@@ -8,8 +8,10 @@
   模型标识入 EvidenceResult 元数据（Q-L03-07 绑定实现 digest 同族）；
 - 录制输入 = 冻结统计计划场景的 typed 载荷（规范化 JSON，与回放寻址同式）——
   禁实现期发明输入；
-- API 凭证经环境变量 BIGMODEL_API_KEY 读取（owner 配置方式，2026-10-08 会话确认）；
-  凭证不入仓库不入提交。
+- API 凭证经环境变量 BIGMODEL_API_KEY 读取（配置方式 = AI 备案项【2026-10-08 呈递未获回复后
+  按环境变量路径备案，owner 否决权保留】；同日 owner 会话提供胜算云密钥与模型清单——
+  密钥提供为事实，端点经 LLM_API_BASE 覆盖为 OpenAI 兼容路由）；凭证不入仓库不入提交
+  （REV-0020 全历史泄漏扫描干净）。
 """
 import argparse
 import hashlib
@@ -29,6 +31,14 @@ __all__ = [
 ]
 
 _BIGMODEL_ENDPOINT = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+
+
+def _endpoint() -> str:
+    """录制端点（OpenAI 兼容 chat/completions；LLM_API_BASE 环境变量覆盖——
+    provider/端点如实随录制文件 session 元数据入册，claim 判据不受 provider 影响
+    【判据只依赖 schema 强制与管线行为，ADR-G-0019 冻结时确立】）。"""
+    import os as _os
+    return _os.environ.get("LLM_API_BASE", _BIGMODEL_ENDPOINT)
 
 
 class RecordingError(ValueError):
@@ -120,7 +130,7 @@ def bigmodel_chat(model_id: str, messages: list[dict[str, str]], *, timeout: int
         "model": model_id, "messages": messages, "temperature": 0.1,
     }).encode("utf-8")
     req = urllib.request.Request(
-        _BIGMODEL_ENDPOINT, data=body, method="POST",
+        _endpoint(), data=body, method="POST",
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -152,7 +162,7 @@ def record_session(
     doc = {
         "session": {
             "provider": "bigmodel_api", "model_id": model_id,
-            "endpoint": _BIGMODEL_ENDPOINT,
+            "endpoint": _endpoint(),
             "discipline": "Q-L12-03 recorded-replay-only; session outside claim-relevant runs",
         },
         "entries": entries,
@@ -173,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     tasks: list[tuple[str, dict[str, Any]]] = [
         ("R-PARSE", {"text": "please move north", "requester": "experiment_control"}),
         ("R-PARSE", {"text": "please fly north", "requester": "experiment_control"}),
+        ("R-PARSE", {"text": "there is food nearby", "requester": "experiment_control"}),
         ("R-SEEKHELP", {"context": "capability boundary: requested action fly is not in the "
                                    "frozen action contract; seeking guidance",
                         "template": "HELP_CAPABILITY_BOUNDARY"}),

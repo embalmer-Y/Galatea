@@ -5,6 +5,9 @@
 # 语言面判据 = 机械面承载（Q-L12-06① 零后验权重 / Q-L12-07 消融 bit-exact /
 # 多来源匹配 = Q-L12-05 机械判定）——不入统计 claim（M2 SC5 先例）；
 # REPLAY_LLM 角色输出经录制回放（Q-L12-03；录制文件 digest 随运行入 manifest）。
+# 运行前修订留痕（REV-0020 R2；首评运行前完成，C2 修订先例体例）：
+#   修订 1 = calibration claim threshold 补 min_effect_ref 引用（Q-L13-09 装载校验对齐——
+#   min_effects 增 c4_attribution_calibration_gate 条目，三阈值与判定器/Q-L10-04/Q-L10-05 逐值同，零判据变化）。
 # 解离判据 = 确定性机械判据，由 runner 机械断言承载。
 stat_plan:
   id: c4_action_social
@@ -36,7 +39,9 @@ stat_plan:
       power: 0.80
       test: deterministic_gate                  # 阈值断言 + 机械三面（Q-L13-01 体例；无分布检验——构造表无采样噪声）
       effect_ci_rule: none_deterministic
-      threshold: {ece_max: 0.10}                # Q-L10-04 继承（Q-L03-04 同构 15 箱）
+      threshold:
+        min_effect_ref: config/evidence/min_effects.yaml#c4_attribution_calibration_gate
+        ece_max: 0.10                    # Q-L10-04 继承（Q-L03-04 同构 15 箱；条目同值锚定）
       unknown_handling: >
         ground truth join = evaluator 侧干预记录（intervention registry 类型 + 选择记录 +
         world digest twin）——主体平面不可见； sham 条件的 UNKNOWN 裁决率（期望 ≈1）

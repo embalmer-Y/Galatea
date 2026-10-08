@@ -134,3 +134,10 @@ entries:
     metric: seek_help_and_abandon_counts_injected_vs_clean   # 标度 = per-run 触发计数差（配对；joint）
     min_effect: {type: cohens_d, value: 0.5}
     min_n: 64
+  - id: c4_attribution_calibration_gate                      # v1.6 追加（stat plan 装载格式对齐）
+    q: Q-L10-05
+    claim_gate: C4
+    thresholds:                                            # 确定性门（非效应量；Q-L10-04 继承）
+      ece_max: 0.10
+      endpoint_errors_max: 0
+      ambiguous_trace_rate_min: 1.0

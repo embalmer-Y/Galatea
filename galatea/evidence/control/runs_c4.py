@@ -504,7 +504,7 @@ class C4Runner:
                 if lang_frame is not None:
                     parsed = parse_language_frame(lang_frame.features, lang_frame.frame_id,
                                                   replay, self._c4)
-                    if parsed.kind == "request":
+                    if parsed.kind in ("request", "instruction"):   # L12 §4.3：同走请求面
                         # 原语映射 = 冻结场景文本（stat plan statement_request/
                         # capability_request 原文；帧 ID 不承载语义）
                         req_outcome = self._handle_request(

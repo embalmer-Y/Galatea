@@ -14,7 +14,7 @@
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.5
+  version: v1.6
   frozen_at: "2026-10-05"
   authority: AI-v2
   artifacts:
@@ -86,3 +86,23 @@ artifact_manifest:
       path: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
       sha256: 01a58dd57c0ce9e1c0d1c16530809e4d0b28801106636bc8ef5abcd4f919a62c
       gate: C3 首评——AFFECTIVE 不独占上界（mean share 0.0 < 0.5）
+    - name: c4-recording-v1
+      path: evidence/c4_recording/recording_v1.json
+      sha256: 4428feb95056816d7818db08af09ed56dc938e7d6278ee00e66798f204f356bd
+      gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim 运行唯一 LLM 承载）
+    - name: R-c4-action-social-001
+      path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
+      sha256: 49de1ee6546683ee963b0a3d4ac655b07f2279def5051bdd084741d60a19c2cb
+      gate: C4 首评复合判定（顺延终止条款第五次执行；Holm 族 = 3 claim 级 p）
+    - name: R-c4-calibration-001
+      path: evidence/c4_action_social_first_evaluation/R-c4-calibration-001.json
+      sha256: 6ea193c9cab4e505588a01f0a2c3a6547fb7c1e36ba502a148107b4289f1d3e9
+      gate: C4 首评——概率 agency 校准（ECE=0.0 确定性门 + 端点零错误 + 歧义留痕 128/128）
+    - name: R-c4-efference-002
+      path: evidence/c4_action_social_first_evaluation/R-c4-efference-002.json
+      sha256: d8598cff925e81ca885a4dbe09be00af31c1b464d83a5373957d85a6717de365
+      gate: C4 首评——Efference 闭环归属因果（副本消融配对 mean 1.0 饱和上确界）
+    - name: R-c4-switching-003
+      path: evidence/c4_action_social_first_evaluation/R-c4-switching-003.json
+      sha256: f1352455f94b95bebd94ece412404d5880c9c51e08c98348fe368d4e5d226a93
+      gate: C4 首评——切换面扩展（REV-0018 R3 重评：seek_help 0.984/abandon 1.0/observe 45.9 joint）
