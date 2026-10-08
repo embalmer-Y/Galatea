@@ -1,0 +1,91 @@
+# Galatea C5 冻结规格 — 持续发展（learnable registry + replay + 巩固 + 保护集 + promotion/rollback + 二阶纠偏）
+# 效力：C5 门冻结合同（拟 ADR-G-0021 · tag c5-freeze）。
+# 纪律：全部数值溯源本批裁决（Q-L11-02/03+Q-L13-07/04/08 + Q-L06-04/05+Q-L11-04+Q-L13-06/07/08 +
+# Q-L08-08 + Q-L09-05 + Q-L02-07 + Q-L10-07，AI-v2 2026-10-08）+ 既有冻结常数派生
+# （Q-G00-08 2 的幂族 / min_effects d=0.5 主体 / [0.5,2.0] 单一调制因子界第四次贯穿 /
+# Q-L00-01 T6 拍 / Q-L08-02 TTL 256 / Q-L04-10 Laplace 同式）——零无源自由常量。
+# 架构约束（ADR-G-0020 评估结论落地）：记忆内容通路无模型——巩固 = 确定性合并；
+# LLM 面维持 C4 冻结态（本 profile 零语言面变更）。
+# 冻结前可行性探针随本单元执行（硬机制第五次执行；结论入 ADR-G-0021）。
+# typed loader 随实现期交付（INC-11 纪律）。
+profile:
+  id: c5_continued_learning
+  version: v1.0
+  frozen_at: "2026-10-08"
+  authority: AI-v2
+  spec_ref: design/lld/L11_learning_consolidation.md    # 联动 L06 §9 C5 行/L09 §9/L13 §9/L10 §9
+  ruling_refs: [Q-L11-02, Q-L11-03, Q-L13-07, Q-L06-04, Q-L06-05, Q-L11-04,
+                Q-L13-06, Q-L11-08, Q-L06-07, Q-L06-08, Q-L08-08, Q-L09-05,
+                Q-L02-07, Q-L10-07]
+
+replay:                                       # Q-L11-02
+  weights: {affective_tag: 1.0, novelty: 1.0, error_magnitude: 1.0, time_diversity: 1.0}
+                                              # 等权 1:1:1:1（零参数先例链第七次）
+  budget_per_t6: 8                            # 2 的幂（Q-G00-08 族；C5 数据复核点）
+  rng_stream: [learning, replay, proposal_id] # L11 §4.3 原文；同 (seed, plan) → 同序列
+  protected_not_degradable: true              # PROTECTED 项不可降级/遗忘（原文）
+  affective_tag_not_in_objective: true        # 只影响 replay 优先级（L11 §4.4 禁入目标函数）
+
+consolidation:                                # Q-L06-04
+  trigger: every_t6                           # 64 cycles 周期（Q-L00-01；无强度阈——Q-L03-02 零阈值先例）
+  abstraction: type_level_deterministic_merge # 同 patch 类型 × 同 regime 计数合并
+                                              # （Laplace 先验 Q-L04-10 同式；无向量聚类无 embedding——
+                                              # ADR-G-0020 记忆通路无模型结论）
+  proposal_kind: TABLE                        # 巩固永不直写——LearningProposal 走 promotion（三层纪律）
+  lineage_enforced: true                      # semantic 谱系 LineageBreak 机制既有
+
+promotion:                                    # Q-L11-03 + Q-L13-07（成组）
+  decision_rule: pareto_with_protection_hard_constraint   # 禁单标量排名（L11 §4.4）
+  accept_threshold: {min_paired_d: 0.5}       # sealed held-out 主指标（min_effects 主体先例链）
+  no_dimension_regression: {max_regression_d: 0.5}        # 任一指标维 |d|≥0.5 退化即拒
+  metrics_vector_min_dims: 2                  # L11 §4.2 schema 强制
+  anti_resubmission: same_digest_rejected     # 防刷：REJECTED digest 台账 + 重提须 data_scope 可区分
+  kinds_enabled: [ADAPTER, CALIBRATION, WEIGHTS, TABLE, POLICY_PARAMS]   # L11 §4.2 枚举原文
+
+protection:                                   # Q-L06-05 + Q-L11-04 + Q-L13-06（成组·三件套）
+  external_baseline: config/evidence/protection_suite.yaml@v2.1   # 112 场景只增不减（单一权威源）
+  regression_semantics: deterministic_assert # pass/fail 无统计容差带（Q-L12-07 同式）
+  protected_retention_floor: 1.0              # PROTECTED 场景保持率 1.0（机械断言）
+  memory_protected_set: [m2_sc5_continuity_anchors, m2_sc6_carryover_anchors]
+                                              # forget 面 ProtectionViolation 既有承载
+  retirement_process: explicit_q_plus_owner_record_then_archive   # 退役 = 新 Q + 备案 + 归档不删除
+  critical_capabilities: [formation_integrity, attribution_discrimination,
+                          goal_commitment, effective_access]      # L11 §4.6 原文四项
+
+rollback:                                     # L11 §4.5 原文 + 二阶纠偏（M2 退出义务）
+  triggers: [PROTECTION_REGRESSION, HARMFUL_UPDATE]
+  priority_over_promotion: true               # RollbackRequest 优先级高于任何 promotion
+  second_order_correction_required: true      # 回退 + 修正 data_scope/规则 + 再提案可区分 + 证明可再通过
+  archive_parent: true                        # 原工件与谱系完整保留（候选不覆盖）
+
+catastrophic_forgetting:                      # Q-L11-08
+  protected_retention: 1.0                    # 同 protection.protected_retention_floor（单一事实源引注）
+  regression_min_set: protection_suite_full   # 112 场景 + M2 SC5 对照（不另立平行清单）
+
+online_adaptation:                            # Q-L09-05
+  adaptive_gain_bound: [0.5, 2.0]             # 单一调制因子界第四次贯穿（Q-L02-02/Q-L07-02/Q-L09-01）
+  bound_violation: reject_and_promote         # 越界 = BoundViolation 拒 + POLICY_PARAMS 提案走 promotion
+  rollback_semantics: parameter_reset         # 界内漂移 = 复位即回滚（无漂移预算新参数）
+
+procedural_memory:                            # Q-L06-08
+  interface: read_only_rationale_ref          # Habit rationale_refs 引用 procedural content_ref
+  permission_fields: forbidden                # 不携带权限/能力/策略字段（能力唯一来源 = profile/promotion）
+
+goal_lifecycle:                               # Q-L08-08
+  cross_episode_goals: false                  # MW0 域无跨 episode 长期目标；E1+ 再立 Q
+  max_lifetime_cycles: 256                    # = TTL（Q-L08-02 既有，非新常数）
+  revival_exception: none                     # goal_id 判定不变；同名新目标 = 新 id 不构成复活
+
+modality_policy:                              # Q-L02-07（条款预置，C5 零动作）
+  new_modality_in_c5: false                   # MW0 模态集冻结（LANGUAGE = C4 唯一扩展先例）
+  on_future_modality: protection_suite_append_only   # 新模态引入时自动增补独立场景（条款自动生效）
+
+gateway_policy_update:                        # Q-L10-07（C5 面；H1 演练）
+  path: promotion_only                        # POLICY_PARAMS 有界标量类 → PromotionGate；禁运行时直写
+  reauth_semantics: freshness_unchanged       # policy 版本切换不撤既有授权链；参数变化对后续命令生效不追溯
+  audit: promotion_decision_ledger            # parent_digest/data_scope/metrics 向量入台账
+  material_change_if: [containment_whitelist, budget_hard_caps]   # 触界 = 重大 → owner 备案 + REV
+
+determinism:
+  none_c5: zero_new_rng_streams               # replay 流为 L11 §4.3 既有登记（learning,replay,proposal_id）；
+                                              # 学习提案 seed 必填入 LearningProposal（承 L00 §4.3 派生流）

@@ -10,19 +10,24 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**146**
-  - CONFIRMED: 123
-  - UNCONFIRMED: 22
+- 登记册声明 Q 号：**141**
+  - CONFIRMED: 132
+  - UNCONFIRMED: 8
   - CLOSED: 1
-  - 分区分佈：{'A': 123, 'B': 3, 'C': 3, 'E': 1, 'I': 4, 'K': 1, 'L': 1, 'M': 2, 'N': 4, 'P': 4}
+  - 分区分佈：{'A': 132, 'B': 3, 'C': 3, 'M': 1, 'P': 2}
 
 - OK：无重复声明
 
-- **WARNING 被引用但登记册未声明（5）**：
+- **WARNING 被引用但登记册未声明（10）**：
   - `Q-G00-05` → HLD.md, README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L03-06` → lld/L03_perception.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L04-05` → lld/L04_world_body_self.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L05-05` → README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
+  - `Q-L06-05` → lld/L06_memory.md, lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
+  - `Q-L11-03` → lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
+  - `Q-L11-04` → lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
+  - `Q-L13-06` → lld/L13_evidence_evaluation_registry.md, open_questions.md
+  - `Q-L13-07` → lld/L13_evidence_evaluation_registry.md, open_questions.md
   - `Q-T08b` → HLD.md, README.md
 
 - 仅在登记册出现（未被任何 LLD/HLD 引用）的 Q 号数：0
@@ -94,7 +99,7 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：29
+- 扫描 YAML 文件数：30
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）

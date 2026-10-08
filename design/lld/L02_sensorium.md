@@ -231,4 +231,4 @@ config/profiles/
 | Q-L02-04 | 质量估计量纲与跨模态可比性（是否需归一到统一 [0,1] 精度标度） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L02-05 | 内感受模态的最小集与"损伤事件"离散化阈值（联动 Q-L01-08、L05 驱力） | C0 | CONFIRMED（AI-v2 2026-10-02：C0 内感受最小集四 sensation——energy_level/integrity_level（连续 [0,1]）+ damage_event/energy_depleted（离散，零新阈值：Q-L01-08 世界侧离散化 + Q-L01-09⑤ 锁存）；energy_rate = 派生差分非独立 sensation，见 A 区） |
 | Q-L02-06 | 感觉层预测误差的特征空间定义（MW0 期是否直接用网格观测向量） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
-| Q-L02-07 | C5 新模态适配是否需独立 protection 场景（防适配破坏既有模态） | C5 | UNCONFIRMED |
+| Q-L02-07 | C5 新模态适配是否需独立 protection 场景（防适配破坏既有模态） | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |

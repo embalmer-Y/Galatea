@@ -227,8 +227,8 @@ config/profiles/
 | Q-L06-01 | 八子系统的容量上界与溢出策略（拒写 / 强制巩固 / 降级 ARCHIVED） | **AI-v2（2026-10-06）：**容量 2 的幂（working 16/episodic 1024/semantic 256/procedural 256/affective_value 1024/prospective 64/autobiographical 256/metamemory 256）；溢出 = 强制降级最旧 LABILE→ARCHIVED（禁拒写禁删除）；入 c2_memory.profile v1.0；实现件 = C2 次单元 | CONFIRMED |
 | Q-L06-02 | 检索打分权重 α/β/γ/δ/ε 默认值与是否受 L05 有界调制 | **AI-v2（2026-10-06）：**五分量等权 1:1:1:1:1；recency = max(0,1−age/64)；无标注 valence 缺省 0；C2 不受 L05 调制（三类调制面不含 MEMORY_ENCODER）；入 c2_memory.profile；实现件 = C2 次单元 | CONFIRMED |
 | Q-L06-03 | 各子系统衰减 τ 谱与访问增强上限 | **AI-v2（2026-10-06）：**τ_sub 2 的幂梯（working 4/episodic+affective_value 256/其余 1024）；衰减 = strength×(1−1/τ) 每 T6 拍；访问增强 +0.125 上界 1.0（Q-L04-10 先例）；PROTECTED 豁免；入 c2_memory.profile；实现件 = C2 次单元 | CONFIRMED |
-| Q-L06-04 | 巩固窗口触发条件（每 T6 / 强度阈 / 重放选中）与抽象的聚类粒度 | C5 | UNCONFIRMED |
-| Q-L06-05 | 保护集构成规则（谁标 PROTECTED、最小集内容、可否被 promotion 扩容） | C5/E1，与 L11 §保护集联动 | UNCONFIRMED |
+| Q-L06-04 | 巩固窗口触发条件（每 T6 / 强度阈 / 重放选中）与抽象的聚类粒度 | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
+| Q-L06-05 | 保护集构成规则（谁标 PROTECTED、最小集内容、可否被 promotion 扩容） | C5/E1，与 L11 §保护集联动 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L06-06 | RECALLED/PERCEIVED 混淆率的测量协议与可接受上限 | **AI-v2（2026-10-06）：**协议 = 2×2 交叉（呈现×回忆，E1 冻结统计计划首评）；上限 0.05（锚 Q-L03-04 校准容差同源）；C2 = 计数接口在位（实现件 = C2 次单元）+ 保护集回归登记 | CONFIRMED |
-| Q-L06-07 | tombstone 保留期与库体积治理（与 Q-L00-06 分片策略联动） | C5/H1 | UNCONFIRMED |
-| Q-L06-08 | procedural 记忆向 L09 提案的接口形式（防"经验变权限"） | C3/C5 | UNCONFIRMED |
+| Q-L06-07 | tombstone 保留期与库体积治理（与 Q-L00-06 分片策略联动） | C5/H1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
+| Q-L06-08 | procedural 记忆向 L09 提案的接口形式（防"经验变权限"） | C3/C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |

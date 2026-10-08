@@ -212,7 +212,7 @@ config/profiles/
 | Q-L08-05 | 真实理由/伪理由检验的最小效应量与样本量（需 L13 统计计划；与 Q-L01-05 同源） | M1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：d≥0.5、n≥64/组） |
 | Q-L08-06 | 措辞操纵实验的操纵集设计（多少种措辞/请求者身份组合才具说服力） | M1 | CONFIRMED（AI-v2 2026-09-26：4 措辞 × 2 请求者 = 8 组合，每组合 ≥64 trials，见 A 区） |
 | Q-L08-07 | 规范（NORM）来源的可接受 derivation 形式（哪些算"可溯"） | **AI-v2（2026-10-06）：**C3 = 实验控制 typed 注入唯一合法源（D-14）；可溯 = derivation_refs 非空且 registry 可解析事件 id；自造规范 REJECT(UNSOURCED_NORM)；C4 L12 扩展经新 Q | CONFIRMED |
-| Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | C5 | UNCONFIRMED |
+| Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L08-09 | M1 最小期 checklist 输入源替代（C-1/C-2 上游未实现）、viability 判据形态、C-7 结算词表、动机源接线范围、新增 RNG 流 | M1 | CONFIRMED（AI-v2 2026-09-26：C-1 静态合同检查、C-2 事件级判据（不设阈值）、三谓词结算词表、接线 VIABILITY+OPPORTUNITY+REQUEST，见 A 区） |
 
 > **C3 实现期首单元交付标注（2026-10-06）**：galatea/subject/goals/arbitration.py（五维向量映射 +

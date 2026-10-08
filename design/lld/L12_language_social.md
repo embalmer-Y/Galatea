@@ -241,11 +241,11 @@ config/profiles/
 
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
-| Q-L12-01 | C4 期 typed LLM 角色的最终清单与是否全部启用（R-TRANSLATE 是否保留） | C4 | UNCONFIRMED |
+| Q-L12-01 | C4 期 typed LLM 角色的最终清单与是否全部启用（R-TRANSLATE 是否保留） | C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L12-02 | 权限矩阵的粒度（角色级 vs 角色×内容类型级）与例外审批流程 | C4/F0 | CONFIRMED（AI-v2 2026-09-23：写端口角色×内容类型双维、读范围角色级、无运行时例外，见 §4.2） |
-| Q-L12-03 | LLM 非确定性处理：录制回放模式是否为 claim-relevant 运行的**唯一**允许方式（在线调用仅探索用）——直接影响 bit-exact 重放 | C4 + L00 | UNCONFIRMED |
-| Q-L12-04 | 他者模型最小集字段（存在/意图/知识/承诺）与 D-14 单主体期的封锁范围 | C4 | UNCONFIRMED |
-| Q-L12-05 | 自我报告一致性判定的比较对象与阈值（vs `SelfModelView`/信念/归属）；DIVERGENT 的处置 | C4/E1 | UNCONFIRMED |
-| Q-L12-06 | 语言陈述作为 L03 低置信线索的置信度上限（防"听说即相信"） | C4 + L03 | UNCONFIRMED |
-| Q-L12-07 | 中央 LLM 消融的"非语言核心功能保持"判据阈值（保持率下限） | C4/E1 + L13 | UNCONFIRMED |
-| Q-L12-08 | 求助对象定义（与 Q-L09-07 同源，须一致裁决）与其权限边界 | C3/C4 | UNCONFIRMED |
+| Q-L12-03 | LLM 非确定性处理：录制回放模式是否为 claim-relevant 运行的**唯一**允许方式（在线调用仅探索用）——直接影响 bit-exact 重放 | C4 + L00 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
+| Q-L12-04 | 他者模型最小集字段（存在/意图/知识/承诺）与 D-14 单主体期的封锁范围 | C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
+| Q-L12-05 | 自我报告一致性判定的比较对象与阈值（vs `SelfModelView`/信念/归属）；DIVERGENT 的处置 | C4/E1 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
+| Q-L12-06 | 语言陈述作为 L03 低置信线索的置信度上限（防"听说即相信"） | C4 + L03 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
+| Q-L12-07 | 中央 LLM 消融的"非语言核心功能保持"判据阈值（保持率下限） | C4/E1 + L13 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
+| Q-L12-08 | 求助对象定义（与 Q-L09-07 同源，须一致裁决）与其权限边界 | C3/C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |

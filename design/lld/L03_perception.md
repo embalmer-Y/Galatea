@@ -206,5 +206,5 @@ config/profiles/
 | Q-L03-03 | MW0 表格融合的先验 π 与似然表构造方式（手算可复核 vs 由 L01 dynamics 表导出） | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
 | Q-L03-04 | 校准达标判据（ECE 阈值、分箱策略、最小样本量）——与 L13 统计计划联动 | C1 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：ECE≤0.05、等质量 15 箱、每箱 ≥30） |
 | Q-L03-05 | 多假设保留数量上限与塌缩条件（何时必须收敛为单信念） | C1/C2 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |
-| Q-L03-06 | affordance 的 `action_class` 枚举与 L09/L10 能力契约的对齐方式 | C3/C4 | UNCONFIRMED |
+| Q-L03-06 | affordance 的 `action_class` 枚举与 L09/L10 能力契约的对齐方式 | C3/C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L03-07 | C1+ 神经 encoder 替换表格融合时的等价性验证方法（防"换实现即换主张"） | C1 | CONFIRMED（AI-v2 2026-10-03，见 open_questions A 区） |

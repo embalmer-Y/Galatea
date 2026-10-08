@@ -241,4 +241,4 @@ config/profiles/
 | Q-L05-05 | 持续极端 aversive-like 阈值与处置（成组 Q-G00-05） | 伦理 | CONFIRMED（AI-v2 2026-10-05，见 A 区：valence≤−0.8 ∧ persistence≥0.8 持续 64 cycles → owner 人工评审；**经 owner 备案程序**） |
 | Q-L05-06 | `tendencies.action_class` 枚举（与 Q-L03-06 affordance、Q-L04-05 能力粒度对齐） | **AI-v2（2026-10-06，自 C3/C4 提前——九维构造需要，新增即裁）：**= L10 五原语冻结枚举 {move,forage,eat,rest,look}（f0_action_contract 权威源）；L03 affordance 为真子集；inhibited 默认 True | CONFIRMED |
 | Q-L05-07 | anti-reward-collapse 检验的统计量与阈值（"九维不可被单维线性重构"的拟合优度门限） | C2/E1 + L13 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：最优单维线性重构 R²<0.9） |
-| Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | C4 | UNCONFIRMED |
+| Q-L05-08 | `social_relevance` 在 C4 后由 L12 供给线索的最小定义（避免伪造社会情感） | C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |

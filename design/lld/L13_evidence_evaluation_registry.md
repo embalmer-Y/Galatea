@@ -337,8 +337,8 @@ config/evidence/
 | Q-L13-03 | `EvidenceResult` 与 `ExpansionDecision` 的签发者分离形式（人/角色/工具）与记录格式 | R0 | CONFIRMED（AI-v2 2026-10-02：模块级双签发者——evaluator 机械算出 vs gate/expansion.py 独立签发仅消费根结果 digest；ALLOW 前置 = REV 引用 + 无约束；见 A 区） |
 | Q-L13-04 | `core_decision_registry` 六类路径的**全枚举**与十类路径的定稿（含 `unresolved_paths[]`/分母闭合判据） | **Q-G00-04**（已裁决）→ E1 | CONFIRMED（AI-v2 2026-09-23，随 Q-G00-04：card_04 原文采纳；闭合判据不变；60 格逐格结论属 E1 交付） |
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | CONFIRMED（AI-v2 2026-10-02：R0 = 三源探针 STATIC/RUNTIME/DATA + 注入可失败（P01–P14）；C0 期义务同条钉死——import-linter 契约 + 生产路径钩子 + DuckDB 查询；见 A 区） |
-| Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值（联动 Q-L11-04 / Q-L06-05） | C5/E1 | UNCONFIRMED |
-| Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | UNCONFIRMED |
+| Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值（联动 Q-L11-04 / Q-L06-05） | C5/E1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
+| Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | UNCONFIRMED |
 | Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | F0/R0 | CONFIRMED（AI-v2 2026-09-23：`config/evidence/min_effects.yaml` 统一登记册 + 7 项初值，见 A 区） |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | UNCONFIRMED |

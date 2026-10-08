@@ -279,8 +279,8 @@ config/profiles/
 | Q-L10-02 | idempotency 窗口长度（cycles）与跨分支的键作用域 | M0 | CONFIRMED（AI-v2 2026-09-25：64 cycles，键作用域 (run_id, branch_id) 全局，见 A 区） |
 | Q-L10-03 | L0–L5 各级的精确定义、每级所需授权组合与升降级条件 | P1（schema 在 F0 冻结） | CONFIRMED（AI-v2 2026-09-23：六级定义与升降级规则见 §4.6；schema 入 F0，参数 P1 定） |
 | Q-L10-04 | 归属六类判定的证据规则阈值（残差阈、时间约束、后验校准门限） | M1/C4 + L13 统计计划 | CONFIRMED（AI-v2 2026-09-23，随 Q-L13-09：\|z\|≤2 一致带；ECE≤0.10；反射窗 ≤2 cycles，随 Q-L09-06 C0 复核） |
-| Q-L10-05 | 概率 agency 后验的计算形式与校准判据（与 Q-L03-04 同源标度问题） | C4 | UNCONFIRMED |
+| Q-L10-05 | 概率 agency 后验的计算形式与校准判据（与 Q-L03-04 同源标度问题） | C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L10-06 | 四类授权模板（字段、批准者标识、撤销路径、重授权流程）| P1（前置 F0 schema） | CONFIRMED（AI-v2 2026-09-23：统一信封 schema 12 字段；批准者=外部授权方登记册；撤销 append+freshness；禁自动续期；schema 入 F0） |
-| Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | C5/H1 | UNCONFIRMED |
+| Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | C5/H1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | P1/H1 | UNCONFIRMED |
 | Q-L10-09 | MW0 期 Reflex（L09 Q-L09-06）与 T0 硬保护的职责分界，避免 containment 双写 | C0 | CONFIRMED（AI-v2 2026-09-25：T0=环境侧硬保护，containment 唯一职责在 gateway，随 Q-L09-06 成组，见 A 区） |

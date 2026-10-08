@@ -1,6 +1,6 @@
 # L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集
 
-> LLD: L11/14 · v1.0.2 · 2026-10-05（v1.0.2：REV-0013 R3b——§9 C1 行措辞与 Q-L02-01/Q-L02-06/Q-L11-01/06 对齐）· v1.0.1 2026-10-04（§11 Q-L11-01/06 转 CONFIRMED——C1 件初值裁决，神经谱显式留 C5）· v1.0 2026-09-13 · 状态：WORKING（C5 冻结前；提案接口在 C1 起可用）
+> LLD: L11/14 · v1.0.3 · 2026-10-08（v1.0.3：C5 冻结同步——§11 四 Q 转 CONFIRMED + §4.3 权重裁决落地 + §5 节拍注记【REV-0021 R1/R6】）· v1.0.2 2026-10-05（REV-0013 R3b——§9 C1 行措辞与 Q-L02-01/Q-L02-06/Q-L11-01/06 对齐）· v1.0.1 2026-10-04（§11 Q-L11-01/06 转 CONFIRMED——C1 件初值裁决，神经谱显式留 C5）· v1.0 2026-09-13 · 状态：WORKING（C5 冻结前；提案接口在 C1 起可用）
 > 上游：`HLD.md` §1.2（持续发展）/§6.1/§10.4（C5）/§13.1（reward 塌缩/灾难遗忘/伪更新） · `L00_kernel.md`（registry/digest/谱系）· `L04/L06/L09/L10`（误差与经验源）· `L05`（情感价值，**非 reward**）
 > 下游：Promotion Gate → registry（模型/参数生效）；L06（记忆巩固协同）；L13（promotion 证据评价）
 > 引入门槛：**C1**（在线局部适应接口）→ **C5**（learnable registry、replay、巩固、保护集、promotion/rollback、二阶纠偏）→ **E1/H1**（长程不退化）
@@ -93,7 +93,7 @@ LearningProposal(
 
 ### 4.3 replay（经历重放）
 
-- `ReplayPlan(selection_policy, budget, protected_items[])`；策略默认：情感标注加权 + 新颖性 + 误差大小 + 时间多样性的混合（权重 UNCONFIRMED → Q-L11-02）。
+- `ReplayPlan(selection_policy, budget, protected_items[])`；策略默认：四分量**等权 1:1:1:1** + budget 每 T6 重放 8 条（Q-L11-02 CONFIRMED AI-v2 2026-10-08——等权先例链第七次；AffectiveValueTag 只入优先级不入目标函数）。
 - replay 只读 L06 事件引用；**不**重放 recorder 真值，**不**使用 evaluator 标签（泄漏纪律）。
 - RNG 流 `("learning","replay",proposal_id)`；同 (seed, plan) → 同 replay 序列（bit-exact，可复算）。
 - 保护项（`PROTECTED`，承 L06 §4.5）在 replay 中不可被降级/遗忘。
@@ -131,7 +131,7 @@ LearningProposal(
 | 级 | 挂点活动 |
 |---|---|
 | T2–T4 | 在线局部适应（`BoundedAdaptation` 提案 + 消费回执）；误差趋势累积 |
-| T5（每 N4） | replay 计划与执行、adapter/calibration 候选生成、`LearningProposal` 提交 |
+| T5（每 N4） | replay 计划与执行、adapter/calibration 候选生成、`LearningProposal` 提交（节拍注记 REV-0021 R6：replay 调度挂 T5 拍，budget 记账窗 = T6【8 条/T6 = 每 T6 周期累计重放上限，与 §4.1 慢速巩固 T6 同窗对齐】——c5 profile budget_per_t6 为准） |
 | T6（每 N5） | 慢速巩固：长期模型版本候选、与 L06 巩固流水线协同、protection preflight 汇总、rollback 请求 |
 | 异步（外部） | Promotion Gate / sealed evaluation（L13，不在主体调度环内；主体只消费 Decision） |
 
@@ -233,10 +233,10 @@ config/profiles/
 | Q 号 | 问题 | 依赖 | 状态 |
 |---|---|---|---|
 | Q-L11-01 | 三层可塑性的学习率谱（在线适应步长上界、adapter 秩/步长、巩固批大小） | C1/C5 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
-| Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | C5 | UNCONFIRMED |
-| Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束的具体规则）与最小改善阈值 | C5，与 L13 统计计划联动 | UNCONFIRMED |
-| Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量）——与 Q-L06-05 保护集构成联动 | C5/E1 | UNCONFIRMED |
+| Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
+| Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束的具体规则）与最小改善阈值 | C5，与 L13 统计计划联动 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
+| Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量）——与 Q-L06-05 保护集构成联动 | C5/E1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L11-05 | 二阶纠偏"可区分性"的形式判据（data_scope 差异度量） | C5/M2 | CONFIRMED（AI-v2 2026-09-26：M2 集合级判据——data_scope 对称差非空即可区分，三步闭环签名，见 A 区） |
 | Q-L11-06 | 在线适应是否需持久化（checkpoint 内参数）或仅运行期有效（重启复位） | C1/C5 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L11-07 | `metrics_snapshot` 的标准指标集（跨档统一，供 L13 评价复用） | F0/C5 + L13 | CONFIRMED（AI-v2 2026-09-23：向量 schema {name/value/direction/unit/scope} + 最小标准集四项，见 open_questions A 区） |
-| Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | C5/E1 | UNCONFIRMED |
+| Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | C5/E1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |

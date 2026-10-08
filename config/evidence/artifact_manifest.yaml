@@ -15,7 +15,7 @@
 artifact_manifest:
   id: evidence_artifact_manifest
   version: v1.6
-  frozen_at: "2026-10-05"
+  frozen_at: "2026-10-08"   # v1.6（REV-0021 R5 修正：随 v1.4–v1.6 升版同步——此前滞留 v1.3 日期）
   authority: AI-v2
   artifacts:
     - name: R-m1-sc3-001

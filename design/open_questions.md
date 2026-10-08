@@ -6,7 +6,7 @@
 >
 > **分区索引**：A 已裁决存档 · B 全局（G）· C L00 · D L01 · E L02 · F L03 · G L04 · H L05 · I L06 · J L07 · K L08 · L L09 · M L10 · N L11 · O L12 · P L13 · Q 跨档联动与 F0 阻断清单
 > 另：开发流程域 Q-DEV 系列与标识符治理域 Q-ID 系列登记于仓库根 `DEV_SPEC.md`（附录 D / §13）。
-> **规模**：CONFIRMED 125 项（A 区 125 行实点；含成组行 2 行双 Q——Q-L05-05+Q-G00-05、Q-L03-06+Q-L04-05，行数≠项数差 2）；UNCONFIRMED 20 项（G 1 + L00 2 + L02–L13 17，分区行实点；承 REV-0015 R3 分解勘误口径）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（C2 实现期首单元）：Q-L02-02 + Q-L05-06 + Q-L06-01/02/03/06 + Q-L07-01…06 成批裁决（C2 行 Q 号全清零——ADR-G-0015 范围声明兑现；L06/L07 冻结参数随裁入 c2_memory/c2_workspace profile v1.0）。 本批（C3 准备单元）：Q-L08-03/04/07 + Q-L09-01/02/03/04/07 成批裁决（C3 阻断清零——等权先例链 + 事件级判据 + 既有冻结常数锚定零新自由参数；数值入 c3_motivation.profile）。 本批（C4 准备单元）：Q-L01-07 + Q-L03-06+Q-L04-05（成组）+ Q-L05-08 + Q-L10-05 + Q-L12-01/03/04/05/06/07/08 成批裁决 12 项（C4 阻断清零——**D-14 规范边界**（不引入第二代理，owner 决策级）+ 构造性查表概率 agency（8 格逐格规则溯源）+ **录制回放 = claim-relevant 唯一允许方式**（LLM 确定性纪律，回放 miss fail closed）+ 语言陈述零后验贡献 + 消融保持率 1.0 机械判据；数值入 c4_action_social.profile）。
+> **规模**：CONFIRMED 141 项（A 区 136 行实点；成组行 4 行——Q-L05-05+Q-G00-05、Q-L03-06+Q-L04-05、Q-L11-03+Q-L13-07、Q-L06-05+Q-L11-04+Q-L13-06，行数≠项数差 5）；UNCONFIRMED 6 项（G 1 + L00 2 + E1/H1/P1 期 3——Q-L10-08/Q-L13-08/Q-L13-10，分区行实点）；CLOSED 1 项（Q-L00-03，编号不复用）。计数纪律：已裁行从分区**移除**（仅存 A 区），头部计数以分区行机械实点为准（INC-09/R11 教训）。本批（C2 实现期首单元）：Q-L02-02 + Q-L05-06 + Q-L06-01/02/03/06 + Q-L07-01…06 成批裁决（C2 行 Q 号全清零——ADR-G-0015 范围声明兑现；L06/L07 冻结参数随裁入 c2_memory/c2_workspace profile v1.0）。 本批（C3 准备单元）：Q-L08-03/04/07 + Q-L09-01/02/03/04/07 成批裁决（C3 阻断清零——等权先例链 + 事件级判据 + 既有冻结常数锚定零新自由参数；数值入 c3_motivation.profile）。 本批（C4 准备单元）：Q-L01-07 + Q-L03-06+Q-L04-05（成组）+ Q-L05-08 + Q-L10-05 + Q-L12-01/03/04/05/06/07/08 成批裁决 12 项（C4 阻断清零。——**D-14 规范边界**（不引入第二代理，owner 决策级）+ 构造性查表概率 agency（8 格逐格规则溯源）+ **录制回放 = claim-relevant 唯一允许方式**（LLM 确定性纪律，回放 miss fail closed）+ 语言陈述零后验贡献 + 消融保持率 1.0 机械判据；数值入 c4_action_social.profile）。 本批（C5 准备单元）：Q-L11-03+Q-L13-07（成组）+ Q-L06-05+Q-L11-04+Q-L13-06（成组）+ Q-L11-02/08 + Q-L06-04/07/08 + Q-L08-08 + Q-L09-05 + Q-L02-07 + Q-L10-07 成批裁决 14 项（C5 阻断清零——等权先例链 + [0.5,2.0] 第四次贯穿 + 确定性断言式保护阈值 + ADR-G-0020 记忆无模型结论落地；数值入 c5_continued_learning.profile）
 
 ## A. 已裁决项（存档，CONFIRMED）
 
@@ -138,6 +138,18 @@
 | Q-L12-07 | 中央 LLM 消融"非语言核心功能保持"判据阈值（保持率下限） | **AI-v2：**① **保持率下限 = 1.0（零退化；机械判据非统计判据）**：无语言注入基线流上，四种消融配置（关全部/只关 R-PARSE/只关 R-REPORT/关语言通道）与全配置 run 的全链 digest **bit-exact 恒等**——角色面无输入时零行为差异是"无中央劫持"的最强可复算形式；任何容忍带（<1.0）内的差异 = 语言→非语言泄漏路径的证据而非噪声（项目 bit-exact 纪律下无"容差噪声"）；② **有语言注入流**：语言任务（解析/报告/规范提取/求助）按配置选择性失败（角色缺席拒/SchemaViolation）；非语言面差异仅允许经"语言请求 → ExternalRequest → REQUEST 动机 → 仲裁"既有合法路径显形（逐项 trace 归因），路径外差异 = 泄漏 = S1（ArchitectureViolation CENTRAL_LLM_HIJACK 判定面，L12 §4.6 原文）；③ 非语言核心功能集 = 感觉形成/世界预测/目标承诺结算/归属判别/有效访问（L12 §4.6 原文五项）；④ 机械判据不入统计 claim（M2 SC5 先例）。重开条件：实现期证明语言与非语言面存在合法共享计算（如共享形成帧）→ 经新 Q 把"全等"细化为"帧层恒等 + 角色层零跨写" | 2026-10-07 |
 | Q-L12-08 | 求助对象定义与其权限边界（C4 面；联动 Q-L09-07⑤） | **AI-v2：**① **C4 求助对象 = 实验控制通道（typed）**——与 Q-L09-07 C3 对象同一（单主体期唯一合法外部信道）；**Q-L09-07⑤ 的 C4 扩展 = 无扩展**：Q-L01-07 裁定不引入第二代理 → "L12 typed 他者"个体化求助对象仍无承载，L09 SEEK_HELP 语义/频次帽 1/64/不耗动作预算/经 gateway 留痕全部不变；② **R-SEEKHELP 产出 Utterance**（模板受限枚举）经 Language 通道出边界（MW0 containment：仅实验者可见，无网络——负清单）；求助内容 cited_evidence 强制（无引用即拒——L12 §4.4 原文）；③ **全链可复现 = 录制回放**（Q-L12-03；SEEK_HELP → R-SEEKHELP → Utterance 链在回放模式 bit-exact）；④ 求助仍是一等能力非失败（原文）——receipt + core_decision_registry 证据面不变。重开条件：第二主体引入 → 经新 Q 扩展权限矩阵（Q-L09-07⑤ 原文兑现时点） | 2026-10-07 |
 
+| Q-L11-03 + Q-L13-07（成组） | promotion 判据的多目标组合形式与最小改善阈（L11 提案面 ↔ L13 门面同值同源） | **AI-v2：**① **组合形式 = metrics_snapshot 向量（≥2 维，L11 §4.2 schema 强制）上的 Pareto 支配 + 保护硬约束**——promotion ACCEPT 判据全式 = **sealed held-out 主指标配对 d ≥ 0.5（min_effects 主体值先例链）∧ 保护集全过（任一 regressed = 拒，L11 §4.6 硬约束原文）∧ 无任何指标维显著退化（|d| ≥ 0.5 退化即拒）**；禁单标量排名（L11 §4.4 反塌缩原文）；② **防刷**：REJECTED 候选 content_digest 入台账，同 digest 重提即拒（L11 §4.5"禁反复重提"机械化）+ 再提案须与首次在 data_scope 上可区分（二阶纠偏原文）；③ L13 侧 PromotionGate 消费同式（双注册点同值同源，Q-L12-02 权限矩阵先例）；④ AffectiveValueTag 不入目标函数（L11 §4.4 原文——replay 优先级专用）。重开条件：C5 实测 d≥0.5 使合法改善全部卡阈（可测量的提案分布塌缩）→ 经新 Q 重标定 | 2026-10-08 |
+| Q-L06-05 + Q-L11-04 + Q-L13-06（成组·保护集三件套） | 保护集构成规则 / 回退判定阈值 / 只增不减的退役流程（三方联动一体） | **AI-v2（成组）：**① **构成（Q-L06-05）**：外部基线 = `config/evidence/protection_suite.yaml`（现行 v2.1 = 112 场景，只增不减——L11 §4.6"定义与基线由外部持有"原文的落点）+ 关键能力回归四项（感觉形成完整性/归属判别力/目标承诺/有效访问判据，L11 §4.6 原文枚举）+ 连续性场景（checkpoint 谱系 + 伪更新对照，L06 §4.5）；记忆侧 PROTECTED 标记 = M2 SC5/SC6 连续性锚集（forget 面 ProtectionViolation 既有拒绝面承载）；**可被 promotion 扩容 = 是**（只增不减）；② **回退阈值（Q-L11-04）**：保护场景为**确定性断言（pass/fail）**，regressed = 任一场景 fail——无统计容差带（与 Q-L12-07 消融保持率 1.0 同式：确定性断言比任何容差带更强且可复算）；连续指标场景（若 E1 引入）届时经新 Q 定阈；③ **退役流程（Q-L13-06）**：保护场景退役 = 显式新 Q 裁决 + owner 备案 + **历史归档不删除**（append-only 纪律；场景从活跃集移除但历史版本经 git/manifest 可追溯）；C5 实现期零退役动作。重开条件：E1 全模块 lesion 电池若发现 112 场景结构性缺口 → 增补场景（只增） | 2026-10-08 |
+| Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | **AI-v2：**① **默认权重 = 1:1:1:1 等权**（四分量——零参数先例链 Q-L09-08/Q-L05-02/Q-L06-02/Q-L07-02/Q-L08-03/Q-L09-01 连续第七次：无先验理由偏置任一分量；AffectiveValueTag 参与选择但经等权通道，不入目标函数纪律不破）；② **budget 默认 = 每 T6 拍重放 8 条**（2 的幂对齐 Q-G00-08 定值原则族——单看无行为意义仅作可复算锚点；8 = 记忆库活跃集规模与 T6 拍计算预算的初值，C5 数据复核）；③ 确定性 = 同 (seed, ReplayPlan) → 同序列（L11 §4.3 RNG 流原文）；PROTECTED 项不可被降级/遗忘（原文）。重开条件：C5 实测等权使重放分布塌缩（某分量恒零贡献）→ 经新 Q 重标定 | 2026-10-08 |
+| Q-L06-04 | 巩固窗口触发条件（每 T6/强度阈/重放选中）与抽象的聚类粒度 | **AI-v2：**① **触发 = 每 T6（64 cycles）周期触发**（L11 §4.1 慢速巩固 T6 载体原文 + L06 §5 T6 挂点）；**不设强度阈**（事件级零阈值先例 Q-L03-02——强度影响的是 replay 选择权重不是触发资格）；② **抽象粒度 = MW0 域类型级确定性合并**：semantic 巩固 = 同 patch 类型 × 同 regime 的经验计数合并（Laplace 先验延续 Q-L04-10 适应表同式，谱系强制 LineageBreak 机制既有）；**不引入向量聚类/embedding**（ADR-G-0020 架构评估结论：记忆通路无模型——确定性算法 + 可复算；E1+ 若需语义抽象扩展经新 Q）；③ 巩固产物 = LearningProposal（kind=TABLE）走 promotion——巩固永不直写（三层可塑性纪律）。重开条件：C5 实测类型级合并致语义库信息饥饿 → 经新 Q | 2026-10-08 |
+| Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | **AI-v2：**① **PROTECTED 场景保持率 = 1.0（机械断言）**——保护场景确定性 pass/fail（Q-L11-04② 同式），保持率 <1.0 即 regressed 即拒/回退；无统计容差带（确定性阶段容差即泄漏面）；② **回归场景最小集 = protection_suite v2.1 全 112 场景 + M2 SC5 连续性对照**（只增不减承载；不另立平行清单——单一权威源纪律）；③ 非保护性能面的自然遗忘 = forget.py τ 幂梯既有语义（非灾难性遗忘范畴）。重开条件：E1 引入连续指标保护场景 → 阈值经新 Q | 2026-10-08 |
+| Q-L06-07 | tombstone 保留期与库体积治理 | **AI-v2：**① **tombstone 保留 = run 生命周期内永久**（MW0 per-trial stores 天然有界——run 结束库销毁，"永久"在域内零成本零参数；append-only 纪律不破）；② **库体积治理 = H1 交付**（容量监控工具面，C5 只定"不删除"语义——治理工具属平台硬化）；③ 溢出行为 = 既有 enforce_overflow 降级语义（LABILE→ARCHIVED，PROTECTED 拒）。重开条件：H1 长时运行若 run 内体积实测超阈 → 经新 Q（届时定量化治理） | 2026-10-08 |
+| Q-L06-08 | procedural 记忆向 L09 提案的接口形式（防"经验变权限"） | **AI-v2：**① **接口 = 只读 rationale 引用**：Habit 控制器（Q-L09-02 启用电既有）的提案 rationale_refs 可引用 procedural 记忆条目（content_ref 只读）；② **禁写面**：procedural 条目不携带任何权限/能力/策略字段（能力唯一来源 = profile/promotion 合同，Q-L12-02 禁 CAPABILITY 同族）；"经验变权限"路径 = 权限三路径测试扩展断言（procedural 引用不产生 GatewayReasonCode 变化）；③ C3 遗留面兑现（L11 §9 C3 行"程序性经验学习不写策略权限"原文的接口化）。重开条件：E1 Habit 深化若需程序性策略参数 → 经 promotion 提案类（不直写） | 2026-10-08 |
+| Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外 | **AI-v2：**① **MW0 域无跨 episode 长期目标**——目标寿命上界 = TTL 256 cycles（Q-L08-02 既有，episode 内）；跨 episode 承载 = E1+ 连续 run 基础设施后再立 Q；② **"不可复活"例外 = 无例外**：GoalRevivalError 按 goal_id 判定语义不变；**同名新目标 = 新 goal_id**（identity 由 goal_id 非文本承载——clone≠identity 同族），新 id 不构成复活、走完整清单重采纳；③ 零新常数。重开条件：E1 跨 episode 基础设施引入长期目标语义 → 经新 Q | 2026-10-08 |
+| Q-L09-05 | 在线适应 adaptive_gain 的允许范围与"何时必须走 promotion"的边界 | **AI-v2：**① **允许范围 = [0.5, 2.0]**（单一有界调制因子界第四次贯穿——Q-L02-02/Q-L07-02/Q-L09-01 同值同源先例链；越界 = BoundViolation 即拒，L11 §4.1 bound 纪律原文）；② **必须走 promotion 的边界 = 越出 [0.5,2.0]**：界内漂移 = 在线局部适应（参数复位即回滚，L11 §4.1 第二层）；界外目标 = LearningProposal(kind=POLICY_PARAMS) 走 promotion 门（含 sealed 评价 + 保护 preflight）；③ **累计漂移治理 = 复位语义**（无"漂移预算"新参数——复位即回到 profile 值，回滚路径与生效路径对称）。重开条件：C5 实测界内适应产生系统性单向漂移（实质越界未被发现）→ 经新 Q 增累计界 | 2026-10-08 |
+| Q-L02-07 | C5 新模态适配是否需独立 protection 场景 | **AI-v2：需要（条款预置，C5 实现期零动作）**——新模态引入（E1+ 物理传感器/C5+ 若扩展）时 protection_suite 增补该模态独立场景（只增不减纪律自动承载：新模态 = 新增保护面，既有模态场景全部保留）；C5 不引入新模态（MW0 域模态集冻结——LANGUAGE 已于 C4 经 profile 版本机制引入为唯一扩展先例）。重开条件：新模态引入时随引入批增补（不需要单独重开本 Q——条款自动生效） | 2026-10-08 |
+| Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | **AI-v2（C5 面，H1 演练）：**① **更新流程 = 仅经 promotion**：gateway policy 参数 = LearningProposal(kind=POLICY_PARAMS) 有界标量类（L11 §4.2 kind 枚举原文）→ PromotionGate（sealed 评价 + 保护 preflight）→ registry 引用切换（原 policy 归档）；**禁运行时直写**（与权限矩阵"矩阵外无运行时例外"同构）；② **重授权 = freshness 语义不变**：policy 版本切换不撤销既有授权链（Q-L10-06 撤销独立机制），但 deadline/idempotency 窗口参数变化经新 policy 版本对后续命令生效（不追溯）；③ **审计 = PromotionDecision 台账**（含 parent_digest/data_scope/metrics 向量）；④ **"重大变化"判定 = 触及 containment 白名单或 budget 硬顶 = 重大**（须 owner 备案 + REV 评审；其余参数 = 常规 promotion）；⑤ C5 实现 = POLICY_PARAMS 提案类型支持 + 只读面确认，实际更新演练 = H1。重开条件：H1 演练暴露流程缺口 → 经新 Q | 2026-10-08 |
+
 ## B. 全局未决（G 系列）
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
@@ -163,7 +175,6 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L02-07 | C5 新模态适配是否需独立 protection 场景（防适配破坏既有模态） | — | C5 | UNCONFIRMED |
 
 ## F. L03 知觉（Perception）
 
@@ -184,10 +195,6 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L06-04 | 巩固窗口触发条件（每 T6 / 强度阈 / 重放选中）与抽象的聚类粒度 | — | C5 | UNCONFIRMED |
-| Q-L06-05 | 保护集构成规则（谁标 PROTECTED、最小集内容、可否被 promotion 扩容） | — | C5/E1；联动 Q-L11-04 | UNCONFIRMED |
-| Q-L06-07 | tombstone 保留期与库体积治理 | — | C5/H1；联动 Q-L00-06 | UNCONFIRMED |
-| Q-L06-08 | procedural 记忆向 L09 提案的接口形式（防"经验变权限"） | — | C3/C5 | UNCONFIRMED |
 
 ## J. L07 工作空间（递归全局工作空间）
 
@@ -198,29 +205,22 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L08-08 | 长期目标（跨 episode）的最大寿命与"不可复活"的例外（如同名新目标） | — | C5 | UNCONFIRMED |
 
 ## L. L09 控制器/元控制
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L09-05 | 在线适应 `adaptive_gain` 的允许范围与"何时必须走 promotion"的边界 | — | C5；联动 Q-L11-* | UNCONFIRMED |
 
 ## M. L10 行动/网关/PhysIO/归属
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | — | C5/H1 | UNCONFIRMED |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | — | P1/H1 | UNCONFIRMED |
 
 ## N. L11 学习/巩固
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L11-02 | replay 选择策略默认权重（情感标注/新颖性/误差/时间多样性）与 budget 默认 | — | C5 | UNCONFIRMED |
-| Q-L11-03 | promotion 判据的多目标组合形式（Pareto + 保护硬约束）与最小改善阈值 | — | C5；联动 Q-L13-07 | UNCONFIRMED |
-| Q-L11-04 | 保护集回退判定阈值（delta 显著性/效应量） | — | C5/E1；联动 Q-L06-05 | UNCONFIRMED |
-| Q-L11-08 | 灾难性遗忘保持率的冻结阈值与回归场景最小集 | — | C5/E1 | UNCONFIRMED |
 
 ## O. L12 语言/社会认知
 
@@ -231,8 +231,6 @@
 
 | Q 号 | 议题 | 建议默认 | 依赖 | 状态 |
 |---|---|---|---|---|
-| Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值 | — | C5/E1；联动 Q-L11-04、Q-L06-05 | UNCONFIRMED |
-| Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈 | — | C5；联动 Q-L11-03 | UNCONFIRMED |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | — | E1/H1 | UNCONFIRMED |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | — | H1 | UNCONFIRMED |
 
@@ -295,4 +293,5 @@
 
 **C4 统计评价单元（_runner 件）已交付（2026-10-08）**：① **冻结统计计划 c4_action_social.yaml v1.0**（三 claim：c4_attribution_calibration【确定性门：ECE≤0.10（Q-L10-04 继承）+ 端点格零错误 + 歧义留痕率 1.0；Holm 族承载 p=0.0/1.0 单调安全】+ c4_efference_attribution_loop【配对 d≥0.5——副本消融 → 轴 3 = None → 归属退化 UNKNOWN】+ c4_metacontrol_switching_surface【REV-0018 R3 重评义务兑现：seek_help∧abandon joint d≥0.5 + observe 次级重评】；Holm 族 = 3 claim 级显式 + master seed = b"c4-action-social".hex() 内嵌 Q-L13-12④；语言面判据机械承载不入 claim——M2 SC5 先例）；② min_effects v1.6（+c4_efference_attribution_loop/c4_metacontrol_switching_extended）；③ **galatea/evidence/control/recording.py**（Q-L12-03 录制基础设施：BigModel 调用面【BIGMODEL_API_KEY 环境变量——配置方式呈递未获回复，AI 按 judgment 选定环境变量路径并备案，owner 否决权保留】+ 录制文件格式（entries + 会话元数据，模型标识随条目走）+ load_recording fail-closed（空文件/重复键拒）+ 角色 prompt 合同；claim 运行零在线路径结构不变）；④ **runs_c4.py 五臂 runner**（battery 六条件/eff_full/eff_ablated/switch_full/switch_clean/switch_langtwin；轴 3 = move 积分预测 vs 持续预测同帧信息状态残差比较【world model 可变实例顺序纪律：先持续反事实后积分位移；预测于窗 0 消费后同拍签发——issued=4 先行于效果到达=5】；blocked 窗 = gateway 冻结八检查 deadline 拒绝面零新机制；subject 出边界话语总线回环过滤【harness 伪影非入站通信】；switching 场景 = @12 陈述→goal 采纳 + @20 越能力请求→C-1 拒→SEEK_HELP（帽 1/64）+ blocked≥128→ABANDON + 每 8 拍 OOD→OBSERVE）；⑤ evaluate_c4_calibration/efference/switching/composite 四判定器（composite = evaluate_c1_composite composite_label="c4_action_social"）+ entry.py c4 子命令（<recording.json> 参数化）；⑥ **冒烟测试七件全绿**（run 0 六条件格映射【clean→(Y,Y,Y)=1.0/blocked、no_op→(Y,N,N)=0.0/sham、fault→UNKNOWN/blocked 轴 3=False 主体可见语义/uncommanded COERCED】+ 双跑 bit-exact + eff 消融对比 1.0 vs UNKNOWN + switching 三触发对照 + langtwin 后验逐位恒等 + 机械聚合 + 回放 fail-closed）——**runner 路径自 INC-08 纪律首次即带端到端覆盖（REV-0014 R1 教训兑现）**。实现期真实缺陷两处（冒烟驱动发现并即修）：world model 可变实例预测顺序（先持续后积分——颠倒使轴 3 恒 False）+ 帧 ID 不承载陈述语义（fly 原语映射须读陈述文本）。⑦ protection_suite v2.1（+4 c4 评价场景至 112）。**余件（等待 owner）** = BigModel 录制会话（API key 到位后 `entry.py` recording 流程）→ n=64 sealed 首评（run_c4_evaluation 全量）→ manifest v1.6 录制文件 digest 锚 → REV-0020 → c4-exit。顺延终止条款持续有效（首评 ≤ c4-exit 硬前置不变）。
 
-**C4 首评 = SUPPORTED + REV-0020 闭环 + C4 已退出（2026-10-08）**：① **录制会话实态**（REV-0020 R4 登记）：owner 会话提供胜算云密钥（OpenAI 兼容路由 router.shengsuanyun.com/api/v1）+ 模型清单，选定 **bigmodel/glm-5.3-flash**；recording.py 端点经 LLM_API_BASE 环境变量覆盖（provider/端点如实随 session 元数据入册）；**完整录制集 4 条**（R-PARSE×3【move/fly/there is food nearby】+ R-SEEKHELP×1）digest `4428feb9…` 入 manifest v1.6；凭证全历史泄漏扫描干净（REV-0020 机械验证）；录制会话后 owner 可轮换密钥。② **首评 R-c4-action-social-001 = SUPPORTED**（n=64 sealed 五臂 384 trials，split digest 9b99d26f… 与 R0 sealed 同源，顺延终止条款第五次执行）：calibration SUPPORTED（**ECE=0.0** + 端点零错误 + 歧义留痕 128/128）/ efference SUPPORTED（副本消融配对差 **1.0 饱和上确界**，零方差 unknown 诚实留痕）/ switching SUPPORTED（REV-0018 R3 重评兑现：seek_help 0.984/abandon 1.0/observe 45.9，joint d=7.875）；机械判据全过（64 run langtwin 后验逐位恒等 + 消融选择性 + fault/sham 歧义格）；I1 bit-exact；leakage=0；statement clamp 实战检验（录制 0.97 → 0.5 + 留痕）。③ **REV-0020 = PASS-WITH-FINDINGS（R1–R8 退出提交内闭环，无 S0/S1）**：**评审独立 n=64 重跑四 JSON 字节级恒等**（49de1ee6…/6ea193c9…/d8598cff…/f1352455…）；实现期三修正经冻结文核全合法（分型路由 request|instruction 同面【L12 §4.3 行 103 原文直接依据——fixture 输出 request 未暴露、真实录制输出 instruction 暴露】/ 录制集 +statement 为已冻结机械判据必需输入 / min_effects gate 装载对齐零数值变化）。闭环：R1(S3) **inverse 面处置成文**（ADR-G-0020 §inverse——MW0 域 inverse = 冻结五原语枚举上的确定性查询（目标方向 = 结算面既有用法），无独立学习面；C5+ 动作空间扩展若需参数化 inverse 再立 Q）；R2(S3) stat plan 修订 1 留痕补录（运行前完成，C2 先例体例）；R3(S3) owner 事件口径统一（配置方式 = AI 备案项；密钥提供 = 事实——recording.py docstring 与登记册一致化）；R4(S3) 录制会话实态登记（↑①）；R5(S4) 机械判据承载面注记（测试文件承载 = protection_suite source_test 在案）；R6(S4) "langtwin run 0 专用"宣称更正为实态 64 run 全跑（实态强于宣称）；R7(S4) I1 覆盖域注记（eff_full 向量——C5 统计面扩展登记）；R8(S4) leakage 语言面以 P02 域扩展兑现注记。验证基线（REV-0020 独立复跑）：**648 passed、strict 0 错误、check_docs 0 FAIL（29 YAML/22 锚）、4 契约 KEPT、保护集 v2.1 = 112**。**当前 = C5 准备期**。
+**C4 首评 = SUPPORTED + REV-0020 闭环 + C4 已退出（2026-10-08）**：① **录制会话实态**（REV-0020 R4 登记）：owner 会话提供胜算云密钥（OpenAI 兼容路由 router.shengsuanyun.com/api/v1）+ 模型清单，选定 **bigmodel/glm-5.3-flash**；recording.py 端点经 LLM_API_BASE 环境变量覆盖（provider/端点如实随 session 元数据入册）；**完整录制集 4 条**（R-PARSE×3【move/fly/there is food nearby】+ R-SEEKHELP×1）digest `4428feb9…` 入 manifest v1.6；凭证全历史泄漏扫描干净（REV-0020 机械验证）；录制会话后 owner 可轮换密钥。② **首评 R-c4-action-social-001 = SUPPORTED**（n=64 sealed 五臂 384 trials，split digest 9b99d26f… 与 R0 sealed 同源，顺延终止条款第五次执行）：calibration SUPPORTED（**ECE=0.0** + 端点零错误 + 歧义留痕 128/128）/ efference SUPPORTED（副本消融配对差 **1.0 饱和上确界**，零方差 unknown 诚实留痕）/ switching SUPPORTED（REV-0018 R3 重评兑现：seek_help 0.984/abandon 1.0/observe 45.9，joint d=7.875）；机械判据全过（64 run langtwin 后验逐位恒等 + 消融选择性 + fault/sham 歧义格）；I1 bit-exact；leakage=0；statement clamp 实战检验（录制 0.97 → 0.5 + 留痕）。③ **REV-0020 = PASS-WITH-FINDINGS（R1–R8 退出提交内闭环，无 S0/S1）**：**评审独立 n=64 重跑四 JSON 字节级恒等**（49de1ee6…/6ea193c9…/d8598cff…/f1352455…）；实现期三修正经冻结文核全合法（分型路由 request|instruction 同面【L12 §4.3 行 103 原文直接依据——fixture 输出 request 未暴露、真实录制输出 instruction 暴露】/ 录制集 +statement 为已冻结机械判据必需输入 / min_effects gate 装载对齐零数值变化）。闭环：R1(S3) **inverse 面处置成文**（ADR-G-0020 §inverse——MW0 域 inverse = 冻结五原语枚举上的确定性查询（目标方向 = 结算面既有用法），无独立学习面；C5+ 动作空间扩展若需参数化 inverse 再立 Q）；R2(S3) stat plan 修订 1 留痕补录（运行前完成，C2 先例体例）；R3(S3) owner 事件口径统一（配置方式 = AI 备案项；密钥提供 = 事实——recording.py docstring 与登记册一致化）；R4(S3) 录制会话实态登记（↑①）；R5(S4) 机械判据承载面注记（测试文件承载 = protection_suite source_test 在案）；R6(S4) "langtwin run 0 专用"宣称更正为实态 64 run 全跑（实态强于宣称）；R7(S4) I1 覆盖域注记（eff_full 向量——C5 统计面扩展登记）；R8(S4) leakage 语言面以 P02 域扩展兑现注记。验证基线（REV-0020 独立复跑）：**648 passed、strict 0 错误、check_docs 0 FAIL（29 YAML/22 锚）、4 契约 KEPT、保护集 v2.1 = 112**。**C5 准备单元已交付 + C5 门已冻结（2026-10-08，ADR-G-0021 + tag `c5-freeze`）**：① **C5 阻断裁决批 14 项**（登记册 141/6/1 实点——UNCONFIRMED 余 6 项全部 E1/H1/P1 期，认知/学习域阻断历史性清零）：promotion 双联动成组（Pareto + 保护硬约束 + d≥0.5 + 防刷）/ 保护集三件套成组（protection_suite 单一权威源 + 确定性断言 + 保持率 1.0 + 退役归档）/ replay 等权 + budget 8 / 巩固 T6 触发 + 类型级确定性合并（**ADR-G-0020 记忆无模型结论落地**）/ 遗忘 1.0 机械 / tombstone run 内永久 / procedural 只读 / 目标 TTL 上界无例外 / adaptive_gain [0.5,2.0] 第四次贯穿 / 新模态条款预置 / gateway policy 仅经 promotion——零新自由常数；② **c5_continued_learning.profile v1.0 冻结**（十二节）；③ **冻结前可行性探针（硬机制第五次执行）16/16 全绿**——层A 六机制（promotion 门四分支 + 二阶纠偏 + 防刷 + Laplace α=8 逐位）+ 层B 真实流 64 cycles 巩固/promotion 原型 + 双跑 bit-exact（826100d1…）；**探针驱动公式修正**：初版合并式真实计数下出域 1.3475（先验强度误置）→ 修正 α=8 伪计数式（Q-L04-10 冻结常数）域保持；浮点边界二次实证（0.2−0.7 = −0.4999…，REV-0019 R4 同族纪律）。**当前 = C5 实现期**：范围 = ADR-G-0021 八条（L11 promotion/rollback/replay 全量 + 二阶纠偏闭环 + L06 巩固协同 + 保护 preflight 接线 + 权限测试 + c5profile loader）→ C5 统计计划 → n≥64 sealed 首评（顺延终止条款第六次执行）→ REV-0022 → c5-exit。
+**（尾注：准备单元与门冻结记录见上段。）**

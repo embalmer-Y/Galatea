@@ -19,7 +19,7 @@ protection_suite:
   id: m1_protection_suite
   version: v2.1                # v2.1（C4 统计评价单元增补）：新增 c4 评价场景 4 至 112（INC-12 义务第十一次执行——
                                 # 既有 88 场景原样保留，只增不减）
-  frozen_at: "2026-10-06"
+  frozen_at: "2026-10-08"   # v2.1（REV-0021 R5 修正：随 v2.0/v2.1 升版同步——此前滞留 v1.9 日期）
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
