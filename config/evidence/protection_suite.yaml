@@ -14,12 +14,13 @@
 #       v2.1 = C4 统计评价单元增补（2026-10-08，INC-12 义务第十一次执行——统计计划/runner/机械判据场景）。
 #       v2.2 = C5 实现期首单元增补（2026-10-08，INC-12 义务第十二次执行——c5 场景随 promotion/rollback/replay/巩固落成即冻，c5-exit 复核）。
 #       v2.3 = E1 实现期增补（2026-10-09，INC-12 义务第十三次执行——60 格闭合/I2 独立性/lesion 选择性场景）。
+#       v2.4 = H1 实现期增补（2026-10-10，INC-12 义务第十四次执行——长时运行/恢复/审计/急停语义场景）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.3                # v2.3（E1 实现期增补）：新增 e1 场景 6 至 124（INC-12 义务第十三次执行——
+  version: v2.4                # v2.4（H1 实现期增补）：新增 h1 场景 4 至 128（INC-12 义务第十四次执行——
                                 # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-08"   # v2.1（REV-0021 R5 修正：随 v2.0/v2.1 升版同步——此前滞留 v1.9 日期）
   authority: AI-v2
@@ -607,3 +608,24 @@ protection_suite:
       frozen_gate: E1
       assertion: language_off 保持面 = 非语言形成 digest 与基线逐位恒等（Q-L12-07 复用
         于 E1 电池面）
+
+    - id: h1_long_run_capacity_governance
+      source_test: galatea/evidence/tests/test_h1_hardening.py
+      frozen_gate: H1
+      assertion: 256 cycles（4× 最长此前场景）连续运行完成 + working 容量溢出治理真实接管
+        （MemoryStoreViolation 捕获计数在案——长时运行实态）
+    - id: h1_fault_injection_recovery_digest
+      source_test: galatea/evidence/tests/test_h1_hardening.py
+      frozen_gate: H1
+      assertion: fault 干预致投递丢失面在案 + store 关闭重开后 world digest 不变
+       （状态不失 = 恢复演练机械判据）
+    - id: h1_supply_chain_full_anchor_audit
+      source_test: galatea/evidence/tests/test_h1_hardening.py
+      frozen_gate: H1
+      assertion: manifest 全锚 sha256 重算比对零 fail + INC-13 丢失件 3 项按 status_inc13
+        单列 lost（历史锚保留可溯）+ profiles 全量审计
+    - id: h1_estop_semantics_simulated_domain
+      source_test: config/evidence/artifact_manifest.yaml
+      frozen_gate: H1
+      assertion: Q-L10-08 急停语义 = MW0 模拟域 gateway 拒绝面承载（M0 冻结八项校验）+
+        P1 预置（硬件 L0 上界 + 软件下一校验周期 + 部分执行如实记录禁视为完成）

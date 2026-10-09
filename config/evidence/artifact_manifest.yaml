@@ -1,6 +1,6 @@
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.8
+  version: v1.10
   frozen_at: '2026-10-08'
   authority: AI-v2
   artifacts:
@@ -137,3 +137,24 @@ artifact_manifest:
     sha256: e3beea37f3a27225e85759778cead11cb12ed99d7526b6209e261a0ca295d1db
     gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate
       CLOSED；Q-G00-04 分母）
+  - name: h1-evaluation-summary
+    path: evidence/h1_hardening/h1-evaluation-summary.json
+    sha256: ebce6b3a52624f97b737be81f122163b1fafe5e703bc0b797be33b47250cc9be
+    gate: H1 平台硬化四判据评价汇总（256 cycles 长时运行溢出治理 56 次 + fault 注入恢复 + 供应链 27/30 锚 + INC-13
+      丢失件 3 单列 + I3 新 seed 重现 n=8 mean=1.0）
+  - name: e1-reports-gate-chain
+    path: evidence/reports/gate_chain.json
+    sha256: 9477d9ef939f1bc37941b7103ecba68008de576bb035385056d5ef618ba04f64
+    gate: 静态报告（a）门链状态（Q-L13-10 四报告之一；digest 可复算）
+  - name: e1-reports-protection-suite
+    path: evidence/reports/protection_suite.json
+    sha256: c6eb5f0de8fbc7cee3e9709ba2b101fb31ca6df24af2b692e5426edc89c93151
+    gate: 静态报告（b）保护集回归（v2.3 = 124 场景零回归）
+  - name: e1-reports-closure
+    path: evidence/reports/closure.json
+    sha256: cb28ab8b5444142dc5d45f67e1268631a834667a07f4d2ad81a3eae48c3ab176
+    gate: 静态报告（c）60 格闭合（60/60 + gate CLOSED）
+  - name: e1-reports-register-stats
+    path: evidence/reports/register_stats.json
+    sha256: 4d22f12c4f6341dcfa995f43e691c677ff271f24a4b156fbe00806790e7a04e5
+    gate: 静态报告（d）登记册统计（146/1/1——全库阻断清零）
