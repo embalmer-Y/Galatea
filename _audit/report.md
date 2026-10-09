@@ -104,5 +104,5 @@
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：28（只增不减）
+- 清单条目：30（只增不减）
 - OK：本地存在的全部工件与归档锚一致

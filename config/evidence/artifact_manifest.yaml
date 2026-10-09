@@ -14,7 +14,7 @@
 #   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.7
+  version: v1.8
   frozen_at: "2026-10-08"   # v1.6（REV-0021 R5 修正：随 v1.4–v1.6 升版同步——此前滞留 v1.3 日期）
   authority: AI-v2
   artifacts:
@@ -130,3 +130,11 @@ artifact_manifest:
       path: evidence/c5_continued_learning_first_evaluation/R-c5-correction-003.json
       sha256: 4f434b84b2707ce7300e66252d1912c50cfa7174f48640fb4536701616ead9cc
       gate: C5 首评——二阶纠偏闭环确定性门（四步闭环 + 防刷重提拒——M2 义务兑现）
+    - name: I2-c5-gain-001
+      path: evidence/e1_integration/I2-c5-gain-001.json
+      sha256: dd3797418ea0b85bedf4d5f921969ce2410b09a90a6a1baef8629a46c0654630
+      gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43 域 trials d≈2.0313 ≡ 原 EvidenceResult）
+    - name: e1-decision-registry-closure
+      path: evidence/e1_integration/decision-registry-closure.json
+      sha256: 779b078cf5a48d8cb5f63b3b17399e8756353e7ed01b616d171c8fcfb371ab16
+      gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate CLOSED；Q-G00-04 分母）
