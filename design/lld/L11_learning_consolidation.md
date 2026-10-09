@@ -218,6 +218,9 @@ galatea/subject/learning/                   # strict 类型
   second_order.py      二阶纠偏：回退 + data_scope 修正 + 再提案的可区分性检查
   lineage.py           谱系校验、伪更新检出（与 L00/L06 对账）
   receipt.py           ConsolidationLearnReceipt
+  executor.py          【C5 实现期首单元交付】promotion ACCEPTED 执行器（REV-0022 R1①：
+                       registry 入库 kind=learning:artifact + parent 谱系 + 回执签发；
+                       幂等 = 内容寻址同提案同 activated digest；test_executor_r1.py）
 galatea/subject/learning/tests/
   test_parent_digest_required.py test_no_overwrite.py test_no_self_promotion.py
   test_protection_regression_blocks.py test_catastrophic_forgetting.py

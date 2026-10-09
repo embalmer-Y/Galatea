@@ -314,6 +314,11 @@ galatea/evidence/tests/
   test_hypothesis_evaluation.py    # 判定执行（四判定器 real_vs_pseudo/wording_null/carryover/root_composite + 运行编排；
                                    # M2 准备单元交付、R0 准备单元扩 root_composite——REV-0010 R2 补录清单席位）
   test_evaluation_entry.py         # 【C0 准备单元交付】正式评价入口（确定性 + SC3 冻结工件复现 + 根复合组合）
+  test_i2_independent_c5.py        # 【E1 实现期交付】I2 独立复算（Q-L13-08①：源零原判定器 import +
+                                   # Wald 独立实现 + 判据域读冻结 plan + 一致性四断言——
+                                   # C5 gain claim 复算成立 n=43/d≈2.0313）
+  test_decision_registry_dataset.py  # 【E1 实现期交付】见 tests/evidence/test_e1_closure_dataset.py
+                                   # （60 格闭合 + N-A remote 列约束 + DEFERRED 治理锚）
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
   # 【R0 准备单元交付 + 席位补录】：test_sealed_isolation.py / test_sealed_no_backflow.py /
   # test_append_only.py / test_recorder_kill_stops_run.py / test_i1_bitexact.py /
@@ -339,7 +344,7 @@ config/evidence/
 | Q-L13-05 | leakage 探针的 14 条路径逐条实现形式（静态契约 vs 运行时钩子 vs 数据查询的分工） | C0+ | CONFIRMED（AI-v2 2026-10-02：R0 = 三源探针 STATIC/RUNTIME/DATA + 注入可失败（P01–P14）；C0 期义务同条钉死——import-linter 契约 + 生产路径钩子 + DuckDB 查询；见 A 区） |
 | Q-L13-06 | 保护集"只增不减"的退役裁定流程与回退阈值（联动 Q-L11-04 / Q-L06-05） | C5/E1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
-| Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | UNCONFIRMED |
+| Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | CONFIRMED（AI-v2 2026-10-09，裁决见 open_questions.md A 区） |
 | Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | F0/R0 | CONFIRMED（AI-v2 2026-09-23：`config/evidence/min_effects.yaml` 统一登记册 + 7 项初值，见 A 区） |
 | Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | UNCONFIRMED |
 | Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值 | R0 | CONFIRMED（AI-v2 2026-10-02：复合 claim `r0_root_causal_auditability` + r0_root.yaml v1.0 冻结 + 绑定物集 + sealed 网格 3×32=96 cells 主种子 hex "19"×32；REV-0009 R3 补执行口径；见 A 区） |

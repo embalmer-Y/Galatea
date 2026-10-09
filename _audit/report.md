@@ -76,9 +76,9 @@
 - `lld/L08_motivation_goals.md`: 222 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
 - `lld/L09_controllers_metacontrol.md`: 237 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
 - `lld/L10_action_gateway_physio_attribution.md`: 286 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
-- `lld/L11_learning_consolidation.md`: 242 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
+- `lld/L11_learning_consolidation.md`: 245 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
 - `lld/L12_language_social.md`: 251 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
-- `lld/L13_evidence_evaluation_registry.md`: 345 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
+- `lld/L13_evidence_evaluation_registry.md`: 350 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）
 

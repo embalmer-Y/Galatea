@@ -74,8 +74,8 @@ def _entries() -> tuple[DecisionPathEntry, ...]:
            "T6 周期 + 事件触发双机制自动 checkpoint（digest 引用制）", decision_point="SUBJECT"),
         _e(CR, T_FALLBACK, ("consolidate.py", "ADR-G-0022"),
            "rollback 回退父版本（候选不覆盖——registry 引用切换语义）", decision_point="GATE"),
-        _e(CR, T_RECOVERY, ("run_carryover", "R-r0-carryover-001"),
-           "SC6 carryover 恢复链（跨期记忆携带 d=2.03 饱和）", decision_point="SUBJECT"),
+        _e(CR, T_RECOVERY, ("R-m2-carryover-001", "test_m2_continuity_contrast.py"),
+           "SC6 carryover 恢复链（跨期记忆携带——M2 首评配对差 1.0 饱和）", decision_point="SUBJECT"),
         _e(CR, T_BATCH, ("Q-L00-05", "writer.py"),
            "四分区 Parquet 批量落盘（recorder append-only）", decision_point="GATE"),
         _e(CR, T_REMOTE, ("Q-L10-06", "ADR-G-0021 §gateway_policy_update"),
@@ -140,7 +140,7 @@ def _entries() -> tuple[DecisionPathEntry, ...]:
            "规范经 typed 注入动态注册（derivation_refs registry 可解析强制）", decision_point="SUBJECT"),
         _e(GA, T_CONFIG, ("m1_goals_min.profile.yaml", "ADR-G-0006"),
            "目标参数冻结（TTL 256/清单激活集五项）", decision_point="GATE"),
-        _e(GA, T_ERROR, ("UNSOURCED_NORM", "test_norm.py"),
+        _e(GA, T_ERROR, ("UNSOURCED_NORM", "test_c3_arbitration.py"),
            "无源规范拒（REJECT(UNSOURCED_NORM)——L08 §8 不变量 6）", decision_point="SUBJECT"),
     ]
 
