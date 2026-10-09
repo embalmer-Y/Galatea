@@ -11,8 +11,9 @@ artifact_manifest:
   - name: R-m1-sc4-002
     path: evidence/m1_first_evaluation/R-m1-sc4-002.json
     sha256: 7b820264cb56da1cb43267583add146fb0053f87f2c58065257c741df601d366
-      status_inc13: REGENERATED_REFUTED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案；M1 门基于历史存档不受影响）
     gate: M1 首评
+    status_inc13: REGENERATED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案，verdict=REFUTED 与历史不同；M1
+      门基于历史冻结存档不受影响）
   - name: R-m2-carryover-001
     path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
     sha256: a7fe60d0d4e0c056e8e19b6aa38813ae64d87df261cc1242ff58770d33ec8d6d
@@ -21,8 +22,7 @@ artifact_manifest:
     path: evidence/m2_carryover_first_evaluation/R-r0-root-001.json
     sha256: 38310cd6db84567f341bb4dfb956c248bd7d6b87d0497cf431bd71df07c8ec52
     gate: R0 根证据
-    status_inc13: REGENERATED_REFUTED — INC-13 后经入口规范化格式重放：M1 SC4 措辞格 REFUTED（REV-0011
-      R1 在案的 χ² 种子格式敏感性：p 随派生格式 0.033–0.379 浮动，规范化种子越界）级联至根复合。R0 门退出基于历史冻结存档不受影响；本再生件为如实现状。
+    status_inc13: REGENERATED_REFUTED — M1 SC4 规范化格式翻转级联（REV-0011 R1 在案）；R0 门退出基于历史冻结存档不受影响
   - name: EXP-R0-001
     path: evidence/r0_expansion/EXP-R0-001.json
     sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
@@ -80,9 +80,10 @@ artifact_manifest:
   - name: c4-recording-v1
     path: evidence/c4_recording/recording_v1.json
     sha256: 556689e9d0db5f4b7eadbda2e4ae0e0d6118611f7cc3bf857ee28f45872647cd
-      status_inc13: RE-RECORDED — 工作目录事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含 statement 补录；原始 4428feb9 会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8 披露）
     gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim
       运行唯一 LLM 承载）
+    status_inc13: RE-RECORDED — 事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含
+      statement 补录；原始锚 4428feb9 会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8）
   - name: R-c4-action-social-001
     path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
     sha256: b827768e41d2f050a6be59738a1bb4132bb8bc64e135b7a7d8afc226b0c0b1c2
@@ -141,26 +142,27 @@ artifact_manifest:
       CLOSED；Q-G00-04 分母）
   - name: h1-evaluation-summary
     path: evidence/h1_hardening/h1-evaluation-summary.json
-    sha256: ebce6b3a52624f97b737be81f122163b1fafe5e703bc0b797be33b47250cc9be
+    sha256: 50f0a344b0994fa6015f0b24a705456a155cb317898ca73ac584536f72b927f2
     gate: H1 平台硬化四判据评价汇总（256 cycles 长时运行溢出治理 56 次 + fault 注入恢复 + 供应链 27/30 锚 + INC-13
       丢失件 3 单列 + I3 新 seed 重现 n=8 mean=1.0）
+    status_rev0024_r6: re-anchored after entry h1 rerun（R6 生成器入库后复跑刷新）
   - name: e1-reports-gate-chain
     path: evidence/reports/gate_chain.json
     sha256: 97ce93d2cf6a175b9b18d7d4237bad8fcf5638ad1954e80dd14b53775c2cad8c
     gate: 静态报告（a）门链状态（Q-L13-10 四报告之一；digest 可复算）
-    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
   - name: e1-reports-protection-suite
     path: evidence/reports/protection_suite.json
     sha256: 9047dd4a29883b17fbd6b7f7c3db888709dac496743ade19b988c4f70d1ef8e6
     gate: 静态报告（b）保护集回归（v2.3 = 124 场景零回归）
-    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
   - name: e1-reports-closure
     path: evidence/reports/closure.json
     sha256: cb28ab8b5444142dc5d45f67e1268631a834667a07f4d2ad81a3eae48c3ab176
     gate: 静态报告（c）60 格闭合（60/60 + gate CLOSED）
-    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
   - name: e1-reports-register-stats
     path: evidence/reports/register_stats.json
     sha256: ed1e5c373e0c112cdbeabf8db2cb6322adb2c5298bbb12bf26dc1473f693b040
     gate: 静态报告（d）登记册统计（146/1/1——全库阻断清零）
-    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）

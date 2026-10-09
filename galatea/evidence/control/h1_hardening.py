@@ -128,17 +128,13 @@ def fault_injection_and_recovery(seed: bytes) -> dict[str, Any]:
             proprio.render_and_submit(cycle, truth_ref)
             delivery = bus.deliver(cycle)
             delivered_counts.append(len(delivery.packets))
-        pre_digest = world.state_digest()
         # 恢复演练实测（REV-0024 R4：store 持久面快照——registry 内容索引 digest，
         # 关闭重开前后必须一致；非 world 内存态【原断言构造恒真——INC-08 同族】）
-        from galatea.kernel.digest import content_digest as _cd
-
         pre_index = reg.index_digest()
         stores.close()
         stores2 = Stores(tmp / "stores")
         reg2 = Registry(tmp / "registry", stores2, CycleClock())
         post_index = reg2.index_digest()
-        post_digest = world.state_digest()
         stores2.close()
         shutil.rmtree(tmp, ignore_errors=True)   # INC-13 纪律：仅删 mkdtemp 路径
         return {
