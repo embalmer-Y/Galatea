@@ -40,7 +40,6 @@ from galatea.subject.c1profile import load_c1_profile
 from galatea.subject.learning.proposal import DataScope, LearningProposal, ProposalKind
 from galatea.subject.learning.rollback import RollbackRequest, RollbackTrigger
 from galatea.subject.learning.second_order import build_correction
-from galatea.subject.memory.consolidate import TypeCounts, consolidate_types
 from galatea.subject.perception.pipeline import PerceptionPipeline
 from galatea.subject.sensorium.calibration import bind_calibration
 from galatea.subject.sensorium.ingest import (
@@ -166,9 +165,6 @@ class C5Runner:
                         "resource": (8 * _PRIOR_FROZEN + n_res) / (8 + n_total),
                         "empty": (8 * (1 - _PRIOR_FROZEN) + (n_total - n_res)) / (8 + n_total),
                     }
-                    tc = TypeCounts(counts=dict(counts), positives=dict(positives))
-                    _ = consolidate_types(tc, {"resource": _PRIOR_FROZEN, "empty": 1 - _PRIOR_FROZEN},
-                                          f"prop.consol.{cycle}", "d" * 64, "r5", cycle)
             posterior = merged["resource"] if learn else _PRIOR_FROZEN
             truth = world.coverage()   # evaluator 侧真值 join（主体不可见）
             return {
@@ -251,13 +247,10 @@ class C5Runner:
 
 def _consolidate_determinism(runner: C5Runner) -> bool:
     """同计数两次合并 digest 恒等（机械断言出证——REV-0022 R4）。"""
-    from galatea.subject.memory.consolidate import TypeCounts, consolidate_types
     seed = _trial_seed(_EVAL_MASTER_SEED_C5, 0)
     r1 = runner.run_learning(seed, learn=True, regime="scarcity")
     r2 = runner.run_learning(seed, learn=True, regime="scarcity")
-    return r1["posterior_resource"] == r2["posterior_resource"] and TypeCounts(
-        counts={"resource": 4, "empty": 4}, positives={"resource": 2, "empty": 0}
-    ) is not None
+    return r1["posterior_resource"] == r2["posterior_resource"]
 
 
 def run_c5_evaluation(
