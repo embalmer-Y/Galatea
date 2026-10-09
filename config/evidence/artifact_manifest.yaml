@@ -11,6 +11,7 @@ artifact_manifest:
   - name: R-m1-sc4-002
     path: evidence/m1_first_evaluation/R-m1-sc4-002.json
     sha256: 7b820264cb56da1cb43267583add146fb0053f87f2c58065257c741df601d366
+      status_inc13: REGENERATED_REFUTED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案；M1 门基于历史存档不受影响）
     gate: M1 首评
   - name: R-m2-carryover-001
     path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
@@ -79,6 +80,7 @@ artifact_manifest:
   - name: c4-recording-v1
     path: evidence/c4_recording/recording_v1.json
     sha256: 556689e9d0db5f4b7eadbda2e4ae0e0d6118611f7cc3bf857ee28f45872647cd
+      status_inc13: RE-RECORDED — 工作目录事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含 statement 补录；原始 4428feb9 会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8 披露）
     gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim
       运行唯一 LLM 承载）
   - name: R-c4-action-social-001
@@ -144,17 +146,21 @@ artifact_manifest:
       丢失件 3 单列 + I3 新 seed 重现 n=8 mean=1.0）
   - name: e1-reports-gate-chain
     path: evidence/reports/gate_chain.json
-    sha256: 9477d9ef939f1bc37941b7103ecba68008de576bb035385056d5ef618ba04f64
+    sha256: 97ce93d2cf6a175b9b18d7d4237bad8fcf5638ad1954e80dd14b53775c2cad8c
     gate: 静态报告（a）门链状态（Q-L13-10 四报告之一；digest 可复算）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
   - name: e1-reports-protection-suite
     path: evidence/reports/protection_suite.json
-    sha256: c6eb5f0de8fbc7cee3e9709ba2b101fb31ca6df24af2b692e5426edc89c93151
+    sha256: 9047dd4a29883b17fbd6b7f7c3db888709dac496743ade19b988c4f70d1ef8e6
     gate: 静态报告（b）保护集回归（v2.3 = 124 场景零回归）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
   - name: e1-reports-closure
     path: evidence/reports/closure.json
     sha256: cb28ab8b5444142dc5d45f67e1268631a834667a07f4d2ad81a3eae48c3ab176
     gate: 静态报告（c）60 格闭合（60/60 + gate CLOSED）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）
   - name: e1-reports-register-stats
     path: evidence/reports/register_stats.json
-    sha256: 4d22f12c4f6341dcfa995f43e691c677ff271f24a4b156fbe00806790e7a04e5
+    sha256: ed1e5c373e0c112cdbeabf8db2cb6322adb2c5298bbb12bf26dc1473f693b040
     gate: 静态报告（d）登记册统计（146/1/1——全库阻断清零）
+    status_rev0024_r5: re-anchored to current state（REV-0024 R5：原锚时刻即过期）

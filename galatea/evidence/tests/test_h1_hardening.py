@@ -40,7 +40,7 @@ def test_fault_injection_and_recovery() -> None:
     """判据 2：fault 注入 + store 关闭重开 digest 不失。"""
     out = fault_injection_and_recovery(hashlib.sha256(b"h1-fault").digest())
     assert out["stable"], out
-    assert out["recovery_digest_unchanged"]
+    assert out["recovery_index_unchanged"]
 
 
 def test_supply_chain_audit_full_manifest() -> None:

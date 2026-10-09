@@ -163,7 +163,7 @@ core_decision_registry(entries[], coverage_matrix: 6×10,
 |---|---|---|
 | **I1** | 同环境独立重算（recorder 数据 → 指标复算） | digest bit-exact（承 Q-T06 Parquet 承载 + DuckDB 只读复算） |
 | **I2** | 独立复算（不同实现/不同读者代码，同一数据） | 结果一致（统计等价 + 效应量在冻结 CI 内） |
-| **I3** | 独立重现（新环境、新 seed、独立实现，同 claim） | 效应方向与量级达冻结最小效应（联动 Q-L01-05） |
+| **I3** | 独立重现（新环境、新 seed、独立实现，同 claim） | 效应方向与量级达冻结最小效应（联动 Q-L01-05）；**Q-L13-08② 已裁（2026-10-09）**：新 seed 集 = 同派生式换内容锚（Q-L13-12 同族任意性，先于运行钉死）+ 效应方向一致 ∧ d≥0.5（点估计不要求恒等——种子变异性是重现对象）；H1 实测 = C4 efference 新 seed 重现 mean=1.0 全过 |
 
 ## 5. 时间尺度（治理侧，与主体时标分离）
 
@@ -346,5 +346,5 @@ config/evidence/
 | Q-L13-07 | promotion 多目标判据的组合形式与最小改善阈（联动 Q-L11-03） | C5 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L13-08 | I2/I3 的"独立"标准（实现者/环境/seed 隔离程度）与一致性判据 | E1/H1 | CONFIRMED（AI-v2 2026-10-09，裁决见 open_questions.md A 区） |
 | Q-L13-09 | 最小可辨效应量的**统一登记**（汇总 Q-L01-05 / Q-L08-05 / Q-L10-04 / Q-L03-04 / Q-L05-07 / Q-L04-03 / Q-L07-07） | F0/R0 | CONFIRMED（AI-v2 2026-09-23：`config/evidence/min_effects.yaml` 统一登记册 + 7 项初值，见 A 区） |
-| Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | UNCONFIRMED |
+| Q-L13-10 | 静态报告的最小集与导出频率（只读、无服务化） | H1 | CONFIRMED（AI-v2 2026-10-10，裁决见 open_questions.md A 区） |
 | Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值 | R0 | CONFIRMED（AI-v2 2026-10-02：复合 claim `r0_root_causal_auditability` + r0_root.yaml v1.0 冻结 + 绑定物集 + sealed 网格 3×32=96 cells 主种子 hex "19"×32；REV-0009 R3 补执行口径；见 A 区） |
