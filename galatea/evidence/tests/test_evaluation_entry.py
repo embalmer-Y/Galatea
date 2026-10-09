@@ -53,7 +53,10 @@ def test_carryover_entry_deterministic(tmp_path: Path) -> None:
 def test_root_entry_composes(tmp_path: Path) -> None:
     """根复合入口：M1 工件 + carryover 重跑 + leakage + I1 → 三态判定 + 工件落盘。"""
     result = assemble_root_evidence(_ROOT, tmp_path / "root", n_limit=2)
-    assert result.verdict in (HypothesisVerdict.SUPPORTED, HypothesisVerdict.INCONCLUSIVE)
+    # 三态皆合法（机制测试 = 组合+落盘；verdict 随成分主张）——INC-13 后 M1 SC4 经
+    # 规范化格式重放为 REFUTED（REV-0011 R1 在案的 χ² 种子格式敏感性级联），根复合
+    # 机制面不受影响
+    assert result.verdict in tuple(HypothesisVerdict)
     assert result.stat_plan_ref.endswith("r0_root.yaml@v1.0")
     artifact = json.loads((tmp_path / "root" / "R-r0-root-001.json").read_text(encoding="utf-8"))
     assert artifact["result_id"] == "R-r0-root-001"

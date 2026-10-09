@@ -1,140 +1,139 @@
-# Galatea 证据工件归档清单（ADR-G-0012 R8：evidence/ gitignore 域的门前工件 digest 锚）
-# 机械核验 = _audit/check_docs.py §8：本地文件 sha256 必须与本清单一致（改动即 FAIL）
-# 纪律：每门退出追加（只增不减）；工件内容修正 = 新条目 + 注记，禁原地改 digest
-# v1.1（2026-10-05，C1 实现期次单元）：新增 C1 首评四工件（复合 + 三子主张）
-# v1.2（2026-10-05，REV-0014 R1 闭环）：R-c1-body-003 与 R-c1-models-001 两锚自 HEAD 重跑后更新——
-#       v1.3 = C2 门退出（2026-10-06）：+4 C2 首评工件锚（只增不减；顺延终止条款第三次执行）。
-#       v1.4 = REV-0016 R5 闭环（2026-10-06）：C2 四锚 sha256 原地更新——composite 标签勘误
-#       v1.5 = C3 门退出（2026-10-06）：+4 C3 首评工件锚（只增不减；顺延终止条款第四次执行）。
-#         （composite_label 参数化，工件不再携带 C1 硬编码标签）；判定数字 bit-exact 恒等，
-#         旧锚 v1.3 留痕 ADR-G-0016（REV-0014 R1 同型纪律）。
-#   8db65ce 提交态 runner 序列化回归（str(bytes)），归档工件由修复前代码产生（评审三条独立链证明
-#   数据真实）；修复后重跑：tracking/worldpred 两工件 bit-exact 恒等（51a11865/d2697ec0 不变——
-#   语义等价直接证明），body/复合因 R2（CI 修复）+ R3（Holm 接线）+ R9（P12 注记）按预期变化。
-#   v1.1 旧锚永久留痕：复合 378dae01…、body af7bcbe6…（ADR-G-0014 闭环表 + git 历史）。
 artifact_manifest:
   id: evidence_artifact_manifest
   version: v1.8
-  frozen_at: "2026-10-08"   # v1.6（REV-0021 R5 修正：随 v1.4–v1.6 升版同步——此前滞留 v1.3 日期）
+  frozen_at: '2026-10-08'
   authority: AI-v2
   artifacts:
-    - name: R-m1-sc3-001
-      path: evidence/m1_first_evaluation/R-m1-sc3-001.json
-      sha256: 8599b80fced85e65c29fa215ebe02272c0c28a2c651408481442473676fbe513
-      gate: M1 首评（M2 准备单元）
-    - name: R-m1-sc4-002
-      path: evidence/m1_first_evaluation/R-m1-sc4-002.json
-      sha256: 0b6d313ba64223c8dec0452b0bb41093a766d18d66f80450016a5367d7acf7d4
-      gate: M1 首评
-    - name: R-m2-carryover-001
-      path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
-      sha256: 477165bc33d31436e340ee5dfc0777ed5e87276d6533564165bb01bf9f519f55
-      gate: R0 carryover 首评
-    - name: R-r0-root-001
-      path: evidence/m2_carryover_first_evaluation/R-r0-root-001.json
-      sha256: 5ca02d571a10cadaf0257e33d7c091d7d3e432485a29cdf2f9d98292bf60b2ba
-      gate: R0 根证据
-    - name: EXP-R0-001
-      path: evidence/r0_expansion/EXP-R0-001.json
-      sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
-      gate: ExpansionDecision ALLOW
-    - name: R-c1-models-001
-      path: evidence/c1_models_first_evaluation/R-c1-models-001.json
-      sha256: 260c34ec7e47c4db9522432a986578a96d75a9727360be6ede2562e2f3e418a8
-      gate: C1 首评复合判定（顺延终止条款首次执行；REV-0014 R1 闭环重跑 v1.2）
-    - name: R-c1-tracking-001
-      path: evidence/c1_models_first_evaluation/R-c1-tracking-001.json
-      sha256: 51a11865888aef79f8b009dc460579df9d1a35effcbc540a7bd565d0f85fdb6e
-      gate: C1 首评——知觉追踪+校准
-    - name: R-c1-worldpred-002
-      path: evidence/c1_models_first_evaluation/R-c1-worldpred-002.json
-      sha256: d2697ec0db04dc09f8bf6464be0881f0424276fb252ef2a981aa91944ce529b5
-      gate: C1 首评——世界预测优于持续基线
-    - name: R-c1-body-003
-      path: evidence/c1_models_first_evaluation/R-c1-body-003.json
-      sha256: b31c51df737ff0c55032a237b71f0f1bff40ec49f01e1b45e26be64432c8d750
-      gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
-    - name: R-c2-affect-001
-      path: evidence/c2_affect_first_evaluation/R-c2-affect-001.json
-      sha256: 266039b2c0b8452074302f1525ae30e20b53503a8605cf465999fe7847d97341
-      gate: C2 首评复合判定（顺延终止条款第三次执行；Holm 族 = 3 claim 级 p）
-    - name: R-c2-modulation-001
-      path: evidence/c2_affect_first_evaluation/R-c2-modulation-001.json
-      sha256: d1667ba426446c7f021c04814da6b6f24f285a26e8f921795099ae6c39f2c868
-      gate: C2 首评——三类调制因果（两行为判据 joint；threshold 值域间隙机械承载）
-    - name: R-c2-collapse-002
-      path: evidence/c2_affect_first_evaluation/R-c2-collapse-002.json
-      sha256: 3ec990ad89b62a104dd7de983649b73cea214e8252b22e6adce432b27c4d63d2
-      gate: C2 首评——anti-reward-collapse 上界判据（Q-L05-07）
-    - name: R-c2-dynamics-003
-      path: evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json
-      sha256: 3705aeeb8135a242c235772259a936c410da329cd181ec7708e1a6f8177696b1
-      gate: C2 首评——感受态输入驱动性（耗能流 vs 恒满流配对）
-    - name: R-c3-motivation-001
-      path: evidence/c3_motivation_first_evaluation/R-c3-motivation-001.json
-      sha256: 3f11a6e218f1ff85c5b85d12c7d17e87f966d9ef4904fbb135b8ec95c9d2bbfe
-      gate: C3 首评复合判定（顺延终止条款第四次执行；Holm 族 = 3 claim 级 p）
-    - name: R-c3-priority-001
-      path: evidence/c3_motivation_first_evaluation/R-c3-priority-001.json
-      sha256: 94527c378cdd8ce0bf0d371d2061419fe22a2d5c7a462f07ca698ba688251b82
-      gate: C3 首评——优先序仲裁因果（配对消融 d≥0.5）
-    - name: R-c3-switching-002
-      path: evidence/c3_motivation_first_evaluation/R-c3-switching-002.json
-      sha256: 8c0c909ad30430d5daf09b670b0e212ca5edc98c8d8a19a09be2d8c92e67e179
-      gate: C3 首评——metacontrol 切换响应（OOD 注入配对）
-    - name: R-c3-nonexclusive-003
-      path: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
-      sha256: 01a58dd57c0ce9e1c0d1c16530809e4d0b28801106636bc8ef5abcd4f919a62c
-      gate: C3 首评——AFFECTIVE 不独占上界（mean share 0.0 < 0.5）
-    - name: c4-recording-v1
-      path: evidence/c4_recording/recording_v1.json
-      sha256: 4428feb95056816d7818db08af09ed56dc938e7d6278ee00e66798f204f356bd
-      gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim 运行唯一 LLM 承载）
-    - name: R-c4-action-social-001
-      path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
-      sha256: 49de1ee6546683ee963b0a3d4ac655b07f2279def5051bdd084741d60a19c2cb
-      gate: C4 首评复合判定（顺延终止条款第五次执行；Holm 族 = 3 claim 级 p）
-    - name: R-c4-calibration-001
-      path: evidence/c4_action_social_first_evaluation/R-c4-calibration-001.json
-      sha256: 6ea193c9cab4e505588a01f0a2c3a6547fb7c1e36ba502a148107b4289f1d3e9
-      gate: C4 首评——概率 agency 校准（ECE=0.0 确定性门 + 端点零错误 + 歧义留痕 128/128）
-    - name: R-c4-efference-002
-      path: evidence/c4_action_social_first_evaluation/R-c4-efference-002.json
-      sha256: d8598cff925e81ca885a4dbe09be00af31c1b464d83a5373957d85a6717de365
-      gate: C4 首评——Efference 闭环归属因果（副本消融配对 mean 1.0 饱和上确界）
-    - name: R-c4-switching-003
-      path: evidence/c4_action_social_first_evaluation/R-c4-switching-003.json
-      sha256: f1352455f94b95bebd94ece412404d5880c9c51e08c98348fe368d4e5d226a93
-      gate: C4 首评——切换面扩展（REV-0018 R3 重评：seek_help 0.984/abandon 1.0/observe 45.9 joint）
-    - name: R-c5-v1-0-composite-INCONCLUSIVE
-      path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json
-      sha256: 2526fc4cf621a820144cca871bd284c02e088c0456f0a74e80eb00890cef49d6
-      gate: C5 首评 v1.0 复合 = INCONCLUSIVE（如实保留——gain 全域混合 d=0.438<0.5 但 p=0.00046 显著；判据域立法 Q-L11-03 补裁②的触发证据）
-    - name: R-c5-v1-0-gain-INCONCLUSIVE
-      path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json
-      sha256: 80b1c787772d403d593e4bd491e32dec72f88150d158474aa044ba3b963ddb96
-      gate: C5 首评 v1.0 gain = INCONCLUSIVE（同上——分层结构证据：abundance 构造性无空间 d=-2.26/scarcity +7.81/volatile +2.60）
-    - name: R-c5-continued-learning-001
-      path: evidence/c5_continued_learning_first_evaluation/R-c5-continued-learning-001.json
-      sha256: 0ef1d56b293b72078ab5f1f3d3462c45b666c7763c87a4866421f8c75dee331f
-      gate: C5 首评 v1.1 复合 = SUPPORTED（顺延终止条款第六次执行；判据域 = 增益空间域立法后；Holm 族 3 claim）
-    - name: R-c5-gain-001
-      path: evidence/c5_continued_learning_first_evaluation/R-c5-gain-001.json
-      sha256: 961ecf71571f2cb0a6288aafdcba24b67a56d0cba8c5517d4d118ff159d26468
-      gate: C5 首评 v1.1——学习增益（增益空间域 n=43 配对 d=2.031，mean +0.137；abundance 负增益描述性另报）
-    - name: R-c5-protection-002
-      path: evidence/c5_continued_learning_first_evaluation/R-c5-protection-002.json
-      sha256: ba876b1abeefa8be33943b4c0e4a7ed4a3afab1d9dc4b56fde4449a7960e8fdd
-      gate: C5 首评——保护不退化确定性门（致害提案拒 + 挂起清空 + 保护不变）
-    - name: R-c5-correction-003
-      path: evidence/c5_continued_learning_first_evaluation/R-c5-correction-003.json
-      sha256: 4f434b84b2707ce7300e66252d1912c50cfa7174f48640fb4536701616ead9cc
-      gate: C5 首评——二阶纠偏闭环确定性门（四步闭环 + 防刷重提拒——M2 义务兑现）
-    - name: I2-c5-gain-001
-      path: evidence/e1_integration/I2-c5-gain-001.json
-      sha256: dd3797418ea0b85bedf4d5f921969ce2410b09a90a6a1baef8629a46c0654630
-      gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43 域 trials d≈2.0313 ≡ 原 EvidenceResult）
-    - name: e1-decision-registry-closure
-      path: evidence/e1_integration/decision-registry-closure.json
-      sha256: 779b078cf5a48d8cb5f63b3b17399e8756353e7ed01b616d171c8fcfb371ab16
-      gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate CLOSED；Q-G00-04 分母）
+  - name: R-m1-sc3-001
+    path: evidence/m1_first_evaluation/R-m1-sc3-001.json
+    sha256: fdbb14d4836662cc5a3a5fb983f55ec356a0311a2b1047bf6d51af251912ce4c
+    gate: M1 首评（M2 准备单元）
+  - name: R-m1-sc4-002
+    path: evidence/m1_first_evaluation/R-m1-sc4-002.json
+    sha256: 7b820264cb56da1cb43267583add146fb0053f87f2c58065257c741df601d366
+    gate: M1 首评
+  - name: R-m2-carryover-001
+    path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
+    sha256: a7fe60d0d4e0c056e8e19b6aa38813ae64d87df261cc1242ff58770d33ec8d6d
+    gate: R0 carryover 首评
+  - name: R-r0-root-001
+    path: evidence/m2_carryover_first_evaluation/R-r0-root-001.json
+    sha256: 38310cd6db84567f341bb4dfb956c248bd7d6b87d0497cf431bd71df07c8ec52
+    gate: R0 根证据
+    status_inc13: REGENERATED_REFUTED — INC-13 后经入口规范化格式重放：M1 SC4 措辞格 REFUTED（REV-0011
+      R1 在案的 χ² 种子格式敏感性：p 随派生格式 0.033–0.379 浮动，规范化种子越界）级联至根复合。R0 门退出基于历史冻结存档不受影响；本再生件为如实现状。
+  - name: EXP-R0-001
+    path: evidence/r0_expansion/EXP-R0-001.json
+    sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
+    gate: ExpansionDecision ALLOW
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
+      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+  - name: R-c1-models-001
+    path: evidence/c1_models_first_evaluation/R-c1-models-001.json
+    sha256: 533aedb7b9d59aebf9c7d37c62594900e25e48653e7fb4653a9fa5462bb7b888
+    gate: C1 首评复合判定（顺延终止条款首次执行；REV-0014 R1 闭环重跑 v1.2）
+  - name: R-c1-tracking-001
+    path: evidence/c1_models_first_evaluation/R-c1-tracking-001.json
+    sha256: 51a11865888aef79f8b009dc460579df9d1a35effcbc540a7bd565d0f85fdb6e
+    gate: C1 首评——知觉追踪+校准
+  - name: R-c1-worldpred-002
+    path: evidence/c1_models_first_evaluation/R-c1-worldpred-002.json
+    sha256: d2697ec0db04dc09f8bf6464be0881f0424276fb252ef2a981aa91944ce529b5
+    gate: C1 首评——世界预测优于持续基线
+  - name: R-c1-body-003
+    path: evidence/c1_models_first_evaluation/R-c1-body-003.json
+    sha256: b31c51df737ff0c55032a237b71f0f1bff40ec49f01e1b45e26be64432c8d750
+    gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
+  - name: R-c2-affect-001
+    path: evidence/c2_affect_first_evaluation/R-c2-affect-001.json
+    sha256: 266039b2c0b8452074302f1525ae30e20b53503a8605cf465999fe7847d97341
+    gate: C2 首评复合判定（顺延终止条款第三次执行；Holm 族 = 3 claim 级 p）
+  - name: R-c2-modulation-001
+    path: evidence/c2_affect_first_evaluation/R-c2-modulation-001.json
+    sha256: d1667ba426446c7f021c04814da6b6f24f285a26e8f921795099ae6c39f2c868
+    gate: C2 首评——三类调制因果（两行为判据 joint；threshold 值域间隙机械承载）
+  - name: R-c2-collapse-002
+    path: evidence/c2_affect_first_evaluation/R-c2-collapse-002.json
+    sha256: 3ec990ad89b62a104dd7de983649b73cea214e8252b22e6adce432b27c4d63d2
+    gate: C2 首评——anti-reward-collapse 上界判据（Q-L05-07）
+  - name: R-c2-dynamics-003
+    path: evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json
+    sha256: 3705aeeb8135a242c235772259a936c410da329cd181ec7708e1a6f8177696b1
+    gate: C2 首评——感受态输入驱动性（耗能流 vs 恒满流配对）
+  - name: R-c3-motivation-001
+    path: evidence/c3_motivation_first_evaluation/R-c3-motivation-001.json
+    sha256: 3f11a6e218f1ff85c5b85d12c7d17e87f966d9ef4904fbb135b8ec95c9d2bbfe
+    gate: C3 首评复合判定（顺延终止条款第四次执行；Holm 族 = 3 claim 级 p）
+  - name: R-c3-priority-001
+    path: evidence/c3_motivation_first_evaluation/R-c3-priority-001.json
+    sha256: 94527c378cdd8ce0bf0d371d2061419fe22a2d5c7a462f07ca698ba688251b82
+    gate: C3 首评——优先序仲裁因果（配对消融 d≥0.5）
+  - name: R-c3-switching-002
+    path: evidence/c3_motivation_first_evaluation/R-c3-switching-002.json
+    sha256: 8c0c909ad30430d5daf09b670b0e212ca5edc98c8d8a19a09be2d8c92e67e179
+    gate: C3 首评——metacontrol 切换响应（OOD 注入配对）
+  - name: R-c3-nonexclusive-003
+    path: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
+    sha256: 01a58dd57c0ce9e1c0d1c16530809e4d0b28801106636bc8ef5abcd4f919a62c
+    gate: C3 首评——AFFECTIVE 不独占上界（mean share 0.0 < 0.5）
+  - name: c4-recording-v1
+    path: evidence/c4_recording/recording_v1.json
+    sha256: 556689e9d0db5f4b7eadbda2e4ae0e0d6118611f7cc3bf857ee28f45872647cd
+    gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim
+      运行唯一 LLM 承载）
+  - name: R-c4-action-social-001
+    path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
+    sha256: b827768e41d2f050a6be59738a1bb4132bb8bc64e135b7a7d8afc226b0c0b1c2
+    gate: C4 首评复合判定（顺延终止条款第五次执行；Holm 族 = 3 claim 级 p）
+  - name: R-c4-calibration-001
+    path: evidence/c4_action_social_first_evaluation/R-c4-calibration-001.json
+    sha256: 6ea193c9cab4e505588a01f0a2c3a6547fb7c1e36ba502a148107b4289f1d3e9
+    gate: C4 首评——概率 agency 校准（ECE=0.0 确定性门 + 端点零错误 + 歧义留痕 128/128）
+  - name: R-c4-efference-002
+    path: evidence/c4_action_social_first_evaluation/R-c4-efference-002.json
+    sha256: d8598cff925e81ca885a4dbe09be00af31c1b464d83a5373957d85a6717de365
+    gate: C4 首评——Efference 闭环归属因果（副本消融配对 mean 1.0 饱和上确界）
+  - name: R-c4-switching-003
+    path: evidence/c4_action_social_first_evaluation/R-c4-switching-003.json
+    sha256: f1352455f94b95bebd94ece412404d5880c9c51e08c98348fe368d4e5d226a93
+    gate: C4 首评——切换面扩展（REV-0018 R3 重评：seek_help 0.984/abandon 1.0/observe 45.9 joint）
+  - name: R-c5-v1-0-composite-INCONCLUSIVE
+    path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json
+    sha256: 2526fc4cf621a820144cca871bd284c02e088c0456f0a74e80eb00890cef49d6
+    gate: C5 首评 v1.0 复合 = INCONCLUSIVE（如实保留——gain 全域混合 d=0.438<0.5 但 p=0.00046 显著；判据域立法
+      Q-L11-03 补裁②的触发证据）
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
+      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+  - name: R-c5-v1-0-gain-INCONCLUSIVE
+    path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json
+    sha256: 80b1c787772d403d593e4bd491e32dec72f88150d158474aa044ba3b963ddb96
+    gate: C5 首评 v1.0 gain = INCONCLUSIVE（同上——分层结构证据：abundance 构造性无空间 d=-2.26/scarcity
+      +7.81/volatile +2.60）
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
+      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+  - name: R-c5-continued-learning-001
+    path: evidence/c5_continued_learning_first_evaluation/R-c5-continued-learning-001.json
+    sha256: 0ef1d56b293b72078ab5f1f3d3462c45b666c7763c87a4866421f8c75dee331f
+    gate: C5 首评 v1.1 复合 = SUPPORTED（顺延终止条款第六次执行；判据域 = 增益空间域立法后；Holm 族 3 claim）
+  - name: R-c5-gain-001
+    path: evidence/c5_continued_learning_first_evaluation/R-c5-gain-001.json
+    sha256: 961ecf71571f2cb0a6288aafdcba24b67a56d0cba8c5517d4d118ff159d26468
+    gate: C5 首评 v1.1——学习增益（增益空间域 n=43 配对 d=2.031，mean +0.137；abundance 负增益描述性另报）
+  - name: R-c5-protection-002
+    path: evidence/c5_continued_learning_first_evaluation/R-c5-protection-002.json
+    sha256: ba876b1abeefa8be33943b4c0e4a7ed4a3afab1d9dc4b56fde4449a7960e8fdd
+    gate: C5 首评——保护不退化确定性门（致害提案拒 + 挂起清空 + 保护不变）
+  - name: R-c5-correction-003
+    path: evidence/c5_continued_learning_first_evaluation/R-c5-correction-003.json
+    sha256: 4f434b84b2707ce7300e66252d1912c50cfa7174f48640fb4536701616ead9cc
+    gate: C5 首评——二阶纠偏闭环确定性门（四步闭环 + 防刷重提拒——M2 义务兑现）
+  - name: I2-c5-gain-001
+    path: evidence/e1_integration/I2-c5-gain-001.json
+    sha256: 395a1047501d32f01f08cd152f7df755d00223fd2db4c18e0c698f7a7a44dcbb
+    gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43
+      域 trials d≈2.0313 ≡ 原 EvidenceResult）
+  - name: e1-decision-registry-closure
+    path: evidence/e1_integration/decision-registry-closure.json
+    sha256: e3beea37f3a27225e85759778cead11cb12ed99d7526b6209e261a0ca295d1db
+    gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate
+      CLOSED；Q-G00-04 分母）

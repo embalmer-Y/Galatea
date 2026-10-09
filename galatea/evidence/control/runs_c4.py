@@ -144,6 +144,11 @@ class C4Runner:
         )
         self._goals_profile = load_m1_goals_profile(default_profile_path())
 
+
+    @property
+    def tmp_path(self) -> Path:
+        """评价编排清理专用（INC-13 纪律：mkdtemp 具体路径公开只读）。"""
+        return self._tmp
     def profile_digests(self) -> tuple[tuple[str, str], ...]:
         cfg = self._root / "config"
         return (
@@ -700,3 +705,10 @@ def run_c4_evaluation(
         return (tuple(all_records), mechanical, plan.digest, split_digest, report.match)
     finally:
         stores.close()
+
+
+def cleanup_runner_tmp(runner: "C4Runner") -> None:
+    """I3/评价编排清理专用（INC-13 纪律：仅删 mkdtemp 具体路径——禁仓库根字面量）。"""
+    import shutil as _shutil
+
+    _shutil.rmtree(runner.tmp_path, ignore_errors=True)
