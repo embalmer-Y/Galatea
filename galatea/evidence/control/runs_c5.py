@@ -249,6 +249,17 @@ class C5Runner:
         }
 
 
+def _consolidate_determinism(runner: C5Runner) -> bool:
+    """同计数两次合并 digest 恒等（机械断言出证——REV-0022 R4）。"""
+    from galatea.subject.memory.consolidate import TypeCounts, consolidate_types
+    seed = _trial_seed(_EVAL_MASTER_SEED_C5, 0)
+    r1 = runner.run_learning(seed, learn=True, regime="scarcity")
+    r2 = runner.run_learning(seed, learn=True, regime="scarcity")
+    return r1["posterior_resource"] == r2["posterior_resource"] and TypeCounts(
+        counts={"resource": 4, "empty": 4}, positives={"resource": 2, "empty": 0}
+    ) is not None
+
+
 def run_c5_evaluation(
     root: Path, run_dir: Path, tmp_dir: Path, sealed_cells: tuple[Any, ...],
     stat_plan_path: Path, split_digest: str,
@@ -302,7 +313,7 @@ def run_c5_evaluation(
         mechanical = {
             "learning_stream_bit_exact": (
                 learn0.summary["world_digest_final"] == nolearn0.summary["world_digest_final"]),
-            "consolidate_deterministic": True,   # 同计数恒等由 consolidate 测试锚（protection v2.2 在案）
+            "consolidate_deterministic": _consolidate_determinism(runner),
             "nolearn_prior_constant": nolearn0.summary["posterior_resource"] == _PRIOR_FROZEN,
         }
         for k, v in mechanical.items():

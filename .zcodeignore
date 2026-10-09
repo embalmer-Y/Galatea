@@ -1,0 +1,73 @@
+# ===== Galatea .gitignore（ACT-01，2026-09-17）=====
+# 纪律：规范性内容（design/、physio/docs/、根 md、_audit 台账）全部入库；
+#       运行时数据、构建产物、本机环境配置一律不入库。
+
+# --- 本机编辑器/环境（含机器绝对路径）---
+.vscode/
+.idea/
+
+# --- Python（galatea/** 主线实现期）---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# --- Galatea 运行时三库与证据/工件（L00/L13：内容寻址、append-only，体积大且可再生性受控）---
+# 纪律：目录模式一律根锚定（INC-07：未锚定的 evidence/ 曾误伤 config/evidence/ 冻结合同）
+/registry/
+/evidence/
+/artifacts/
+/checkpoints/
+*.db
+*.db-wal
+*.db-shm
+
+# --- PhysIO / Zephyr 构建产物（west 工作区按设计在仓库之外，不涉及）---
+build/
+build-*/
+twister-out/
+sandbox/
+*.elf
+*.bin
+*.hex
+*.map
+
+# --- 系统与日志 ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log
+
+# ===== ↑ 以上同步自 .gitignore（「从 .gitignore 同步」只重写以上部分）=====
+.git/
+.hg/
+.svn/
+node_modules/
+bower_components/
+jspm_packages/
+site-packages/
+coverage/
+htmlcov/
+lcov-report/
+cmakefiles/
+cmake-build-*/
+bazel-*/
+pods/
+deriveddata/
+storybook-static/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+cdk.out/
+*.dist-info/
+eggs/
+pip-wheel-metadata/
+wheels/
+# ----- ↑ 以上为 ZCode 默认排除规则（自定义规则请写在本行下方，不会被同步/恢复改动）-----
+# 自定义规则写在下方（本行提示可删除）

@@ -37,7 +37,7 @@ def test_dimension_regression_rejected() -> None:
                                   {"tracking": 1.2, "calibration": 0.2},
                                   {"tracking": 0.6, "calibration": 0.7})
     assert borderline.outcome is not PromotionOutcome.REJECTED or "REGRESSION" not in borderline.reason
-    assert abs((0.7 - 0.2) - 0.5) > 0 or True   # 0.7−0.2 = 0.49999999999999994（成文）
+    assert abs(0.7 - 0.2) < 0.5   # float64 表示噪声如实成文：0.7−0.2 = 0.49999999999999994
 
 
 def test_protection_hard_constraint_wins() -> None:

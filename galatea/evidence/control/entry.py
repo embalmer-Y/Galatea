@@ -731,10 +731,17 @@ def run_c5_first_evaluation(
         for i in range(32)
     )
     split = generate_split(grid, seal_split_master_seed(), policy)
+    # 归档守卫 v2（REV-0022 R2 修复）：幂等——仅在归档目标**不存在**时执行一次性归档；
+    # 目标已在位（历史归档完成）时拒绝覆盖，防重跑 rmtree 真档案/顶替命名（评审实证缺陷）
     v10 = root / "evidence" / "c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE"
-    if (root / "evidence" / "c5_continued_learning_first_evaluation" / "R-c5-continued-learning-001.json").is_file():
-        shutil.rmtree(v10, ignore_errors=True)
-        (root / "evidence" / "c5_continued_learning_first_evaluation").rename(v10)   # v1.0 归档（只增不减）
+    cur = root / "evidence" / "c5_continued_learning_first_evaluation"
+    if (cur / "R-c5-continued-learning-001.json").is_file() and not v10.exists():
+        cur.rename(v10)   # 一次性 v1.0 归档（只增不减）
+    elif v10.exists() and (cur / "R-c5-continued-learning-001.json").is_file():
+        raise FileExistsError(
+            "archive target exists and current evaluation present——"
+            "输出目录冲突（REV-0022 R2：禁顶替命名，请手动清理后重评）"
+        )
     shutil.rmtree(out_dir, ignore_errors=True)
     out_dir.mkdir(parents=True)
     run_dir = out_dir / "run"
