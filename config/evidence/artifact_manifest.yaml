@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.16（2026-10-10）：P2 单元 D 常驻长程四锚（Q-L13-15/Q-L10-15——H1 移交三项全部清账：
-#  checkpoint 迁移审计/角色交换字面全栈/require-hashes；常驻 264 cycles 跨崩溃谱系链无断）。
+# v1.17（2026-10-10）：P2 单元 E 地面层——Tessera S3 活网桥捕获锚（Q-L10-16；
+#  勘正记录：Tessera M1/M2a 早已完成，此前误读系本地旧快照）。WAV/原始流量随 evidence 归档。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.16
+  version: v1.17
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -213,3 +213,7 @@ artifact_manifest:
     path: evidence/release_audit.json
     sha256: 7b7845d9dad789f999f2623c7045792ce894a4b5f6fff2957acc4e97271cabd1
     gate: 发布供应链审计（Q-L13-15⑤ require-hashes 兑现：uv.lock 全包哈希覆盖 PASS + 锁 digest）
+  - name: tessera-bridge-capture
+    path: evidence/tessera_bridge/capture.json
+    sha256: f66f15663749d2f8793b9d0511c6f1d29a69e8be1976cd5e015a82388752e87e
+    gate: P2 单元 E 地面层（Q-L10-16：S3 活网桥 15s/193 包——PROPRIO 129 + INTERO 64；真实 CBOR 遥测）

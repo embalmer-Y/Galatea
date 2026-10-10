@@ -300,3 +300,4 @@ config/profiles/
 | Q-L10-13 | USB 音频设备新增事件（首个执行类设备；owner 测试级授权） | P1+ | CONFIRMED（AI-v2 2026-10-10：JMTek card2 双面；治理登记实战 L1→L4 + BodyGraph 首含执行器；I/O 六项全过——回环 ratio 1.2M / 急停实测 237ms / 硬件 L0 无如实登记；L4 常态化 = owner 备案点，见 A 区） |
 | Q-L10-14 | 扬声器 L4 常态化授权（owner 常态授权兑现） | P2 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0027 §2：owner 消息 = 常态授权；bounds 封套不变 + estop 常设；capability_set 增 audio_play，见 A 区） |
 | Q-L10-15 | 角色交换字面全栈操作化（E1 R3/H1 移交兑现） | P2 | CONFIRMED（AI-v2 2026-10-10：跨边界交换企图电池——ingest/L 机/capability/freshness 四边界互换注入全数 typed 拒绝 = 角色被结构性执行，见 A 区） |
+| Q-L10-16 | Tessera S3 节点设备事件（单元 E 地面层） | P2 | CONFIRMED（AI-v2 2026-10-10：zenoh 活网桥 sensing-only——CBOR 解码→INTERO/PROPRIO 语义映射→合同包，真机 193 包捕获 PASS；命令面 = owner 备案点，见 A 区） |
