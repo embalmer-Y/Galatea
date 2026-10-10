@@ -1,0 +1,21 @@
+[Unit]
+Description=Galatea resident subject (P2 fused long-run; Q-L13-15/Q-L13-16)
+After=network-online.target galatea-zenohd.service galatea-body-sim.service
+Wants=galatea-zenohd.service galatea-body-sim.service
+
+[Service]
+Type=simple
+User=emb
+WorkingDirectory=/home/emb/galatea_deploy
+Environment=PYTHONPATH=/home/emb/galatea_deploy
+Environment=PATH=/home/emb/.local/bin:/usr/bin:/bin
+ExecStart=/home/emb/.local/bin/uv run python scripts/resident_subject.py --forever --resume --cycles 0 --dwell 64 --period-ms 200 --zenoh-router tcp/127.0.0.1:7447 --store /home/emb/galatea_resident/stores --out /home/emb/galatea_resident --session systemd
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+RestartSec=5
+SuccessExitStatus=0 143
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

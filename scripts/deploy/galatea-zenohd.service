@@ -1,0 +1,14 @@
+[Unit]
+Description=zenohd router for Galatea resident fusion (host-local 7447)
+
+[Service]
+Type=simple
+User=emb
+ExecStart=/home/emb/project/tools/zenohd --listen tcp/0.0.0.0:7447
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

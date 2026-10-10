@@ -98,6 +98,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--zenoh-router", default=None,
                         help="融合模式：消费 Tessera 活网桥流（power→INTERO/act→PROPRIO；"
                              "cycles = 可映射样本数目标）")
+    parser.add_argument("--forever", action="store_true",
+                        help="无限运行（Q-L13-16①）：SIGTERM/SIGINT 优雅停机——停止采样→末 checkpoint→退出")
     args = parser.parse_args(argv)
     root = _REPO
     out = args.out
@@ -126,12 +128,21 @@ def main(argv: list[str] | None = None) -> int:
     lineage = LineageTable()
     parent_id: str | None = None
     resume_cycle = 0
+    stop_requested = {"flag": False}
+
+    def _graceful(signum: int, _frame: object) -> None:
+        stop_requested["flag"] = True                  # Q-L13-16①：优雅停机旗标
+        print(f"signal {signum} received——graceful stop requested")
+
+    import signal
+    signal.signal(signal.SIGTERM, _graceful)
+    signal.signal(signal.SIGINT, _graceful)
     if args.resume:
         lineage = _rebuild_lineage(events)
         checkpoints = [e for e in events if e.get("event") in ("checkpoint", "crash_recovered")]
         if not checkpoints:
-            print("RESUME_FAIL: 审计文件无 checkpoint（--resume 需要既有谱系）", file=sys.stderr)
-            return 1
+            # Q-L13-16：服务化 --resume 容忍空审计（首启 = fresh 根，D-12 合法）
+            print("resume: 审计无 checkpoint——fresh 根启动（首启合法）")
         parent_id = checkpoints[-1]["checkpoint_id"]
         resume_cycle = int(checkpoints[-1].get("cycle", 0))
         _append_audit(audit_path, {
@@ -178,10 +189,15 @@ def main(argv: list[str] | None = None) -> int:
               f"samples={total_cycles} router={args.zenoh_router}")
         built = 0
         cycle = bridge_cycle_origin
-        while built < total_cycles:
+        while built < total_cycles or args.forever:
+            if stop_requested["flag"]:
+                print("graceful stop——停止采样（Q-L13-16①）")
+                break
             try:
                 key, raw = q.get(timeout=10.0)
             except queue.Empty:
+                if args.forever:
+                    continue                           # 无限模式：空网等待 SIGTERM（服务化常态）
                 print("zenoh queue timeout——活网无流量，中止（禁静默空转）", file=sys.stderr)
                 return 1
             try:
@@ -232,6 +248,9 @@ def main(argv: list[str] | None = None) -> int:
                                    "samples_mapped": built, "unmapped": dict(unmapped)})
     else:
         for i in range(total_cycles):
+            if stop_requested["flag"]:
+                print(f"graceful stop at cycle {bridge_cycle_origin + i}（Q-L13-16①）")
+                break
             cycle = bridge_cycle_origin + 1 + i       # 恢复后从恢复点 +1 接续（单调时间轴）
             started = time.monotonic()
             record = bridge.sample(cycle)
@@ -271,8 +290,9 @@ def main(argv: list[str] | None = None) -> int:
             remain = args.period_ms / 1000.0 - (time.monotonic() - started)
             if remain > 0:
                 time.sleep(remain)
-        final_cycle = bridge_cycle_origin + total_cycles
 
+    if tessera_mode is False:
+        final_cycle = bridge_cycle_origin + (i + 1)
     # 会话结束 checkpoint（事件触发面，Q-L00-05②）
     cp_id = f"resident-{args.session}-final"
     rec = stores.checkpoint(
