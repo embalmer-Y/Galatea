@@ -1,10 +1,10 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.22（2026-10-10）：P2 状态序列化双锚（Q-L13-17——digest_state 语义升级：
-#  pipeline_state.v1 快照面随 checkpoint 存续；z7 崩溃→z8 resume state_restored=True；
-#  状态连续性机械判据 = 恢复后 energy_rate 正确差分【反证：fresh 管线同帧 Unknown】）。
+# v1.23（2026-10-10）：f4cfabb 重部署服务级状态连续性三锚（Q-L13-16⑤ 语义升级落到
+#  常驻服务本体：SIGKILL→自动重启→restart_restore state_restored=True 从 cp12096 快照恢复；
+#  过渡期首启 state_restored=false 如实留档【旧检查点无快照——诚实预期】）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.22
+  version: v1.23
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -247,3 +247,16 @@ artifact_manifest:
     path: evidence/resident/state_continuity_migrations.jsonl
     sha256: 837cc197bb744b46eed008af13ac278f0990827d622a4e5af937821bcd5b8927
     gate: P2 状态连续性演练审计（z7 崩溃→z8 resume state_restored=True + pipeline_state_digest 挂接）
+  - name: resident-service-state-verify
+    path: evidence/resident/service_state_verify.json
+    sha256: cdf5906b55a5fb4c5289f4639e86aea3ca87b6cf8facfbc21246baee97426065
+    gate: P2 服务级状态连续性验证（f4cfabb 重部署：五判据全过——SIGKILL→自动重启→restart_restore state_restored=True 从 cp12096
+      快照恢复）
+  - name: resident-service-snapshot-cp12096
+    path: evidence/resident/service_snapshot_cp12096.json
+    sha256: 3c3e69b06f13be52f2d65eefbcb8d7278b6c2505a0cc638cc2e74538046e7fee
+    gate: 服务快照样本（pipeline_state.v1 于 systemd 常驻 cp12096——运行中主体检查点承载完整管线内存态）
+  - name: resident-service-last-restart
+    path: evidence/resident/last_restart_restore.jsonl
+    sha256: 79802207ce86fcd67834144f8fdced6161d40db963110166674d0162576f878e
+    gate: 服务级 restart_restore 事件（pipeline_state_digest=4a25a954… + state_restored=true）
