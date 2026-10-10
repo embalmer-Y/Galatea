@@ -1,11 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.15（2026-10-10）：P2 音频闭环报告锚（ADR-G-0027 单元 A+B+C 同日交付——主体
-#  发声→听见（loudness 0.072→1.000）→归属 SELF_CONSISTENT（ratio 89,785×）；L4 有界路由+急停路径全过）。
-# v1.14（2026-10-10）：USB 音频设备新增事件 I/O 测试报告锚（Q-L10-13——首个执行类设备。
-#  声学回环 ratio 1,222,437×；急停实测 237ms；硬件 L0=无如实登记；WAV 工件随 evidence 目录归档）。
+# v1.16（2026-10-10）：P2 单元 D 常驻长程四锚（Q-L13-15/Q-L10-15——H1 移交三项全部清账：
+#  checkpoint 迁移审计/角色交换字面全栈/require-hashes；常驻 264 cycles 跨崩溃谱系链无断）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.15
+  version: v1.16
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -198,3 +196,20 @@ artifact_manifest:
     path: evidence/audio_closed_loop/report.json
     sha256: fa039eb2736e6082589c2724b1ab55b3cf1223c7347c50620d7d1d295e94ccdf
     gate: P2 单元 C 音频闭环测试（发声→听见→归属 SELF_CONSISTENT；T1–T5 全过；ADR-G-0027）
+  - name: resident-longrun-verify
+    path: evidence/resident/resident_verify.json
+    sha256: 74702df5f599de1be31b6030bf4e80619a0aa5b7060be8f11130dd2c4cc78536
+    gate: P2 单元 D 常驻长程验证（Q-L13-15：264 cycles ≥256 + 崩溃注入恢复 + 谱系链 cp64→cp128→cp192→cp256→final 无断 + 持久面
+      5/5 + DAG 重建）
+  - name: resident-migration-audit
+    path: evidence/resident/checkpoint_migrations.jsonl
+    sha256: e78a53be7507632cf1b5e664118fc43d0ba1c23540321f922b16bd1572a7bd94
+    gate: checkpoint 迁移审计（H1 移交项兑现——逐事件成链：checkpoint/restart_restore/crash_injected）
+  - name: role-swap-battery-report
+    path: evidence/role_swap_battery/report.json
+    sha256: 9c402d4ac47a4ff826c42c823a64ac494a3500c3c97552a5cc7e459d7f54c897
+    gate: 角色交换企图电池（Q-L10-15：四边界互换注入全数 typed 拒绝）
+  - name: release-audit-report
+    path: evidence/release_audit.json
+    sha256: 7b7845d9dad789f999f2623c7045792ce894a4b5f6fff2957acc4e97271cabd1
+    gate: 发布供应链审计（Q-L13-15⑤ require-hashes 兑现：uv.lock 全包哈希覆盖 PASS + 锁 digest）

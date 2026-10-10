@@ -38,7 +38,7 @@ tar -xzf "$STAGING/galatea-evidence.tar.gz" -C "$TARGET"
 echo "载荷就位：$(find "$TARGET/evidence" -type f | wc -l) 个 evidence 文件"
 
 # ④ 环境同步（Python 3.12.13 钉版由 uv 托管）
-(cd "$TARGET" && uv sync)
+(cd "$TARGET" && uv sync --frozen)   # require-hashes 强化（Q-L13-15⑤）：仅按锁安装，漂移即拒
 echo "venv 就绪：$("$TARGET/.venv/bin/python" --version)"
 
 # ⑤ 基线判据（部署就绪 = pytest 全绿；ADR-G-0025 §5）

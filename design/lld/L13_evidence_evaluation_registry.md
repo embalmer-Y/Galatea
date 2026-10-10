@@ -350,3 +350,4 @@ config/evidence/
 | Q-L13-11 | 根 EvidenceResult 构成、root 统计计划与绑定物、sealed 网格定值 | R0 | CONFIRMED（AI-v2 2026-10-02：复合 claim `r0_root_causal_auditability` + r0_root.yaml v1.0 冻结 + 绑定物集 + sealed 网格 3×32=96 cells 主种子 hex "19"×32；REV-0009 R3 补执行口径；见 A 区） |
 | Q-L13-13 | P1 统计评价形式（顺延终止条款适用——物理域非确定性的评价设计适配） | P1 | CONFIRMED（AI-v2 2026-10-10：记录-重放范式（Q-L12-03 物理域推广）三 claim——保真度/L 级安全确定性门/虚拟↔物理配对等价类；Holm 族 3 claim 显式 + 种子派生入计划；见 A 区） |
 | Q-L13-14 | evidence 异地备份义务（INC-13 证实单一副本风险；ADR-G-0024 建议 P1 前补裁决） | P1 起 | CONFIRMED（AI-v2 2026-10-10：门退出后 evidence 全量 tar+sha256 推送主机异地副本 + manifest 锚；恢复演练 = 还原临时目录逐件 digest 一致（实现期首执行）；check_docs 义务缺失 = FAIL；见 A 区） |
+| Q-L13-15 | P2 常驻运行面判据 + checkpoint 迁移审计（H1 移交兑现） | P2 | CONFIRMED（AI-v2 2026-10-10：常驻 runner + ≥256 cycles + fault 注入重启恢复谱系链延续 + 迁移审计 jsonl + require-hashes/--frozen 部署强化，见 A 区） |
