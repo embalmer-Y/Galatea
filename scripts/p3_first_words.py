@@ -37,7 +37,68 @@ CORPUS_STATES: list[dict[str, object]] = [
 ]
 
 
+def render_template_v0(state: dict[str, object]) -> str:
+    """确定性模板渲染器（Q-L12-09 行内补裁②：语库 v0——纯经典、零幻觉、构造性确定）。
+
+    冻结句式规则（值域分箱固定；禁引入输入之外的事实）：
+    能量 [≥0.8 高/≥0.6 中等/≥0.4 偏低/<0.4 很低] × 趋势 [恢复/稳定/下降] ×
+    完整性 [<1.0 受损提及/否则省略] × 目标 [维持觅食/维持休息/无进行中] ×
+    效价 [≥0.2 感觉良好/>−0.2 平静/≥−0.5 有些不安/状态较差]。
+    """
+    energy = float(state["energy"])
+    trend = str(state["energy_trend"])
+    integrity = float(state["integrity"])
+    goal = str(state["current_goal"])
+    valence = float(state["valence"])
+
+    energy_desc = ("很高" if energy >= 0.8 else "中等" if energy >= 0.6
+                   else "偏低" if energy >= 0.4 else "很低")
+    trend_desc = {"rising": "正在恢复", "steady": "保持稳定", "falling": "正在下降"}[trend]
+    parts = [f"我的能量{energy_desc}，{trend_desc}"]
+    if integrity < 1.0:
+        parts.append("身体受损")
+    goal_desc = {"forage": "维持觅食中", "rest": "维持休息中", "none": "暂无目标"}[goal]
+    valence_desc = ("感觉良好" if valence >= 0.2 else "感觉平静" if valence > -0.2
+                    else "有些不安" if valence >= -0.5 else "状态较差")
+    sentence = "，".join(parts) + f"，{goal_desc}，{valence_desc}。"
+    return sentence
+
+
 def cmd_corpus(model_id: str, out: Path) -> int:
+    """语库 v0（模板渲染——确定性构造；LLM v1 待密钥，Q-L12-09 行内补裁②）。
+
+    产物格式与录制文件同构（role/input_payload/input_digest/output_text/model_id）——
+    回放面（ReplayStore.invoke）零改动兼容。
+    """
+    import hashlib
+    from galatea.subject.language.replay import canonical_input_digest
+    entries = []
+    for state in CORPUS_STATES:
+        payload = dict(state)
+        output_text = json.dumps({"utterance": render_template_v0(payload)},
+                                 ensure_ascii=False)
+        entries.append({
+            "role": "R-REPORT", "input_payload": payload,
+            "input_digest": canonical_input_digest(payload),
+            "output_text": output_text, "model_id": "template_v0",
+        })
+    doc = {
+        "session": {
+            "provider": "deterministic_template", "model_id": "template_v0",
+            "endpoint": "local://template_v0（Q-L12-09 行内补裁②——纯经典零 LLM；"
+                        "v1=LLM 渲染待 API key）",
+            "discipline": "Q-L12-03 同构回放纪律；v0 = 冻结句式规则构造性确定",
+        },
+        "entries": entries,
+    }
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True) + chr(10),
+                   encoding="utf-8")
+    print(f"corpus v0 written: {out} ({len(entries)} entries, template_v0)")
+    return 0
+
+
+def cmd_corpus_v1(model_id: str, out: Path) -> int:
     from galatea.evidence.control.recording import record_session
     tasks = [("R-REPORT", dict(state)) for state in CORPUS_STATES]
     record_session(tasks, model_id, out)
@@ -52,7 +113,10 @@ def _render_tts(text: str, out_wav: Path, *, piper_bin: str = "~/piper_venv/bin/
     piper = os.path.expanduser(piper_bin)
     voice_path = os.path.expanduser(voice)
     proc = subprocess.run(
-        [piper, "--model", voice_path, "--output_file", str(out_wav)],
+        # --length-scale 0.8 = 冻结配方参数（Q-L10-17：默认语速下自述句 6.0s 超 L4 封套 5s；
+        # 0.8 → ~4.8s 入封套，自然度可接受——冻结会话一次性定值）
+        [piper, "--model", voice_path, "--length-scale", "0.8",
+         "--output_file", str(out_wav)],
         input=text.encode("utf-8"), capture_output=True, timeout=180)
     if proc.returncode != 0 or not out_wav.exists():
         raise RuntimeError(f"piper failed rc={proc.returncode}: {proc.stderr[:200]!r}")
@@ -185,10 +249,11 @@ def _wav_rms_raw(path: Path) -> float:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="P3 R-REPORT 语库 + 第一句话")
     sub = parser.add_subparsers(dest="command", required=True)
-    corpus = sub.add_parser("corpus")
-    corpus.add_argument("--model", default="bigmodel/glm-5.3-flash")
+    corpus = sub.add_parser("corpus", help="语库 v0（模板渲染——确定性，无网络）")
+    corpus_llm = sub.add_parser("corpus-llm", help="语库 v1（LLM 渲染——需有效 API key）")
+    corpus_llm.add_argument("--model", default="bigmodel/glm-5.3-flash")
     corpus.add_argument("--out", type=Path,
-                        default=Path("evidence/p3_language/rreport_v1.json"))
+                        default=Path("evidence/p3_language/rreport_v0.json"))
     freeze = sub.add_parser("freeze-tts", help="冻结会话：录制文件内逐 utterance 渲染 WAV（claim-relevant 运行外）")
     freeze.add_argument("--recording", type=Path,
                         default=Path("evidence/p3_language/rreport_v1.json"))
@@ -200,7 +265,9 @@ def main(argv: list[str] | None = None) -> int:
                         default=Path("evidence/p3_language/rreport_v1.json"))
     args = parser.parse_args(argv)
     if args.command == "corpus":
-        return cmd_corpus(args.model, args.out)
+        return cmd_corpus("", args.out)
+    if args.command == "corpus-llm":
+        return cmd_corpus_v1(args.model, args.out)
     if args.command == "freeze-tts":
         return cmd_freeze_tts(args.recording)
     return cmd_speak(args.state, args.card, args.out, args.recording)

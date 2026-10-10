@@ -47,7 +47,7 @@ def test_supply_chain_audit_full_manifest() -> None:
     """判据 3：manifest 全锚 sha256 比对（零 fail；LOST/SUPERSEDED 单列）。"""
     out = supply_chain_audit(_ROOT)
     assert out["stable"], out["failed"]
-    assert out["manifest_total"] == 59   # v1.25（P3 语音面 +1——只增不减）
+    assert out["manifest_total"] == 61   # v1.26（P3 第一句话 +2：语库 v0/闭环工件——只增不减）
     assert not out["failed"]
     # lost 名单随演进增长（INC-13 三件 + P2 服务化演进 SUPERSEDED 件——锚与状态注记均保留可溯）
     assert out["lost_inc13"] == ["EXP-R0-001", "R-c5-v1-0-composite-INCONCLUSIVE",

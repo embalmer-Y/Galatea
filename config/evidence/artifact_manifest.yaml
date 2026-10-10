@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.25（2026-10-11）：P3/T1 开工（ADR-G-0028——owner 批准分级方案）——单元 B 语音输出面验证锚；
-#  R-REPORT 语库录制阻塞于 API key 失效（invalid_api_key 实测在案，待 owner 换发）。
+# v1.26（2026-10-11）：P3 第一句话闭环交付——语库 v0（模板渲染补裁②：API key 失效不停等，
+#  纯经典路径完成）+ 闭环 PASS 工件 + Birch 复评 0.75→0.7857 重锚（B0-3 PRESENT）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.25
+  version: v1.26
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -261,10 +261,18 @@ artifact_manifest:
     gate: 服务级 restart_restore 事件（pipeline_state_digest=4a25a954… + state_restored=true）
   - name: birch-markers-report
     path: evidence/birch_scoring/report.json
-    sha256: 260f4dec14522bf17d3029be6d66804570a88df28c44e2beea403c10fee973e2
-    gate: Birch 标记评分首评（Q-L13-18：15 标记——7 PRESENT/7 PARTIAL/1 UNDETERMINABLE，score 0.75；verdict VIABLE_SO_FAR_WITH_FORWARD_RISKS——无
-      classical_ceiling 阻断）
+    sha256: 21c4ecf93a31755ad16f7d2c56bc9abb3d1f52c698f70c5544aad834e590da5b
+    gate: Birch 标记评分复评（Q-L13-18/Q-L12-09 补裁②：标记册 v1.1 B0-3 升 PRESENT——第一句话闭环 PASS 后 0.75→0.7857；8 PRES/6
+      PART/1 UNDE）
   - name: p3-speech-surface-verify
     path: evidence/p3_language/speech_surface_verify.json
     sha256: 92cbaadd6074725f4538f618c19cd0568db9b76a28cdb270607df4dde04a0a94
     gate: P3 单元 B 语音输出面真机验证（Q-L10-17：piper 中文声 + L4 播放 + 麦克风 RMS 5756≫本底 373；TTS 冻结-回放行内补裁——VITS 无种子实测驱动）
+  - name: p3-rreport-corpus-v0
+    path: evidence/p3_language/rreport_v0.json
+    sha256: c01267b9f1041d45450fd9a8b0e47aa429b08fe129d09599ab8d7847532fd9bf
+    gate: P3 R-REPORT 语库 v0（Q-L12-09 补裁②：模板渲染 14 冻结态——确定性构造、零 LLM；v1 LLM 待密钥）
+  - name: p3-first-words
+    path: evidence/p3_language/first_words/first_words.json
+    sha256: 06bd766233deedefb20c6c93eb57c568f8c4dba484adfeae23c1ebfa47599fa1
+    gate: P3 第一句话闭环 PASS（状态→v0 语料→冻结 WAV 回放→L4 发声→麦克风 RMS 6291.9≫373：“我的能量中等，正在下降，维持觅食中，有些不安。”）

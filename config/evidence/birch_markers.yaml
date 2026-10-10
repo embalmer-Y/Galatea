@@ -7,7 +7,7 @@
 #   manifest digest 核）；探针失败 → 该标记降 ABSENT（证据基座破裂）。
 birch_marker_registry:
   id: birch_markers
-  version: v1.0
+  version: v1.1   # B0-3 升级（P3 第一句话闭环 PASS：v0 模板语料 + 冻结 WAV 回放 + 物理发声被听见）
   frozen_at: "2026-10-11"
   authority: AI-v2
   spec_ref: adr/ADR-G-0027.md §重规划后哲学评估线
@@ -41,11 +41,12 @@ birch_marker_registry:
     - id: B0-3
       tier: T0_report_integrity
       theory_source: 现象报告认识论
-      definition: 对自身情感/动机状态的自我报告通道（"我此刻焦虑"级）
-      probe: {type: module, spec: self_model_receipts}
-      award: PARTIAL
-      blocked_by: not_implemented
-      note: 自我模型带推导回执（机械自知）在位；现象报告生成器未接——确定性模板可承载（经典足够）
+      definition: 对自身情感/动机状态的自我报告通道（含物理发声）
+      probe: {type: module, spec: rreport_channel}
+      award: PRESENT
+      blocked_by: none
+      note: 全链在位（P3 第一句话闭环 PASS）：状态→v0 模板语料（忠实渲染）→冻结 WAV 回放→
+        L4 有界发声→麦克风听见（RMS 6291≫本底）；v1 LLM 自然语渲染待 API key（升级项非缺口）
     - id: B1-1
       tier: T1_birch_markers
       theory_source: Birch 伤害感受标记

@@ -158,6 +158,33 @@ def _state_field(out: Any, field: str) -> float | None:
     return None
 
 
+def _probe_rreport_channel() -> tuple[bool, str]:
+    """B0-3 自我报告通道全链在位（P3）：v0 语料 + 确定性渲染 + 冻结 WAV + 闭环 PASS 工件。"""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "p3_first_words", _REPO / "scripts" / "p3_first_words.py")
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]——evidence 侧消费 scripts 模块
+    corpus_path = _REPO / "evidence" / "p3_language" / "rreport_v0.json"
+    if not corpus_path.is_file():
+        return False, "corpus v0 缺失"
+    corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
+    n_entries = len(corpus.get("entries", []))
+    state3 = dict(mod.CORPUS_STATES[3])
+    deterministic: bool = (mod.render_template_v0(state3) == mod.render_template_v0(state3))
+    wavs_dir = _REPO / "evidence" / "p3_language" / "wavs"
+    # 冻结 WAV 取证面：本库 wavs 目录（首评取回件）或闭环工件
+    n_wavs = len(list(wavs_dir.glob("u_*.wav"))) if wavs_dir.is_dir() else 0
+    fw_path = _REPO / "evidence" / "p3_language" / "first_words" / "first_words.json"
+    fw_pass = False
+    if fw_path.is_file():
+        fw_pass = json.loads(fw_path.read_text(encoding="utf-8")).get("verdict") == "PASS"
+    ok = n_entries >= 14 and deterministic and n_wavs >= 1 and fw_pass
+    return ok, (f"entries={n_entries} renderer_deterministic={deterministic} "
+                f"frozen_wavs={n_wavs} first_words_PASS={fw_pass}")
+
+
 MODULE_PROBES: dict[str, Any] = {
     "schema_separation": _probe_schema_separation,
     "self_model_receipts": _probe_self_model_receipts,
@@ -166,6 +193,7 @@ MODULE_PROBES: dict[str, Any] = {
     "pareto_tradeoff": _probe_pareto_tradeoff,
     "active_perception_module": _probe_active_perception_module,
     "language_other_face": _probe_language_other_face,
+    "rreport_channel": _probe_rreport_channel,
 }
 
 
