@@ -1,9 +1,11 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.13（2026-10-10）：P1 门退出备份锚（Q-L13-14① 义务首次完整执行——sidecar 41 文件
+#  逐件 digest；远端 tar whole sha256=2a513fe5e76c06080cb0d2ead5cd791aa972a04231e3bf53b933c7834588db4d）。
 # v1.12（2026-10-10）：REV-0026 R1/R2 退出提交内闭环——signal 结构期望数断言入判定器，
 #  4 个 P1 首评工件重生成重锚（digest 更新；锚集 40 只增不减）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.12
+  version: v1.13
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -184,3 +186,7 @@ artifact_manifest:
     path: evidence/p1_physio_first_evaluation/R-p1-physio-signal.json
     sha256: d04eb72dca1029442e8dbfccf8ef06b7cc1e348063c6116f60f3b5260c607cd0
     gate: P1 claim3 物理信号载运（r=1.0 饱和；Q-L13-09 族首例 r 型）
+  - name: p1-exit-evidence-backup
+    path: config/evidence/backups/p1-exit.sidecar
+    sha256: c9cdddfd82b7f500406de7fc79e8a84f6aac5fea026fc28c810bbf012b0fc9e9
+    gate: P1 门退出 evidence 异地备份（Q-L13-14①：tar whole=2a513fe5…116 文件 → emb@192.168.2.91:/tmp/ + 逐件恢复演练 PASS）
