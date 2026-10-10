@@ -47,6 +47,8 @@ class P1PhysioProfile:
     contract_keys: tuple[str, ...]       # 合同 payload 三键（Q-L01-10 R5 勘误）
     sources: tuple[TelemetrySource, ...]
     backup_target_host: str
+    audio: dict[str, float]              # P2 audio 节（Q-L01-11：sample_rate/frame_ms/
+                                         # audio_ref_rms/play_max_seconds/play_max_amplitude/carrier）
 
 
 def _require(mapping: dict[str, Any], key: str) -> Any:
@@ -119,6 +121,17 @@ def load_p1_physio_profile(path: Path | None = None) -> P1PhysioProfile:
     if not actions_raw:
         raise ProfileViolation("capability_set.actions must be non-empty list")
 
+    audio_raw = _require(raw, "audio")
+    audio: dict[str, float] = {
+        "sample_rate": float(_require_int(audio_raw, "sample_rate")),
+        "frame_ms": float(_require_int(audio_raw, "frame_ms")),
+        "audio_ref_rms": float(audio_raw["audio_ref_rms"]),
+        "play_max_seconds": float(audio_raw["play_max_seconds"]),
+        "play_max_amplitude": float(audio_raw["play_max_amplitude"]),
+    }
+    if "carrier" not in audio_raw or not str(audio_raw["carrier"]):
+        raise ProfileViolation("audio.carrier required")
+
     return P1PhysioProfile(
         profile_id="p1_physio",
         version=version,
@@ -133,4 +146,5 @@ def load_p1_physio_profile(path: Path | None = None) -> P1PhysioProfile:
         contract_keys=contract_keys,
         sources=tuple(sources),
         backup_target_host=_require_str(backup, "target_host"),
+        audio=audio,
     )

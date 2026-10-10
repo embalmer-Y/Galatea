@@ -21,10 +21,12 @@ from galatea.subject.sensorium.alignment import (
 from galatea.subject.sensorium.calibration import CalibrationVersion
 from galatea.subject.sensorium.form_extero import form_ext_event, form_ext_local_obs
 from galatea.subject.sensorium.form_intero import form_intero
+from galatea.subject.sensorium.form_audio import form_audio
 from galatea.subject.sensorium.form_language import form_language
 from galatea.subject.sensorium.form_proprio import form_proprio
 from galatea.subject.sensorium.gain import C0_GAIN, apply_gain, apply_gain_c2, scale_frame_features
 from galatea.subject.sensorium.ingest import (
+    CARRIER_AUDIO,
     CARRIER_EXTERO,
     CARRIER_INTERO,
     CARRIER_LANGUAGE,
@@ -57,6 +59,7 @@ class SensoriumPipeline:
     def __init__(
         self, profile: C0SensoriumProfile, calibration: CalibrationVersion,
         time_basis: dict[str, int], *, language_enabled: bool = False,
+        audio_enabled: bool = False, audio_ref_rms: float | None = None,
     ) -> None:
         """time_basis = 冻结通道延迟表（REV-0012 R2：世界时恢复的唯一来源；
         装配层从冻结 m0_mw0 profile 的 channel_delay_cycles 提取传入，禁运行时发明）。
@@ -72,6 +75,12 @@ class SensoriumPipeline:
         self._profile = profile
         self._calibration = calibration
         self._language_enabled = language_enabled
+        # P2 音频机会型形成（Q-L02-08，LANGUAGE 先例同位形）：audio_enabled 默认 False
+        # ——C0–C3 行为 bit-exact 不变；audio_ref_rms 为冻结归一常数（禁 None 时开启）
+        self._audio_enabled = audio_enabled
+        if audio_enabled and (audio_ref_rms is None or audio_ref_rms <= 0):
+            raise ValueError("audio_enabled requires positive audio_ref_rms（冻结归一常数）")
+        self._audio_ref_rms = audio_ref_rms
         self._window = AlignmentWindow(profile)
         self._prev_energy: float | None = None
         self._published_count: dict[tuple[int, str], int] = {}   # (effective_time, modality) → 已发布帧数
@@ -132,6 +141,18 @@ class SensoriumPipeline:
                     if self._gain_override is not None and self._gain_override != 1.0:
                         formed = [scale_frame_features(f, self._gain_override) for f in formed]
                     group_frames.extend(formed)
+                if self._audio_enabled:
+                    # P2 机会型音频形成（Q-L02-08）：有 audio_frame 则成帧（modality=EXTERO，
+                    # 听觉即外感受），缺席 = 正常静默；忠实变换零新阈值；增益豁免（分类面同语言）
+                    audio_signal = signals.get(CARRIER_AUDIO)
+                    if audio_signal is not None:
+                        audio_ref = self._audio_ref_rms
+                        assert audio_ref is not None and audio_ref > 0  # 构造期已校验
+                        group_frames.append(form_audio(
+                            audio_signal, delivery_cycle, self._calibration.version_id,
+                            GainState(applied_factor=1.0, source="PROFILE"),
+                            audio_ref,
+                        ))
                 if self._language_enabled:
                     # C4 机会型语言形成（L12 §4.3）：有 typed 陈述则成帧，缺席 = 正常静默；
                     # 语言为分类面，增益缩放豁免（Q-L12-06① 零后验权重承载面）

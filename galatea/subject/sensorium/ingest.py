@@ -18,12 +18,15 @@ CARRIER_EXTERO = "channel.exteroceptive.received.v1"
 CARRIER_INTERO = "channel.interoceptive.received.v1"
 CARRIER_PROPRIO = "channel.proprioceptive.received.v1"
 CARRIER_LANGUAGE = "channel.language.received.v1"   # C4 扩展（c4_action_social sensorium_c4）
+CARRIER_AUDIO = "channel.audio.received.v1"       # P2 扩展（Q-L01-11 勘误版：专用音频载体——
+                                                  #  ingest per-carrier 合同不兼容同载体双 kind）
 
 _REQUIRED_FIELDS: dict[str, tuple[str, ...]] = {
     CARRIER_EXTERO: ("kind", "window"),
     CARRIER_INTERO: ("kind", "energy", "integrity", "events"),
     CARRIER_PROPRIO: ("kind", "orientation"),
     CARRIER_LANGUAGE: ("kind", "text", "requester", "level"),
+    CARRIER_AUDIO: ("kind", "rms", "zcr", "peak", "duration_ms"),   # P2（Q-L01-11 schema）
 }
 
 _REQUIRED_KIND: dict[str, str] = {
@@ -31,6 +34,7 @@ _REQUIRED_KIND: dict[str, str] = {
     CARRIER_INTERO: "interoceptive_state",
     CARRIER_PROPRIO: "proprioceptive_state",
     CARRIER_LANGUAGE: "typed_statement",
+    CARRIER_AUDIO: "audio_frame",                    # P2（physio.audio_frame.v1 载荷 kind）
 }
 
 

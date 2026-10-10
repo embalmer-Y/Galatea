@@ -29,9 +29,10 @@ _LEVEL_CAPABILITIES: dict[int, frozenset[str]] = {
     1: frozenset(),                                        # 输出落安全态——无命令面
     2: frozenset({"calibrate_sensors", "selfcheck"}),
     3: frozenset({"calibrate_sensors", "selfcheck", "shadow_compute"}),
-    4: frozenset({"calibrate_sensors", "selfcheck", "shadow_compute", "actuate_limited"}),
+    4: frozenset({"calibrate_sensors", "selfcheck", "shadow_compute", "actuate_limited",
+                  "audio_play"}),                       # P2（Q-L10-14：有界发声）
     5: frozenset({"calibrate_sensors", "selfcheck", "shadow_compute",
-                  "actuate_limited", "actuate"}),
+                  "actuate_limited", "actuate", "audio_play"}),
 }
 
 
@@ -177,7 +178,7 @@ class PhysioLStateMachine:
             return "calibration_only"
         if action == "shadow_compute":
             return "compute_only"            # L3：不执行（L10 §4.6 字面）
-        if action == "actuate_limited":
+        if action in ("actuate_limited", "audio_play"):
             return "physical_limited"
         return "physical"
 

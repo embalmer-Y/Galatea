@@ -151,7 +151,20 @@ class LanguageFeatures:
     statement_level: str      # EXTERNAL_STATEMENT（层级永不提升，L12 §4.1）
 
 
-FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures | LanguageFeatures
+@dataclass(frozen=True, slots=True)
+class AudioFeatures:
+    """音频感觉特征（Q-L01-11/Q-L02-08，P2）：桥侧帧特征的忠实变换面——
+    loudness = min(1, rms/audio_ref_rms)（冻结归一常数，零新阈值纪律：不设
+    \"什么算声音\"的感觉阈）；原始 PCM 永不进帧（只入桥证据侧 log）。"""
+
+    loudness: float           # [0,1] 归一响度（忠实变换）
+    rms: float                # 原始帧 RMS（int 采样域）
+    zcr: float                # 过零率（0..1）
+    peak: int                 # 峰值采样幅值
+    duration_ms: int          # 帧时长（冻结 100ms）
+
+
+FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures | LanguageFeatures | AudioFeatures
 
 
 @dataclass(frozen=True, slots=True)

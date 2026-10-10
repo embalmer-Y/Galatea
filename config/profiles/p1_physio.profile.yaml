@@ -6,7 +6,8 @@
 # typed loader 随实现期交付（INC-11 纪律——无加载器不宣称可运行）。
 profile:
   id: p1_physio
-  version: v1.1   # 运行前修订 1（评价运行前，留痕纪律）：REV-0025 R6 name 锚定实装暴露
+  version: v1.2   # P2 音频弧线（ADR-G-0027）：audio 节新增（Q-L01-11/Q-L10-14）；
+                  # 运行前修订 1（评价运行前，留痕纪律）：REV-0025 R6 name 锚定实装暴露
                   # acpitz 快照键 ≠ 主机 name 文件实值 acpitz_0（探针按裸索引读未触 name 面）——
                   # sources 键更正为实值锚 + bridge hwmon 名单改由 profile 派生（禁硬编码）
   frozen_at: "2026-10-10"        # 成文日期 = git 提交日期（ADR-G-0009 R8 约定）
@@ -89,8 +90,17 @@ l_grades:                                     # Q-L10-11（L0–L5 实例化；�
   partial_execution: recorded_honestly        # requested≠effective + EmergencyStopExecuted
                                               # 禁"视为完成"禁"静默丢弃"
 
+audio:                                        # Q-L01-11（P2 单元 A；运行前冻结）
+  sample_rate: 16000                          # 采集率（任意先钉冻结常数——同 period_ms 体例）
+  frame_ms: 100                               # 帧长（1000 样本/帧）
+  audio_ref_rms: 5000.0                       # 响度归一参考（任意先钉冻结常数——非感觉阈，
+                                              #   忠实变换面 loudness = min(1, rms/ref)）
+  play_max_seconds: 5.0                       # L4 封套：单次播放时长上限（Q-L10-14）
+  play_max_amplitude: 0.6                     # L4 封套：幅值上限
+  carrier: channel.audio.received.v1          # 专用音频载体（Q-L01-11 实现前勘误版）
+
 capability_set:                               # Q-L10-12（P1 动作空间；MW0 枚举域隔离）
-  actions: [calibrate_sensors, selfcheck, shadow_compute]
+  actions: [calibrate_sensors, selfcheck, shadow_compute, audio_play]   # v1.2：+audio_play（Q-L10-14）
   domain_isolation: mw0_primitives_unavailable_in_physical_domain
   gateway_capability_check: profile_enumeration_plus_authz_freshness   # 八项校验 #4 扩展
 
