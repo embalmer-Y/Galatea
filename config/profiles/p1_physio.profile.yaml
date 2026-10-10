@@ -6,7 +6,9 @@
 # typed loader 随实现期交付（INC-11 纪律——无加载器不宣称可运行）。
 profile:
   id: p1_physio
-  version: v1.0
+  version: v1.1   # 运行前修订 1（评价运行前，留痕纪律）：REV-0025 R6 name 锚定实装暴露
+                  # acpitz 快照键 ≠ 主机 name 文件实值 acpitz_0（探针按裸索引读未触 name 面）——
+                  # sources 键更正为实值锚 + bridge hwmon 名单改由 profile 派生（禁硬编码）
   frozen_at: "2026-10-10"        # 成文日期 = git 提交日期（ADR-G-0009 R8 约定）
   authority: AI-v2
   spec_ref: design/lld/L10_action_gateway_physio_attribution.md   # §4.6 合同
@@ -28,7 +30,7 @@ sources:                                      # v1 物理源（全部非特权�
   # + device 路径锚定解析，索引仅作快照参考；漂移检出 = 通道 MISSING_SIGNAL 不静默错读。
   coretemp: {hwmon: hwmon2, quantity: per_core_temp_millicelsius, readable: true}
   nvme: {hwmon: hwmon1, quantity: device_temp_millicelsius, readable: true}
-  acpitz: {hwmon: hwmon0, quantity: zone_temp_millicelsius, readable: true}
+  acpitz_0: {hwmon: hwmon0, quantity: zone_temp_millicelsius, readable: true}  # name 文件实值锚（修订 1）
   proc_stat: {path: /proc/stat, quantity: cpu_jiffies_idle_total, readable: true}
   loadavg: {path: /proc/loadavg, quantity: load_1_5_15, readable: true}
   meminfo: {path: /proc/meminfo, field: MemAvailable_kb, readable: true}

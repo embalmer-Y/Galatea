@@ -103,7 +103,8 @@ def load_p1_physio_profile(path: Path | None = None) -> P1PhysioProfile:
         source_map = cast(dict[str, Any], value)
         kind = str(source_map.get("quantity", "")).split("_")[0]
         if "hwmon" in source_map:
-            sources.append(TelemetrySource(key=key, kind="hwmon", path=str(source_map["hwmon"]),
+            # R6：hwmon 源锚 = **源键名**（name 文件实值）；索引字段仅快照参考不参与解析
+            sources.append(TelemetrySource(key=key, kind="hwmon", path=key,
                                            quantity=str(source_map.get("quantity", "")), readable=True))
         elif "path" in source_map:
             readable = bool(source_map.get("readable", True))

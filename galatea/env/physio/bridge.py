@@ -112,7 +112,7 @@ class PhysioBridge:
         proc_stat_path: Path = PROC_STAT, loadavg_path: Path = Path("/proc/loadavg"),
         meminfo_path: Path = Path("/proc/meminfo"), netdev_path: Path = Path("/proc/net/dev"),
         monotonic_fn: Callable[[], float] | None = None, epoch_fn: Callable[[], float] | None = None,
-        hwmon_names: tuple[str, ...] = ("coretemp", "nvme", "acpitz"),
+        hwmon_names: tuple[str, ...] | None = None,
         net_iface: str = "enp3s0",
     ) -> None:
         if profile.carrier != "interoceptive":
@@ -126,7 +126,10 @@ class PhysioBridge:
         self._netdev_path = netdev_path
         self._mono = monotonic_fn or _default_monotonic
         self._epoch = epoch_fn or _default_epoch
-        self._hwmon_names = hwmon_names
+        # R6（修订 1）：hwmon 名单 = profile 冻结源键（name 文件实值锚），禁硬编码
+        self._hwmon_names = hwmon_names if hwmon_names is not None else tuple(
+            source.path for source in profile.sources if source.kind == "hwmon"
+        )
         self._net_iface = net_iface
         self._prev_stat: tuple[int, int] | None = None
 

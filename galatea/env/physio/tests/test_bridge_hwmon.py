@@ -26,7 +26,7 @@ def test_busy_rate_frozen_formula_and_bit_exact_delivery(tmp_path: Path) -> None
     hwmon_root.mkdir()
     for name, temps in (("coretemp", {"temp1": 36000, "temp2": 30000}),
                         ("nvme", {"temp1": 41000}),
-                        ("acpitz", {"temp1": 27800})):
+                        ("acpitz_0", {"temp1": 27800})):
         _make_hwmon_root(hwmon_root, name, temps)
     stat = tmp_path / "stat"
     (tmp_path / "loadavg").write_text("0.00 0.00 0.02 2/813 1\n", encoding="utf-8")
