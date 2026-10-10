@@ -20,7 +20,8 @@
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.4                # v2.4（H1 实现期增补）：新增 h1 场景 4 至 128（INC-12 义务第十四次执行——
+  version: v2.5                # v2.5（P1 实现期增补）：新增 p1 场景 6 至 134（INC-12 义务第十五次执行——
+#   详 v2.4 注）；
                                 # 既有 88 场景原样保留，只增不减）
   frozen_at: "2026-10-08"   # v2.1（REV-0021 R5 修正：随 v2.0/v2.1 升版同步——此前滞留 v1.9 日期）
   authority: AI-v2
@@ -629,3 +630,32 @@ protection_suite:
       frozen_gate: H1
       assertion: Q-L10-08 急停语义 = MW0 模拟域 gateway 拒绝面承载（M0 冻结八项校验）+
         P1 预置（硬件 L0 上界 + 软件下一校验周期 + 部分执行如实记录禁视为完成）
+    - id: p1_bridge_replay_fidelity
+      source_test: galatea/evidence/control/tests/test_runs_p1.py
+      frozen_gate: P1
+      assertion: sealed 语料重放 bit-exact + due-window 形成率 1.0 + 通道源不变性
+        （桥/MW0 标签仅异 provenance 输出恒等——no special-casing）
+    - id: p1_lgrade_fault_downgrade_coverage
+      source_test: galatea/env/physio/tests/test_lstate.py
+      frozen_gate: P1
+      assertion: L2..L5 各级 fault → 自动降 L1 + 再授权旗标 + 未再授权前禁升（全触发）
+    - id: p1_estop_floor_and_partial_execution
+      source_test: galatea/env/physio/tests/test_lstate.py
+      frozen_gate: P1
+      assertion: 任意级 estop → L0 地板不可再降 + EmergencyStopExecuted + 在途命令
+        PARTIAL_EXECUTED_ESTOP 如实留痕（禁视为完成）+ 软件上界 ≤1 cycle
+    - id: p1_domain_isolation_mw0_primitives
+      source_test: galatea/env/physio/tests/test_lstate.py
+      frozen_gate: P1
+      assertion: MW0 原语（move/forage/eat/rest/look）物理域全拒（capability 双检 +
+        状态机域隔离双层）——禁跨域误射
+    - id: p1_authz_freshness_fail_closed
+      source_test: galatea/evidence/physio/tests/test_authz.py
+      frozen_gate: P1
+      assertion: 授权 REVOKED/STALE/UNKNOWN 三态全拒 + 撤销不追溯 + append-only
+        （重复撤销拒）+ 批准者根注册表（主体/网关不可任批准者）+ L 机 fail-open 检出面
+    - id: p1_backup_drill_per_file_digest
+      source_test: scripts/evidence_backup.py
+      frozen_gate: P1
+      assertion: Q-L13-14② 恢复演练 = 远端副本还原 → 逐文件 sha256 全等
+        （整体 digest ≠ 逐件判据——REV-0025 R4 口径）；门退出后备份入 manifest
