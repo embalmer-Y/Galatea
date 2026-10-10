@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**158**
-  - CONFIRMED: 154
+- 登记册声明 Q 号：**159**
+  - CONFIRMED: 155
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 154, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 155, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
@@ -47,7 +47,7 @@
 - `lld/L10_action_gateway_physio_attribution.md`: 16 → Q-L10-01, Q-L10-02, Q-L10-03, Q-L10-04, Q-L10-05, Q-L10-06, Q-L10-07, Q-L10-08, Q-L10-09, Q-L10-10, Q-L10-11, Q-L10-12, Q-L10-13, Q-L10-14, Q-L10-15, Q-L10-16
 - `lld/L11_learning_consolidation.md`: 8 → Q-L11-01, Q-L11-02, Q-L11-03, Q-L11-04, Q-L11-05, Q-L11-06, Q-L11-07, Q-L11-08
 - `lld/L12_language_social.md`: 8 → Q-L12-01, Q-L12-02, Q-L12-03, Q-L12-04, Q-L12-05, Q-L12-06, Q-L12-07, Q-L12-08
-- `lld/L13_evidence_evaluation_registry.md`: 14 → Q-L13-01, Q-L13-02, Q-L13-03, Q-L13-04, Q-L13-05, Q-L13-06, Q-L13-07, Q-L13-08, Q-L13-09, Q-L13-10, Q-L13-11, Q-L13-13, Q-L13-14, Q-L13-15
+- `lld/L13_evidence_evaluation_registry.md`: 15 → Q-L13-01, Q-L13-02, Q-L13-03, Q-L13-04, Q-L13-05, Q-L13-06, Q-L13-07, Q-L13-08, Q-L13-09, Q-L13-10, Q-L13-11, Q-L13-13, Q-L13-14, Q-L13-15, Q-L13-18
 
 ## 3. 交叉引用：被引用的 LLD 文件名是否存在
 
@@ -78,7 +78,7 @@
 - `lld/L10_action_gateway_physio_attribution.md`: 303 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 245 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
 - `lld/L12_language_social.md`: 251 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
-- `lld/L13_evidence_evaluation_registry.md`: 353 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
+- `lld/L13_evidence_evaluation_registry.md`: 354 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）
 
@@ -99,12 +99,12 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：33
+- 扫描 YAML 文件数：34
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：57（只增不减）
+- 清单条目：58（只增不减）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）

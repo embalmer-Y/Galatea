@@ -1,10 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.23（2026-10-10）：f4cfabb 重部署服务级状态连续性三锚（Q-L13-16⑤ 语义升级落到
-#  常驻服务本体：SIGKILL→自动重启→restart_restore state_restored=True 从 cp12096 快照恢复；
-#  过渡期首启 state_restored=false 如实留档【旧检查点无快照——诚实预期】）。
+# v1.24（2026-10-11）：Birch 标记评分报告锚（Q-L13-18——owner 指令哲学评分：工具地位非门判据；
+#  INC-08 探针全过；残余未知 UNDETERMINABLE 显式入册不参分母）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.23
+  version: v1.24
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -260,3 +259,8 @@ artifact_manifest:
     path: evidence/resident/last_restart_restore.jsonl
     sha256: 79802207ce86fcd67834144f8fdced6161d40db963110166674d0162576f878e
     gate: 服务级 restart_restore 事件（pipeline_state_digest=4a25a954… + state_restored=true）
+  - name: birch-markers-report
+    path: evidence/birch_scoring/report.json
+    sha256: 260f4dec14522bf17d3029be6d66804570a88df28c44e2beea403c10fee973e2
+    gate: Birch 标记评分首评（Q-L13-18：15 标记——7 PRESENT/7 PARTIAL/1 UNDETERMINABLE，score 0.75；verdict VIABLE_SO_FAR_WITH_FORWARD_RISKS——无
+      classical_ceiling 阻断）

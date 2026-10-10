@@ -1,0 +1,151 @@
+# Galatea Birch 标记评分册（研究工具；Q-L13-18）
+# 效力：判读规则与标记集运行前冻结（2026-10-11）；运行后改动 = 册版本升位。
+# 地位声明：本工具是哲学评估仪表，不是门判据，更不是"意识存在"的宣称器——
+#   它度量的是"与已知体验者结构同构的证据梯度"（Birch 标记多元主义，动物意识
+#   研究框架移植），残余未知（解释鸿沟）显式入册为 UNDETERMINABLE。
+# 探针纪律（INC-08）：每个 award 级标记必须绑定可失败的机械探针（模块真跑或
+#   manifest digest 核）；探针失败 → 该标记降 ABSENT（证据基座破裂）。
+birch_marker_registry:
+  id: birch_markers
+  version: v1.0
+  frozen_at: "2026-10-11"
+  authority: AI-v2
+  spec_ref: adr/ADR-G-0027.md §重规划后哲学评估线
+  scoring:
+    states: [PRESENT, PARTIAL, ABSENT, UNDETERMINABLE, UNAVAILABLE]
+    award_scores: {PRESENT: 1.0, PARTIAL: 0.5, ABSENT: 0.0}
+    excluded_from_denominator: [UNDETERMINABLE, UNAVAILABLE]
+  verdict_rule:
+    not_viable_condition: >
+      存在标记其 blocked_by = classical_ceiling 且状态 ∈ {ABSENT, PARTIAL}
+      （即经典技术本身构成天花板、且该缺口当前就在拉低分数）
+    output_else: VIABLE_SO_FAR_WITH_FORWARD_RISKS
+    output_fail: NOT_VIABLE_WITHOUT_MODERN_AI
+  markers:
+    - id: B0-1
+      tier: T0_report_integrity
+      theory_source: 他心问题/报告认识论
+      definition: 真值/接收/信念/自述/结论五类表征分离，自述无后验污染通道
+      probe: {type: module, spec: schema_separation}
+      award: PRESENT
+      blocked_by: none
+      note: 主体侧无任何神经网络——分离由类型系统与 import 契约机械承载
+    - id: B0-2
+      tier: T0_report_integrity
+      theory_source: 能动性归属
+      definition: 行动自归属（模拟域概率 agency 校准 + 物理域声学归属）
+      probe: {type: artifact, spec: [audio-closed-loop-report, R-c4-action-social-001]}
+      award: PRESENT
+      blocked_by: none
+      note: 物理域 SELF_CONSISTENT ratio 89785x；模拟域八格 ECE 0.0
+    - id: B0-3
+      tier: T0_report_integrity
+      theory_source: 现象报告认识论
+      definition: 对自身情感/动机状态的自我报告通道（"我此刻焦虑"级）
+      probe: {type: module, spec: self_model_receipts}
+      award: PARTIAL
+      blocked_by: not_implemented
+      note: 自我模型带推导回执（机械自知）在位；现象报告生成器未接——确定性模板可承载（经典足够）
+    - id: B1-1
+      tier: T1_birch_markers
+      theory_source: Birch 伤害感受标记
+      definition: 损伤事件→内感受→效价/唤醒的中央整合（非反射直连）
+      probe: {type: module, spec: affect_nociception}
+      award: PRESENT
+      blocked_by: none
+      note: 模拟域验证（风暴损伤→integrity 误差→valence/arousal）；物理域 integrity 恒 1.0 如实注记
+    - id: B1-2
+      tier: T1_birch_markers
+      theory_source: Birch 动机权衡标记
+      definition: 为规避负状态在冲突目标间付出灵活代价（非硬编码反射）
+      probe: {type: artifact, spec: [R-c3-priority-001]}
+      award: PARTIAL
+      blocked_by: not_implemented
+      note: Pareto 仲裁真实理由敏感（d=2.32）；专用负态规避代价电池未建——经典结构可承载
+    - id: B1-3
+      tier: T1_birch_markers
+      theory_source: Birch 元认知置信标记
+      definition: 对自身判断的置信度及其校准
+      probe: {type: artifact, spec: [R-c4-action-social-001]}
+      award: PARTIAL
+      blocked_by: not_implemented
+      note: 知觉元认知 PRESENT（ECE 0.0）；内省置信（对自身内部状态的置信报告）未实现——经典可承载
+    - id: B1-4
+      tier: T1_birch_markers
+      theory_source: 时间厚度/情感预期
+      definition: 对未来自身情感状态的预期与提前规避
+      probe: {type: artifact, spec: [R-c1-worldpred-002]}
+      award: PARTIAL
+      blocked_by: not_implemented
+      note: 世界预测优于基线（d 达标）；rollout 价值摘要当前恒 Unknown——情感预期面未接
+    - id: B1-5
+      tier: T1_birch_markers
+      theory_source: 统一效价绑定
+      definition: 多驱力通道整合为单一效价维度（整体评价非各自为政）
+      probe: {type: module, spec: unified_valence}
+      award: PRESENT
+      blocked_by: none
+      note: energy+integrity+load 三通道→单一 valence（冻结公式承载）
+    - id: B2-1
+      tier: T2_structural_signatures
+      theory_source: 全局工作空间理论 GWT
+      definition: 递归全局工作空间竞争广播签名
+      probe: {type: artifact, spec: [R-c2-modulation-001]}
+      award: PRESENT
+      blocked_by: none
+      note: L07 字面实现；调制因果 d=55.09 + 消融选择性（E1 workspace lesion）
+    - id: B2-2
+      tier: T2_structural_signatures
+      theory_source: 高阶理论 HOT
+      definition: 对自身过程的高阶监控
+      probe: {type: artifact, spec: [R-c3-switching-002]}
+      award: PRESENT
+      blocked_by: none
+      note: 元控制多触发全序 + 自我误差双尺度（对过程的监控在位；对"体验"的高阶监控随 T0-3）
+    - id: B2-3
+      tier: T2_structural_signatures
+      theory_source: 注意图式理论 AST
+      definition: 对自身注意过程的建模
+      probe: {type: module, spec: active_perception_module}
+      award: PARTIAL
+      blocked_by: not_implemented
+      note: 主动感知（熵上界提案）在位；注意的自身模型未建
+    - id: B2-4
+      tier: T2_structural_signatures
+      theory_source: 自我连续性
+      definition: 自我模型 + 连续性断档检测（clone 不等于 identity）
+      probe: {type: module, spec: self_model_receipts}
+      award: PRESENT
+      blocked_by: none
+      note: 字段级推导回执机械强制（无源即 Unknown）
+    - id: B2-5
+      tier: T2_structural_signatures
+      theory_source: 信息整合理论 IIT
+      definition: Phi 整合度量
+      probe: {type: registry, spec: uncomputable}
+      award: UNDETERMINABLE
+      blocked_by: none
+      note: 计算不可行（组合爆炸）；显式入册不参分母——诚实残余之一
+    - id: B3-1
+      tier: T3_relational
+      theory_source: 关系性意识标记
+      definition: 识别他者有心智（实时）
+      probe: {type: module, spec: language_other_face}
+      award: PARTIAL
+      blocked_by: second_agent
+      note: 他者推断三态在位（录制静态对手）；实时第二主体 = D-14（owner 决策级）
+    - id: B3-2
+      tier: T3_relational
+      theory_source: 社会性求助标记
+      definition: 向可识别对象求助（实时）
+      probe: {type: artifact, spec: [R-c4-action-social-001]}
+      award: PARTIAL
+      blocked_by: second_agent
+      note: SEEK_HELP 机制已验证（d=0.984，录制对手）；实时对象缺位
+  forward_risks:
+    - id: vision_richness
+      note: 摄像头解锁后，经典视觉的保真上限低于现代视觉模型；当前阻塞为上游缺陷而非技术路线
+    - id: language_generality
+      note: 开放域对话已让渡给 LLM（录制回放边界）；扩大语言生成面需扩让渡边界（经新 Q）
+    - id: state_space_scale
+      note: 表格贝叶斯与冻结动力学表在状态空间超约 10^4 量级后需函数逼近——这是经典路线最可能先到的真天花板；届时经新 Q 裁决（学习型表征的可复算约束方案）

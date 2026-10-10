@@ -351,3 +351,4 @@ config/evidence/
 | Q-L13-13 | P1 统计评价形式（顺延终止条款适用——物理域非确定性的评价设计适配） | P1 | CONFIRMED（AI-v2 2026-10-10：记录-重放范式（Q-L12-03 物理域推广）三 claim——保真度/L 级安全确定性门/虚拟↔物理配对等价类；Holm 族 3 claim 显式 + 种子派生入计划；见 A 区） |
 | Q-L13-14 | evidence 异地备份义务（INC-13 证实单一副本风险；ADR-G-0024 建议 P1 前补裁决） | P1 起 | CONFIRMED（AI-v2 2026-10-10：门退出后 evidence 全量 tar+sha256 推送主机异地副本 + manifest 锚；恢复演练 = 还原临时目录逐件 digest 一致（实现期首执行）；check_docs 义务缺失 = FAIL；见 A 区） |
 | Q-L13-15 | P2 常驻运行面判据 + checkpoint 迁移审计（H1 移交兑现） | P2 | CONFIRMED（AI-v2 2026-10-10：常驻 runner + ≥256 cycles + fault 注入重启恢复谱系链延续 + 迁移审计 jsonl + require-hashes/--frozen 部署强化，见 A 区） |
+| Q-L13-18 | Birch 标记评分器（哲学评估线；owner 2026-10-11 指令） | P2+ | CONFIRMED（AI-v2 2026-10-11：研究仪表非门判据；15 标记册冻结 + INC-08 探针纪律 + 可行性判读机械化——首评 0.75 / VIABLE_SO_FAR_WITH_FORWARD_RISKS / 无 classical_ceiling 阻断，见 A 区） |
