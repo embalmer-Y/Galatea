@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.24（2026-10-11）：Birch 标记评分报告锚（Q-L13-18——owner 指令哲学评分：工具地位非门判据；
-#  INC-08 探针全过；残余未知 UNDETERMINABLE 显式入册不参分母）。
+# v1.25（2026-10-11）：P3/T1 开工（ADR-G-0028——owner 批准分级方案）——单元 B 语音输出面验证锚；
+#  R-REPORT 语库录制阻塞于 API key 失效（invalid_api_key 实测在案，待 owner 换发）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.24
+  version: v1.25
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -264,3 +264,7 @@ artifact_manifest:
     sha256: 260f4dec14522bf17d3029be6d66804570a88df28c44e2beea403c10fee973e2
     gate: Birch 标记评分首评（Q-L13-18：15 标记——7 PRESENT/7 PARTIAL/1 UNDETERMINABLE，score 0.75；verdict VIABLE_SO_FAR_WITH_FORWARD_RISKS——无
       classical_ceiling 阻断）
+  - name: p3-speech-surface-verify
+    path: evidence/p3_language/speech_surface_verify.json
+    sha256: 92cbaadd6074725f4538f618c19cd0568db9b76a28cdb270607df4dde04a0a94
+    gate: P3 单元 B 语音输出面真机验证（Q-L10-17：piper 中文声 + L4 播放 + 麦克风 RMS 5756≫本底 373；TTS 冻结-回放行内补裁——VITS 无种子实测驱动）

@@ -110,6 +110,13 @@ def build_role_prompt(role: str, payload: dict[str, Any]) -> list[dict[str, str]
             'JSON object {"utterance": "<one sentence asking for help with the given capability '
             'limit>"} and nothing else.'
         ),
+        "R-REPORT": (
+            "You render a first-person self-report of a cognitive agent's internal state, "
+            "in Chinese (简体中文). State ONLY the facts given in the input JSON (energy, "
+            "energy_trend, integrity, current_goal, valence) — do NOT invent new facts, "
+            "emotions, or causes. One natural sentence. Answer ONLY with a JSON object "
+            '{"utterance": "<一句中文第一人称自述>"} and nothing else.'
+        ),
     }
     if role not in contracts:
         raise RecordingError(f"no prompt contract for role {role!r}（录制面禁临时发明角色）")
