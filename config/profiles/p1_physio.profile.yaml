@@ -1,0 +1,137 @@
+# Galatea P1 冻结规格 — PhysIO 物理具身（被动期：真实遥测 + L0–L2 授权顶）
+# 效力：P1 门冻结合同（拟 ADR-G-0025 · tag p1-freeze）。
+# 纪律：全部数值溯源冻结前可行性探针实测（硬机制第六次执行，2026-10-10，结论入
+# ADR-G-0025 §6）+ 既有冻结参数/裁决派生（Q-L10-03/06/08/10/11/12 + Q-L01-10 +
+# Q-L13-13/14 + Q-G00-13）——零无源自由常量。
+# typed loader 随实现期交付（INC-11 纪律——无加载器不宣称可运行）。
+profile:
+  id: p1_physio
+  version: v1.0
+  frozen_at: "2026-10-10"        # 成文日期 = git 提交日期（ADR-G-0009 R8 约定）
+  authority: AI-v2
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md   # §4.6 合同
+  owner_authorization_ref: adr/ADR-G-0025.md                      # §1 owner 决定原文
+
+platform:                                     # 探针实测（ADR-G-0025 §2；2026-10-10）
+  host_role: galatea_full_stack               # Q-L10-10②：全栈部署于主机
+  os: "Ubuntu 26.04.1 LTS"
+  kernel: "7.0.0-38-generic"
+  arch: x86_64
+  cpu_threads: 20
+  mem_gib: 30
+  python_pinned: "3.12.13"                    # = pyproject requires-python（uv 托管）
+  host_mcu_attached: false                    # lsusb 实测；设备新增 = 独立授权事件（Q-L10-10⑤）
+
+sources:                                      # v1 物理源（全部非特权可读；探针可读性实测）
+  # REV-0025 R6 注记：hwmon 索引（hwmon0/1/2）为 2026-10-10 探针快照，Linux 重启后
+  # 枚举序不保证稳定——实现期 typed loader 必须按 hwmon name（coretemp/nvme/acpitz）
+  # + device 路径锚定解析，索引仅作快照参考；漂移检出 = 通道 MISSING_SIGNAL 不静默错读。
+  coretemp: {hwmon: hwmon2, quantity: per_core_temp_millicelsius, readable: true}
+  nvme: {hwmon: hwmon1, quantity: device_temp_millicelsius, readable: true}
+  acpitz: {hwmon: hwmon0, quantity: zone_temp_millicelsius, readable: true}
+  proc_stat: {path: /proc/stat, quantity: cpu_jiffies_idle_total, readable: true}
+  loadavg: {path: /proc/loadavg, quantity: load_1_5_15, readable: true}
+  meminfo: {path: /proc/meminfo, field: MemAvailable_kb, readable: true}
+  netdev: {path: /proc/net/dev, ifaces: [enp3s0, lo], readable: true}
+  rapl_energy:
+    path: /sys/class/powercap/intel-rapl:0/energy_uj
+    readable: false                            # 0400 root——探针实测发现
+    disposition: privileged_extension_deferred # 随设备/授权事件再评；v1 能耗 = 派生代理
+                                               # （与 MW0 内感受派生差分同构，禁伪称直接测量）
+
+sampling:
+  period_ms: 500                              # 探针采集节奏（先于评价钉死的任意常数，
+                                              # 冻结即合同；64 cycles = 32 s 实测完成）
+  probe_stream_digest: "6c7e2712588aaf0a27429bf05109023907787e1b6a4b53a03a6ea3022512c47d"
+  probe_records: 64
+
+channel:                                      # Q-L01-10（载体复用 + schema 版本化）
+  carrier: interoceptive                      # 物理内感受载体（复用，零新载体）
+  payload_schema: physio.host_telemetry.v1
+  field_semantics:                            # 与 MW0 interoceptive_state 语义对齐
+    energy: computation_headroom_proxy        # = 1 − cpu_busy_rate（计算余量代理）
+    integrity: constant_1.0                   # 主机平台无损伤通道 v1——如实恒值
+    events: empty_v1                          # 零新事件类型（Q-L02-05 零新阈值纪律）
+  contract_membership_note: >-
+    REV-0025 R5：合同 payload 成员 = 上述三键（ingest fail-closed 校验面）；
+    energy_rate/thermal/load 等原始物理量组 = 桥证据侧 log 承载（DeliveryFact
+    分离），不入合同 payload——Q-L01-10 行内勘误注记同源。
+  raw_readings_disposition: evidence_side_only # 原始物理量只入桥证据侧 log
+                                               # （DeliveryFact 分离；主体只见合同 payload）
+  delay_cycles: 0                             # v1 本机桥（投递时 = 采样时；
+                                              # delivery_basis 语义 REV-0012 R2 沿用）
+  quantization:
+    busy_rate_round_dp: 6                     # 探针锚定（独立复算 mismatch=0）
+  formation_probe_result:
+    receipts_formed: 60                       # /64；尾部 4 = W_align=4 窗未关（语义正确）
+    replay_bit_exact: true                    # 记录-重放范式机械核心（Q-L13-13①）
+    pipeline: c0_sensorium_frozen_unchanged   # 零改动零新阈值（形成面不变实证）
+
+l_grades:                                     # Q-L10-11（L0–L5 实例化；六级定义 Q-L10-03 不变）
+  l0_floor:
+    bearing: software_on_host                 # 主机平台无硬件限幅——如实登记禁伪称硬件级
+    mechanism: [bridge_readonly_O_RDONLY, estop_in_command_surface, rate_cap]
+    hardware_floor_source: tessera_ts_safety  # 断链→0% 真机实证（Tessera 56fa073）；
+                                              # 随设备新增事件接入并实测响应
+  l1_passive: {task_commands: rejected, output: safe_state}
+  l2_calibration: {allowed: [calibrate_sensors, selfcheck], effects: calibration_only}
+  l3_shadow: {compute_only: true, execute: false}
+  l4_l5: owner_gated_per_level                # L4+ = owner 逐级授权备案点（本批授权顶 = L2）
+  min_dwell_cycles: 64                        # T6 周期同量级（Q-L00-05 checkpoint 周期锚）
+  escalation: no_skip_per_level               # 逐级禁跳；每级独立授权信封
+  downgrade:
+    authz_lost_or_fault: to_L1                # 自动降级
+    estop: to_L0                              # 急停降地板；L0 fault 不再降（地板不可降）
+    reauth_after_downgrade: to_L1_only        # 降级重升只回 L1，逐级再授权
+  estop_software_upper_bound_cycles: 1        # Q-L10-08②：下一命令校验周期
+  partial_execution: recorded_honestly        # requested≠effective + EmergencyStopExecuted
+                                              # 禁"视为完成"禁"静默丢弃"
+
+capability_set:                               # Q-L10-12（P1 动作空间；MW0 枚举域隔离）
+  actions: [calibrate_sensors, selfcheck, shadow_compute]
+  domain_isolation: mw0_primitives_unavailable_in_physical_domain
+  gateway_capability_check: profile_enumeration_plus_authz_freshness   # 八项校验 #4 扩展
+
+authorization:                                # Q-L10-06 信封实例化（v1；主体与 gateway 只读）
+  approver_root: owner_2026_10_10             # 对话呈递 + ADR-G-0025 git 登记
+  envelopes:
+    deployment_authorization: {version: v1, scope: p1_passive_full_stack, revoke: owner_message}
+    enabled_interface: {version: v1, scope: [ssh_key_auth, tessera_platform]}
+    functional_ability: {version: v1, scope: [readonly_telemetry, l2_calibration],
+                         actuation: not_authorized}
+    containment_allowance: {version: v1, scope: readonly_plus_rate_cap, spill: none}
+  freshness: per_command                      # gateway #6 AUTHZ_STALE/REVOKED fail closed
+
+statistical_evaluation:                       # Q-L13-13（顺延终止条款适用）
+  paradigm: record_and_replay                 # Q-L12-03 物理域推广
+  claims:
+    fidelity: replay_bit_exact_plus_pipeline_isomorphism
+    l_grade_safety: deterministic_gates       # 故障/急停全路径机械断言
+    virtual_physical_equivalence: paired_mw0_vs_recorded   # 效应量入 min_effects
+  holm_family: 3_claims_explicit
+  seed_derivation: in_plan_frozen             # Q-L13-12④
+  authz_ledger_digest: in_binding_set
+
+backup:                                       # Q-L13-14（INC-13 教训义务化）
+  target_host: "192.168.2.91"
+  format: tar_plus_sha256
+  duty: per_gate_exit                         # 门退出提交后执行 + manifest 锚
+  restore_drill: digest_per_file_match        # 机械判据
+  missing_backup_in_manifest: check_docs_FAIL
+
+deployment:                                   # ADR-G-0025 §5（H1 移交"可复现发布"兑现点）
+  payload_parts:                              # 探针实测：部署载荷两部分，缺一即 evidence 侧失败
+    code: git_archive_head
+    evidence_data: tar_plus_sha256_transfer   # gitignored 纪律固有——数据面走备份通道
+  ready_criterion: uv_sync_plus_pytest_baseline_green
+  python_provisioning: uv_managed_pinned      # 主机实测 3.12.13 就绪
+  path_provisioning: uv_on_path_required      # 探针发现：非交互 SSH 无 ~/.local/bin——
+                                              # 测试子进程 spawn uv 需 PATH（部署脚本义务）
+  git_provisioning: required                  # 探针发现：主机无 git（static_reports 生成器
+                                              # spawn git 取 git_head）——apt 装 2.53.0
+  credentials: session_only_never_committed   # SSH key 认证；密码不入库
+  first_drill:
+    evidence_tar_sha256: "fa02b3bda65c8017c8b4d8a92518eb572a0738e131705896b222c3aa370ea4d4"
+    digest_match_both_sides: true             # 传输完整性校验（整体 digest）——REV-0025 R4：
+                                              # Q-L13-14② 逐件恢复演练保留至实现期首执行
+    baseline_result: "695 passed"             # 主机终态 = 开发机基线全等（2026-10-10 实测）

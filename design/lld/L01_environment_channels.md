@@ -205,3 +205,4 @@ design/mw0/
 | Q-L01-07 | M1 期 MW0 是否引入第二个可控代理（伪社会线索）或留到 C4 | M1 场景设计 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L01-08 | energy/integrity 的 viability 阈值与"损伤事件"定义（联动 L05 驱力） | M0/L05 | CONFIRMED（AI-v2 2026-09-25，M0 部分：损伤事件定义 + 力学初值；viability 阈值归 L05/C2，见 A 区） |
 | Q-L01-09 | MW0 动力学表补充参数与边界语义（风暴率语义/觅食链/floor/load 简化/loss） | M0 | CONFIRMED（AI-v2 2026-09-25：REV-0004 R2–R4/R6 补裁，见 A 区） |
+| Q-L01-10 | 物理通道映射与载体复用（P1；传感必经 Bridge→Channel Adapter→ReceivedSignal） | P1 | CONFIRMED（AI-v2 2026-10-10：载体复用 + `physio.host_telemetry.v1` schema；零新阈值维持 Q-L02-05；DeliveryFact/时间语义沿用；通道注册入 p1 profile，见 A 区） |

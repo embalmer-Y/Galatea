@@ -284,3 +284,6 @@ config/profiles/
 | Q-L10-07 | gateway policy 更新流程（promotion + 重授权 + 审计）与"重大变化"的判定 | C5/H1 | CONFIRMED（AI-v2 2026-10-08，裁决见 open_questions.md A 区） |
 | Q-L10-08 | 急停响应时间上界与在途命令的终止语义（部分执行如何处理） | P1/H1 | CONFIRMED（AI-v2 2026-10-10，裁决见 open_questions.md A 区） |
 | Q-L10-09 | MW0 期 Reflex（L09 Q-L09-06）与 T0 硬保护的职责分界，避免 containment 双写 | C0 | CONFIRMED（AI-v2 2026-09-25：T0=环境侧硬保护，containment 唯一职责在 gateway，随 Q-L09-06 成组，见 A 区） |
+| Q-L10-10 | P1 载体实例化与部署拓扑（A.10"届时另裁"兑现） | P1 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0025：Linux 主机 + Tessera 平台；PhysIOBridge→ChannelBus 唯一入口；MW0 仿真域并存；被动期物理源 = 主机真实遥测，见 A 区） |
+| Q-L10-11 | L0–L5 参数实例化与平台 L0 承载语义 | P1 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0025 §3：平台 L0 = 软件承载如实登记；min_dwell ≥ 64；L1/L2 授权顶，L4+ owner 逐级授权，见 A 区） |
+| Q-L10-12 | P1 动作空间扩展（C4 R1 钩子兑现） | P1 | CONFIRMED（AI-v2 2026-10-10：PHYSIO 动作类 = L2 校准 + L3 shadow；capability_set 入 p1 profile；MW0 枚举域隔离；L4 执行面待设备接入 + owner 授权，见 A 区） |
