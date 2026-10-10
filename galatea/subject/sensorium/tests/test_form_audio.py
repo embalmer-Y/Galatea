@@ -3,15 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from galatea.env.physio.audio import (
-    features_from_pcm,
-    features_payload,
-    packet_for_audio,
-)
 from galatea.subject.sensorium.form_audio import form_audio
-from galatea.subject.sensorium.ingest import CARRIER_AUDIO, ingest
+from galatea.subject.sensorium.ingest import CARRIER_AUDIO, CARRIER_INTERO, IngestedSignal, ingest
 from galatea.subject.sensorium.pipeline import SensoriumPipeline
-from galatea.subject.sensorium.ports import SensoryModality, load_c0_sensorium_profile
+from galatea.subject.sensorium.ports import (
+    GainState,
+    SensoryModality,
+    load_c0_sensorium_profile,
+)
 from galatea.subject.sensorium.tests.conftest import intero_packet, time_basis
 
 _ROOT = Path(__file__).resolve().parents[4]
@@ -19,24 +18,30 @@ _PROFILE_PATH = _ROOT / "config" / "profiles" / "c0_sensorium.profile.yaml"
 _REF_RMS = 5000.0
 
 
-def _pcm_sine(hz: float, ms: int, rate: int = 16000, amplitude: int = 12000) -> bytes:
-    import math
-    n = int(rate * ms / 1000)
-    return b"".join(
-        int(amplitude * math.sin(2 * math.pi * hz * i / rate)).to_bytes(2, "little", signed=True)
-        for i in range(n)
+def _audio_signal(rms: float, zcr: float, peak: int, cycle: int):
+    """手构 audio_frame 信号（P04：subject 测试禁 import env——payload 逐字段同构手建）。"""
+    payload = {"kind": "audio_frame", "rms": rms, "zcr": zcr, "peak": peak, "duration_ms": 100}
+    import json
+    text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    from galatea.kernel.digest import content_digest
+    from galatea.kernel.packet import (
+        AccessScope, ArtifactRef, CognitivePacket, Provenance, RepresentationLevel,
     )
-
-
-def _audio_signal(pcm: bytes, cycle: int):
-    feats = features_from_pcm(pcm, 16000)
-    _payload, text = features_payload(feats)
-    packet, text = packet_for_audio(text, cycle, "env.physio.audio_bridge")
-    return ingest(packet, text, load_c0_sensorium_profile(_PROFILE_PATH), {CARRIER_AUDIO: 0})
+    digest = content_digest(text)
+    pkt = CognitivePacket(
+        event_id=f"evt.physio.audio.{cycle}", subject_candidate_id="S", run_id="R",
+        branch_id="B", activity_window_id="physio", cycle_id=cycle, virtual_time=cycle,
+        source_module="env.physio.audio_bridge", content_type=CARRIER_AUDIO,
+        representation_level=RepresentationLevel.RECEIVED, schema_version="v1",
+        payload_ref=ArtifactRef(digest=digest, kind="payload"), confidence=1.0,
+        provenance=Provenance(), causal_parent_ids=(), access_scope=AccessScope.MODULE_LOCAL,
+        content_digest=digest,
+    )
+    return ingest(pkt, text, load_c0_sensorium_profile(_PROFILE_PATH), {CARRIER_AUDIO: 0})
 
 
 def test_form_audio_faithful_transform_and_determinism() -> None:
-    signal = _audio_signal(_pcm_sine(660.0, 100), 5)
+    signal = _audio_signal(rms=12000.0, zcr=0.5, peak=32767, cycle=5)
     from galatea.subject.sensorium.ports import GainState
     frame1 = form_audio(signal, 5, "cal-v1", GainState(applied_factor=1.0, source="PROFILE"), _REF_RMS)
     frame2 = form_audio(signal, 5, "cal-v1", GainState(applied_factor=1.0, source="PROFILE"), _REF_RMS)
@@ -103,12 +108,14 @@ def test_audio_frame_flows_through_pipeline_when_enabled() -> None:
     profile = load_c0_sensorium_profile(_PROFILE_PATH)
     pipeline = SensoriumPipeline(profile, bind_calibration(), time_basis(),
                                 audio_enabled=True, audio_ref_rms=_REF_RMS)
-    loud_text = features_payload(features_from_pcm(_pcm_sine(660.0, 100), 16000))[1]
     all_frames = []
     for cycle in range(6):
-        pkt, text = packet_for_audio(loud_text, cycle, "env.physio.audio_bridge")
+        pkt_text = _audio_signal(rms=12000.0, zcr=0.5, peak=32767, cycle=cycle)
+        import json
+        text = json.dumps({"kind": "audio_frame", "rms": 12000.0, "zcr": 0.5, "peak": 32767,
+                           "duration_ms": 100}, sort_keys=True, separators=(",", ":"))
         intero_pkt, intero_text = intero_packet(cycle)
-        out = pipeline.process_cycle(cycle, [(pkt, text), (intero_pkt, intero_text)])
+        out = pipeline.process_cycle(cycle, [(pkt_text.packet, text), (intero_pkt, intero_text)])
         all_frames += [f for f in out.frames
                        if getattr(f.features, "loudness", None) is not None]
     assert all_frames, "audio frames never formed across 6 cycles"

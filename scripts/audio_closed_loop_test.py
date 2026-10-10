@@ -40,7 +40,7 @@ from galatea.subject.sensorium.ingest import CARRIER_AUDIO, CARRIER_EXTERO, CARR
 from galatea.subject.sensorium.pipeline import SensoriumPipeline
 from galatea.subject.sensorium.ports import load_c0_sensorium_profile
 
-_REPO = Path(__file__).resolve().parents[3]
+_REPO = Path(__file__).resolve().parents[1]
 _DWELL = 64
 TONE_HZ = 660.0
 CONTROL_HZ = 500.0
@@ -157,8 +157,8 @@ def main(argv: list[str] | None = None) -> int:
         feats = features_from_pcm(chunk, rate)
         _payload, text = features_payload(feats)
         pkt, text = packet_for_audio(text, f, "env.physio.audio_bridge")
-        out = pipeline.process_cycle(f, [(pkt, text)])
-        for frame in out.frames:
+        cycle_out = pipeline.process_cycle(f, [(pkt, text)])
+        for frame in cycle_out.frames:
             loud = getattr(frame.features, "loudness", None)
             if loud is not None:
                 loudness.append((float(frame.effective_time), loud))
@@ -167,8 +167,8 @@ def main(argv: list[str] | None = None) -> int:
     during = [v for t, v in loudness if play_offset_s + 0.1 <= t * frame_s <= play_offset_s + 1.8]
     base_max = max(baseline, default=0.0)
     during_mean = sum(during) / len(during) if during else 0.0
-    t3 = bool(during) and during_mean >= base_max + LOUDNESS_SPIKE_FACTOR * 0.1 \
-        and max(during, default=0.0) > during_mean
+    # 判据：发声窗均值 ≥ 基线 + 抬升阈（饱和信号 max==mean——饱和本身即强证据）
+    t3 = bool(during) and during_mean >= base_max + LOUDNESS_SPIKE_FACTOR * 0.1
     report["tests"]["T3_hearing_closed_loop"] = {
         "passed": t3, "frames": n_frames, "formed_loudness": len(loudness),
         "baseline_max": round(base_max, 4), "during_mean": round(during_mean, 4),

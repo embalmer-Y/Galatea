@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**149**
-  - CONFIRMED: 145
+- 登记册声明 Q 号：**152**
+  - CONFIRMED: 148
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 145, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 148, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
@@ -35,8 +35,8 @@
 ### 各 LLD 自声明 Q 号数（§11 表）
 
 - `lld/L00_kernel.md`: 7 → Q-L00-01, Q-L00-02, Q-L00-03, Q-L00-04, Q-L00-05, Q-L00-06, Q-L00-07
-- `lld/L01_environment_channels.md`: 10 → Q-L01-01, Q-L01-02, Q-L01-03, Q-L01-04, Q-L01-05, Q-L01-06, Q-L01-07, Q-L01-08, Q-L01-09, Q-L01-10
-- `lld/L02_sensorium.md`: 7 → Q-L02-01, Q-L02-02, Q-L02-03, Q-L02-04, Q-L02-05, Q-L02-06, Q-L02-07
+- `lld/L01_environment_channels.md`: 11 → Q-L01-01, Q-L01-02, Q-L01-03, Q-L01-04, Q-L01-05, Q-L01-06, Q-L01-07, Q-L01-08, Q-L01-09, Q-L01-10, Q-L01-11
+- `lld/L02_sensorium.md`: 8 → Q-L02-01, Q-L02-02, Q-L02-03, Q-L02-04, Q-L02-05, Q-L02-06, Q-L02-07, Q-L02-08
 - `lld/L03_perception.md`: 7 → Q-L03-01, Q-L03-02, Q-L03-03, Q-L03-04, Q-L03-05, Q-L03-06, Q-L03-07
 - `lld/L04_world_body_self.md`: 7 → Q-L04-01, Q-L04-02, Q-L04-03, Q-L04-04, Q-L04-05, Q-L04-06, Q-L04-07
 - `lld/L05_drive_appraisal_affect.md`: 8 → Q-L05-01, Q-L05-02, Q-L05-03, Q-L05-04, Q-L05-05, Q-L05-06, Q-L05-07, Q-L05-08
@@ -44,7 +44,7 @@
 - `lld/L07_workspace.md`: 7 → Q-L07-01, Q-L07-02, Q-L07-03, Q-L07-04, Q-L07-05, Q-L07-06, Q-L07-07
 - `lld/L08_motivation_goals.md`: 9 → Q-L08-01, Q-L08-02, Q-L08-03, Q-L08-04, Q-L08-05, Q-L08-06, Q-L08-07, Q-L08-08, Q-L08-09
 - `lld/L09_controllers_metacontrol.md`: 8 → Q-L09-01, Q-L09-02, Q-L09-03, Q-L09-04, Q-L09-05, Q-L09-06, Q-L09-07, Q-L09-08
-- `lld/L10_action_gateway_physio_attribution.md`: 13 → Q-L10-01, Q-L10-02, Q-L10-03, Q-L10-04, Q-L10-05, Q-L10-06, Q-L10-07, Q-L10-08, Q-L10-09, Q-L10-10, Q-L10-11, Q-L10-12, Q-L10-13
+- `lld/L10_action_gateway_physio_attribution.md`: 14 → Q-L10-01, Q-L10-02, Q-L10-03, Q-L10-04, Q-L10-05, Q-L10-06, Q-L10-07, Q-L10-08, Q-L10-09, Q-L10-10, Q-L10-11, Q-L10-12, Q-L10-13, Q-L10-14
 - `lld/L11_learning_consolidation.md`: 8 → Q-L11-01, Q-L11-02, Q-L11-03, Q-L11-04, Q-L11-05, Q-L11-06, Q-L11-07, Q-L11-08
 - `lld/L12_language_social.md`: 8 → Q-L12-01, Q-L12-02, Q-L12-03, Q-L12-04, Q-L12-05, Q-L12-06, Q-L12-07, Q-L12-08
 - `lld/L13_evidence_evaluation_registry.md`: 13 → Q-L13-01, Q-L13-02, Q-L13-03, Q-L13-04, Q-L13-05, Q-L13-06, Q-L13-07, Q-L13-08, Q-L13-09, Q-L13-10, Q-L13-11, Q-L13-13, Q-L13-14
@@ -66,8 +66,8 @@
 ## 5. LLD 11 节模板符合度
 
 - `lld/L00_kernel.md`: 228 行 · 标题「# L00 横切基础：时钟、调度、状态、RNG、Packet、Registry 核心、typed unknown」 · OK
-- `lld/L01_environment_channels.md`: 208 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
-- `lld/L02_sensorium.md`: 234 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
+- `lld/L01_environment_channels.md`: 209 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
+- `lld/L02_sensorium.md`: 235 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 210 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
 - `lld/L04_world_body_self.md`: 235 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 244 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
@@ -75,7 +75,7 @@
 - `lld/L07_workspace.md`: 225 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
 - `lld/L08_motivation_goals.md`: 222 行 · 标题「# L08 动机与目标：Motive → GoalCandidate → 承诺检查 → OwnedGoal 与结算」 · OK
 - `lld/L09_controllers_metacontrol.md`: 237 行 · 标题「# L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol」 · OK
-- `lld/L10_action_gateway_physio_attribution.md`: 300 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
+- `lld/L10_action_gateway_physio_attribution.md`: 301 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 245 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
 - `lld/L12_language_social.md`: 251 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
 - `lld/L13_evidence_evaluation_registry.md`: 352 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
@@ -104,7 +104,7 @@
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：42（只增不减）
+- 清单条目：43（只增不减）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）

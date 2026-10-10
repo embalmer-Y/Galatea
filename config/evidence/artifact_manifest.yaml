@@ -1,11 +1,11 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.15（2026-10-10）：P2 音频闭环报告锚（ADR-G-0027 单元 A+B+C 同日交付——主体
+#  发声→听见（loudness 0.072→1.000）→归属 SELF_CONSISTENT（ratio 89,785×）；L4 有界路由+急停路径全过）。
 # v1.14（2026-10-10）：USB 音频设备新增事件 I/O 测试报告锚（Q-L10-13——首个执行类设备。
 #  声学回环 ratio 1,222,437×；急停实测 237ms；硬件 L0=无如实登记；WAV 工件随 evidence 目录归档）。
-# v1.13（2026-10-10）：P1 门退出备份锚（Q-L13-14① 义务首次完整执行——sidecar 41 文件
-#  逐件 digest；远端 tar whole sha256=2a513fe5e76c06080cb0d2ead5cd791aa972a04231e3bf53b933c7834588db4d）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.14
+  version: v1.15
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -194,3 +194,7 @@ artifact_manifest:
     path: evidence/audio_io_test/report.json
     sha256: eeffeee94c2e12ab62f59d2fe4386c4a6101314efa018aca4b53e3b305dec13b
     gate: USB 音频设备新增事件 I/O 测试（Q-L10-13；六项全过——声学回环 ratio 1,222,437× / 急停实测 237ms）
+  - name: audio-closed-loop-report
+    path: evidence/audio_closed_loop/report.json
+    sha256: fa039eb2736e6082589c2724b1ab55b3cf1223c7347c50620d7d1d295e94ccdf
+    gate: P2 单元 C 音频闭环测试（发声→听见→归属 SELF_CONSISTENT；T1–T5 全过；ADR-G-0027）
