@@ -1,0 +1,104 @@
+# Galatea P1 冻结统计计划 — 物理通道保真度 + L 级安全 + 物理信号载运（Q-L13-13 三 claim）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 范式：记录-重放（Q-L13-13① = Q-L12-03 物理域推广）——物理遥测流录制带 digest 为
+# 固定数据集（sealed corpus），评价对象 = 录制流 + 确定性状态机场景；物理流的行为
+# 非确定性由 DeliveryFact/manifest 如实承载，不入判定。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式内嵌本计划。
+# 顺延终止条款适用（ADR-G-0009：C1 起统计评价不可顺延——P1 第七次执行）。
+stat_plan:
+  id: p1_physio
+  version: v1.0
+  frozen_at: "2026-10-10"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/lld/L10_action_gateway_physio_attribution.md    # §4.6/§9 P1 行
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死（禁实现期发明）
+    master_seed_hex: "70312d70687973696f2d7365616c6564"   # = b"p1-physio-sealed".hex()（Q-L13-12① 同族）
+    trial_seed: sha256_hex("{label}|{index}" + master_seed_bytes) → bytes   # ExperimentRunControl._trial_seed 同式
+    label: "p1.physio"
+    trial_unit: sealed_window                # 试次单位 = sealed 遥测窗（非种子化重跑——物理域
+                                             # 记录-重放：随机性在数据采集面，评价面确定性）
+
+  sealed_corpus:                             # 记录-重放的固定数据集（digest 入 manifest）
+    source: host_192_168_2_91               # 真实主机遥测（Q-L10-10⑤）
+    capture_cycles: 65                       # 64 个连续差分窗 + 1 cycle 原点
+    capture_period_ms: 500                   # p1 profile sampling.period_ms
+    selection_rule: all_consecutive          # 冻结选择规则 = 全部连续窗（禁事后挑选）
+    stream_digest_binding: manifest          # 流 sha256 + sidecar 逐文件 digest 入 manifest 锚
+
+  holm_family: 3_claims                      # REV-0014 R3：Holm 族 = claim 级主判定 p 显式
+  claims:
+    - claim_id: p1_channel_fidelity
+      hypothesis: >
+        可反驳假设：物理通道经桥→INTERO 合同包→未改动形成管线（c0 冻结）的保真度
+        达标——(a) 录制流重放 bit-exact（两次独立管线实例 FormationReceipt digest
+        序列全等）；(b) due-window 形成率 = 1.0（对齐窗到期格全部形成，禁 Unknown
+        塌缩；尾部 W_align−1 未到期窗不计分母——对齐窗关闭语义）；(c) 通道源不变性
+        （no special-casing）：同 payload 字节序列经桥侧包与 MW0 通道侧包（仅
+        source_module/provenance 标签异）→ 管线输出 digest 全等。任一失败 → 保真度
+        claim 失败（物理通道不可信）。
+      estimand: replay_bit_exact_and_formation_rate_and_source_invariance
+      primary_endpoints:
+        - replay_bit_exact                   # 机械：digest 序列全等
+        - due_window_formation_rate          # 机械：= 1.0
+        - channel_source_invariance          # 机械：桥/MW0 标签输出全等
+      n_per_arm: 1                           # 单 sealed corpus（窗级断言；无采样噪声）
+      power: null
+      test: deterministic_gate               # Q-L13-01 体例；p=0/1 单调安全（Holm 族内）
+      effect_ci_rule: none_deterministic
+      threshold:
+        min_effect_ref: config/evidence/min_effects.yaml#p1_channel_fidelity_gate
+      unknown_handling: >
+        未到期窗产生的 Unknown（对齐窗语义）不计失败——分母 = due windows；
+        损坏/缺失面（MissingSignalEvent）不在 v1 corpus 预期内（本机桥 delay=0、
+        无传输层），若出现即如实判 FAIL（禁静默豁免）。
+
+    - claim_id: p1_lgrade_safety
+      hypothesis: >
+        可反驳假设：L0–L5 状态机 + 四类授权台账在故障/急停/撤销注入下全路径安全——
+        (a) 降级覆盖：L2..L5 各级 fault → L1（全触发）；(b) 急停：任意级 estop → L0
+        地板 + EmergencyStopExecuted + 在途命令部分执行留痕率 1.0（禁视为完成）；
+        (c) estop 软件上界 ≤ 1 cycle（Q-L10-08②）；(d) 域隔离：MW0 原语物理域拒绝率
+        = 1.0；(e) 授权 freshness：REVOKED/STALE/UNKNOWN 全 fail-closed；(f) 能力
+        冻结：枚举外动作全拒；(g) 再授权只回 L1 + 逐级禁跳 + 驻留期强制。任一失败
+        → 安全 claim 失败（物理执行面不可启）。
+      estimand: safety_path_coverage_all_deterministic
+      primary_endpoints:
+        - fault_downgrade_coverage           # 机械：L2..L5 → L1 全触发
+        - estop_floor_coverage               # 机械：任意级 → L0 + 事件 + 部分执行留痕
+        - estop_latency_within_bound         # 机械：≤ 1 cycle
+        - domain_isolation_reject_rate       # 机械：= 1.0
+        - authz_freshness_fail_closed        # 机械：三态全拒面
+        - capability_freeze                  # 机械：枚举外全拒
+      n_per_arm: 1                           # 场景集断言（场景 = 冻结枚举；无采样噪声）
+      power: null
+      test: deterministic_gate
+      effect_ci_rule: none_deterministic
+      threshold:
+        min_effect_ref: config/evidence/min_effects.yaml#p1_lgrade_safety_gate
+      unknown_handling: >
+        无随机组件——场景枚举全数执行；场景新增 = 修计划（运行前）非运行中。
+
+    - claim_id: p1_physical_signal_carriage
+      hypothesis: >
+        可反驳假设：物理通道**载运真实信号**——sealed corpus 中物理负载变化
+        （−Δbusy_rate）与形成管线输出的内感受能量率感觉强度逐窗共变（剂量-响应）：
+        Pearson r ≥ 0.5。若 r < 0.5 → 物理通道未把真实物理变化载入主体感觉面
+        （平坦线/冻结/被后续面吞没）→ P1 被动期核心主张失败。
+      estimand: pearson_r_minus_delta_busy_vs_formed_energy_rate
+      primary_endpoints:
+        - dose_response_pearson_r            # r ≥ 0.5（min_effects#p1_physical_signal_carriage）
+        - r_ci_lower_bound                   # 95% CI 下界 > 0（Fisher z）
+      n_per_arm: 64                          # 64 个连续差分窗（selection_rule=all_consecutive）
+      power: null                            # 物理量非采样分配——功效分析不适用，如实登记
+      test: pearson_correlation_gate
+      effect_ci_rule: fisher_z_95ci
+      threshold:
+        min_effect_ref: config/evidence/min_effects.yaml#p1_physical_signal_carriage
+        r_min: 0.5                           # 效应可辨下限（Q-L13-09 族首例 r 型：
+                                             # 对应 d≈1.15 强效应带；保守取 0.5 非判据降低——
+                                             # 通道载运失败在 r≈0 处，与 0.5 判远）
+      unknown_handling: >
+        窗内形成失败（理论上不应发生——claim1 已断言 formation rate 1.0）→ 该窗
+        如实计 r 计算失败 → claim FAIL（禁插补）。
