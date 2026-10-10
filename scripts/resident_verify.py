@@ -30,17 +30,35 @@ def main(argv: list[str] | None = None) -> int:
     checks: dict[str, bool] = {}
     details: dict[str, object] = {}
 
-    # A 谱系链连续
+    # A 谱系完整性（D-12 clone≠identity：fresh 会话 = 新根，合法）——
+    #  (i) 每个 checkpoint 的 parent ∈ {None(根)} ∪ {先前行 id}（禁悬挂/乱序父引）；
+    #  (ii) 最长根链承载长程主张：其末 checkpoint 的 cycle ≥ min-cycles 且含崩溃后恢复
     checkpoints = [e for e in events if e.get("event") == "checkpoint"]
-    chain_ok = True
-    prev_id: str | None = None
+    seen_ids: set[str] = set()
+    linkage_ok = True
     for cp in checkpoints:
-        if cp["parent"] != prev_id:
-            chain_ok = False
+        parent = cp["parent"]
+        if parent is not None and parent not in seen_ids:
+            linkage_ok = False
             break
-        prev_id = cp["checkpoint_id"]
-    checks["A_lineage_chain_unbroken"] = chain_ok and bool(checkpoints)
-    details["chain"] = [cp["checkpoint_id"] for cp in checkpoints]
+        seen_ids.add(cp["checkpoint_id"])
+    # 最长链回放（从末 checkpoint 沿 parent 回溯至根）
+    by_id = {cp["checkpoint_id"]: cp for cp in checkpoints}
+    longest: list[str] = []
+    if checkpoints:
+        cursor = checkpoints[-1]["checkpoint_id"]
+        guard = 0
+        while cursor is not None and guard <= len(checkpoints):
+            longest.append(cursor)
+            cursor = by_id[cursor]["parent"]
+            guard += 1
+        longest.reverse()
+    longest_cycles = by_id[longest[-1]]["cycle"] if longest else 0
+    checks["A_lineage_linkage_and_longest_chain"] = (
+        linkage_ok and bool(longest) and longest_cycles >= args.min_cycles)
+    details["longest_chain"] = longest
+    details["longest_chain_cycles"] = longest_cycles
+    details["roots"] = [cp["checkpoint_id"] for cp in checkpoints if cp["parent"] is None]
 
     # B 总周期
     total_cycles = checkpoints[-1]["cycle"] if checkpoints else 0

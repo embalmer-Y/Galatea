@@ -164,7 +164,16 @@ class AudioFeatures:
     duration_ms: int          # 帧时长（冻结 100ms）
 
 
-FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures | LanguageFeatures | AudioFeatures
+@dataclass(frozen=True, slots=True)
+class TesseraActFeatures:
+    """Tessera 执行器状态特征（Q-L01-12②，P2）：自身执行器（LED/PWM）状态 = 本体感受。
+    忠实变换面（值域原样承载，零新阈值）；原始遥测只入桥证据侧 log。"""
+
+    dev: int                  # 设备号（板侧枚举）
+    value_u: int              # 原始值域（板侧标度——禁主体侧换算）
+
+
+FrameFeatures = ExtLocalObsFeatures | ExtEventFeatures | InteroSensations | ProprioFeatures | LanguageFeatures | AudioFeatures | TesseraActFeatures
 
 
 @dataclass(frozen=True, slots=True)

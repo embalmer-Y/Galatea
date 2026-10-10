@@ -33,7 +33,8 @@ from galatea.subject.sensorium.ingest import CARRIER_EXTERO, CARRIER_INTERO, CAR
 from galatea.subject.sensorium.pipeline import SensoriumPipeline
 from galatea.subject.sensorium.ports import load_c0_sensorium_profile
 
-_REPO = Path(__file__).resolve().parents[1]
+_SELF = Path(__file__).resolve()
+_REPO = _SELF.parents[1] if (_SELF.parents[1] / "config").exists() else _SELF.parents[0]
 _DWELL = 64                      # T6 周期（Q-L00-05）
 _AUDIT_KEEP = 32                 # 内存审计缓冲上界（容量治理）
 
@@ -94,6 +95,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dwell", type=int, default=_DWELL, help="checkpoint 周期（默认 T6=64）")
     parser.add_argument("--hwmon-root", type=Path, default=None, help="测试注入面（默认真实 /sys）")
     parser.add_argument("--proc-root", type=Path, default=None, help="测试注入面（默认真实 procfs）")
+    parser.add_argument("--zenoh-router", default=None,
+                        help="融合模式：消费 Tessera 活网桥流（power→INTERO/act→PROPRIO；"
+                             "cycles = 可映射样本数目标）")
     args = parser.parse_args(argv)
     root = _REPO
     out = args.out
@@ -112,9 +116,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         bridge = PhysioBridge(profile)
     c0 = load_c0_sensorium_profile(root / "config/profiles/c0_sensorium.profile.yaml")
+    tessera_mode = args.zenoh_router is not None
     pipeline = SensoriumPipeline(
         c0, bind_calibration(root / "config/profiles/c0_sensorium.profile.yaml", c0.calibration_version),
-        _m0_delays(root))
+        {**_m0_delays(root), "channel.tessera_act.received.v1": 0},
+        tessera_act_enabled=tessera_mode)
 
     stores = Stores(args.store)
     lineage = LineageTable()
@@ -147,49 +153,127 @@ def main(argv: list[str] | None = None) -> int:
     print(f"resident start: session={args.session} cycles={total_cycles} "
           f"origin={bridge_cycle_origin}")
 
-    for i in range(total_cycles):
-        cycle = bridge_cycle_origin + 1 + i       # 恢复后从恢复点 +1 接续（单调时间轴）
-        started = time.monotonic()
-        record = bridge.sample(cycle)
-        delivery = bridge.build_delivery(record, prev_record)
-        prev_record = record
-        out_cycle = pipeline.process_cycle(cycle, [(delivery.packet, delivery.payload_text)])
-        recent.append({"cycle": cycle, "receipts": len(out_cycle.formation_receipts),
-                       "unknowns": len(out_cycle.unknowns),
-                       "busy_rate": delivery.busy_rate})
-        if len(recent) > _AUDIT_KEEP:
-            recent.pop(0)                          # 容量治理（Q-L13-15②）
-        if cycle % args.dwell == 0:
-            cp_id = f"resident-{args.session}-cp{cycle}"
-            rec = stores.checkpoint(
-                checkpoint_id=cp_id, lineage=lineage, parent_checkpoint_id=parent_id,
-                branch_id="resident", virtual_time=cycle, rng_directory=rng,
-                profile_ref=f"p1_physio@{profile.version}",
-                registry_view_digest=delivery.evidence_payload_digest,
-            )
-            parent_id = cp_id
-            checkpoint_count += 1
-            event = {
-                "event": "checkpoint", "session": args.session, "checkpoint_id": cp_id,
-                "parent": rec.parent_checkpoint_id, "cycle": cycle,
-                "digest_state": rec.digest_state, "digest_memory": rec.digest_memory,
-                "registry_view": rec.digest_registry_view,
-                "profile_ref": rec.profile_ref, "branch_id": "resident",
-            }
-            _append_audit(audit_path, event)
-        if args.kill_after and (i + 1) == args.kill_after:
-            _append_audit(audit_path, {"event": "crash_injected", "session": args.session,
-                                       "cycle": cycle, "note": "os._exit 无清理——真实崩溃形态"})
-            print(f"kill-after triggered at cycle {cycle}（模拟崩溃）")
-            sys.stdout.flush()
-            import os
-            os._exit(137)
-        remain = args.period_ms / 1000.0 - (time.monotonic() - started)
-        if remain > 0:
-            time.sleep(remain)
+    if tessera_mode:
+        # 融合模式（Q-L01-12②）：活网桥流驱动循环——每收到一个可映射样本 = 一拍；
+        # power→INTERO（设备电源即体能量）+ act→PROPRIO 旗标已开；遥测桥不采样
+        # （power 替换内感受源——被具身语义下设备电源就是体能量；宿主遥测停采如实登记）
+        import queue
+        from collections import Counter
+
+        import zenoh                                  # 部署面惰性依赖
+
+        from galatea.env.tessera_bridge import sample_from_wire
+
+        q: "queue.Queue[object]" = queue.Queue()
+        unmapped: Counter[str] = Counter()
+
+        def _on_sample(sample: zenoh.Sample) -> None:
+            q.put((str(sample.key_expr), bytes(sample.payload)))
+
+        conf = zenoh.Config()
+        conf.insert_json5("connect", json.dumps({"endpoints": [args.zenoh_router]}))
+        session = zenoh.open(conf)
+        sub = session.declare_subscriber("tessera/**", _on_sample)
+        print(f"resident start (zenoh fusion): session={args.session} "
+              f"samples={total_cycles} router={args.zenoh_router}")
+        built = 0
+        cycle = bridge_cycle_origin
+        while built < total_cycles:
+            try:
+                key, raw = q.get(timeout=10.0)
+            except queue.Empty:
+                print("zenoh queue timeout——活网无流量，中止（禁静默空转）", file=sys.stderr)
+                return 1
+            try:
+                s = sample_from_wire(key, raw, cycle + 1)
+            except (ValueError, TypeError) as broken:
+                unmapped[key] += 1                    # 未映射（hb/event）——留痕不静默
+                continue
+            cycle += 1
+            built += 1
+            started = time.monotonic()
+            out_cycle = pipeline.process_cycle(cycle, [(s.packet, s.payload_text)])
+            recent.append({"cycle": cycle, "key": key.split("/", 2)[-1],
+                           "receipts": len(out_cycle.formation_receipts),
+                           "unknowns": len(out_cycle.unknowns)})
+            if len(recent) > _AUDIT_KEEP:
+                recent.pop(0)
+            if cycle % args.dwell == 0:
+                cp_id = f"resident-{args.session}-cp{cycle}"
+                rec = stores.checkpoint(
+                    checkpoint_id=cp_id, lineage=lineage, parent_checkpoint_id=parent_id,
+                    branch_id="resident", virtual_time=cycle, rng_directory=rng,
+                    profile_ref=f"p1_physio@{profile.version}",
+                    registry_view_digest=s.payload_digest,
+                )
+                parent_id = cp_id
+                checkpoint_count += 1
+                _append_audit(audit_path, {
+                    "event": "checkpoint", "session": args.session, "checkpoint_id": cp_id,
+                    "parent": rec.parent_checkpoint_id, "cycle": cycle,
+                    "digest_state": rec.digest_state, "digest_memory": rec.digest_memory,
+                    "registry_view": rec.digest_registry_view,
+                    "profile_ref": rec.profile_ref, "branch_id": "resident",
+                })
+            if args.kill_after and built == args.kill_after:
+                _append_audit(audit_path, {"event": "crash_injected", "session": args.session,
+                                           "cycle": cycle, "note": "os._exit 无清理——真实崩溃形态"})
+                print(f"kill-after triggered at cycle {cycle}（模拟崩溃）")
+                sys.stdout.flush()
+                import os
+                os._exit(137)
+            remain = args.period_ms / 1000.0 - (time.monotonic() - started)
+            if remain > 0:
+                time.sleep(remain)
+        final_cycle = cycle
+        sub.undeclare()
+        session.close()
+        _append_audit(audit_path, {"event": "zenoh_fusion_summary", "session": args.session,
+                                   "samples_mapped": built, "unmapped": dict(unmapped)})
+    else:
+        for i in range(total_cycles):
+            cycle = bridge_cycle_origin + 1 + i       # 恢复后从恢复点 +1 接续（单调时间轴）
+            started = time.monotonic()
+            record = bridge.sample(cycle)
+            delivery = bridge.build_delivery(record, prev_record)
+            prev_record = record
+            out_cycle = pipeline.process_cycle(cycle, [(delivery.packet, delivery.payload_text)])
+            recent.append({"cycle": cycle, "receipts": len(out_cycle.formation_receipts),
+                           "unknowns": len(out_cycle.unknowns),
+                           "busy_rate": delivery.busy_rate})
+            if len(recent) > _AUDIT_KEEP:
+                recent.pop(0)                          # 容量治理（Q-L13-15②）
+            if cycle % args.dwell == 0:
+                cp_id = f"resident-{args.session}-cp{cycle}"
+                rec = stores.checkpoint(
+                    checkpoint_id=cp_id, lineage=lineage, parent_checkpoint_id=parent_id,
+                    branch_id="resident", virtual_time=cycle, rng_directory=rng,
+                    profile_ref=f"p1_physio@{profile.version}",
+                    registry_view_digest=delivery.evidence_payload_digest,
+                )
+                parent_id = cp_id
+                checkpoint_count += 1
+                event = {
+                    "event": "checkpoint", "session": args.session, "checkpoint_id": cp_id,
+                    "parent": rec.parent_checkpoint_id, "cycle": cycle,
+                    "digest_state": rec.digest_state, "digest_memory": rec.digest_memory,
+                    "registry_view": rec.digest_registry_view,
+                    "profile_ref": rec.profile_ref, "branch_id": "resident",
+                }
+                _append_audit(audit_path, event)
+            if args.kill_after and (i + 1) == args.kill_after:
+                _append_audit(audit_path, {"event": "crash_injected", "session": args.session,
+                                           "cycle": cycle, "note": "os._exit 无清理——真实崩溃形态"})
+                print(f"kill-after triggered at cycle {cycle}（模拟崩溃）")
+                sys.stdout.flush()
+                import os
+                os._exit(137)
+            remain = args.period_ms / 1000.0 - (time.monotonic() - started)
+            if remain > 0:
+                time.sleep(remain)
+        final_cycle = bridge_cycle_origin + total_cycles
 
     # 会话结束 checkpoint（事件触发面，Q-L00-05②）
-    final_cycle = bridge_cycle_origin + total_cycles
     cp_id = f"resident-{args.session}-final"
     rec = stores.checkpoint(
         checkpoint_id=cp_id, lineage=lineage, parent_checkpoint_id=parent_id,

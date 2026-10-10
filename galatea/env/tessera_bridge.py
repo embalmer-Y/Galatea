@@ -29,6 +29,7 @@ from galatea.kernel.packet import (
 CARRIER_AUDIO_CONTENT_TYPE = "channel.audio.received.v1"
 CARRIER_INTERO_CONTENT_TYPE = "channel.interoceptive.received.v1"
 CARRIER_PROPRIO_CONTENT_TYPE = "channel.proprioceptive.received.v1"
+CARRIER_TESSERA_ACT_CONTENT_TYPE = "channel.tessera_act.received.v1"   # Q-L01-12②（P2 专用载体）
 
 _POWER_SCHEMA = "physio.tessera_power.v1"
 _ACT_SCHEMA = "physio.tessera_act.v1"
@@ -54,8 +55,18 @@ def map_suffix_to_carrier(suffix: str) -> tuple[str, str] | None:
     if suffix == "sys/power":
         return CARRIER_INTERO_CONTENT_TYPE, _POWER_SCHEMA
     if suffix.endswith("led/telemetry") or suffix.endswith("pwm/telemetry"):
-        return CARRIER_PROPRIO_CONTENT_TYPE, _ACT_SCHEMA
+        return CARRIER_TESSERA_ACT_CONTENT_TYPE, _ACT_SCHEMA
     return None
+
+
+def power_to_intero_payload(cbor_obj: dict[str, Any]) -> dict[str, object]:
+    """power → 既有 interoceptive_state 合同（Q-L01-12① 忠实映射）：
+    energy = 1 − used/max(budget,1)（电源余量比——设备电源即体能量资源）；
+    原始 mA 值只入桥证据侧 log（DeliveryFact 分离）。"""
+    budget = max(1.0, float(cbor_obj.get("budget_ma", 0)))
+    used = max(0.0, float(cbor_obj.get("used_ma", 0)))
+    energy = round(max(0.0, 1.0 - used / budget), 6)
+    return {"kind": "interoceptive_state", "energy": energy, "integrity": 1.0, "events": []}
 
 
 def build_packet(key: str, cbor_obj: dict[str, Any], cycle: int) -> tuple[CognitivePacket, str, str, str]:
@@ -68,9 +79,12 @@ def build_packet(key: str, cbor_obj: dict[str, Any], cycle: int) -> tuple[Cognit
     if mapped is None:
         raise ValueError(f"unmapped suffix: {suffix!r}（禁猜——映射表显式扩展才收）")
     carrier, schema = mapped
-    kind_name = schema.split(".")[-2] + "_state"
-    payload = {"kind": kind_name, "node": node, "cube": cube,
-               **{k: v for k, v in cbor_obj.items() if k != "kind"}}
+    if carrier == CARRIER_INTERO_CONTENT_TYPE:
+        payload = power_to_intero_payload(cbor_obj)        # 忠实映射（Q-L01-12①）
+    else:
+        kind_name = schema.split(".")[-2] + "_state"
+        payload = {"kind": kind_name, "node": node, "cube": cube,
+                   **{k: v for k, v in cbor_obj.items() if k != "kind"}}
     text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     digest = content_digest(text)
     packet = CognitivePacket(
@@ -94,6 +108,7 @@ class BridgeSample:
     payload_text: str
     payload_digest: str
     raw_digest: str               # 原始 zenoh 字节 digest（证据侧绑定）
+    packet: CognitivePacket       # RECEIVED 合同包（常驻融合面直接消费）
 
 
 def sample_from_wire(key: str, raw: bytes, cycle: int) -> BridgeSample:
@@ -103,4 +118,5 @@ def sample_from_wire(key: str, raw: bytes, cycle: int) -> BridgeSample:
     return BridgeSample(
         key=key, carrier=carrier, schema=schema, payload_text=text,
         payload_digest=packet.content_digest, raw_digest=content_digest(raw.hex()),
+        packet=packet,
     )

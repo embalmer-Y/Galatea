@@ -23,6 +23,7 @@ from galatea.subject.sensorium.form_extero import form_ext_event, form_ext_local
 from galatea.subject.sensorium.form_intero import form_intero
 from galatea.subject.sensorium.form_audio import form_audio
 from galatea.subject.sensorium.form_language import form_language
+from galatea.subject.sensorium.form_tessera_act import form_tessera_act
 from galatea.subject.sensorium.form_proprio import form_proprio
 from galatea.subject.sensorium.gain import C0_GAIN, apply_gain, apply_gain_c2, scale_frame_features
 from galatea.subject.sensorium.ingest import (
@@ -31,6 +32,7 @@ from galatea.subject.sensorium.ingest import (
     CARRIER_INTERO,
     CARRIER_LANGUAGE,
     CARRIER_PROPRIO,
+    CARRIER_TESSERA_ACT,
     IngestedSignal,
     SchemaViolation,
     ingest,
@@ -60,6 +62,7 @@ class SensoriumPipeline:
         self, profile: C0SensoriumProfile, calibration: CalibrationVersion,
         time_basis: dict[str, int], *, language_enabled: bool = False,
         audio_enabled: bool = False, audio_ref_rms: float | None = None,
+        tessera_act_enabled: bool = False,
     ) -> None:
         """time_basis = 冻结通道延迟表（REV-0012 R2：世界时恢复的唯一来源；
         装配层从冻结 m0_mw0 profile 的 channel_delay_cycles 提取传入，禁运行时发明）。
@@ -81,6 +84,9 @@ class SensoriumPipeline:
         if audio_enabled and (audio_ref_rms is None or audio_ref_rms <= 0):
             raise ValueError("audio_enabled requires positive audio_ref_rms（冻结归一常数）")
         self._audio_ref_rms = audio_ref_rms
+        # P2 Tessera 执行器状态机会型形成（Q-L01-12②，audio 先例同位形）：默认 False
+        # ——C0–C3 行为 bit-exact 不变；缺席 = 正常静默
+        self._tessera_act_enabled = tessera_act_enabled
         self._window = AlignmentWindow(profile)
         self._prev_energy: float | None = None
         self._published_count: dict[tuple[int, str], int] = {}   # (effective_time, modality) → 已发布帧数
@@ -141,6 +147,14 @@ class SensoriumPipeline:
                     if self._gain_override is not None and self._gain_override != 1.0:
                         formed = [scale_frame_features(f, self._gain_override) for f in formed]
                     group_frames.extend(formed)
+                if self._tessera_act_enabled:
+                    # P2 Tessera 执行器状态形成（Q-L01-12②）：有帧则成（PROPRIO），缺席静默
+                    act_signal = signals.get(CARRIER_TESSERA_ACT)
+                    if act_signal is not None:
+                        group_frames.append(form_tessera_act(
+                            act_signal, delivery_cycle, self._calibration.version_id,
+                            GainState(applied_factor=1.0, source="PROFILE"),
+                        ))
                 if self._audio_enabled:
                     # P2 机会型音频形成（Q-L02-08）：有 audio_frame 则成帧（modality=EXTERO，
                     # 听觉即外感受），缺席 = 正常静默；忠实变换零新阈值；增益豁免（分类面同语言）

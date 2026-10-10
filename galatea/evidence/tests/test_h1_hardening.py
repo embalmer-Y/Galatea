@@ -47,7 +47,7 @@ def test_supply_chain_audit_full_manifest() -> None:
     """判据 3：manifest v1.9 全锚 sha256 比对（零 fail；INC-13 丢失件单列）。"""
     out = supply_chain_audit(_ROOT)
     assert out["stable"], out["failed"]
-    assert out["manifest_total"] == 48   # v1.17（P2 单元 E 地面层 +1：Tessera 活网桥捕获——只增不减）
+    assert out["manifest_total"] == 50   # v1.18（P2 融合 +2：融合验证/融合审计——只增不减）
     assert not out["failed"]
     assert out["lost_inc13"] == ["EXP-R0-001", "R-c5-v1-0-composite-INCONCLUSIVE",
                                  "R-c5-v1-0-gain-INCONCLUSIVE"]

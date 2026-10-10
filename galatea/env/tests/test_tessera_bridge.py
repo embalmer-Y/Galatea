@@ -18,7 +18,7 @@ def test_parse_topic_and_mapping() -> None:
     assert parse_topic("other/x/y/z") is None
     assert map_suffix_to_carrier("sys/power") == (
         "channel.interoceptive.received.v1", "physio.tessera_power.v1")
-    assert map_suffix_to_carrier("dbpwm/telemetry")[0] == "channel.proprioceptive.received.v1"
+    assert map_suffix_to_carrier("dbpwm/telemetry")[0] == "channel.tessera_act.received.v1"
     assert map_suffix_to_carrier("unknown/x") is None          # 禁猜——未映射显式 None
 
 
@@ -27,15 +27,17 @@ def test_power_sample_maps_to_intero() -> None:
                  "wall_ms": 0})
     s = sample_from_wire("tessera/dav/dvc/sys/power", raw, 1)
     assert s.carrier == "channel.interoceptive.received.v1"    # 电源 = 体资源（内感受）
-    assert '"budget_ma":500' in s.payload_text
-    assert '"node":"dav"' in s.payload_text
+    # 忠实映射（Q-L01-12①）：载荷 = 既有 interoceptive_state 合同（energy=余量比 1-12/500）
+    assert '"kind":"interoceptive_state"' in s.payload_text
+    assert '"energy":0.976' in s.payload_text
     assert s.payload_digest == sample_from_wire("tessera/dav/dvc/sys/power", raw, 1).payload_digest
 
 
 def test_actuator_sample_maps_to_proprio() -> None:
     raw = _wire({"ver": 1, "kind": 96, "dev": 2, "value_u": 655360, "wall_ms": 0})
     s = sample_from_wire("tessera/dav/dvc/dbpwm/telemetry", raw, 3)
-    assert s.carrier == "channel.proprioceptive.received.v1"   # 执行器状态 = 本体感受
+    # 执行器状态 = 本体感受（Q-L01-12②：专用载体 + PROPRIO 模态形成面）
+    assert s.carrier == "channel.tessera_act.received.v1"
     assert '"value_u":655360' in s.payload_text
     assert s.raw_digest                                        # 原始字节 digest 绑定在案
 

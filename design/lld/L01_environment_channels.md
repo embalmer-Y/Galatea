@@ -206,4 +206,5 @@ design/mw0/
 | Q-L01-08 | energy/integrity 的 viability 阈值与"损伤事件"定义（联动 L05 驱力） | M0/L05 | CONFIRMED（AI-v2 2026-09-25，M0 部分：损伤事件定义 + 力学初值；viability 阈值归 L05/C2，见 A 区） |
 | Q-L01-09 | MW0 动力学表补充参数与边界语义（风暴率语义/觅食链/floor/load 简化/loss） | M0 | CONFIRMED（AI-v2 2026-09-25：REV-0004 R2–R4/R6 补裁，见 A 区） |
 | Q-L01-10 | 物理通道映射与载体复用（P1；传感必经 Bridge→Channel Adapter→ReceivedSignal） | P1 | CONFIRMED（AI-v2 2026-10-10：载体复用 + `physio.host_telemetry.v1` schema；零新阈值维持 Q-L02-05；DeliveryFact/时间语义沿用；通道注册入 p1 profile，见 A 区） |
+| Q-L01-12 | Tessera 感知面注册（P2；power→INTERO 忠实映射 energy=电源余量比，act→专用载体形成面默认关） | P2 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0027：复用既有 form_intero 链零新阈值；TesseraActFeatures 位形沿 audio 先例，见 A 区） |
 | Q-L01-11 | 音频外感受通道（P2；EXTERO 载体复用 + physio.audio_frame.v1） | P2 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0027：听觉即外感受不新增载体；形成面忠实变换零新阈值；原始 PCM 只入证据侧，见 A 区） |
