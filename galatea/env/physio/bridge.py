@@ -31,7 +31,9 @@ from galatea.kernel.packet import (
 
 PROC_STAT = Path("/proc/stat")
 
-Carrier = str
+# content_type = 载体串（ingest kind↔载体匹配面；env 侧字面量——P06 禁 import 主体平面，
+# 值与 galatea.subject.sensorium.ingest.CARRIER_INTERO 逐字同源，双侧测试钉死一致性）
+CARRIER_INTERO_CONTENT_TYPE = "channel.interoceptive.received.v1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,7 +186,7 @@ class PhysioBridge:
             subject_candidate_id="S", run_id="R", branch_id="B",
             activity_window_id="physio", cycle_id=record.cycle,
             virtual_time=record.cycle + self._profile.delay_cycles,
-            source_module="env.physio.bridge", content_type=self._profile.schema_name,
+            source_module="env.physio.bridge", content_type=CARRIER_INTERO_CONTENT_TYPE,
             representation_level=RepresentationLevel.RECEIVED, schema_version="v1",
             payload_ref=ArtifactRef(digest=digest, kind="payload"),
             confidence=1.0, provenance=Provenance(), causal_parent_ids=(),

@@ -232,6 +232,16 @@ execution_branches[]: ExecutionBranch(
 
 ## 10. 实现清单（文件级）
 
+> **P1 交付标注（2026-10-10，ADR-G-0025 实现期）**：§4.6 P1 合同的实现载体 = `galatea/env/physio/`
+> （ports typed loader·hwmon name 锚定·bridge 生产桥·lstate 全六级状态机·capability 双检）+
+> `galatea/evidence/physio/`（authz 四类授权台账 12 字段 + append-only 撤销 + freshness 三态 +
+> 批准者根注册表·device 登记 + BodyGraph digest）+ 统计评价面（`evidence/control/runs_p1.py`
+> 三臂 runner + `evidence/evaluator/evaluate_p1.py` 三判定器 + `entry.py p1` 子命令）+
+> 部署面（`scripts/deploy_p1_host.sh`·`scripts/evidence_backup.py`·`scripts/capture_sealed_corpus.py`）。
+> 首评 R-p1-physio-001 = SUPPORTED（manifest v1.11 锚）；L4+ 执行面与 Tessera zenoh 桥接随
+> 设备新增事件交付（ADR-G-0025 §4 范围声明——BodyGraph@L4+ 非遗漏）。
+
+```text
 ```text
 galatea/subject/action/                     # strict 类型
   ports.py               PortIn/PortOut、九型分离断言、EVIDENCE_ONLY 命名空间隔离

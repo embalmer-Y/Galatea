@@ -969,6 +969,17 @@ def main(argv: list[str] | None = None) -> int:
             f"body={first.incorporation.verdict.value} "
             f"mechanical={all(first.mechanical.values())} i1={first.i1_match}"
         )
+    elif command == "p1":
+        from galatea.evidence.control.runs_p1 import run_p1_first_evaluation
+        out_dir = root / "evidence" / "p1_physio_first_evaluation"
+        first = run_p1_first_evaluation(root, out_dir)
+        print(
+            f"p1: composite={first['composite'].verdict.value} "
+            f"fidelity={first['fidelity'].verdict.value} "
+            f"safety={first['safety'].verdict.value} "
+            f"signal={first['signal'].verdict.value} "
+            f"leakage_free={first['leakage_free']} i1={bool(first['fidelity'].recompute_ok)}"
+        )
     else:
         print(f"unknown command: {command}（m1|carryover|root）")
         return 2

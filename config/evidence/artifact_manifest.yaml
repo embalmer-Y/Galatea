@@ -1,7 +1,10 @@
+# Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.12（2026-10-10）：REV-0026 R1/R2 退出提交内闭环——signal 结构期望数断言入判定器，
+#  4 个 P1 首评工件重生成重锚（digest 更新；锚集 40 只增不减）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.10
-  frozen_at: '2026-10-08'
+  version: v1.12
+  frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
   - name: R-m1-sc3-001
@@ -12,8 +15,7 @@ artifact_manifest:
     path: evidence/m1_first_evaluation/R-m1-sc4-002.json
     sha256: 7b820264cb56da1cb43267583add146fb0053f87f2c58065257c741df601d366
     gate: M1 首评
-    status_inc13: REGENERATED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案，verdict=REFUTED 与历史不同；M1
-      门基于历史冻结存档不受影响）
+    status_inc13: REGENERATED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案，verdict=REFUTED 与历史不同；M1 门基于历史冻结存档不受影响）
   - name: R-m2-carryover-001
     path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
     sha256: a7fe60d0d4e0c056e8e19b6aa38813ae64d87df261cc1242ff58770d33ec8d6d
@@ -27,8 +29,8 @@ artifact_manifest:
     path: evidence/r0_expansion/EXP-R0-001.json
     sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
     gate: ExpansionDecision ALLOW
-    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
-      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8 可溯）；EXP-R0-001
+      不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
   - name: R-c1-models-001
     path: evidence/c1_models_first_evaluation/R-c1-models-001.json
     sha256: 533aedb7b9d59aebf9c7d37c62594900e25e48653e7fb4653a9fa5462bb7b888
@@ -80,10 +82,9 @@ artifact_manifest:
   - name: c4-recording-v1
     path: evidence/c4_recording/recording_v1.json
     sha256: 556689e9d0db5f4b7eadbda2e4ae0e0d6118611f7cc3bf857ee28f45872647cd
-    gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim
-      运行唯一 LLM 承载）
-    status_inc13: RE-RECORDED — 事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含
-      statement 补录；原始锚 4428feb9 会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8）
+    gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim 运行唯一 LLM 承载）
+    status_inc13: RE-RECORDED — 事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含 statement 补录；原始锚 4428feb9
+      会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8）
   - name: R-c4-action-social-001
     path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
     sha256: b827768e41d2f050a6be59738a1bb4132bb8bc64e135b7a7d8afc226b0c0b1c2
@@ -103,17 +104,15 @@ artifact_manifest:
   - name: R-c5-v1-0-composite-INCONCLUSIVE
     path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json
     sha256: 2526fc4cf621a820144cca871bd284c02e088c0456f0a74e80eb00890cef49d6
-    gate: C5 首评 v1.0 复合 = INCONCLUSIVE（如实保留——gain 全域混合 d=0.438<0.5 但 p=0.00046 显著；判据域立法
-      Q-L11-03 补裁②的触发证据）
-    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
-      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+    gate: C5 首评 v1.0 复合 = INCONCLUSIVE（如实保留——gain 全域混合 d=0.438<0.5 但 p=0.00046 显著；判据域立法 Q-L11-03 补裁②的触发证据）
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8 可溯）；EXP-R0-001
+      不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
   - name: R-c5-v1-0-gain-INCONCLUSIVE
     path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json
     sha256: 80b1c787772d403d593e4bd491e32dec72f88150d158474aa044ba3b963ddb96
-    gate: C5 首评 v1.0 gain = INCONCLUSIVE（同上——分层结构证据：abundance 构造性无空间 d=-2.26/scarcity
-      +7.81/volatile +2.60）
-    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8
-      可溯）；EXP-R0-001 不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
+    gate: C5 首评 v1.0 gain = INCONCLUSIVE（同上——分层结构证据：abundance 构造性无空间 d=-2.26/scarcity +7.81/volatile +2.60）
+    status_inc13: LOST — 工作目录事故（2026-10-09 20:23）中丢失；sha256 为历史锚（git 历史 manifest v1.7/v1.8 可溯）；EXP-R0-001
+      不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
   - name: R-c5-continued-learning-001
     path: evidence/c5_continued_learning_first_evaluation/R-c5-continued-learning-001.json
     sha256: 0ef1d56b293b72078ab5f1f3d3462c45b666c7763c87a4866421f8c75dee331f
@@ -133,18 +132,17 @@ artifact_manifest:
   - name: I2-c5-gain-001
     path: evidence/e1_integration/I2-c5-gain-001.json
     sha256: 395a1047501d32f01f08cd152f7df755d00223fd2db4c18e0c698f7a7a44dcbb
-    gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43
-      域 trials d≈2.0313 ≡ 原 EvidenceResult）
+    gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43 域 trials d≈2.0313
+      ≡ 原 EvidenceResult）
   - name: e1-decision-registry-closure
     path: evidence/e1_integration/decision-registry-closure.json
     sha256: e3beea37f3a27225e85759778cead11cb12ed99d7526b6209e261a0ca295d1db
-    gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate
-      CLOSED；Q-G00-04 分母）
+    gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate CLOSED；Q-G00-04 分母）
   - name: h1-evaluation-summary
     path: evidence/h1_hardening/h1-evaluation-summary.json
     sha256: 50f0a344b0994fa6015f0b24a705456a155cb317898ca73ac584536f72b927f2
-    gate: H1 平台硬化四判据评价汇总（256 cycles 长时运行溢出治理 56 次 + fault 注入恢复 + 供应链 27/30 锚 + INC-13
-      丢失件 3 单列 + I3 新 seed 重现 n=8 mean=1.0）
+    gate: H1 平台硬化四判据评价汇总（256 cycles 长时运行溢出治理 56 次 + fault 注入恢复 + 供应链 27/30 锚 + INC-13 丢失件 3 单列 + I3 新
+      seed 重现 n=8 mean=1.0）
     status_rev0024_r6: re-anchored after entry h1 rerun（R6 生成器入库后复跑刷新）
   - name: e1-reports-gate-chain
     path: evidence/reports/gate_chain.json
@@ -166,3 +164,23 @@ artifact_manifest:
     sha256: ed1e5c373e0c112cdbeabf8db2cb6322adb2c5298bbb12bf26dc1473f693b040
     gate: 静态报告（d）登记册统计（146/1/1——全库阻断清零）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
+  - name: p1-sealed-corpus
+    path: evidence/p1_physio_sealed/corpus.jsonl
+    sha256: cca3cea2a94d715b33e1edaf1488e445a687fc8328fb8ab11bdd0b422f48089f
+    gate: P1 sealed 语料（主机生产桥实采 65 cycles；stat plan p1_physio sealed_corpus）
+  - name: R-p1-physio-001
+    path: evidence/p1_physio_first_evaluation/R-p1-physio-001.json
+    sha256: 99080bd1bfb1fabd7914e96d02a0d70a7819f378542618eeb5cad075f128cd5d
+    gate: P1 首评复合（三 claim Holm 族；顺延终止条款第七次执行）
+  - name: R-p1-physio-fidelity
+    path: evidence/p1_physio_first_evaluation/R-p1-physio-fidelity.json
+    sha256: 39daf657a222e45820f28a0d4c2b79feea150d70ae1b15c067ddf6dea39ace39
+    gate: P1 claim1 通道保真度（确定性门）
+  - name: R-p1-physio-safety
+    path: evidence/p1_physio_first_evaluation/R-p1-physio-safety.json
+    sha256: 529e1672402ee582844b2ca3cf5501cc3f5849f26ad69f7984ed4b41e128ebf7
+    gate: P1 claim2 L 级安全（确定性门 8 场景）
+  - name: R-p1-physio-signal
+    path: evidence/p1_physio_first_evaluation/R-p1-physio-signal.json
+    sha256: d04eb72dca1029442e8dbfccf8ef06b7cc1e348063c6116f60f3b5260c607cd0
+    gate: P1 claim3 物理信号载运（r=1.0 饱和；Q-L13-09 族首例 r 型）
