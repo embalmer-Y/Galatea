@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**157**
-  - CONFIRMED: 153
+- 登记册声明 Q 号：**158**
+  - CONFIRMED: 154
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 153, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 154, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
@@ -104,7 +104,7 @@
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：52（只增不减）
+- 清单条目：54（只增不减）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）

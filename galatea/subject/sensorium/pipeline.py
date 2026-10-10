@@ -95,6 +95,38 @@ class SensoriumPipeline:
         # C0/C1 行为不变；override 在位时连续强度特征缩放 + MODULATION 来源回执）
         self._gain_override: float | None = None
 
+    def snapshot(self) -> dict[str, object]:
+        """管线内存态序列化（Q-L13-17：checkpoint digest_state 语义升级的状态承载面）。
+        覆盖：对齐窗 pending 槽 / _prev_energy（energy_rate 派生基线）/ 已关窗集合 /
+        发布计数（revision 链）/ 增益调制。零 RNG；同状态 → 同 digest。"""
+        state: dict[str, object] = {
+            "schema": "pipeline_state.v1",
+            "prev_energy": self._prev_energy,
+            "closed": sorted(self._closed),
+            "published_count": [[t, m, n] for (t, m), n in sorted(self._published_count.items())],
+            "gain_override": self._gain_override,
+            "window": self._window.snapshot(),
+        }
+        return state
+
+    def restore_snapshot(self, state: dict[str, object]) -> None:
+        """从快照恢复内存态（严格 schema 校验——损坏即抛禁半截恢复）。"""
+        if state.get("schema") != "pipeline_state.v1":
+            raise ValueError(f"pipeline state schema mismatch: {state.get('schema')!r}")
+        prev = state.get("prev_energy")
+        self._prev_energy = float(str(prev)) if prev is not None else None
+        closed = state.get("closed", [])
+        self._closed = {int(str(x)) for x in closed}   # type: ignore[union-attr, arg-type]
+        published = state.get("published_count", [])
+        self._published_count = {
+            (int(str(pair[0])), str(pair[1])): int(str(pair[2]))  # type: ignore[union-attr, index]
+            for pair in published  # type: ignore[union-attr]
+        }
+        gain = state.get("gain_override")
+        self._gain_override = float(str(gain)) if gain is not None else None
+        window = state.get("window", [])
+        self._window.restore(window, self._profile, self._time_basis)  # type: ignore[union-attr, arg-type]
+
     def apply_gain_modulation(self, requested: float) -> GainReceipt:
         """C2 增益调制接收面（clip [0.5,2.0] + CLIPPED；applied 生效于后续形成窗，
         回执由调用方交 affect 台账——无回执调制 = 未发生，L05 §4.4）。"""

@@ -27,6 +27,7 @@ from pathlib import Path
 from galatea.env.physio.bridge import PhysioBridge
 from galatea.env.physio.ports import load_p1_physio_profile
 from galatea.kernel.rng import RngDirectory
+from galatea.kernel.digest import content_digest
 from galatea.kernel.state import LineageTable, StoreName, Stores
 from galatea.subject.sensorium.calibration import bind_calibration
 from galatea.subject.sensorium.ingest import CARRIER_EXTERO, CARRIER_INTERO, CARRIER_PROPRIO
@@ -145,12 +146,22 @@ def main(argv: list[str] | None = None) -> int:
             print("resume: 审计无 checkpoint——fresh 根启动（首启合法）")
         parent_id = checkpoints[-1]["checkpoint_id"]
         resume_cycle = int(checkpoints[-1].get("cycle", 0))
+        # 管线状态恢复（Q-L13-17：digest_state 语义升级——状态快照随 checkpoint 存续）
+        snap_path = out / "checkpoints" / f"{parent_id}.json"
+        state_digest_restored = ""
+        if snap_path.exists():
+            snap = json.loads(snap_path.read_text(encoding="utf-8"))
+            pipeline.restore_snapshot(snap["state"])
+            state_digest_restored = snap["pipeline_state_digest"]
         _append_audit(audit_path, {
             "event": "restart_restore", "session": args.session,
             "restored_from": parent_id, "restored_cycle": resume_cycle,
             "lineage_size": len(lineage.all()),
+            "pipeline_state_digest": state_digest_restored,
+            "state_restored": snap_path.exists(),
         })
-        print(f"resume: parent={parent_id} cycle={resume_cycle} lineage={len(lineage.all())}")
+        print(f"resume: parent={parent_id} cycle={resume_cycle} "
+              f"lineage={len(lineage.all())} state_restored={snap_path.exists()}")
 
     # 主体循环（真实遥测内感受；起始 cycle 接续恢复点——谱系时间轴单调）
     rng = RngDirectory(b"resident-subject-v1", lambda key, nonce: b"\x00" * 64)
@@ -224,12 +235,20 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 parent_id = cp_id
                 checkpoint_count += 1
+                snap = pipeline.snapshot()
+                snap_digest = content_digest(json.dumps(snap, sort_keys=True))
+                snap_dir = out / "checkpoints"
+                snap_dir.mkdir(parents=True, exist_ok=True)
+                (snap_dir / f"{cp_id}.json").write_text(json.dumps(
+                    {"checkpoint_id": cp_id, "pipeline_state_digest": snap_digest,
+                     "state": snap}, sort_keys=True, indent=1) + chr(10), encoding="utf-8")
                 _append_audit(audit_path, {
                     "event": "checkpoint", "session": args.session, "checkpoint_id": cp_id,
                     "parent": rec.parent_checkpoint_id, "cycle": cycle,
                     "digest_state": rec.digest_state, "digest_memory": rec.digest_memory,
                     "registry_view": rec.digest_registry_view,
                     "profile_ref": rec.profile_ref, "branch_id": "resident",
+                    "pipeline_state_digest": snap_digest,
                 })
             if args.kill_after and built == args.kill_after:
                 _append_audit(audit_path, {"event": "crash_injected", "session": args.session,
@@ -272,12 +291,20 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 parent_id = cp_id
                 checkpoint_count += 1
+                snap = pipeline.snapshot()
+                snap_digest = content_digest(json.dumps(snap, sort_keys=True))
+                snap_dir = out / "checkpoints"
+                snap_dir.mkdir(parents=True, exist_ok=True)
+                (snap_dir / f"{cp_id}.json").write_text(json.dumps(
+                    {"checkpoint_id": cp_id, "pipeline_state_digest": snap_digest,
+                     "state": snap}, sort_keys=True, indent=1) + chr(10), encoding="utf-8")
                 event = {
                     "event": "checkpoint", "session": args.session, "checkpoint_id": cp_id,
                     "parent": rec.parent_checkpoint_id, "cycle": cycle,
                     "digest_state": rec.digest_state, "digest_memory": rec.digest_memory,
                     "registry_view": rec.digest_registry_view,
                     "profile_ref": rec.profile_ref, "branch_id": "resident",
+                    "pipeline_state_digest": snap_digest,
                 }
                 _append_audit(audit_path, event)
             if args.kill_after and (i + 1) == args.kill_after:

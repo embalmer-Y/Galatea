@@ -4,10 +4,14 @@
 不补零**（部分对齐 + typed Unknown）；迟到信号以 revision 新帧引用旧帧（envelope
 不可变），超回溯深度记 Unknown 不产历史帧。
 """
+import json
+
 from dataclasses import dataclass
 
+
+from galatea.kernel.digest import content_digest
 from galatea.kernel.unknown import Unknown
-from galatea.subject.sensorium.ingest import IngestedSignal
+from galatea.subject.sensorium.ingest import IngestedSignal, ingest
 from galatea.subject.sensorium.ports import C0SensoriumProfile, SensoryFrame
 from galatea.subject.sensorium.unknowns import insufficient_observation, missing_signal
 
@@ -55,6 +59,49 @@ class AlignmentWindow:
     def close(self, t: int) -> None:
         """窗关闭（pipeline 已消费信号并产出 AlignmentGroup 后调用）。"""
         self._pending.pop(t, None)
+
+    def snapshot(self) -> list[list[int | str]]:
+        """窗内 pending 槽序列化（L02 §5 checkpoint 面兑现）：
+        sorted [effective_time, carrier, event_id, cycle_id, delivery_basis, payload_text]——
+        重摄取元组（restore 经 ingest 重校验，禁绕过合同）。"""
+        entries: list[list[int | str]] = []
+        for t in sorted(self._pending):
+            for carrier in sorted(self._pending[t]):
+                sig = self._pending[t][carrier]
+                entries.append([t, carrier, sig.packet.event_id, sig.packet.cycle_id,
+                                sig.delivery_basis,
+                                json.dumps(sig.payload, sort_keys=True,
+                                           separators=(",", ":"))])
+        return entries
+
+    def restore(self, entries: list[list[int | str]], profile: C0SensoriumProfile,
+                time_basis: dict[str, int]) -> None:
+        """恢复 pending 槽（逐条重摄取——合同重校验，损坏即抛禁半截谱系）。"""
+        for entry in entries:
+            t = int(entry[0])
+            carrier = str(entry[1])
+            event_id = str(entry[2])
+            cycle_id = int(entry[3])
+            payload_text = str(entry[5])
+            from galatea.kernel.packet import (  # noqa: PLC0415——restore 局部面
+                AccessScope,
+                ArtifactRef,
+                CognitivePacket,
+                Provenance,
+                RepresentationLevel,
+            )
+            digest = content_digest(payload_text)
+            pkt = CognitivePacket(
+                event_id=event_id, subject_candidate_id="S", run_id="R", branch_id="B",
+                activity_window_id="restore", cycle_id=cycle_id, virtual_time=cycle_id,
+                source_module="restore", content_type=carrier,
+                representation_level=RepresentationLevel.RECEIVED, schema_version="v1",
+                payload_ref=ArtifactRef(digest=digest, kind="payload"), confidence=1.0,
+                provenance=Provenance(), causal_parent_ids=(),
+                access_scope=AccessScope.MODULE_LOCAL, content_digest=digest,
+            )
+            sig: IngestedSignal = ingest(pkt, payload_text, profile, time_basis)
+            self.submit(sig, delivery_cycle=t + self._w)   # 窗未关闭的槽内信号合法重投
 
     @staticmethod
     def late_unknown(t: int, delivery_cycle: int, lookback: int) -> list[Unknown]:

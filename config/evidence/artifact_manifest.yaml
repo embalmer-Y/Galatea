@@ -1,8 +1,10 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.21（2026-10-10）：resident-service-audit 路径修正 → service_migrations.jsonl（取证命名统一）。
+# v1.22（2026-10-10）：P2 状态序列化双锚（Q-L13-17——digest_state 语义升级：
+#  pipeline_state.v1 快照面随 checkpoint 存续；z7 崩溃→z8 resume state_restored=True；
+#  状态连续性机械判据 = 恢复后 energy_rate 正确差分【反证：fresh 管线同帧 Unknown】）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.21
+  version: v1.22
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -237,3 +239,11 @@ artifact_manifest:
     path: evidence/resident/service_migrations.jsonl
     sha256: 6ac9fc0bd9e1e641cff8347b139c6fcce70ada7a83df3ee43c33c6aa5ffaa0b0
     gate: 服务化迁移审计（s1/s2 历史链 + systemd 会话接续：cp320/384/448/512 连续 + restart_restore）
+  - name: pipeline-state-snapshot-z7
+    path: evidence/resident/snapshot_z7_cp64.json
+    sha256: 5a531408b29a64ee9d53467427f12ed63848dedf5997bd3814fe86e27b35c3ba
+    gate: P2 状态序列化快照样本（Q-L13-17：pipeline_state.v1——对齐窗 pending/prev_energy/关闭集合/发布计数/增益）
+  - name: resident-state-continuity
+    path: evidence/resident/state_continuity_migrations.jsonl
+    sha256: 837cc197bb744b46eed008af13ac278f0990827d622a4e5af937821bcd5b8927
+    gate: P2 状态连续性演练审计（z7 崩溃→z8 resume state_restored=True + pipeline_state_digest 挂接）
