@@ -1,11 +1,11 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.14（2026-10-10）：USB 音频设备新增事件 I/O 测试报告锚（Q-L10-13——首个执行类设备。
+#  声学回环 ratio 1,222,437×；急停实测 237ms；硬件 L0=无如实登记；WAV 工件随 evidence 目录归档）。
 # v1.13（2026-10-10）：P1 门退出备份锚（Q-L13-14① 义务首次完整执行——sidecar 41 文件
 #  逐件 digest；远端 tar whole sha256=2a513fe5e76c06080cb0d2ead5cd791aa972a04231e3bf53b933c7834588db4d）。
-# v1.12（2026-10-10）：REV-0026 R1/R2 退出提交内闭环——signal 结构期望数断言入判定器，
-#  4 个 P1 首评工件重生成重锚（digest 更新；锚集 40 只增不减）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.13
+  version: v1.14
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -190,3 +190,7 @@ artifact_manifest:
     path: config/evidence/backups/p1-exit.sidecar
     sha256: c9cdddfd82b7f500406de7fc79e8a84f6aac5fea026fc28c810bbf012b0fc9e9
     gate: P1 门退出 evidence 异地备份（Q-L13-14①：tar whole=2a513fe5…116 文件 → emb@192.168.2.91:/tmp/ + 逐件恢复演练 PASS）
+  - name: usb-audio-io-test-report
+    path: evidence/audio_io_test/report.json
+    sha256: eeffeee94c2e12ab62f59d2fe4386c4a6101314efa018aca4b53e3b305dec13b
+    gate: USB 音频设备新增事件 I/O 测试（Q-L10-13；六项全过——声学回环 ratio 1,222,437× / 急停实测 237ms）

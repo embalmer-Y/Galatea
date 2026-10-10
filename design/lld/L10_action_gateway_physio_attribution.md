@@ -297,3 +297,4 @@ config/profiles/
 | Q-L10-10 | P1 载体实例化与部署拓扑（A.10"届时另裁"兑现） | P1 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0025：Linux 主机 + Tessera 平台；PhysIOBridge→ChannelBus 唯一入口；MW0 仿真域并存；被动期物理源 = 主机真实遥测，见 A 区） |
 | Q-L10-11 | L0–L5 参数实例化与平台 L0 承载语义 | P1 | CONFIRMED（AI-v2 2026-10-10，ADR-G-0025 §3：平台 L0 = 软件承载如实登记；min_dwell ≥ 64；L1/L2 授权顶，L4+ owner 逐级授权，见 A 区） |
 | Q-L10-12 | P1 动作空间扩展（C4 R1 钩子兑现） | P1 | CONFIRMED（AI-v2 2026-10-10：PHYSIO 动作类 = L2 校准 + L3 shadow；capability_set 入 p1 profile；MW0 枚举域隔离；L4 执行面待设备接入 + owner 授权，见 A 区） |
+| Q-L10-13 | USB 音频设备新增事件（首个执行类设备；owner 测试级授权） | P1+ | CONFIRMED（AI-v2 2026-10-10：JMTek card2 双面；治理登记实战 L1→L4 + BodyGraph 首含执行器；I/O 六项全过——回环 ratio 1.2M / 急停实测 237ms / 硬件 L0 无如实登记；L4 常态化 = owner 备案点，见 A 区） |

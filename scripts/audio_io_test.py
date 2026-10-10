@@ -110,7 +110,7 @@ def governance_registration() -> dict:
     ledger = AuthorizationLedger(approver_roots=frozenset({approver}))
     envelopes = {
         "dep-1": ("deployment_authorization", "host:192.168.2.91", "p1+usb_audio_test"),
-        "fa-usb-audio": ("functional_ability", "device:usb_audio",
+        "fa-usb_audio": ("functional_ability", "device:usb_audio",
                          "audio_capture+l4_limited_playback_test"),
         "ei-usb-audio": ("enabled_interface", "iface:alsa_card2", "capture+playback"),
         "ca-audio": ("containment_allowance", "scope:usb_audio",
@@ -131,7 +131,7 @@ def governance_registration() -> dict:
     grants: dict[str, str] = {}
     cycle = _DWELL
     for level in (2, 3, 4):
-        sm.grant(level, cycle, lambda l, _c=cycle: ledger.freshness("fa-usb-audio", _c).verdict == "VALID")
+        sm.grant(level, cycle, lambda l, _c=cycle: ledger.freshness("fa-usb_audio", _c).verdict == "VALID")
         grants[f"L{level}"] = f"granted@cycle{cycle}"
         cycle += _DWELL
     return {
@@ -225,8 +225,9 @@ def main(argv: list[str] | None = None) -> int:
     verdicts.append(t4_ok)
     print(f"T4 loopback = {t4_ok} (ratio={ratio:.1f})")
 
-    # T5 急停实测（kill 播放进程 → 录音中能量消失时点）
+    # T5 急停实测（kill 播放进程 → 录音中能量消失时点；时延基准 = monotonic 差）
     estop = out / "estop_probe.wav"
+    t_rec_start = time.monotonic()
     rec2 = subprocess.Popen(
         ["arecord", "-D", dev, "-q", "-f", "S16_LE", "-r", str(RATE), "-c", "1",
          "-d", "8", str(estop)],
@@ -241,20 +242,26 @@ def main(argv: list[str] | None = None) -> int:
     play2.kill()                                      # 软件急停
     play2.wait(timeout=10)
     rec2.wait(timeout=30)
+    kill_offset_s = t_kill - t_rec_start              # kill 时刻在录音内偏移
     with wave.open(str(estop), "rb") as w:
         pcm = w.readframes(w.getnframes())
     window = RATE // 10                               # 100ms 窗
     silent_at = None
     for start in range(0, len(pcm) // 2 - window, window):
+        start_s = start / RATE
+        if start_s < kill_offset_s:                    # 只扫 kill 之后（前段本就未播）
+            continue
         seg = pcm[2 * start: 2 * (start + window)]
-        p = goertzel_power_pcm(seg, TONE_HZ)
-        if p < SILENCE_RMS_FLOOR * SILENCE_RMS_FLOOR * window / RATE:
-            silent_at = (start + window) / RATE
+        amp = 2.0 * math.sqrt(goertzel_power_pcm(seg, TONE_HZ)) / window  # 幅值归一
+        if amp < SILENCE_RMS_FLOOR / 2.0:             # 幅值 < 本底 RMS 一半 = 声学静默
+            silent_at = start_s + window / RATE
             break
-    estop_latency_ms = None if silent_at is None else round(silent_at * 1000 - 2000, 0)
-    t5_ok = silent_at is not None and 0.0 <= (silent_at * 1000 - 2000) <= 1000.0
+    latency_ms = None if silent_at is None else round((silent_at - kill_offset_s) * 1000, 0)
+    t5_ok = (silent_at is not None and kill_offset_s < silent_at
+             and 0.0 <= latency_ms <= 1000.0)
+    estop_latency_ms = latency_ms
     report["tests"]["T5_estop_kill_latency"] = {
-        "passed": t5_ok, "tone_silent_at_s": silent_at,
+        "passed": t5_ok, "tone_silent_at_s": silent_at, "kill_offset_s": round(kill_offset_s, 3),
         "estop_latency_ms_est": estop_latency_ms,
         "hardware_l0_floor": "none_usb_audio_no_hw_limiter",
         "note": "Q-L10-08 载体版实测：软件急停时延为播放 kill → 声学能量消失；"
