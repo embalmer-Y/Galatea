@@ -44,13 +44,14 @@ def test_fault_injection_and_recovery() -> None:
 
 
 def test_supply_chain_audit_full_manifest() -> None:
-    """判据 3：manifest v1.9 全锚 sha256 比对（零 fail；INC-13 丢失件单列）。"""
+    """判据 3：manifest 全锚 sha256 比对（零 fail；LOST/SUPERSEDED 单列）。"""
     out = supply_chain_audit(_ROOT)
     assert out["stable"], out["failed"]
-    assert out["manifest_total"] == 50   # v1.18（P2 融合 +2：融合验证/融合审计——只增不减）
+    assert out["manifest_total"] == 52   # v1.19（P2 产品化 +2：服务验证/服务审计——只增不减）
     assert not out["failed"]
+    # lost 名单随演进增长（INC-13 三件 + P2 服务化演进 SUPERSEDED 件——锚与状态注记均保留可溯）
     assert out["lost_inc13"] == ["EXP-R0-001", "R-c5-v1-0-composite-INCONCLUSIVE",
-                                 "R-c5-v1-0-gain-INCONCLUSIVE"]
+                                 "R-c5-v1-0-gain-INCONCLUSIVE", "resident-longrun-verify"]
 
 
 def test_i3_independent_reproduction_new_seeds() -> None:

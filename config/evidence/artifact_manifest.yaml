@@ -1,10 +1,8 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.18（2026-10-10）：P2 常驻×桥融合双锚（Q-L01-12——活网桥流 252 cycles，
-#  五会话 z2–z6：power→INTERO 忠实映射 + act→PROPRIO 形成面；真实崩溃恢复跨会话无断；
-#  验证器谱系语义修正 = 多根 DAG + 最长根链判据【fresh 会话 = 新根，D-12 合法】）。
+# v1.21（2026-10-10）：resident-service-audit 路径修正 → service_migrations.jsonl（取证命名统一）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.18
+  version: v1.21
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -202,10 +200,14 @@ artifact_manifest:
     sha256: 74702df5f599de1be31b6030bf4e80619a0aa5b7060be8f11130dd2c4cc78536
     gate: P2 单元 D 常驻长程验证（Q-L13-15：264 cycles ≥256 + 崩溃注入恢复 + 谱系链 cp64→cp128→cp192→cp256→final 无断 + 持久面
       5/5 + DAG 重建）
+    status_p2: SUPERSEDED_BY_SERVICE_ERA — 同名路径被服务化验证覆盖（取证路径冲突，如实登记）；单元 D 验证历史锚保留（git 历史 manifest v1.16）；现态见
+      resident-service-verify
   - name: resident-migration-audit
-    path: evidence/resident/checkpoint_migrations.jsonl
-    sha256: e78a53be7507632cf1b5e664118fc43d0ba1c23540321f922b16bd1572a7bd94
+    path: evidence/resident/service_migrations.jsonl
+    sha256: 6ac9fc0bd9e1e641cff8347b139c6fcce70ada7a83df3ee43c33c6aa5ffaa0b0
     gate: checkpoint 迁移审计（H1 移交项兑现——逐事件成链：checkpoint/restart_restore/crash_injected）
+    status_p2: APPEND_ONLY_EVOLVED — 审计为 append-only 活文件，服务化时代续写（v1.16 快照 = s1/s2 前缀；历史 digest 见 git 历史
+      manifest v1.16）
   - name: role-swap-battery-report
     path: evidence/role_swap_battery/report.json
     sha256: 9c402d4ac47a4ff826c42c823a64ac494a3500c3c97552a5cc7e459d7f54c897
@@ -226,3 +228,12 @@ artifact_manifest:
     path: evidence/resident/fusion_migrations.jsonl
     sha256: 8de6edbbc4a2e91db135efea18dfd5041bab02c852f04dcd4a2f4f73105a9333
     gate: 融合常驻迁移审计（z2–z6 五会话：fresh 根 + resume 链 + 崩溃注入/恢复逐事件成文）
+  - name: resident-service-verify
+    path: evidence/resident/resident_service_verify.json
+    sha256: f3fcce165841fe2634d4956f1aa6e131cfa251c0673f79ca8322f8f04cf196a1
+    gate: P2 产品化验证（Q-L13-16：systemd 三服务 enable 自启 + ≥448 samples 活网融合流 + SIGKILL 注入→自动重启 restart_restore
+      从 cp512 恢复 lineage 14 挂接——五判据全过）
+  - name: resident-service-audit
+    path: evidence/resident/service_migrations.jsonl
+    sha256: 6ac9fc0bd9e1e641cff8347b139c6fcce70ada7a83df3ee43c33c6aa5ffaa0b0
+    gate: 服务化迁移审计（s1/s2 历史链 + systemd 会话接续：cp320/384/448/512 连续 + restart_restore）

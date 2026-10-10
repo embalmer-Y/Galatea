@@ -162,9 +162,10 @@ def supply_chain_audit(root: Path) -> dict[str, Any]:
     for entry in manifest["artifact_manifest"]["artifacts"]:
         total += 1
         p = root / entry["path"]
+        status = entry.get("status_inc13", "") + entry.get("status_p2", "")
         if not p.is_file():
-            if entry.get("status_inc13", "").startswith("LOST"):
-                lost.append(entry["name"])
+            if status.startswith(("LOST", "SUPERSEDED")):
+                lost.append(entry["name"])       # 历史锚保留可溯（INC-13 惯例 + P2 服务化演进）
                 continue
             failed.append(f"missing:{entry['name']}")
             continue
