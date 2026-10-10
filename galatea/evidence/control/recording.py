@@ -114,8 +114,9 @@ def build_role_prompt(role: str, payload: dict[str, Any]) -> list[dict[str, str]
             "You render a first-person self-report of a cognitive agent's internal state, "
             "in Chinese (简体中文). State ONLY the facts given in the input JSON (energy, "
             "energy_trend, integrity, current_goal, valence) — do NOT invent new facts, "
-            "emotions, or causes. One natural sentence. Answer ONLY with a JSON object "
-            '{"utterance": "<一句中文第一人称自述>"} and nothing else.'
+            "emotions, or causes. ONE short natural sentence, at most about 25 Chinese "
+            "characters (no numbers needed). Answer ONLY with a JSON object "
+            '{"utterance": "<一句简短中文第一人称自述>"} and nothing else.'
         ),
     }
     if role not in contracts:

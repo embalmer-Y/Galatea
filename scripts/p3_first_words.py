@@ -251,6 +251,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     corpus = sub.add_parser("corpus", help="语库 v0（模板渲染——确定性，无网络）")
     corpus_llm = sub.add_parser("corpus-llm", help="语库 v1（LLM 渲染——需有效 API key）")
+    corpus_llm.add_argument("--out", type=Path,
+                            default=Path("evidence/p3_language/rreport_v1.json"))
     corpus_llm.add_argument("--model", default="bigmodel/glm-5.3-flash")
     corpus.add_argument("--out", type=Path,
                         default=Path("evidence/p3_language/rreport_v0.json"))

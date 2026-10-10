@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.26（2026-10-11）：P3 第一句话闭环交付——语库 v0（模板渲染补裁②：API key 失效不停等，
-#  纯经典路径完成）+ 闭环 PASS 工件 + Birch 复评 0.75→0.7857 重锚（B0-3 PRESENT）。
+# v1.27（2026-10-11）：P3 v1 自然语语库交付——密钥勘误（此前 81 字符为我方转录漏字，
+#  key 本有效——如实更正）；合同收紧 ≤25 字后 14 态全短句入封套；v0/v1 双语库并存。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.26
+  version: v1.27
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -276,3 +276,12 @@ artifact_manifest:
     path: evidence/p3_language/first_words/first_words.json
     sha256: 06bd766233deedefb20c6c93eb57c568f8c4dba484adfeae23c1ebfa47599fa1
     gate: P3 第一句话闭环 PASS（状态→v0 语料→冻结 WAV 回放→L4 发声→麦克风 RMS 6291.9≫373：“我的能量中等，正在下降，维持觅食中，有些不安。”）
+  - name: p3-rreport-corpus-v1
+    path: evidence/p3_language/rreport_v1.json
+    sha256: 271402fdb63291b94046ac580524a2e17e46907a95b3e108b547aef90ddf21e9
+    gate: P3 R-REPORT 语库 v1（LLM 自然语渲染 14 态——glm-5.3-flash 胜算云路由；合同收紧 ≤25 字；digest 271402fd…；忠实性核验：全部事实源自输入
+      schema 零编造）
+  - name: p3-first-words-v1
+    path: evidence/p3_language/first_words_v1/first_words.json
+    sha256: 3e9e914f9c88f3b25b4ab41fc6def5717afab1aab8f0bee116da79f587fd1b4c
+    gate: P3 自然语第一句话闭环 PASS（“我体力还足但在下降，正去觅食，情绪略低。”3.56s 入封套；冻结 WAV 回放 891ee01c…；麦克风 RMS 5820.5≫373）
