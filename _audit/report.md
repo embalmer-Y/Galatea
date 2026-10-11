@@ -1,6 +1,6 @@
 # 文档机器校验报告（只读）
 
-根目录：`D:\Software\project\Galatea\design`
+根目录：`/home/emb/project/galatea/design`
 
 扫描 `.md` 文件数：**24**
 
@@ -57,8 +57,8 @@
 
 ## 4. 术语漂移
 
-- 含 `Helios` 的文件（应仅作曾用名注记）：[('archive/README.md', 2), ('HLD.md', 4), ('open_questions.md', 1), ('README.md', 1)]
-- 独立 `HIO` 令牌计数：14（{'archive/card_02.md': 1, 'archive/card_03.md': 1, 'archive/card_04.md': 1, 'archive/card_06.md': 1, 'archive/README.md': 1, 'HLD.md': 5, 'open_questions.md': 2, 'README.md': 2}）
+- 含 `Helios` 的文件（应仅作曾用名注记）：[('HLD.md', 4), ('README.md', 1), ('archive/README.md', 2), ('open_questions.md', 1)]
+- 独立 `HIO` 令牌计数：14（{'HLD.md': 5, 'README.md': 2, 'archive/README.md': 1, 'archive/card_02.md': 1, 'archive/card_03.md': 1, 'archive/card_04.md': 1, 'archive/card_06.md': 1, 'open_questions.md': 2}）
 - OK：全部位于曾用名/更名注记语境
 - 旧六层叙事残留（`S5`/`S6`/`S1–S6`；已排除缺陷等级 S0–S4 与切片 MW0-SCx）：[('HLD.md', 2), ('lld/L01_environment_channels.md', 2), ('open_questions.md', 1)]
 - “8 层金字塔”残留：无
@@ -69,7 +69,7 @@
 - `lld/L01_environment_channels.md`: 210 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
 - `lld/L02_sensorium.md`: 235 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 210 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
-- `lld/L04_world_body_self.md`: 236 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
+- `lld/L04_world_body_self.md`: 267 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 244 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
 - `lld/L06_memory.md`: 234 行 · 标题「# L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制」 · OK
 - `lld/L07_workspace.md`: 225 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK

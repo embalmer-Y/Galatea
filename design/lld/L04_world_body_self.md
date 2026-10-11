@@ -1,6 +1,6 @@
 # L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差
 
-> LLD: L04/14 · v1.0.2 · 2026-10-05（v1.0.2：REV-0013 R3 同步——§4.3 C1 确定性裁剪无 RNG/§4.4 判据 2 egocentric 化（Q-L04-08）/§10 文件名勘误；§4.3 内联标记转 CONFIRMED）· v1.0.1 2026-10-04（§11 C1 阻断四项转 CONFIRMED——成批裁决；egocentric+dead-reckoning 范围发现见 ADR-G-0013）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
+> LLD: L04/14 · v1.0.3 · 2026-10-11（§10 增补 P4-α 预测脑脑核面文件级清单——galatea/subject/brain/ 七件 + 测试六件 + p4profile loader；Q-L04-12/Q-L13-20 裁决与 ADR-G-0030 §5 范围承载）· v1.0.2 2026-10-05（REV-0013 R3 同步——§4.3 C1 确定性裁剪无 RNG/§4.4 判据 2 egocentric 化（Q-L04-08）/§10 文件名勘误；§4.3 内联标记转 CONFIRMED）· v1.0.1 2026-10-04（§11 C1 阻断四项转 CONFIRMED——成批裁决；egocentric+dead-reckoning 范围发现见 ADR-G-0013）· v1.0 2026-09-13 · 状态：WORKING（C1 冻结前）
 > 上游：`HLD.md` §4/§5/§6 · `L02_sensorium.md`（内感受/本体感受帧）· `L03_perception.md`（PerceptualBelief）· `L00_kernel.md`
 > 下游消费者：L05（appraisal）、L07（workspace 候选）、L08（可行性）、L09（model-based 控制器/主动感知）、L10（forward model）、L11（学习提案）
 > 引入门槛：**C1**（世界/身体/自我模型、rollout、主动感知、OOD）→ **C4**（forward/inverse、EfferenceCopy 关联）→ **C5**（模型更新经 promotion）
@@ -220,6 +220,37 @@ galatea/subject/models/tests/
   【交付】上列九件全量（stack_bit_exact = 全栈双跑 digest 恒等集成面）
 config/profiles/
   c1_perception_models.profile.yaml   【已冻结·typed loader 已交付 = galatea/subject/c1profile.py（补录件：INC-11 纪律；先验/似然原料自 m0 冻结初始条件派生 Q-L04-11）】 v1.0】rollout 深度/宽度、信念更新率、自我误差权重等（Q-L03/L04 批裁决；REV-0013 R6 勘误文件名）
+  p4_alpha_brain.profile.yaml         【已冻结 v1.0·typed loader = galatea/subject/p4profile.py】P4-α 脑核参数（Q-L04-12/Q-L13-20/Q-G00-15；ADR-G-0030）
+
+galatea/subject/brain/                      # P4-α 预测脑脑核面（HLD §15.1 世界/自我模型行；
+                                            # Q-L04-12①/Q-L13-20②；ADR-G-0030 §5 范围）——strict 类型
+  __init__.py            【交付】包导出面（NeuralModule/RSSMWorldModel/TrainingSessionRecord）
+  ports.py               【交付】BrainParams typed 视图 + TrainingSessionRecord
+                         （Q-L13-20① 录制格式 v1 物化）+ WeightDigest 谱系类型
+  module.py              【交付】NeuralModule 基类（Q-T02①：state_dict + digest +
+                         parent_digest 谱系；构造期确定性配置强制——单线程/deterministic/
+                         float32；禁自持 RNG/时钟，种子经 Generator 显式注入 Q-T11 推广）
+  world_model.py         【交付】RSSM 式潜状态世界模型（Q-L04-12①：确定性 recurrent h
+                         + 随机潜变量 z——采样自由 ELBO 操作化（闭式 KL + 后验均值重构，
+                         训练确定性由构造成立 Q-L13-20④ 全批量）；输入 = 主体平面形成帧
+                         唯一（input_plane Q-L04-12④）；param_budget 断言 [1e4,1e6]）
+  amortized.py           【交付】摊销推断入口（观测史→潜后验单次前向——摊销定义；
+                         迭代精化 = P4-β 草稿板面）
+  error_stream.py        【交付】统一误差流（L02 flatten_frame 特征空间唯一复用
+                         Q-L02-06——禁评价侧自造特征工程；模态标签保持，层级化纪律
+                         Q-L09-08 不跨层合并）
+  weights.py             【交付】权重工件面（state_dict 规范化序列化 → kernel registry
+                         内容寻址 + digest 谱系；篡改检出）
+  recorder.py            【交付】训练会话录制器（Q-L13-20①：录制/重放末权重逐位恒等 +
+                         损失曲线锚；record/replay subject 面自足）
+galatea/subject/brain/tests/
+  test_module_lineage.py test_world_model_determinism.py test_amortized_inference.py
+  test_error_stream.py test_weights_artifact.py test_recorder_replay.py
+  【交付】上列六件全量（lineage 谱系/双跑 bit-exact/重放恒等/篡改检出/预算断言/
+  禁全局 RNG 扫描）
+galatea/evidence/control/probe_report.py   【交付】探针报告生成器（REV-0027 R5"并入
+  P4-α 实现 runner"落位证据面——需 env 真实流，W/O 隔离守卫禁主体平面 import env；
+  record/replay 面在 subject/brain/recorder.py，流采集 + 报告产出在此）
 ```
 
 ## 11. 未决问题（→ open_questions.md）
