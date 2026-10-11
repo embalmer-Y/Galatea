@@ -74,7 +74,8 @@ Galatea/
 # 依赖：uv 0.13+（自动管理 Python 3.12.13 钉版）
 git clone git@github.com:embalmer-Y/Galatea.git
 cd Galatea
-uv sync                      # venv 重建 = uv sync（uv.lock 全包哈希覆盖，require-hashes）
+uv sync --extra tessera      # venv 重建（uv.lock 全包哈希覆盖，require-hashes）；
+                             # tessera extra = zenoh/CBOR 部署面——缺它 pytest 收集即报错（环境缺陷显式暴露）
 uv run pytest --tb=no -q     # 期望：757 passed（evidence/ 缺失时相关 SKIP 为正常）
 uv run python _audit/check_docs.py   # 文档/归档一致性核验（0 FAIL）
 uv run lint-imports          # 架构分层契约（4 契约 KEPT）

@@ -4,7 +4,7 @@
 artifact_manifest:
   id: evidence_artifact_manifest
   version: v1.29
-  frozen_at: '2026-10-10'
+  frozen_at: '2026-10-11'
   authority: AI-v2
   artifacts:
   - name: R-m1-sc3-001
