@@ -352,3 +352,5 @@ config/evidence/
 | Q-L13-14 | evidence 异地备份义务（INC-13 证实单一副本风险；ADR-G-0024 建议 P1 前补裁决） | P1 起 | CONFIRMED（AI-v2 2026-10-10：门退出后 evidence 全量 tar+sha256 推送主机异地副本 + manifest 锚；恢复演练 = 还原临时目录逐件 digest 一致（实现期首执行）；check_docs 义务缺失 = FAIL；见 A 区） |
 | Q-L13-15 | P2 常驻运行面判据 + checkpoint 迁移审计（H1 移交兑现） | P2 | CONFIRMED（AI-v2 2026-10-10：常驻 runner + ≥256 cycles + fault 注入重启恢复谱系链延续 + 迁移审计 jsonl + require-hashes/--frozen 部署强化，见 A 区） |
 | Q-L13-18 | Birch 标记评分器（哲学评估线；owner 2026-10-11 指令） | P2+ | CONFIRMED（AI-v2 2026-10-11：研究仪表非门判据；15 标记册冻结 + INC-08 探针纪律 + 可行性判读机械化——首评 0.75 / VIABLE_SO_FAR_WITH_FORWARD_RISKS / 无 classical_ceiling 阻断，见 A 区） |
+| Q-L13-19 | 脑功能完备性评估体系（BFI+GCTB 五层；owner 2026-10-11 指令） | P4 起 | CONFIRMED（AI-v2 2026-10-11：BFI v0.1 DRAFT 结构冻结 + GCTB 12 任务存在性证明逻辑 + 四维剖面；判据数值随 P4-α 统计计划冻结，见 A 区） |
+| Q-L13-20 | 训练会话录制与权重工件纪律（NeuralModule 激活细则） | P4-α | CONFIRMED（AI-v2 2026-10-11：录制重放末权重逐位恒等 + 权重=registry 工件 digest 锚 + 部署双跑 bit-exact 机械判据，见 A 区） |

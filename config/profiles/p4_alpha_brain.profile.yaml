@@ -1,0 +1,65 @@
+# Galatea P4-α 冻结规格 — 预测脑 v2 脑核（神经世界模型 + 摊销推断 + 统一误差流）
+# 效力：P4-α 门冻结合同（拟 ADR-G-0030 · tag p4-alpha-freeze）。
+# 纪律：全部数值溯源本批裁决（Q-L04-12 / Q-L13-20 / Q-G00-15，AI-v2 2026-10-11）
+# + 探针实测（硬机制第七次执行——tests/evidence/test_p4_alpha_probe.py 永久回归，
+# 证据 evidence/p4_alpha_probe/probe_report.json）+ 既有冻结常数（Q-L01-01 窗 / Q-L00-01 T6）。
+# 宪法语境（ADR-G-0029 §2）：给定权重的确定性——训练可复算（录制重放逐位恒等），
+# 部署推理 bit-exact；学习参数 = 工件（digest 锚）；表格模型并存为回退层/对照基线。
+profile:
+  id: p4_alpha_brain
+  version: v1.0
+  frozen_at: "2026-10-11"
+  authority: AI-v2
+  spec_ref: design/HLD.md  # §15 预测脑 v2
+  ruling_refs: [Q-G00-14, Q-G00-15, Q-L04-12, Q-L13-20, Q-L13-19, Q-T02]
+
+determinism:                                  # Q-L13-20③（探针层A 配置即生产配置）
+  torch_version: "2.14.1+cpu"                 # 探针实测；升级 = 新 Q（uv.lock 哈希锁定）
+  num_threads: 1                              # 探针实测（位等价前提；多线程 = 经新 Q 证位等价）
+  use_deterministic_algorithms: true          # Q-T02③ 激活
+  default_dtype: float32                      # Q-T10 模型面 float32
+  global_rng_forbidden: true                  # 种子经 Generator 显式注入（Q-T11 训练面推广）
+  inference_double_run: bit-exact             # 部署机械判据（Q-L13-20③）
+
+probe_anchors:                                # Q-G00-15②（证据 evidence/p4_alpha_probe/）
+  master_seed_hex: "70342d616c7068612d70726f6265"   # b"p4-alpha-probe".hex()（Q-L13-12 同族任意先钉）
+  init_seed: 20261011
+  probe_stream_digest: "7d8aa887cad84371b52a66fa204089579a638a3a8bfaa8bef6438c0444934b61"
+  probe_report: evidence/p4_alpha_probe/probe_report.json
+  probe_regression_test: tests/evidence/test_p4_alpha_probe.py
+
+world_model:                                  # Q-L04-12（P4-α 范围）
+  architecture_family: rssm_style             # 确定性 recurrent + 随机潜变量（小尺度 CPU 级）
+  param_budget: [10000, 1000000]              # 10^4–10^6（CPU 单线程实时预算；实现期实测复核）
+  latent_dim: 32                              # 探针延续（2 的幂，Q-G00-08 定值原则族）
+  deterministic_state_dim: 64                 # 2 的幂
+  training_domains:                           # Q-L04-12② 双源
+    - id: mw0_frozen_profile_stream
+      profile_ref: config/profiles/m0_mw0.profile.yaml
+      master_seed_hex: "70342d616c7068612d70726f6265"
+    - id: p1_sealed_telemetry_corpus
+      corpus_ref: evidence/p1_physio/         # sealed 语料（digest 锚 manifest v1.11+）
+  transfer_semantics: Q-L04-09                # 持续性 + 事件条件更新；禁信念内模拟隐藏真值
+  input_plane: subject_formed_frames_only     # P14：主体平面形成帧，零真值直通
+  table_baseline: coexist                     # Q-L04-12③：表格贝叶斯 = 回退层 + 对照基线不拆除
+  table_baseline_ref: config/profiles/c1_perception_models.profile.yaml
+
+training:                                     # Q-L13-20①②（学习会话录制纪律）
+  session_record_schema: training_session.v1
+  record_fields: [master_seed, init_seed, data_digest, weights_digest_before,
+                  weights_digest_after, loss_first, loss_last, optimizer, lr, epochs]
+  replay_criterion: weights_after_bit-exact   # 录制重放末权重逐位恒等（探针已证）
+  optimizer: adam                             # 探针实测收敛（lr=0.01/600ep held-out 比 0.0083）
+  lr: 0.01                                    # 探针实测
+  epochs: 600
+  full_batch_preferred: true                  # 无 minibatch 采样 RNG；minibatch 必须经 L00 流
+  weights_as_artifacts: true                  # state_dict 入 kernel registry 内容寻址 + manifest 锚
+  neural_module_interface: Q-T02①             # state_dict + digest + parent_digest 谱系
+
+evaluation:                                   # 判据锚（数值随 P4-α 统计计划冻结——运行前）
+  stat_plan: config/evidence/stat_plans/      # p4_alpha 计划随评价单元冻结（占位指向目录）
+  heldout_margin_vs_persistence: 0.1          # 判据阈：model MSE < persist × 0.1（实测 0.0083，12× 余量）
+  protocol: sealed_record_replay              # 记录-重放（Q-L12-03/Q-L13-13 推广）
+  criteria_ref: Q-L13-19                      # BFI world_model 子集 + prediction_scales
+  ablation_selectivity: required              # 消融偏移可检出（探针同式）
+  no_postponement: effective_immediately      # 顺延终止条款（ADR-G-0009；C1 起持续有效）

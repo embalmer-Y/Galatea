@@ -7,9 +7,11 @@ description = "Galatea：单一认知个体——一切'具备'以可干预、�
 requires-python = "==3.12.13"
 dependencies = [
     "duckdb>=1.0",
+    "numpy>=2.0",
     "polars>=1.0",
     "pydantic>=2.13.5",
     "pyyaml>=6.0.3",
+    "torch>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -62,3 +64,11 @@ forbidden_modules = ["galatea.subject.action", "galatea.subject.goals", "galatea
 name = "kernel 横切基础独立于一切上层"
 type = "independence"
 modules = ["galatea.kernel"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

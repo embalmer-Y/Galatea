@@ -233,3 +233,4 @@ config/profiles/
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度（与 L03-06 affordance 枚举、L10 能力契约对齐） | C3/C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照） | M2 | CONFIRMED（AI-v2 2026-09-26：主判据=谱系断裂；延续主张 gap=0、分支主张允许，见 A 区） |
 | Q-L04-07 | C1+ 神经世界模型替换表格模型时的等价性/泄漏验证方法（与 Q-L03-07 同源） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
+| Q-L04-12 | P4-α 神经世界模型范围（RSSM 式小尺度/双域训练/表格并存 held-out 配对判据） | P4-α | CONFIRMED（AI-v2 2026-10-11，见 A 区） |

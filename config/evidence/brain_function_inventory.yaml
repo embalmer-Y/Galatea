@@ -1,15 +1,16 @@
-# BFI 脑功能清单 + 脑功能完备性评估体系骨架（Q-L13-19 / ADR-G-0029 §5）
-# v0.1 DRAFT —— 结构骨架先于结果冻结；全部判据数值随 P4-α 统计计划冻结后定稿（本版零数值）。
+# BFI 脑功能清单 + 脑功能完备性评估体系（Q-L13-19 / ADR-G-0029 §5）
+# v1.0 定稿——结构 + 首评冻结；各任务判据数值随 P4-α 统计计划冻结（运行前）。
 # 认识论立场：完备不可由有限任务集证明；可认证 = 覆盖率 + 分离证据 + 整合证据 + 发育证据（四维剖面）。
 # 功能/现象两轴分离：birch_markers.yaml（现象层）独立，不并入功能分。
 meta:
   id: brain_function_inventory
-  version: v0.1
-  status: DRAFT
-  frozen_at: null
-  freeze_target: P4-α 门冻结（判据数值随统计计划冻结；状态首评自既有证据映射）
+  version: v1.0
+  status: FROZEN
+  frozen_at: "2026-10-11"
+  authority: AI-v2
   authority_ref: ADR-G-0029
   register_ref: Q-L13-19
+  criteria_numeric_status: pending_p4_alpha_stat_plan   # 判据数值随统计计划冻结；本版为结构+首评
   phenomenal_layer_separate: birch_markers.yaml
 status_vocabulary:
 - NOT_ASSESSED
@@ -17,8 +18,12 @@ status_vocabulary:
 - PARTIAL
 - PRESENT
 - UNDETERMINABLE
+first_assessment:
+  method: 首评 = 既有门证据逐项映射（判据引用为门退出 EvidenceResult/裁决号；数值判据未冻）
+  counts: {PRESENT: 32, PARTIAL: 17, ABSENT: 11, total: 60}
+  note: ABSENT 集中于反事实/泛化/对象抽象/思维迭代/内言语——与预测脑 v2 立项诊断一致（ADR-G-0029 §1）
 completeness_logic:
-  existence_proof: 带该功能通过存在性任务 ∧ 全部去该功能基线失败（基线耗尽机械承载存在性证明）
+  existence_proof: 带该功能通过存在性任务 ∧ 全部去该功能基线失败（基线耗尽机械化）
   double_dissociation_preferred: 相邻功能对经双病灶双任务交叉（金标准；E1 电池推广）
   no_dead_organs: 每模块消融致至少一项功能退化（无冗余器官）
   no_orphan_functions: 每个 PRESENT 功能有通过的存在性任务 + 选择性病灶面（无无证据主张）
@@ -28,101 +33,161 @@ systems:
 - id: sensory
   name: 感觉系统
   functions:
-  - {id: channel_encoding, name: 通道编码与忠实变换, status: NOT_ASSESSED}
-  - {id: prediction_error_signaling, name: 感觉预测误差信号（预测编码层）, status: NOT_ASSESSED}
-  - {id: precision_attention_weighting, name: 精度/注意加权（增益面）, status: NOT_ASSESSED}
-  - {id: calibration, name: 校准与漂移防护, status: NOT_ASSESSED}
-  - {id: ood_detection, name: 域外/新奇检出（abstain 面）, status: NOT_ASSESSED}
+  - {id: channel_encoding, name: 通道编码与忠实变换, status: PRESENT,
+     evidence_ref: C0 形成面 FormationReceipt digest 双绑定 + P1/P2 物理通道（Q-L01-10/Q-L01-11；R-p1-physio-001 fidelity SUPPORTED）}
+  - {id: prediction_error_signaling, name: 感觉预测误差信号（预测编码层）, status: PARTIAL,
+     evidence_ref: L02 pred_error 结构在位（Q-L02-06 formed_features_flat）——手工残差，学习预测编码层 = P4-α/β}
+  - {id: precision_attention_weighting, name: 精度/注意加权（增益面）, status: PRESENT,
+     evidence_ref: R-c2-modulation-001 SUPPORTED gain d=55.09（三通道调制闭环）}
+  - {id: calibration, name: 校准与漂移防护, status: PRESENT,
+     evidence_ref: c0-static-v1 单版本冻结 + 漂移计数（Q-L02-01）+ P1 v1.1 运行前修订先例}
+  - {id: ood_detection, name: 域外/新奇检出, status: PARTIAL,
+     evidence_ref: L03 OOD 事件级域出 + typed unknown（C1）；感觉层自身 OOD 深化 = P4 件}
 - id: perception_inference
   name: 知觉推断
   functions:
-  - {id: iterative_inference, name: 迭代潜状态推断（多轮修正）, status: NOT_ASSESSED}
-  - {id: posterior_quality, name: 后验质量与校准（ECE 族）, status: NOT_ASSESSED}
-  - {id: multimodal_fusion, name: 多模态融合与冲突处理, status: NOT_ASSESSED}
-  - {id: ambiguity_handling, name: 歧义保持（多假设）与塌缩, status: NOT_ASSESSED}
-  - {id: hallucination_resistance, name: 抗幻觉（不确定即弃权）, status: NOT_ASSESSED}
+  - {id: iterative_inference, name: 迭代潜状态推断（多轮修正）, status: PARTIAL,
+     evidence_ref: 单遍表格后验 + 多假设塌缩/重开（Q-L03-05）；摊销迭代推断 = P4-α}
+  - {id: posterior_quality, name: 后验质量与校准（ECE 族）, status: PRESENT,
+     evidence_ref: R-c1-tracking-001 SUPPORTED ECE=0.0 端点零错误 15 箱（Q-L03-04）}
+  - {id: multimodal_fusion, name: 多模态融合与冲突处理, status: PRESENT,
+     evidence_ref: C1 事件双模态融合 + CONFLICTING_EVIDENCE 类型化（L03 §10）}
+  - {id: ambiguity_handling, name: 歧义保持（多假设）与塌缩, status: PRESENT,
+     evidence_ref: 上限 4 + 双条件塌缩/重开（Q-L03-05/Q-L04-02）}
+  - {id: hallucination_resistance, name: 抗幻觉（不确定即弃权）, status: PRESENT,
+     evidence_ref: 整窗 abstain + OOD 事件级域出 + AbstainEvent 一等输出（C1）}
 - id: world_model
   name: 世界模型
   functions:
-  - {id: one_step_prediction, name: 单步预测, status: NOT_ASSESSED}
-  - {id: multi_step_rollout, name: 多步想象推演, status: NOT_ASSESSED}
-  - {id: counterfactual_query, name: 反事实查询（查表不可答类）, status: NOT_ASSESSED}
-  - {id: interventional_prediction, name: 干预预测（do 算子与观察分离）, status: NOT_ASSESSED}
-  - {id: regime_detection, name: regime/慢态识别, status: NOT_ASSESSED}
-  - {id: object_abstraction, name: 对象/处所抽象自形成, status: NOT_ASSESSED}
-  - {id: generalization, name: 未见构型泛化（迁移梯度）, status: NOT_ASSESSED}
+  - {id: one_step_prediction, name: 单步预测, status: PRESENT,
+     evidence_ref: R-c1-worldpred-002 SUPPORTED（值空间预测优于持续基线）}
+  - {id: multi_step_rollout, name: 多步想象推演, status: PARTIAL,
+     evidence_ref: ≤8 步×4 分支确定性 rollout（Q-L04-01）——视野封顶，价值摘要 Unknown；潜空间无界推演 = P4-α/β}
+  - {id: counterfactual_query, name: 反事实查询, status: ABSENT,
+     evidence_ref: 表格原理上不可答（Birch 前瞻风险册同源）；生成模型查询 = P4}
+  - {id: interventional_prediction, name: 干预预测（do/see 分离）, status: ABSENT,
+     evidence_ref: 干预电池在评价侧（M0）；主体侧 do/see 分离预测未实现}
+  - {id: regime_detection, name: regime/慢态识别, status: ABSENT,
+     evidence_ref: 先验 = 冻结常量（Q-L04-11）；regime 感知 C2+ 留（Q-L04-11 重开条款）}
+  - {id: object_abstraction, name: 对象/处所抽象自形成, status: ABSENT,
+     evidence_ref: 无对象槽位机制；slot attention = P4-α/δ 选型（ADR-G-0029 §3）}
+  - {id: generalization, name: 未见构型泛化（迁移梯度）, status: ABSENT,
+     evidence_ref: 表格无泛化（Birch classical_ceiling 同源 ~10^4 规模天花板）——神经升级核心承诺}
 - id: self_model
   name: 自我模型
   functions:
-  - {id: body_ownership, name: 身体归属（生成性 self-factor）, status: NOT_ASSESSED}
-  - {id: efference_attribution, name: efference 归因（自我识别）, status: NOT_ASSESSED}
-  - {id: capability_knowledge, name: 能力知识（能/不能边界）, status: NOT_ASSESSED}
-  - {id: continuity_tracking, name: 连续性追踪（谱系/快照）, status: NOT_ASSESSED}
-  - {id: self_error_monitoring, name: 自我误差监测（双时间尺度）, status: NOT_ASSESSED}
+  - {id: body_ownership, name: 身体归属（生成性 self-factor）, status: PRESENT,
+     evidence_ref: R-c1-body-003 SUPPORTED 三判据（L04 body + ownership）}
+  - {id: efference_attribution, name: efference 归因（自我识别）, status: PRESENT,
+     evidence_ref: C4 八格查表 + 配对 d 饱和 + P2 物理闭环 SELF_CONSISTENT（ratio 89,785×）}
+  - {id: capability_knowledge, name: 能力知识（能/不能边界）, status: PRESENT,
+     evidence_ref: 静态合同能力集 + CapabilityEstimate + affordance（Q-L08-09①/Q-L03-06+Q-L04-05）}
+  - {id: continuity_tracking, name: 连续性追踪（谱系/快照）, status: PRESENT,
+     evidence_ref: R-m2-carryover-001 SUPPORTED + SC6 + 状态快照 state_restored=True（Q-L13-17）}
+  - {id: self_error_monitoring, name: 自我误差监测（双时间尺度）, status: PRESENT,
+     evidence_ref: 快 τ=4/慢 τ=64 EWMA（Q-L04-04；C1 探针同式逐位）}
 - id: affect
   name: 情感系统
   functions:
-  - {id: interoceptive_error_reading, name: 内感受误差读数（valence 符号量）, status: NOT_ASSESSED}
-  - {id: arousal_precision, name: 唤醒/精度水平, status: NOT_ASSESSED}
-  - {id: affect_cognition_modulation, name: 情感→认知调制（三通道）, status: NOT_ASSESSED}
-  - {id: affect_dynamics, name: 动力学（积分/迟滞/衰减/饱和/恢复）, status: NOT_ASSESSED}
-  - {id: anti_collapse, name: 反塌缩（多维不折叠）, status: NOT_ASSESSED}
+  - {id: interoceptive_error_reading, name: 内感受误差读数（valence 符号量）, status: PRESENT,
+     evidence_ref: R-c2-affect-001 SUPPORTED dynamics（valence = 有界误差变化率——v2 理论同源）}
+  - {id: arousal_precision, name: 唤醒/精度水平耦合, status: PARTIAL,
+     evidence_ref: arousal 维动力学 SUPPORTED（diff 0.263 anchor=0）；与不确定性的精度语义耦合 = P4}
+  - {id: affect_cognition_modulation, name: 情感→认知调制（三通道）, status: PRESENT,
+     evidence_ref: R-c2-modulation-001 SUPPORTED（gain/salience 行为面 + threshold 机械面）}
+  - {id: affect_dynamics, name: 动力学（积分/迟滞/衰减/饱和/恢复/重评价）, status: PRESENT,
+     evidence_ref: ADR-G-0015 探针六机制逐位（t63=4/迟滞 0.1/衰减 0.35607413…）+ 伦理守卫构造性零误触发}
+  - {id: anti_collapse, name: 反塌缩（多维不折叠）, status: PRESENT,
+     evidence_ref: R-c2-collapse-002 SUPPORTED mean R²=0.324<<0.9（Q-L05-07）}
 - id: memory
   name: 记忆系统
   functions:
-  - {id: encoding, name: 编码（被动义务）, status: NOT_ASSESSED}
-  - {id: content_addressed_retrieval, name: 内容寻址检索, status: NOT_ASSESSED}
-  - {id: consolidation, name: 巩固（合并/生成式重放）, status: NOT_ASSESSED}
-  - {id: generative_replay_gain, name: 睡眠增益（重放后预测提升）, status: NOT_ASSESSED}
-  - {id: forgetting_control, name: 受控遗忘（tombstone）, status: NOT_ASSESSED}
-  - {id: source_memory, name: 来源记忆（哪通道/何时）, status: NOT_ASSESSED}
+  - {id: encoding, name: 编码（被动义务）, status: PRESENT,
+     evidence_ref: D-13 禁写 + T6 节拍编码（M2/C2；经历不可拒收）}
+  - {id: content_addressed_retrieval, name: 内容寻址检索, status: PRESENT,
+     evidence_ref: 确定性 top-k 五分量等权（Q-L06-02；M2 SC5/SC6 I1 依赖）}
+  - {id: consolidation, name: 巩固（合并/生成式重放）, status: PARTIAL,
+     evidence_ref: C5 类型级确定性合并（Laplace α=8 物化，Q-L06-04）；生成式重放 = P4（CLS 皮层面）}
+  - {id: generative_replay_gain, name: 睡眠增益（重放后预测提升）, status: ABSENT,
+     evidence_ref: 需生成式重放（P4-γ）；GCTB 判据随统计计划}
+  - {id: forgetting_control, name: 受控遗忘（tombstone）, status: PRESENT,
+     evidence_ref: forget τ 幂梯 + tombstone + 溢出降级 + PROTECTED 拒（C2；Q-L06-01/03/07）}
+  - {id: source_memory, name: 来源记忆（哪通道/何时）, status: PARTIAL,
+     evidence_ref: metamemory 2×2 计数接口在位（Q-L06-06）；混淆率 E1 首评待执行}
 - id: workspace_attention
   name: 工作空间与注意
   functions:
-  - {id: global_competition, name: 全局竞争（精度×新奇×目标相关）, status: NOT_ASSESSED}
-  - {id: broadcast, name: 广播（分离模块有效访问）, status: NOT_ASSESSED}
-  - {id: scratchpad_hypotheses, name: 假设槽草稿板（主张+出处+置信）, status: NOT_ASSESSED}
-  - {id: thought_iteration, name: 思维迭代（生成→评估→矛盾→修正）, status: NOT_ASSESSED}
-  - {id: latent_deliberation, name: 潜空间持续思维（先想后动差）, status: NOT_ASSESSED}
+  - {id: global_competition, name: 全局竞争（精度×新奇×目标相关）, status: PRESENT,
+     evidence_ref: R-c2-affect-001 salience d=1.65（K=4 五分量等权，Q-L07-01/02）}
+  - {id: broadcast, name: 广播（分离模块有效访问）, status: PRESENT,
+     evidence_ref: effective_access 判据机械面 + watch 预注册 + 事后拒（Q-L07-05/06；P13 实战）}
+  - {id: scratchpad_hypotheses, name: 假设槽草稿板（主张+出处+置信）, status: PARTIAL,
+     evidence_ref: 知觉假设槽在位（Q-L03-05）；跨模块草稿板（工作空间侧）未实现 = P4-β}
+  - {id: thought_iteration, name: 思维迭代（生成→评估→矛盾→修正）, status: ABSENT,
+     evidence_ref: 无迭代思维循环——"复杂思考"缺口本体（owner 诊断；P4-β 交付物）}
+  - {id: latent_deliberation, name: 潜空间持续思维（先想后动差）, status: ABSENT,
+     evidence_ref: 需潜空间推演载体（P4-β）；GCTB think_first_advantage 判据随统计计划}
 - id: motivation_action
   name: 动机与行动
   functions:
-  - {id: homeostatic_drive, name: 稳态驱力（实用价值）, status: NOT_ASSESSED}
-  - {id: epistemic_drive, name: 认识驱力（信息增益）, status: NOT_ASSESSED}
-  - {id: model_based_planning, name: 模型式规划（MPC/搜索）, status: NOT_ASSESSED}
-  - {id: goal_directed_habit_arbitration, name: 目标导向 vs 习惯仲裁, status: NOT_ASSESSED}
-  - {id: subgoal_decomposition, name: 子目标分解（分层）, status: NOT_ASSESSED}
-  - {id: action_authorization, name: 行动授权边界（gateway 面）, status: NOT_ASSESSED}
+  - {id: homeostatic_drive, name: 稳态驱力（实用价值）, status: PRESENT,
+     evidence_ref: R-c3-motivation-001 SUPPORTED（priority divergence 0.390 d=2.32）}
+  - {id: epistemic_drive, name: 认识驱力（信息增益）, status: PARTIAL,
+     evidence_ref: CURIOSITY 源 + active_perception 熵上界提案（C1/C3）；期望自由能统一 = P4-γ}
+  - {id: model_based_planning, name: 模型式规划, status: PARTIAL,
+     evidence_ref: Model-based 控制器 + 8 步 rollout（浅视野封顶）；潜空间 MPC = P4-γ}
+  - {id: goal_directed_habit_arbitration, name: 目标导向 vs 习惯仲裁, status: PARTIAL,
+     evidence_ref: Habit 控制器在位（Q-L09-02③）；结果贬值分离未测（GCTB outcome_devaluation）}
+  - {id: subgoal_decomposition, name: 子目标分解（分层）, status: ABSENT,
+     evidence_ref: 无目标树/options 机制（P4-γ；等效视野扩展）}
+  - {id: action_authorization, name: 行动授权边界（gateway 面）, status: PRESENT,
+     evidence_ref: gateway 八项校验 + L0–L5 状态机 + 四类授权台账（M0/P1 全链 + 角色交换电池全拒）}
 - id: learning
   name: 学习系统
   functions:
-  - {id: online_adaptation, name: 在线适应, status: NOT_ASSESSED}
-  - {id: protected_updates, name: 保护更新（有害更新可再纠正）, status: NOT_ASSESSED}
-  - {id: forgetting_resistance, name: 抗灾难性遗忘（权重空间保护）, status: NOT_ASSESSED}
-  - {id: second_order_correction, name: 二阶纠偏, status: NOT_ASSESSED}
-  - {id: skill_acquisition, name: 技能获得, status: NOT_ASSESSED}
+  - {id: online_adaptation, name: 在线适应, status: PRESENT,
+     evidence_ref: "C5 有界在线适应 [0.5,2.0]（Q-L09-05 单一调制界第四次贯穿）"}
+  - {id: protected_updates, name: 保护更新（有害更新可再纠正）, status: PRESENT,
+     evidence_ref: promotion/rollback/protection preflight + R-c5-continued-learning-001 SUPPORTED（d=2.031）}
+  - {id: forgetting_resistance, name: 抗灾难性遗忘（权重空间保护）, status: PARTIAL,
+     evidence_ref: 保护集确定性断言 1.0（Q-L11-08，表格参数面）；权重空间 EWC = P4（对象扩展）}
+  - {id: second_order_correction, name: 二阶纠偏, status: PRESENT,
+     evidence_ref: C5 second_order 机制（M2 Q-L11-05 义务兑现；E1 I2 复算闭合）}
+  - {id: skill_acquisition, name: 技能获得, status: ABSENT,
+     evidence_ref: 无 options/技能层（P4-γ 选型）}
 - id: language
   name: 语言系统
   functions:
-  - {id: comprehension, name: 理解（typed 解析）, status: NOT_ASSESSED}
-  - {id: faithful_production, name: 忠实产出（零编造）, status: NOT_ASSESSED}
-  - {id: inner_speech, name: 内言语（自述回流参与决策，消融差可测）, status: NOT_ASSESSED}
-  - {id: report_integrity, name: 报告完整性（内部态→表达）, status: NOT_ASSESSED}
+  - {id: comprehension, name: 理解（typed 解析）, status: PRESENT,
+     evidence_ref: C4 8 角色注册表 + R-PARSE 分型路由（request|instruction 同面）}
+  - {id: faithful_production, name: 忠实产出（零编造）, status: PRESENT,
+     evidence_ref: R-REPORT 忠实性 14/14 + ≤25 字合同 + UncitedClaimRejected（P3 v1 闭环）}
+  - {id: inner_speech, name: 内言语（自述回流参与决策）, status: ABSENT,
+     evidence_ref: 自述单向出边界（P3）；回流回路 = P4-δ 交付物（消融差判据）}
+  - {id: report_integrity, name: 报告完整性（内部态→表达）, status: PRESENT,
+     evidence_ref: Birch B0-3 PRESENT（册 v1.1）+ derivation_receipt 机械强制}
 - id: metacognition
   name: 元认知
   functions:
-  - {id: confidence_calibration, name: 置信校准（置信-准确相关）, status: NOT_ASSESSED}
-  - {id: opt_out_economy, name: 弃权经济学（不确定即弃权有利可图）, status: NOT_ASSESSED}
-  - {id: learning_awareness, name: 学习自觉（知道什么变了）, status: NOT_ASSESSED}
-  - {id: metacontrol_switching, name: 元控制切换（THINK/OBSERVE/ACT）, status: NOT_ASSESSED}
+  - {id: confidence_calibration, name: 置信校准（置信-准确相关）, status: PARTIAL,
+     evidence_ref: 知觉 ECE 校准（R-c1-tracking-001）；置信-准确相关测量 = GCTB post_decision_wagering 待评}
+  - {id: opt_out_economy, name: 弃权经济学（不确定即弃权有利）, status: PARTIAL,
+     evidence_ref: abstain 机制在位（C1）；经济学判据（GCTB opt_out_metacognition）待评}
+  - {id: learning_awareness, name: 学习自觉（知道什么变了）, status: PARTIAL,
+     evidence_ref: 提案台账 + derivation_receipt 字段级溯源（C1/C5）；显式学习报告面未实现}
+  - {id: metacontrol_switching, name: 元控制切换（THINK/OBSERVE/ACT）, status: PRESENT,
+     evidence_ref: R-c3-motivation-001 SUPPORTED switching observe d=3.85 + 滞回累计制（Q-L09-04）}
 - id: development
   name: 发展性
   functions:
-  - {id: growth_curve, name: 经验检查点生长曲线（阶段跃迁）, status: NOT_ASSESSED}
-  - {id: multi_session_continuity, name: 跨会话连续发展（谱系接续）, status: NOT_ASSESSED}
-  - {id: robustness_profile, name: 扰动网格稳健剖面（优雅退化）, status: NOT_ASSESSED}
+  - {id: growth_curve, name: 经验检查点生长曲线（阶段跃迁）, status: PARTIAL,
+     evidence_ref: 谱系链跨会话/跨崩溃在位（Q-L13-15）；任务锚定生长曲线 = GCTB experience_checkpoints 待评}
+  - {id: multi_session_continuity, name: 跨会话连续发展（谱系接续）, status: PRESENT,
+     evidence_ref: z2–z8 真网 + 主机 SIGKILL 自愈 state_restored=True（Q-L13-16/17；f4cfabb 服务级验证）}
+  - {id: robustness_profile, name: 扰动网格稳健剖面（优雅退化）, status: PARTIAL,
+     evidence_ref: H1 长程 256+ cycles + fault 注入（基建面）；认知扰动网格（噪声×通道损失×regime×OOD）待评}
 gctb:
-  description: Galatea 认知任务阶梯（存在性证明任务；范式小型化入 MW0/物理域；判据随 P4-α 冻结）
+  description: Galatea 认知任务阶梯（存在性证明任务；范式小型化入 MW0/物理域；判据数值随 P4-α 统计计划冻结）
   dissociation_logic: 带功能通过 ∧ 去功能基线（反应式/查表/持续预测/随机）全失败；双分离优先
   tasks:
   - {id: two_step_task, name: 两步任务, dissociation_target: model_based_planning vs 习惯式, paradigm_ref: Daw 谱系}

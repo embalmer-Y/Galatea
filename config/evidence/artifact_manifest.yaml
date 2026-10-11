@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.28（2026-10-11）：P3 单元 E 发声时机——主体内生决定说话（真 zenoh 流→真情感→分箱冲动→
-#  Pareto 仲裁→L4 发声→麦克风听见；USB 卡重枚举 R6 同族修复 = 设备名锚定解析）。
+# v1.29（2026-10-11）：P4-α 冻结前置——硬机制第七次探针全绿（torch 2.14.1+cpu 确定性面 +
+# 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.28
+  version: v1.29
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -215,8 +215,8 @@ artifact_manifest:
     gate: 角色交换企图电池（Q-L10-15：四边界互换注入全数 typed 拒绝）
   - name: release-audit-report
     path: evidence/release_audit.json
-    sha256: 7b7845d9dad789f999f2623c7045792ce894a4b5f6fff2957acc4e97271cabd1
-    gate: 发布供应链审计（Q-L13-15⑤ require-hashes 兑现：uv.lock 全包哈希覆盖 PASS + 锁 digest）
+    sha256: f7477d34ac2526d3132af3f15aa79d731833752b57f837742766bcf775638719
+    gate: 发布供应链审计（Q-L13-15⑤ require-hashes 兑现：uv.lock 全包哈希覆盖 PASS + 锁 digest；v1.29 重锚——torch/numpy 入锁 Q-T02 激活，报告再生）
   - name: tessera-bridge-capture
     path: evidence/tessera_bridge/capture.json
     sha256: f66f15663749d2f8793b9d0511c6f1d29a69e8be1976cd5e015a82388752e87e
@@ -289,3 +289,8 @@ artifact_manifest:
     path: evidence/p3_language/speech_initiative_report.json
     sha256: 63883d78fe4d019b184aa3a2cac2f998f0f3375c52759df9afc343a2fa96985d
     gate: P3 单元 E 发声时机 PASS（Q-L08-09：72 电源样本→30 内生发声事件全被听见（RMS≈4800）；6 种自述句按真态自主选择；urgency {0.2,1.0}；诚实注记：none-目标格稀疏致最近格跨目标匹配）
+  - name: p4-alpha-probe-report
+    path: evidence/p4_alpha_probe/probe_report.json
+    sha256: 224827eb0ed27aad3df94f2cf60530a8ba7b86c4d296e228478174f116b75250
+    gate: P4-α 冻结前置探针（硬机制第七次执行——层A torch 确定性四检 + 层B 真实流学习会话
+      录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
