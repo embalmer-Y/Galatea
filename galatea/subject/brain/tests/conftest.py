@@ -50,11 +50,11 @@ def event_frame(t: int, events: tuple[str, ...]) -> SensoryFrame:
     return make_frame(SensoryModality.EXT_EVENT, ExtEventFeatures(events=events), t)
 
 
-def intero_frame(t: int, energy: float = 0.8) -> SensoryFrame:
+def intero_frame(t: int, energy: float = 0.8, energy_rate: float = 0.0) -> SensoryFrame:
     return make_frame(SensoryModality.INTERO,
                       InteroSensations(energy_level=energy, integrity_level=1.0,
                                        damage_event=False, energy_depleted=False,
-                                       energy_rate=0.0), t)
+                                       energy_rate=energy_rate), t)
 
 
 def proprio_frame(t: int, orientation: str = "N") -> SensoryFrame:
@@ -62,6 +62,7 @@ def proprio_frame(t: int, orientation: str = "N") -> SensoryFrame:
 
 
 def base_frames(t: int, energy: float = 0.8, center: float = 0.5,
-                orientation: str = "N") -> list[SensoryFrame]:
+                orientation: str = "N", energy_rate: float = 0.0) -> list[SensoryFrame]:
     """基三模态帧组（window/intero/proprio——误差流必配）。"""
-    return [window_frame(t, center), intero_frame(t, energy), proprio_frame(t, orientation)]
+    return [window_frame(t, center), intero_frame(t, energy, energy_rate),
+            proprio_frame(t, orientation)]

@@ -1,0 +1,136 @@
+# Galatea P4-α 冻结统计计划 — 预测脑脑核（RSSM held-out 评价）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 模板：config/evidence/stat_plan_templates/claim_v1.yaml（Q-L13-01 十字段集）。
+# 种子派生纪律（Q-L13-12④）：master seed 与派生格式**内嵌本计划**。
+# 机械/确定性门承载 p=0.0/1.0（c4/c5 先例——Holm 族校正单调安全）。
+#
+# 判据操作化依据（运行前冻结；Q-L04-12⑤"阈值随统计计划冻结"）：
+# - profile p4_alpha_brain v1.0 冻结阈 heldout_margin_vs_persistence = 0.1 源自探针
+#   单种子（b"p4-alpha-probe"）实测比 0.0083 的 12× 余量。成批多种子评价暴露该比率
+#   的种子方差（线性表格基线本尊跨种子 0.0005–0.54；困难布局上任何滞后类模型存在
+#   ~0.34 的不可约下界——冒烟实证 cell 5 RSSM 0.343 ≈ 线性 0.335）。故冻结阈的
+#   **多 cell 泛化操作化 = median（64 cell 比率的中位数）< 0.1**——对风暴/困难布局
+#   cells 稳健；全分布与 mean 如实报告非判据。此为运行前冻结的估计量定义，非事后
+#   挪门柱（六维评审可核：本文件冻结先于 n=64 全量运行，冒烟 2 cells 为 c1 先例的
+#   运行前诊断）。
+# - Q-L04-12③ 原文判据 = 神经模型 vs 表格/持续基线的 held-out **配对比较**——
+#   表格基线 = 线性 12 滞后模型（ADR-G-0030 §2 冻结形本尊：init 20261011/0.01/600）。
+stat_plan:
+  id: p4_alpha
+  version: v1.0
+  frozen_at: "2026-10-11"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/HLD.md    # §15.5 P4-α 行 + ADR-G-0030 §5 实现期范围
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死
+    master_seed_hex: "70342d616c7068612d7365616c6564"   # = b"p4-alpha-sealed".hex()
+    cell_master_seed: sha256("{label}|{index}" + master_seed_bytes)   # runs_p4.cell_master_seed
+    label: "p4.alpha"
+    trial_unit: sealed_cell                  # 每 cell = 双域学习会话链 + held-out 评价
+    init_seed: 20261011                      # profile probe_anchors 探针锚全 cell 固定
+                                             # （去除初始化方差——like-for-like 锚）
+    normalization: z_score_train_segment_only   # 训练段统计量派生；held-out 零统计量（防泄漏）
+
+  claims:
+    - claim_id: p4_alpha_heldout_vs_persistence
+      hypothesis: >
+        可反驳假设：RSSM 脑核（profile v1.1 lr=1e-3 训练）在 MW0 冻结流 held-out
+        速率递归任务上的预测误差显著优于持续基线（下一拍速率 = 0）达冻结阈——
+        64 sealed cells 比率的中位数 < 0.1（profile heldout_margin_vs_persistence
+        的多 cell 泛化操作化，见头部判据操作化依据）。若脑核仅达持续基线水平
+        （ratio ≈ 1）→ 神经世界模型无预测增益 → P4-α 核心判据失败。
+      estimand: per_cell_heldout_mse_ratio_vs_persistence
+      primary_endpoints:
+        - median_ratio_below_frozen_margin     # median_i(ratio_i) < 0.1（64 cells）
+      n_per_arm: 64                            # sealed cells（storm/困难布局 cells 并入分布，
+                                               # median 承载稳健性——头部操作化依据）
+      power: 0.80
+      test: median_gate_frozen_margin
+      effect_ci_rule: distribution_reported    # 全分布 + mean 如实报告（非判据）
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_margin_median}
+      unknown_handling: >
+        拍间断（差分窗不完整）不计；ratio = +inf（persist=0 退化）cell 并入分布
+        按 +inf 排序（median 机械可判）。评价在 session-1 末权重上执行
+        （like-for-like 探针锚口径）；session-2（p1 双源义务）后的 MW0 退化
+        与 p1 域 held-out 作描述性另报（跨域干扰如实可见，不入判据）。
+
+    - claim_id: p4_alpha_vs_table_baseline
+      hypothesis: >
+        可反驳假设：RSSM 脑核配对优于表格基线（线性 12 滞后模型——ADR-G-0030 §2
+        冻结形 = Q-L04-12③ 表格基线操作化）：per-cell 配对对数比率差
+        d_i = ln(table_ratio_i) − ln(rssm_ratio_i) 的均值 > 0 且 Wald 95% CI
+        下界 > 0（几何均值意义上优越）。若 RSSM 不优于表格基线 → 神经升级无
+        超越表格主义的增益（Q-G00-14③ 并存判据的反面）→ 配对判据失败。
+      estimand: paired_log_ratio_difference_vs_frozen_table_baseline
+      primary_endpoints:
+        - paired_mean_log_diff_positive_ci     # mean(d_i) > 0 ∧ Wald 95% CI lower > 0
+      n_per_arm: 64
+      power: 0.80
+      test: paired_continuous_wald
+      effect_ci_rule: paired_diff_wald_95
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_table_pairing}
+      unknown_handling: >
+        表格基线与 RSSM 同一任务序列/同一 held-out 段（配对）；d_i = +inf
+        （table_ratio 发散）按截断 10 处理留痕（ln 域有限性——实测 table_ratio
+        有限，截断为防御面）。
+
+    - claim_id: p4_alpha_training_replay_bit_exact
+      hypothesis: >
+        可反驳假设：训练可复算宪法语义（Q-G00-14①/Q-L13-20①）在全部 64 sealed
+        cells 上成立——每 cell 的 MW0 学习会话重放（同录制种子 + 同数据 digest）
+        末权重逐位恒等 + session1→session2 权重谱系链连续 + 录制十字段完整。
+        任一 cell 重放失配 = 给定权重确定性合同破损（S1 级发现）。
+      estimand: training_replay_deterministic_assertions
+      primary_endpoints:
+        - all_cells_replay_bit_exact           # 机械：64/64 重放恒等
+        - lineage_chain_continuous             # 机械：session2.before == session1.after
+        - record_schema_complete               # 机械：十字段非缺失
+      n_per_arm: 64
+      power: 0.80
+      test: deterministic_gate                 # p=0.0/1.0 单调承载（c4/c5 先例）
+      effect_ci_rule: none_deterministic
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_replay_gate}
+      unknown_handling: >
+        重放 = 重建（profile init_seed）+ 同数据重训（同 lr/epochs）→ digest 逐位
+        比对（galatea.subject.brain.recorder.replay_training_session）；I1 = 本判据
+        （学习面复算 = 训练重放——记录-重放范式在训练域的推广，Q-L13-13 同构）。
+
+  scenario:                                    # 场景冻结（机械可复算）
+    stream:                                    # 每 cell 的世界流
+      cycles: 256                              # = 一 regime 驻留窗（Q-L01-04）
+      action_script: probe_frozen              # 周期 12 = [move, forage, move, move,
+                                               #  forage, move×6, rest] 恒向 E（ADR-G-0030 §2）
+                                               # 评估侧驱动——主体面零命令信号
+      task_series: intero_energy_rates         # 形成面派生差分（Q-L02-05⑤；发现 1 留痕——
+                                               #  统一流跳行会把跨 gap 差当一拍速率）
+      holdout_tail_pairs: 64                   # T6 拍（Q-L00-01；探针协议）
+    model:
+      architecture: rssm_style_gru             # GRUCell 递归核（RSSM 标准形；发现 2 留痕）
+      input_dim: 1                             # 一维速率序列（任务形）
+      init: xavier_derived                     # √(2/(fan_in+fan_out)) 推导式（发现 4 留痕）
+      optimizer_lr: 0.001                      # Adam 库规范默认（profile v1.1 运行前修订）
+      epochs: 600
+      normalization: z_score_train_segment_only
+    table_baseline:
+      form: linear_12lag                       # ADR-G-0030 §2 冻结形（Q-L04-12③ 承载）
+      init_seed: 20261011
+      lr: 0.01
+      epochs: 600
+    dual_domain_session2:                      # Q-L04-12② 双源义务
+      source: p1_sealed_corpus_rates           # 真实遥测速率序列（同一任务形）
+      post_session_eval: descriptive_only      # 干扰/p1 held-out 描述性另报（非判据）
+    horizons_descriptive:                      # prediction_scales 交付（Q-L13-19④）
+      depths: [1, 2, 3, 4, 5, 6, 7, 8]         # Q-L04-01 冻结深度上界
+      form: prior_driven_imagination           # h=1 = 滤波同式；h≥2 自反馈链（描述性）
+
+  sealed_grid:
+    split_ref: config/evidence/sealed_split_policy.yaml
+    grid: seeded_cells                         # cell 种子 = sha256 派生（seed_derivation；
+                                               #  Q-L13-12④ 任意先钉——非 mw0_scenario_config
+                                               #  网格：P4-α 评价域 = 学习会话链，世界流身份
+                                               #  由 cell 种子承载，regime 覆盖 = 种子派生自然覆盖）
+    n_cells: 64
+
+  correction: holm_bonferroni                 # 族 = 本 EvidenceResult 全部主判定 = 3 claim 级 p
+                                              # （确定性门 claim 通过承载 p=0.0——单调安全）

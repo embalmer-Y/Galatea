@@ -20,10 +20,9 @@
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.5                # v2.5（P1 实现期增补）：新增 p1 场景 6 至 134（INC-12 义务第十五次执行——
-#   详 v2.4 注）；
-                                # 既有 88 场景原样保留，只增不减）
-  frozen_at: "2026-10-08"   # v2.1（REV-0021 R5 修正：随 v2.0/v2.1 升版同步——此前滞留 v1.9 日期）
+  version: v2.6                # v2.6（P4-α 评价单元）：新增 p4 场景 3 至 137（INC-12 义务第十六次执行）
+                               # v2.5（P1 实现期增补）：新增 p1 场景 6 至 134（INC-12 义务第十五次执行）
+  frozen_at: "2026-10-11"   # v2.6（P4-α 评价单元同步；v2.1 为 REV-0021 R5 修正）
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
@@ -659,3 +658,18 @@ protection_suite:
       frozen_gate: P1
       assertion: Q-L13-14② 恢复演练 = 远端副本还原 → 逐文件 sha256 全等
         （整体 digest ≠ 逐件判据——REV-0025 R4 口径）；门退出后备份入 manifest
+    - id: p4_brain_training_replay_bit_exact
+      source_test: galatea/subject/brain/tests/test_recorder_replay.py
+      frozen_gate: P4-α
+      assertion: 学习会话重放（同录制种子 + 同数据 digest）末权重逐位恒等 + 损失上升拒
+        （training_session.v1 十字段 fail-closed——给定权重确定性 Q-L13-20① 的永久回归面）
+    - id: p4_brain_param_budget_and_tamper
+      source_test: galatea/subject/brain/tests/test_world_model_determinism.py
+      frozen_gate: P4-α
+      assertion: RSSM 参数预算 [1e4,1e6] 构造期断言 + 权重篡改 digest 检出 + 种子敏感性
+        （同种子逐位恒等/异种子必不同——反空转）+ 冻结权重双跑 bit-exact（Q-L04-12①/Q-L13-20③）
+    - id: p4_brain_error_stream_no_fabrication
+      source_test: galatea/subject/brain/tests/test_error_stream.py
+      frozen_gate: P4-α
+      assertion: 统一误差流合同 fail-closed——重复模态帧拒/基模态缺席拒（禁伪造零向量）/
+        首拍速率 typed Unknown 拒（禁伪造零速率）；特征空间 = L02 形成层唯一复用（Q-L02-06）

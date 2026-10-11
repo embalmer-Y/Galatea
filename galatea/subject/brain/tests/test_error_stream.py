@@ -3,6 +3,7 @@ import pytest
 
 from galatea.subject.brain.error_stream import (
     ENERGY_LEVEL_INDEX,
+    ENERGY_RATE_INDEX,
     INPUT_DIM,
     ErrorStreamViolation,
     build_stream_vector,
@@ -17,20 +18,21 @@ from galatea.subject.brain.tests.conftest import (
 from galatea.subject.sensorium.pred_error import flatten_frame
 
 
-def test_vector_layout_35_dims() -> None:
-    """35 维槽位布局：[窗 25 | 事件 2 | 内感受 4 | 本体 4]。"""
-    t, vector = build_stream_vector(base_frames(7, energy=0.62, center=0.9))
+def test_vector_layout_36_dims() -> None:
+    """36 维槽位布局：[窗 25 | 事件 2 | 内感受 4 | 本体 4 | 速率 1]。"""
+    t, vector = build_stream_vector(base_frames(7, energy=0.62, center=0.9, energy_rate=-0.05))
     assert t == 7
-    assert len(vector) == INPUT_DIM  # 35
+    assert len(vector) == INPUT_DIM  # 36
     assert vector[12] == pytest.approx(0.9)          # 窗中心格（行优先）
     assert all(v == 0.0 for v in vector[25:27])      # 事件槽零填充（缺席是事实）
     assert vector[ENERGY_LEVEL_INDEX] == pytest.approx(0.62)
     assert vector[31:35] == (1.0, 0.0, 0.0, 0.0)     # N 朝向 one-hot
+    assert vector[ENERGY_RATE_INDEX] == pytest.approx(-0.05)   # 速率末槽（Q-L02-05⑤）
 
 
 def test_feature_space_matches_flatten() -> None:
     """槽位序与 L02 flatten_frame 各模态展平序逐位一致（唯一复用——零自造）。"""
-    frames = base_frames(3, energy=0.42)
+    frames = base_frames(3, energy=0.42, energy_rate=0.01)
     _t, vector = build_stream_vector(frames)
     window = next(f for f in frames if f.modality.value == "EXT_LOCAL_OBS")
     intero = next(f for f in frames if f.modality.value == "INTERO")
@@ -60,6 +62,20 @@ def test_missing_base_modality_rejected() -> None:
         build_stream_vector([intero_frame(1), proprio_frame(1)])
     with pytest.raises(ErrorStreamViolation, match="base modality missing"):
         build_stream_vector([])
+
+
+def test_unknown_rate_rejected() -> None:
+    """首拍 energy_rate = typed Unknown → 拒构造（禁伪造零速率——C0 成规）。"""
+    from galatea.kernel.unknown import Unknown, UnknownReason
+
+    frames = base_frames(0, energy_rate=0.0)
+    intero = next(f for f in frames if f.modality.value == "INTERO")
+    features = intero.features
+    object.__setattr__(features, "energy_rate",
+                       Unknown(reason=UnknownReason.MISSING_SIGNAL, evidence_refs=(),
+                               detail="first frame", detected_by="test", virtual_time=0))
+    with pytest.raises(ErrorStreamViolation, match="energy_rate absent"):
+        build_stream_vector(frames)
 
 
 def test_empty_frames_rejected() -> None:

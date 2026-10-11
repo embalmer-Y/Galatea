@@ -27,20 +27,36 @@ from galatea.subject.brain.module import NeuralModule, configure_deterministic_t
 from galatea.subject.p4profile import P4AlphaBrainParams
 
 _LOGVAR_CLAMP = 10.0     # float32 数值稳定性夹持（溢出防护非语义参数）
-_INIT_SIGMA = 0.01       # 探针同式（ADR-G-0030 §2：种子化 Generator 初始化 0.01σ）
+
+
+def _xavier_sigma(shape: tuple[int, ...]) -> float:
+    """Glorot/Xavier 初始化尺度（推导式 √(2/(fan_in+fan_out))——零自由常数；偏置恒零）。
+
+    探针线性模型的 0.01σ 锚不能平移到门控递归（冒烟实证：速率 ±0.03 量级输入 ×
+    0.01σ → 门控前激活 ~1e-3，600 epochs 学不动，ratio 0.83–1.40 留痕）——
+    门控递归需与输入量级匹配的推导式初始化（DEV_SPEC §5.2 推导链合法源）。
+    """
+    if len(shape) == 2:
+        fan_in, fan_out = shape[1], shape[0]
+    else:
+        fan_in = fan_out = shape[0]
+    return (2.0 / (fan_in + fan_out)) ** 0.5
 
 
 class _RSSMCore(nn.Module):
-    """torch 模块核（参数容器；无业务语义）。"""
+    """torch 模块核（参数容器；无业务语义）。
+
+    递归核 = GRUCell（RSSM 标准形——DeepMind RSSM h_t = GRU(·)；门控加性路径
+    解决长序列 BPTT 梯度消失——vanilla tanh-RNN 在 190 步序列上冒烟实测梯度
+    消失收敛至平凡零解 ratio≈1.0，留痕）。参数以种子化 Generator 按推导式
+    Xavier σ 初始化（禁全局 RNG——Q-T11）。
+    """
 
     def __init__(self, input_dim: int, latent_dim: int, det_dim: int,
                  generator: torch.Generator) -> None:
         super().__init__()
         hidden = latent_dim                       # 隐层宽 = latent_dim（冻结值复用）
-        self.cell_x = nn.Linear(input_dim, det_dim, bias=False)
-        self.cell_h = nn.Linear(det_dim, det_dim, bias=False)
-        self.cell_z = nn.Linear(latent_dim, det_dim, bias=False)
-        self.cell_b = nn.Parameter(torch.zeros(det_dim))
+        self.cell = nn.GRUCell(input_dim + latent_dim, det_dim)
         self.enc_in = nn.Linear(input_dim + det_dim, hidden)
         self.enc_mu = nn.Linear(hidden, latent_dim)
         self.enc_logvar = nn.Linear(hidden, latent_dim)
@@ -48,10 +64,13 @@ class _RSSMCore(nn.Module):
         self.pri_mu = nn.Linear(hidden, latent_dim)
         self.pri_logvar = nn.Linear(hidden, latent_dim)
         self.dec = nn.Linear(det_dim + latent_dim, input_dim)
-        for param in self.parameters():
+        for name, param in self.named_parameters():
             with torch.no_grad():
-                param.copy_(torch.randn(param.shape, generator=generator) * _INIT_SIGMA)
-        nn.init.zeros_(self.cell_b)
+                if name.endswith("bias"):
+                    param.zero_()
+                else:
+                    param.copy_(torch.randn(
+                        param.shape, generator=generator) * _xavier_sigma(tuple(param.shape)))
 
 
 class RSSMWorldModel(NeuralModule):
@@ -96,7 +115,7 @@ class RSSMWorldModel(NeuralModule):
         z 以后验均值进入计算图（确定性点估计——Q-G00-14① 操作化）。
         """
         core = self._core()
-        h = torch.tanh(core.cell_x(x) + core.cell_h(h_prev) + core.cell_z(z_prev) + core.cell_b)
+        h = core.cell(torch.cat([x, z_prev], dim=-1), h_prev)
         enc_hidden = torch.tanh(core.enc_in(torch.cat([x, h], dim=-1)))
         mu_q = core.enc_mu(enc_hidden)
         logvar_q = torch.clamp(core.enc_logvar(enc_hidden), -_LOGVAR_CLAMP, _LOGVAR_CLAMP)
@@ -155,24 +174,31 @@ class RSSMWorldModel(NeuralModule):
             x_prev = core.dec(torch.cat([h, z], dim=-1))
             preds.append(x_prev)
             for _ in range(steps - 1):
-                # h ← f(h, z_prev, x̂_prev)（递归输入 = 上拍预测——自反馈）；
+                # h ← GRU([x̂_prev, z], h)（递归输入 = 上拍预测——自反馈）；
                 # z ← 先验均值 μ_p(h)（无观测——imagination 的 RSSM 标准形）
-                h = torch.tanh(core.cell_x(x_prev) + core.cell_h(h)
-                               + core.cell_z(z) + core.cell_b)
+                h = core.cell(torch.cat([x_prev, z], dim=-1), h)
                 z = core.pri_mu(torch.tanh(core.pri_in(h)))
                 x_prev = core.dec(torch.cat([h, z], dim=-1))
                 preds.append(x_prev)
         return preds
 
     # ---------------------------------------------------------------- 训练
-    def train_on_sequence(self, xs: list[torch.Tensor], lr: float, epochs: int) -> list[float]:
+    def train_on_sequence(self, xs: list[torch.Tensor], lr: float, epochs: int,
+                          target_dims: tuple[int, ...] | None = None) -> list[float]:
         """全批量训练（采样自由 ELBO；无 minibatch 采样 RNG——Q-L13-20④）。
 
-        损失 = 下一拍重构 MSE + KL(q‖p)（β=1 标准 ELBO 恒等）；返回逐 epoch 损失。
+        损失 = 目标维重构 MSE + KL(q‖p)（β=1 标准 ELBO 恒等）；target_dims =
+        目标维子集（None = 全维）。冒烟诊断驱动的运行前修订（c1 运行前修订
+        先例）：全维目标在 35 维流上被窗 25 维主导、判据承载维（能量）欠拟合
+        （冒烟 ratio 2.47 不可判据，留痕）——评价 runner 以 target_dims=能量维
+        承载探针冻结任务同源的训练信号（输入仍为全 35 维形成流，世界模型观测
+        面不缩窄）。返回逐 epoch 损失。
         """
         configure_deterministic_torch()
         if len(xs) < 3:
             raise ValueError("train_on_sequence requires >= 3 frames")
+        if target_dims is not None and not target_dims:
+            raise ValueError("target_dims empty（禁空目标——训练信号必须存在）")
         optimizer = torch.optim.Adam(self._module.parameters(), lr=lr)
         losses: list[float] = []
         for _ in range(epochs):
@@ -186,7 +212,12 @@ class RSSMWorldModel(NeuralModule):
                 h, mu_q, logvar_q, mu_p, logvar_p, x_pred = self.step(x, h, z)
                 z = mu_q
                 if t + 1 < len(xs):
-                    recon_acc = recon_acc + torch.mean((x_pred - xs[t + 1]) ** 2)
+                    if target_dims is None:
+                        recon_acc = recon_acc + torch.mean((x_pred - xs[t + 1]) ** 2)
+                    else:
+                        pred_slice = x_pred[list(target_dims)]
+                        target_slice = xs[t + 1][list(target_dims)]
+                        recon_acc = recon_acc + torch.mean((pred_slice - target_slice) ** 2)
                     kl_acc = kl_acc + self._kl_closed_form(mu_q, logvar_q, mu_p, logvar_p)
                     count += 1
             loss = recon_acc / count + kl_acc / count

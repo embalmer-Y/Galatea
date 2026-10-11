@@ -7,7 +7,7 @@
 # 部署推理 bit-exact；学习参数 = 工件（digest 锚）；表格模型并存为回退层/对照基线。
 profile:
   id: p4_alpha_brain
-  version: v1.0
+  version: v1.1
   frozen_at: "2026-10-11"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15 预测脑 v2
@@ -49,8 +49,12 @@ training:                                     # Q-L13-20①②（学习会话录
   record_fields: [master_seed, init_seed, data_digest, weights_digest_before,
                   weights_digest_after, loss_first, loss_last, optimizer, lr, epochs]
   replay_criterion: weights_after_bit-exact   # 录制重放末权重逐位恒等（探针已证）
-  optimizer: adam                             # 探针实测收敛（lr=0.01/600ep held-out 比 0.0083）
-  lr: 0.01                                    # 探针实测
+  optimizer: adam                             # 探针实测收敛（held-out 比 0.0083）
+  # v1.1 运行前修订（2026-10-11，P4-α 评价单元冒烟诊断驱动——c1/p1 运行前修订先例）：
+  # lr 0.01→0.001（Adam 库规范默认 Kingma&Ba）。0.01 = 探针 13 参数线性模型锚，
+  # 不可平移到 38k 参数门控递归——冒烟实证 lr=0.01 门控发散（cells 1/4 回落平凡解
+  # ratio 1.03/1.08），0.001 稳定收敛（6/6 cells 训练损失单调降，held-out 中位 0.075）。
+  lr: 0.001
   epochs: 600
   full_batch_preferred: true                  # 无 minibatch 采样 RNG；minibatch 必须经 L00 流
   weights_as_artifacts: true                  # state_dict 入 kernel registry 内容寻址 + manifest 锚

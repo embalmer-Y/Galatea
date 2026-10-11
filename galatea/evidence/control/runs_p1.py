@@ -101,7 +101,7 @@ def _m0_delay(name: str) -> int:
     return int(m0["channels"]["delay_cycles"][name])
 
 
-def _rebuild_deliveries(corpus: SealedCorpus,
+def rebuild_deliveries(corpus: SealedCorpus,
                         profile: P1PhysioProfile) -> list[tuple[str, str]]:
     """从语料 raw 域重建桥产物（派生复算面——busy/payload 全部重算，非抄录）。"""
     bridge = PhysioBridge(profile)
@@ -114,7 +114,7 @@ def _rebuild_deliveries(corpus: SealedCorpus,
     return out
 
 
-def _packet_for(payload_text: str, cycle: int, content_type: str,
+def packet_for(payload_text: str, cycle: int, content_type: str,
                 source_module: str) -> tuple[CognitivePacket, str]:
     digest = content_digest(payload_text)
     packet = CognitivePacket(
@@ -138,7 +138,7 @@ def _run_stream(rebuilt: list[tuple[str, str]], content_type: str,
     pipeline = _pipeline()
     outputs: list[CycleOutput] = []
     for record_cycle, (payload_text, _digest) in enumerate(rebuilt):
-        packet, text = _packet_for(payload_text, record_cycle, content_type, source_module)
+        packet, text = packet_for(payload_text, record_cycle, content_type, source_module)
         outputs.append(pipeline.process_cycle(record_cycle, [(packet, text)]))
     return outputs
 
@@ -148,7 +148,7 @@ def run_fidelity(corpus: SealedCorpus, profile: P1PhysioProfile) -> dict[str, An
     if not corpus.stream_sha256_verified:
         return {"corpus_verified": False, "replay_bit_exact": False,
                 "due_window_formation_rate": 0.0, "channel_source_invariance": False}
-    rebuilt = _rebuild_deliveries(corpus, profile)
+    rebuilt = rebuild_deliveries(corpus, profile)
     recompute_ok = all(d == corpus.payload_digests[i] for i, (_, d) in enumerate(rebuilt))
 
     digests_bridge = _receipt_digests(_run_stream(rebuilt, CARRIER_INTERO_CONTENT_TYPE, "env.physio.bridge"))
@@ -338,7 +338,7 @@ def run_signal_carriage(corpus: SealedCorpus, profile: P1PhysioProfile) -> dict[
     energy_rate(t0) = energy(t0) − energy(t0−1)，而 t0 帧滞后 W_align 拍出窗（对齐窗
     语义）；首版按投递序配对错 4 拍被本 claim 机械面自身检出（r≈0 vs 恒等派生期望），
     修正留痕（首评运行前实现修正，无 EvidenceResult 已发）。"""
-    rebuilt = _rebuild_deliveries(corpus, profile)
+    rebuilt = rebuild_deliveries(corpus, profile)
     outputs = _run_stream(rebuilt, CARRIER_INTERO_CONTENT_TYPE, "env.physio.bridge")
     busy_by_cycle: dict[int, float | None] = {}
     prev_record: TelemetryRecord | None = None

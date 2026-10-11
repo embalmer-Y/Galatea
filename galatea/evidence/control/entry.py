@@ -980,8 +980,19 @@ def main(argv: list[str] | None = None) -> int:
             f"signal={first['signal'].verdict.value} "
             f"leakage_free={first['leakage_free']} i1={bool(first['fidelity'].recompute_ok)}"
         )
+    elif command == "p4":
+        from galatea.evidence.control.runs_p4 import run_p4_first_evaluation
+        out_dir = root / "evidence" / "p4_alpha_brain_first_evaluation"
+        first = run_p4_first_evaluation(root, out_dir)
+        print(
+            f"p4: composite={first['composite'].verdict.value} "
+            f"margin={first['margin'].verdict.value} "
+            f"pairing={first['pairing'].verdict.value} "
+            f"replay={first['replay'].verdict.value} "
+            f"leakage_free={first['leakage_free']}"
+        )
     else:
-        print(f"unknown command: {command}（m1|carryover|root）")
+        print(f"unknown command: {command}（m1|carryover|root|c1..c5|p1|p4）")
         return 2
     return 0
 

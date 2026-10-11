@@ -1,5 +1,9 @@
 # Galatea 最小可辨效应量统一登记册（Q-L13-09 CONFIRMED 2026-09-23；L13 §4.3/§10）
 # 效力：F0 门冻结物（ADR-G-0002）。改值 = 新版本 + 重新功效分析；运行后改动被 StatPlanMutation 拒绝。
+# 版本 v1.9（2026-10-11，P4-α 统计评价前置）：新增 p4_alpha_margin_median（冻结阈 0.1 的 median
+#   多 cell 泛化操作化——stat plan 头部依据）/ p4_alpha_table_pairing（Q-L04-12③ 配对判据——
+#   表格基线 = ADR-G-0030 §2 线性冻结形）/ p4_alpha_replay_gate（确定性门 Q-L13-20①）；
+#   envelope 与既有条目不变。
 # 版本 v1.8（2026-10-10，P1 统计评价前置）：新增 p1_channel_fidelity_gate / p1_lgrade_safety_gate
 #   （确定性门）+ p1_physical_signal_carriage（Q-L13-09 族首例 pearson_r 型，r≥0.5 = 效应可辨下限
 #   ——对应 d≈1.15 强效应带，通道载运失败在 r≈0 处非判据降低）；envelope 与既有条目不变。
@@ -188,3 +192,22 @@ entries:
     metric: pearson_r_minus_delta_busy_vs_formed_energy_rate
     min_effect: {type: pearson_r, value: 0.5}
     min_n: 64
+  - id: p4_alpha_margin_median                               # v1.9 新增（P4-α 冻结阈多 cell 泛化——
+    q: Q-L04-12                                              #  median 操作化，stat plan 头部依据）
+    claim_gate: P4-α
+    metric: median_per_cell_heldout_mse_ratio_vs_persistence
+    min_effect: {type: ratio_median, value: 0.1}
+    min_n: 64
+  - id: p4_alpha_table_pairing                               # v1.9 新增（Q-L04-12③ 配对判据）
+    q: Q-L04-12
+    claim_gate: P4-α
+    metric: paired_mean_log_ratio_difference_vs_table_baseline
+    min_effect: {type: mean_log_diff, value: 0.0}
+    min_n: 64
+  - id: p4_alpha_replay_gate                                 # v1.9 新增（确定性门 Q-L13-20①）
+    q: Q-L13-20
+    claim_gate: P4-α
+    thresholds:
+      all_cells_replay_bit_exact: true
+      lineage_chain_continuous: true
+      record_schema_complete: true
