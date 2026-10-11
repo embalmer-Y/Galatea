@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**162**
-  - CONFIRMED: 158
+- 登记册声明 Q 号：**164**
+  - CONFIRMED: 160
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 158, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 160, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
@@ -99,7 +99,7 @@
 
 ## 7. 冻结配置 YAML 可解析性（config/**）
 
-- 扫描 YAML 文件数：34
+- 扫描 YAML 文件数：35
 - OK：全部 config/**/*.y*ml 经 yaml.safe_load 解析通过
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）

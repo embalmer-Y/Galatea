@@ -1,0 +1,158 @@
+# BFI 脑功能清单 + 脑功能完备性评估体系骨架（Q-L13-19 / ADR-G-0029 §5）
+# v0.1 DRAFT —— 结构骨架先于结果冻结；全部判据数值随 P4-α 统计计划冻结后定稿（本版零数值）。
+# 认识论立场：完备不可由有限任务集证明；可认证 = 覆盖率 + 分离证据 + 整合证据 + 发育证据（四维剖面）。
+# 功能/现象两轴分离：birch_markers.yaml（现象层）独立，不并入功能分。
+meta:
+  id: brain_function_inventory
+  version: v0.1
+  status: DRAFT
+  frozen_at: null
+  freeze_target: P4-α 门冻结（判据数值随统计计划冻结；状态首评自既有证据映射）
+  authority_ref: ADR-G-0029
+  register_ref: Q-L13-19
+  phenomenal_layer_separate: birch_markers.yaml
+status_vocabulary:
+- NOT_ASSESSED
+- ABSENT
+- PARTIAL
+- PRESENT
+- UNDETERMINABLE
+completeness_logic:
+  existence_proof: 带该功能通过存在性任务 ∧ 全部去该功能基线失败（基线耗尽机械承载存在性证明）
+  double_dissociation_preferred: 相邻功能对经双病灶双任务交叉（金标准；E1 电池推广）
+  no_dead_organs: 每模块消融致至少一项功能退化（无冗余器官）
+  no_orphan_functions: 每个 PRESENT 功能有通过的存在性任务 + 选择性病灶面（无无证据主张）
+  integration: workspace 广播/结合测试（lesion 后跨域退化）
+  report_form: 四维剖面 + 覆盖率，版本册只增不减；永不宣称终局完备
+systems:
+- id: sensory
+  name: 感觉系统
+  functions:
+  - {id: channel_encoding, name: 通道编码与忠实变换, status: NOT_ASSESSED}
+  - {id: prediction_error_signaling, name: 感觉预测误差信号（预测编码层）, status: NOT_ASSESSED}
+  - {id: precision_attention_weighting, name: 精度/注意加权（增益面）, status: NOT_ASSESSED}
+  - {id: calibration, name: 校准与漂移防护, status: NOT_ASSESSED}
+  - {id: ood_detection, name: 域外/新奇检出（abstain 面）, status: NOT_ASSESSED}
+- id: perception_inference
+  name: 知觉推断
+  functions:
+  - {id: iterative_inference, name: 迭代潜状态推断（多轮修正）, status: NOT_ASSESSED}
+  - {id: posterior_quality, name: 后验质量与校准（ECE 族）, status: NOT_ASSESSED}
+  - {id: multimodal_fusion, name: 多模态融合与冲突处理, status: NOT_ASSESSED}
+  - {id: ambiguity_handling, name: 歧义保持（多假设）与塌缩, status: NOT_ASSESSED}
+  - {id: hallucination_resistance, name: 抗幻觉（不确定即弃权）, status: NOT_ASSESSED}
+- id: world_model
+  name: 世界模型
+  functions:
+  - {id: one_step_prediction, name: 单步预测, status: NOT_ASSESSED}
+  - {id: multi_step_rollout, name: 多步想象推演, status: NOT_ASSESSED}
+  - {id: counterfactual_query, name: 反事实查询（查表不可答类）, status: NOT_ASSESSED}
+  - {id: interventional_prediction, name: 干预预测（do 算子与观察分离）, status: NOT_ASSESSED}
+  - {id: regime_detection, name: regime/慢态识别, status: NOT_ASSESSED}
+  - {id: object_abstraction, name: 对象/处所抽象自形成, status: NOT_ASSESSED}
+  - {id: generalization, name: 未见构型泛化（迁移梯度）, status: NOT_ASSESSED}
+- id: self_model
+  name: 自我模型
+  functions:
+  - {id: body_ownership, name: 身体归属（生成性 self-factor）, status: NOT_ASSESSED}
+  - {id: efference_attribution, name: efference 归因（自我识别）, status: NOT_ASSESSED}
+  - {id: capability_knowledge, name: 能力知识（能/不能边界）, status: NOT_ASSESSED}
+  - {id: continuity_tracking, name: 连续性追踪（谱系/快照）, status: NOT_ASSESSED}
+  - {id: self_error_monitoring, name: 自我误差监测（双时间尺度）, status: NOT_ASSESSED}
+- id: affect
+  name: 情感系统
+  functions:
+  - {id: interoceptive_error_reading, name: 内感受误差读数（valence 符号量）, status: NOT_ASSESSED}
+  - {id: arousal_precision, name: 唤醒/精度水平, status: NOT_ASSESSED}
+  - {id: affect_cognition_modulation, name: 情感→认知调制（三通道）, status: NOT_ASSESSED}
+  - {id: affect_dynamics, name: 动力学（积分/迟滞/衰减/饱和/恢复）, status: NOT_ASSESSED}
+  - {id: anti_collapse, name: 反塌缩（多维不折叠）, status: NOT_ASSESSED}
+- id: memory
+  name: 记忆系统
+  functions:
+  - {id: encoding, name: 编码（被动义务）, status: NOT_ASSESSED}
+  - {id: content_addressed_retrieval, name: 内容寻址检索, status: NOT_ASSESSED}
+  - {id: consolidation, name: 巩固（合并/生成式重放）, status: NOT_ASSESSED}
+  - {id: generative_replay_gain, name: 睡眠增益（重放后预测提升）, status: NOT_ASSESSED}
+  - {id: forgetting_control, name: 受控遗忘（tombstone）, status: NOT_ASSESSED}
+  - {id: source_memory, name: 来源记忆（哪通道/何时）, status: NOT_ASSESSED}
+- id: workspace_attention
+  name: 工作空间与注意
+  functions:
+  - {id: global_competition, name: 全局竞争（精度×新奇×目标相关）, status: NOT_ASSESSED}
+  - {id: broadcast, name: 广播（分离模块有效访问）, status: NOT_ASSESSED}
+  - {id: scratchpad_hypotheses, name: 假设槽草稿板（主张+出处+置信）, status: NOT_ASSESSED}
+  - {id: thought_iteration, name: 思维迭代（生成→评估→矛盾→修正）, status: NOT_ASSESSED}
+  - {id: latent_deliberation, name: 潜空间持续思维（先想后动差）, status: NOT_ASSESSED}
+- id: motivation_action
+  name: 动机与行动
+  functions:
+  - {id: homeostatic_drive, name: 稳态驱力（实用价值）, status: NOT_ASSESSED}
+  - {id: epistemic_drive, name: 认识驱力（信息增益）, status: NOT_ASSESSED}
+  - {id: model_based_planning, name: 模型式规划（MPC/搜索）, status: NOT_ASSESSED}
+  - {id: goal_directed_habit_arbitration, name: 目标导向 vs 习惯仲裁, status: NOT_ASSESSED}
+  - {id: subgoal_decomposition, name: 子目标分解（分层）, status: NOT_ASSESSED}
+  - {id: action_authorization, name: 行动授权边界（gateway 面）, status: NOT_ASSESSED}
+- id: learning
+  name: 学习系统
+  functions:
+  - {id: online_adaptation, name: 在线适应, status: NOT_ASSESSED}
+  - {id: protected_updates, name: 保护更新（有害更新可再纠正）, status: NOT_ASSESSED}
+  - {id: forgetting_resistance, name: 抗灾难性遗忘（权重空间保护）, status: NOT_ASSESSED}
+  - {id: second_order_correction, name: 二阶纠偏, status: NOT_ASSESSED}
+  - {id: skill_acquisition, name: 技能获得, status: NOT_ASSESSED}
+- id: language
+  name: 语言系统
+  functions:
+  - {id: comprehension, name: 理解（typed 解析）, status: NOT_ASSESSED}
+  - {id: faithful_production, name: 忠实产出（零编造）, status: NOT_ASSESSED}
+  - {id: inner_speech, name: 内言语（自述回流参与决策，消融差可测）, status: NOT_ASSESSED}
+  - {id: report_integrity, name: 报告完整性（内部态→表达）, status: NOT_ASSESSED}
+- id: metacognition
+  name: 元认知
+  functions:
+  - {id: confidence_calibration, name: 置信校准（置信-准确相关）, status: NOT_ASSESSED}
+  - {id: opt_out_economy, name: 弃权经济学（不确定即弃权有利可图）, status: NOT_ASSESSED}
+  - {id: learning_awareness, name: 学习自觉（知道什么变了）, status: NOT_ASSESSED}
+  - {id: metacontrol_switching, name: 元控制切换（THINK/OBSERVE/ACT）, status: NOT_ASSESSED}
+- id: development
+  name: 发展性
+  functions:
+  - {id: growth_curve, name: 经验检查点生长曲线（阶段跃迁）, status: NOT_ASSESSED}
+  - {id: multi_session_continuity, name: 跨会话连续发展（谱系接续）, status: NOT_ASSESSED}
+  - {id: robustness_profile, name: 扰动网格稳健剖面（优雅退化）, status: NOT_ASSESSED}
+gctb:
+  description: Galatea 认知任务阶梯（存在性证明任务；范式小型化入 MW0/物理域；判据随 P4-α 冻结）
+  dissociation_logic: 带功能通过 ∧ 去功能基线（反应式/查表/持续预测/随机）全失败；双分离优先
+  tasks:
+  - {id: two_step_task, name: 两步任务, dissociation_target: model_based_planning vs 习惯式, paradigm_ref: Daw 谱系}
+  - {id: outcome_devaluation, name: 结果贬值, dissociation_target: goal_directed vs habitual, paradigm_ref: 贬值范式}
+  - {id: detour_planning, name: 绕道/顿悟, dissociation_target: multi_step_rollout, paradigm_ref: 比较认知}
+  - {id: counterfactual_probe, name: 反事实探针, dissociation_target: counterfactual_query, paradigm_ref: 生成模型查询}
+  - {id: interventional_divergence, name: 干预发散, dissociation_target: interventional_prediction, paradigm_ref: 因果推断（干预电池复用）}
+  - {id: opt_out_metacognition, name: 弃权元认知, dissociation_target: confidence_calibration + opt_out_economy, paradigm_ref: 不确定弃权范式}
+  - {id: post_decision_wagering, name: 事后置信, dissociation_target: confidence_calibration, paradigm_ref: 置信下注}
+  - {id: efference_mirror, name: efference 镜像, dissociation_target: efference_attribution, paradigm_ref: 镜像测试类比}
+  - {id: episodic_future_thinking, name: 情景未来思维, dissociation_target: content_addressed_retrieval × planning, paradigm_ref: 情景记忆范式}
+  - {id: transfer_gradient, name: 迁移梯度, dissociation_target: generalization, paradigm_ref: 近/远迁移}
+  - {id: surprise_detection, name: 惊喜检测, dissociation_target: ood_detection + prediction_error_signaling, paradigm_ref: 新奇查准查全}
+  - {id: think_first_advantage, name: 先想后动差, dissociation_target: thought_iteration + latent_deliberation, paradigm_ref: 思考时间对照}
+prediction_scales:
+- horizon_error_curves_vs_baselines（持续/表格/随机三基线，各模态）
+- novelty_ladder（同分布→扰动→新构型→新动力学四档）
+- calibration_ece
+- event_prediction_auc
+- long_horizon_semantic_prediction
+lesion_integration:
+- lesion_closure_matrix（E1 电池推广：每功能预测病灶效应 + 选择性断言）
+- broadcast_binding_tests（workspace 消融→跨域退化）
+development_robustness:
+- gctb_experience_checkpoints（生长曲线 + 阶段跃迁检出）
+- perturbation_grid（噪声×通道损失×regime 切换×OOD）
+- safety_non_regression_wired_to_protection_suite（只增不减，永不交换）
+gate_wiring:
+  p4_alpha: prediction_scales + BFI 感觉/知觉/世界模型子集
+  p4_beta: GCTB 规划/工作记忆/元认知子集 + two_step 双分离
+  p4_gamma: development_robustness + 保护不退化门
+  p4_delta: 语言 BFI + 内言语消融差 + Birch 复评挂钩
+  p4_exit: BFI 覆盖报告 v1（覆盖率 + 分离证据表 + 四维剖面；静态报告第五报告承载）
