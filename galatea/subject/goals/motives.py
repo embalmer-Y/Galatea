@@ -2,9 +2,9 @@
 
 纪律：Motive 是动机源，不是 GoalCandidate 更不是 OwnedGoal（三型独立，禁隐式
 转换）；AffectiveMotive ≠ OwnedGoal 且不构成命令（L08 §8 不变量 4：禁独占仲裁、
-禁直达执行）。M1 接线 VIABILITY/OPPORTUNITY/REQUEST 三源（Q-L08-09④）；
+禁直达执行）。M1 接线 VIABILITY/OPPORTUNITY/REQUEST 三源（Q-L08-10④）；
 其余五源构造器在 M1 实现、生产者 C3 接入（L08 §9 C3 行）。
-urgency/value_est 派生式 = Q-L08-09⑨（REV-0006 R3 补裁：禁实现期发明常量）。
+urgency/value_est 派生式 = Q-L08-10⑨（REV-0006 R3 补裁：禁实现期发明常量）。
 """
 import enum
 import math
@@ -31,7 +31,7 @@ __all__ = [
 class MotiveSource(enum.StrEnum):
     """动机源枚举（L08 §4.1；card_02"七类"系机会/请求合类口径，枚举拆分后为 8 kind）。
 
-    M1 wired（m1_goals_min.profile motives.wired_sources，Q-L08-09④）：
+    M1 wired（m1_goals_min.profile motives.wired_sources，Q-L08-10④）：
     VIABILITY / OPPORTUNITY / REQUEST。
     """
 
@@ -43,19 +43,21 @@ class MotiveSource(enum.StrEnum):
     COMMITMENT = "COMMITMENT"
     NORM = "NORM"
     CURIOSITY = "CURIOSITY"
+    SELF_REPORT = "SELF_REPORT"   # Q-L08-10（P3 发声时机：自述冲动——分箱变化驱动，
+                                  # 优先序类 OTHER，非独占参与 Pareto 仲裁）
 
 
 @dataclass(frozen=True, slots=True)
 class ViabilityEstimate:
-    """C-2 输入（M1 替代：接收侧 Intero 派生，Q-L08-09②；C2 起由 L05 HomeostaticAlert 接管）。
+    """C-2 输入（M1 替代：接收侧 Intero 派生，Q-L08-10②；C2 起由 L05 HomeostaticAlert 接管）。
 
     事件级判据、无告警阈值（Q-L01-08 显式排除 L05 域）：hazard =
     energy_depleted_unrecovered（energy_depleted 在案且未见恢复回执——恢复回执 =
-    恢复链原语 eat/rest/forage 的 requested=effective 执行回执，Q-L08-09⑦）。
+    恢复链原语 eat/rest/forage 的 requested=effective 执行回执，Q-L08-10⑦）。
     """
 
     hazard_energy_depleted_unrecovered: bool
-    integrity_damage_events: int       # 记录不判危（Q-L08-09②：天花板效应，C2 随 L05 裁决）
+    integrity_damage_events: int       # 记录不判危（Q-L08-10②：天花板效应，C2 随 L05 裁决）
     derivation_refs: tuple[str, ...]   # 已收 Intero 事件 id（强制非空）
     ts: int
 
@@ -104,7 +106,7 @@ class Motive:
 
 
 def motive_viability(estimate: ViabilityEstimate) -> Motive:
-    """VIABILITY 源：urgency = 危害事件二值（在案 1.0 / 否则 0.0，Q-L08-09⑨——无阈值）。"""
+    """VIABILITY 源：urgency = 危害事件二值（在案 1.0 / 否则 0.0，Q-L08-10⑨——无阈值）。"""
     urgency = 1.0 if estimate.hazard_energy_depleted_unrecovered else 0.0
     return Motive(
         source_kind=MotiveSource.VIABILITY,
@@ -131,7 +133,7 @@ def motive_affective(affect: AffectiveMotive, ts: int) -> Motive:
 
 
 def motive_request(request: ExternalRequest, ts: int) -> Motive:
-    """REQUEST 源：urgency = 中性占位常量 0.5（Q-L08-09⑨ 裁决值：无认知 urgency 语义，
+    """REQUEST 源：urgency = 中性占位常量 0.5（Q-L08-10⑨ 裁决值：无认知 urgency 语义，
     仅作确定性截断序输入；C3 起由 L07 工作空间竞争接管）。"""
     refs = (request.content_ref, *request.received_refs)
     return Motive(
@@ -146,7 +148,7 @@ def motive_request(request: ExternalRequest, ts: int) -> Motive:
 def motive_opportunity(
     affordance_ref: str, feasibility_est: float, evidence_refs: tuple[str, ...], ts: int
 ) -> Motive:
-    """OPPORTUNITY 源：urgency = value_est = feasibility_est（Q-L08-09⑨：M1 无独立
+    """OPPORTUNITY 源：urgency = value_est = feasibility_est（Q-L08-10⑨：M1 无独立
     价值估计器，value_est 退化为同值，C1+ 接管）。输入 = exteroceptive 渲染窗内
     resource patch 检出（affordance_ref = RECEIVED 事件引用）。"""
     if not affordance_ref:

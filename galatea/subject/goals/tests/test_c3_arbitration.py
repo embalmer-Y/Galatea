@@ -166,7 +166,9 @@ def test_collect_motives_all_eight_kinds() -> None:
         opportunity_motive=motive_opportunity("aff.1", 0.8, (), 30),
     )
     kinds = {m.source_kind for m in motives}
-    assert kinds == set(MotiveSource)   # 八 kind 全产出
+    # 九 kind 全产出（Q-L08-09 扩 SELF_REPORT；collect 面未接自述生产者——
+    # 其冲动由 report_motive 独立生产，见 test_report_motive.py）
+    assert kinds == set(MotiveSource) - {MotiveSource.SELF_REPORT}
     # AFFECTIVE 不独占结构面：AFFECTIVE 候选在五维映射中只占独占维（无加权路径）
     vecs = [vector_of(f"c{i}", m) for i, m in enumerate(motives)]
     trace = arbitrate(tuple(vecs), 30)

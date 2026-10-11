@@ -1,9 +1,9 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
-# v1.27（2026-10-11）：P3 v1 自然语语库交付——密钥勘误（此前 81 字符为我方转录漏字，
-#  key 本有效——如实更正）；合同收紧 ≤25 字后 14 态全短句入封套；v0/v1 双语库并存。
+# v1.28（2026-10-11）：P3 单元 E 发声时机——主体内生决定说话（真 zenoh 流→真情感→分箱冲动→
+#  Pareto 仲裁→L4 发声→麦克风听见；USB 卡重枚举 R6 同族修复 = 设备名锚定解析）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.27
+  version: v1.28
   frozen_at: '2026-10-10'
   authority: AI-v2
   artifacts:
@@ -285,3 +285,7 @@ artifact_manifest:
     path: evidence/p3_language/first_words_v1/first_words.json
     sha256: 3e9e914f9c88f3b25b4ab41fc6def5717afab1aab8f0bee116da79f587fd1b4c
     gate: P3 自然语第一句话闭环 PASS（“我体力还足但在下降，正去觅食，情绪略低。”3.56s 入封套；冻结 WAV 回放 891ee01c…；麦克风 RMS 5820.5≫373）
+  - name: p3-speech-initiative
+    path: evidence/p3_language/speech_initiative_report.json
+    sha256: 63883d78fe4d019b184aa3a2cac2f998f0f3375c52759df9afc343a2fa96985d
+    gate: P3 单元 E 发声时机 PASS（Q-L08-09：72 电源样本→30 内生发声事件全被听见（RMS≈4800）；6 种自述句按真态自主选择；urgency {0.2,1.0}；诚实注记：none-目标格稀疏致最近格跨目标匹配）

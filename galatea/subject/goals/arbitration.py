@@ -63,7 +63,9 @@ def vector_of(candidate_id: str, motive: Motive) -> CandidateVector:
     src = motive.source_kind
     viability = motive.urgency if src in _VIABILITY_CARRIER else 0.0
     norm = 1.0 if src is MotiveSource.NORM else 0.0
-    info = motive.urgency if src is MotiveSource.CURIOSITY else 0.0
+    # info_value 载体 = CURIOSITY（不确定驱动）+ SELF_REPORT（自述冲动——Q-L08-10③：
+    # 对自记录/未来对话者的信息量；T3 前如实按 urgency 参与竞争）
+    info = motive.urgency if src in (MotiveSource.CURIOSITY, MotiveSource.SELF_REPORT) else 0.0
     aff = motive.urgency if src is MotiveSource.AFFECTIVE else 0.0
     return CandidateVector(
         candidate_id=candidate_id, source_kind=src,
