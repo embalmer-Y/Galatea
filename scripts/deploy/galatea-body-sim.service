@@ -6,9 +6,9 @@ Wants=galatea-zenohd.service
 [Service]
 Type=simple
 User=emb
-WorkingDirectory=/home/emb/galatea_deploy
+WorkingDirectory=/home/emb/project/galatea-service
 Environment=PATH=/home/emb/.local/bin:/usr/bin:/bin
-ExecStart=/home/emb/.local/bin/uv run --directory /home/emb/galatea_deploy python scripts/body_publisher.py --duration 0 --router tcp/127.0.0.1:7447
+ExecStart=/home/emb/.local/bin/uv run --directory /home/emb/project/galatea-service python scripts/body_publisher.py --duration 0 --router tcp/127.0.0.1:7447
 Restart=always
 RestartSec=5
 StandardOutput=journal

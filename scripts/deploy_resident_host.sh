@@ -14,7 +14,7 @@ SCP="scp -q"
 echo "== ① 推送部署树（git archive HEAD + config/scripts 同步）"
 git archive --format=tar.gz -o /tmp/galatea-head.tar.gz HEAD
 $SCP /tmp/galatea-head.tar.gz "$HOST:/tmp/"
-$SSH 'mkdir -p ~/galatea_deploy && tar -xzf /tmp/galatea-head.tar.gz -C ~/galatea_deploy'
+$SSH 'mkdir -p ~/project/galatea-service && tar -xzf /tmp/galatea-head.tar.gz -C ~/project/galatea-service'
 
 echo "== ② zenohd 二进制（WSL tools → 主机）"
 wsl.exe -e bash -lc 'cp ~/project/tools/zenohd /mnt/c/Users/y1985/AppData/Local/Temp/zenohd && echo ZENOHD_STAGED'
@@ -22,7 +22,7 @@ $SCP "C:/Users/y1985/AppData/Local/Temp/zenohd" "$HOST:/tmp/zenohd"
 $SSH 'mkdir -p ~/project/tools && mv /tmp/zenohd ~/project/tools/zenohd && chmod +x ~/project/tools/zenohd && ~/project/tools/zenohd --version 2>&1 | head -1 || echo "zenohd missing（body-sim/resident 将连不上路由——检查②）"'
 
 echo "== ③ venv（tessera extra：zenoh+cbor2）"
-$SSH 'cd ~/galatea_deploy && export PATH=$HOME/.local/bin:$PATH && uv sync --extra tessera 2>&1 | tail -1'
+$SSH 'cd ~/project/galatea-service && export PATH=$HOME/.local/bin:$PATH && uv sync --extra tessera 2>&1 | tail -1'
 
 echo "== ④ 服务单元安装 + enable"
 $SCP scripts/deploy/galatea-zenohd.service scripts/deploy/galatea-body-sim.service scripts/deploy/galatea-resident.service "$HOST:/tmp/"

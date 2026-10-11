@@ -6,10 +6,10 @@ Wants=galatea-zenohd.service galatea-body-sim.service
 [Service]
 Type=simple
 User=emb
-WorkingDirectory=/home/emb/galatea_deploy
-Environment=PYTHONPATH=/home/emb/galatea_deploy
+WorkingDirectory=/home/emb/project/galatea-service
+Environment=PYTHONPATH=/home/emb/project/galatea-service
 Environment=PATH=/home/emb/.local/bin:/usr/bin:/bin
-ExecStart=/home/emb/.local/bin/uv run python scripts/resident_subject.py --forever --resume --cycles 0 --dwell 64 --period-ms 200 --zenoh-router tcp/127.0.0.1:7447 --store /home/emb/galatea_resident/stores --out /home/emb/galatea_resident --session systemd
+ExecStart=/home/emb/.local/bin/uv run python scripts/resident_subject.py --forever --resume --cycles 0 --dwell 64 --period-ms 200 --zenoh-router tcp/127.0.0.1:7447 --store /home/emb/project/galatea-runtime/stores --out /home/emb/project/galatea-runtime --session systemd
 ExecStop=/bin/kill -TERM $MAINPID
 Restart=always
 RestartSec=5
