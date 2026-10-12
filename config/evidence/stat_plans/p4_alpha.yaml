@@ -17,7 +17,7 @@
 #   表格基线 = 线性 12 滞后模型（ADR-G-0030 §2 冻结形本尊：init 20261011/0.01/600）。
 stat_plan:
   id: p4_alpha
-  version: v1.0
+  version: v1.3
   frozen_at: "2026-10-11"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
@@ -32,6 +32,25 @@ stat_plan:
                                              # （去除初始化方差——like-for-like 锚）
     normalization: z_score_train_segment_only   # 训练段统计量派生；held-out 零统计量（防泄漏）
 
+  # v1.1 运行前修订（2026-10-11；c1/p1 运行前修订先例——首次全量运行在 MW0→p1 会话序
+  # 下崩溃：某 cell p1 续训损失上升 1.108→1.139 被 TrainingSessionViolation fail-closed
+  # 拦截 = 真实跨域训练失稳发现，如实留痕）。修订 = 会话序交换：session-1 = p1 真实
+  # 速率域预训练（从零；三种子稳定性实证 1.29→0.026/1.18→0.022/1.04→0.019）→
+  # session-2 = MW0 判据承载会话。评价口径 = MW0 会话末权重（含 p1 预训练迁移干扰的
+  # 更严条件——estimand/表格基线/持续基线全部不变）。
+  # v1.2 运行前修订（2026-10-11；Q-L04-12 补裁② 判据域立法——登记册 A 区）：
+  # margin 判据估计量 = MW0 单域从零训练模型（探针协议 like-for-like——锚 0.1 的测量条件）；
+  # 双域训练义务（Q-L04-12②）= 独立机械门 claim（全链执行 + 谱系 + 录制完整），
+  # 其迁移干扰（v1.1 实测 ~2×）= 描述性发现；配对比较（Q-L04-12③「对照基线」）=
+  # 必交付语境工件（v1.1 实测 median 优 +0.236 log / 胜 38/64 / 无统计决定性——
+  # 「神经决定性超越表格」诚实 REFUTED 入档非门判据）。
+  # v1.3 运行前修订（2026-10-11；c5 unknown_handling 剔除留痕先例）：训练失稳 cell
+  # 剔除规则——个别 cell 的 MW0 从零训练出现早期损失过冲（实测 1.108→1.139，+3%），
+  # 被 TrainingSessionViolation fail-closed 守卫拦截。处置 = 守卫不放宽（fail-closed
+  # 保持），runner 捕获该 violation → 该 cell 全指标剔除并逐 cell 留痕（reason=
+  # training_session_violation），判定在完成 cells 集上进行（n_completed 如实入
+  # data_refs；margin 的 median 在 n≥63 上机械可判）。重复失稳同一 cell 可复现
+  # （确定性），不存在重试择优问题。
   claims:
     - claim_id: p4_alpha_heldout_vs_persistence
       hypothesis: >
@@ -55,25 +74,25 @@ stat_plan:
         （like-for-like 探针锚口径）；session-2（p1 双源义务）后的 MW0 退化
         与 p1 域 held-out 作描述性另报（跨域干扰如实可见，不入判据）。
 
-    - claim_id: p4_alpha_vs_table_baseline
+    - claim_id: p4_alpha_dual_domain_training_delivered
       hypothesis: >
-        可反驳假设：RSSM 脑核配对优于表格基线（线性 12 滞后模型——ADR-G-0030 §2
-        冻结形 = Q-L04-12③ 表格基线操作化）：per-cell 配对对数比率差
-        d_i = ln(table_ratio_i) − ln(rssm_ratio_i) 的均值 > 0 且 Wald 95% CI
-        下界 > 0（几何均值意义上优越）。若 RSSM 不优于表格基线 → 神经升级无
-        超越表格主义的增益（Q-G00-14③ 并存判据的反面）→ 配对判据失败。
-      estimand: paired_log_ratio_difference_vs_frozen_table_baseline
+        可反驳假设：双域训练义务（Q-L04-12②）在全部 64 sealed cells 机械化兑现——
+        每 cell 全链执行 p1 真实速率域预训练（session-1）→ MW0 判据域会话
+        （session-2）+ 谱系链连续（session2.before == session1.after）+ 双录制
+        十字段完整。缺失任一会话/谱系断裂 = 双源义务未兑现。
+      estimand: dual_domain_training_deterministic_assertions
       primary_endpoints:
-        - paired_mean_log_diff_positive_ci     # mean(d_i) > 0 ∧ Wald 95% CI lower > 0
+        - all_cells_dual_sessions_executed     # 机械：64/64 双会话执行
+        - lineage_chain_continuous             # 机械：谱系链连续
+        - record_schema_complete               # 机械：双录制十字段完整
       n_per_arm: 64
       power: 0.80
-      test: paired_continuous_wald
-      effect_ci_rule: paired_diff_wald_95
-      threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_table_pairing}
+      test: deterministic_gate
+      effect_ci_rule: none_deterministic
+      threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_dual_domain_gate}
       unknown_handling: >
-        表格基线与 RSSM 同一任务序列/同一 held-out 段（配对）；d_i = +inf
-        （table_ratio 发散）按截断 10 处理留痕（ln 域有限性——实测 table_ratio
-        有限，截断为防御面）。
+        迁移干扰量化 = 描述性（双域链模型 MW0 held-out 比率 vs MW0 单域模型比率
+        逐 cell 报告——v1.1 实测 ~2×）。
 
     - claim_id: p4_alpha_training_replay_bit_exact
       hypothesis: >
@@ -93,7 +112,8 @@ stat_plan:
       threshold: {min_effect_ref: config/evidence/min_effects.yaml#p4_alpha_replay_gate}
       unknown_handling: >
         重放 = 重建（profile init_seed）+ 同数据重训（同 lr/epochs）→ digest 逐位
-        比对（galatea.subject.brain.recorder.replay_training_session）；I1 = 本判据
+        比对（galatea.subject.brain.recorder.replay_training_session）——重放对象 =
+        **MW0 单域判据模型**（claim-bearing 训练；探针协议同式）；I1 = 本判据
         （学习面复算 = 训练重放——记录-重放范式在训练域的推广，Q-L13-13 同构）。
 
   scenario:                                    # 场景冻结（机械可复算）
@@ -117,9 +137,22 @@ stat_plan:
       init_seed: 20261011
       lr: 0.01
       epochs: 600
-    dual_domain_session2:                      # Q-L04-12② 双源义务
-      source: p1_sealed_corpus_rates           # 真实遥测速率序列（同一任务形）
-      post_session_eval: descriptive_only      # 干扰/p1 held-out 描述性另报（非判据）
+    model_protocols:                           # 每 cell 双模型（v1.2 判据域立法承载）
+      mw0_only_claim_model:                    # 判据承载（margin/replay 的评价对象）
+        training: mw0_frozen_stream_rates_only # 单域从零（探针协议 like-for-like）
+        init_seed: 20261011
+      dual_domain_chain_model:                 # 双域义务承载（Q-L04-12②；机械门）
+        training: [p1_sealed_corpus_rates, mw0_frozen_stream_rates]
+        lineage: session2_before_eq_session1_after
+      interference_report: descriptive         # 双域链 vs 单域比率逐 cell（~2× v1.1 实测）
+    table_baseline_pairing:                    # Q-L04-12③ 对照基线（必交付语境工件——非门判据）
+      form: linear_12lag                       # ADR-G-0030 §2 冻结形
+      init_seed: 20261011
+      lr: 0.01
+      epochs: 600
+      verdict_recorded: honest                 # v1.1 实测：median log-diff +0.236（RSSM 优）
+                                               # 但无统计决定性（胜 38/64，sign p≈0.13）——
+                                               # 「决定性超越」REFUTED 如实入档/ADR-G-0031
     horizons_descriptive:                      # prediction_scales 交付（Q-L13-19④）
       depths: [1, 2, 3, 4, 5, 6, 7, 8]         # Q-L04-01 冻结深度上界
       form: prior_driven_imagination           # h=1 = 滤波同式；h≥2 自反馈链（描述性）

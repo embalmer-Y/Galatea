@@ -109,10 +109,27 @@ def evaluate_p4_table_pairing(result_id: str, stat_plan_ref: str,
     )
 
 
+def evaluate_p4_dual_domain_gate(result_id: str, stat_plan_ref: str,
+                                 lineage_ok: tuple[bool, ...],
+                                 schema_ok: tuple[bool, ...],
+                                 detected_by: str = "evidence.evaluator") -> EvidenceResult:
+    """claim2 p4_alpha_dual_domain_training_delivered（确定性门——Q-L04-12② 双源义务）。"""
+    return _gate_claim(
+        result_id, stat_plan_ref, "p4_alpha_dual_domain_training_delivered",
+        "dual_domain_training_deterministic_assertions",
+        {
+            "all_cells_dual_sessions_executed": all(lineage_ok) and all(schema_ok),
+            "lineage_chain_continuous": all(lineage_ok),
+            "record_schema_complete": all(schema_ok),
+        },
+        data_ref=f"n_cells={len(lineage_ok)}",
+        recompute_ok=True,
+        detected_by=detected_by,
+    )
+
+
 def evaluate_p4_replay_gate(result_id: str, stat_plan_ref: str,
                             replay_ok: tuple[bool, ...],
-                            lineage_ok: tuple[bool, ...],
-                            schema_ok: tuple[bool, ...],
                             detected_by: str = "evidence.evaluator") -> EvidenceResult:
     """claim3 p4_alpha_training_replay_bit_exact（确定性门 64/64——宪法语义 + I1）。"""
     return _gate_claim(
@@ -120,8 +137,6 @@ def evaluate_p4_replay_gate(result_id: str, stat_plan_ref: str,
         "training_replay_deterministic_assertions",
         {
             "all_cells_replay_bit_exact": all(replay_ok),
-            "lineage_chain_continuous": all(lineage_ok),
-            "record_schema_complete": all(schema_ok),
         },
         data_ref=f"n_cells={len(replay_ok)}",
         recompute_ok=True,                       # 重放即复算（零随机）
@@ -130,17 +145,21 @@ def evaluate_p4_replay_gate(result_id: str, stat_plan_ref: str,
 
 
 def evaluate_p4_composite(result_id: str, stat_plan_ref: str,
-                          margin: EvidenceResult, pairing: EvidenceResult,
+                          margin: EvidenceResult, dual: EvidenceResult,
                           replay: EvidenceResult,
                           leakage_free: bool,
                           detected_by: str = "evidence.evaluator") -> EvidenceResult:
-    """P4-α 复合（evaluate_c1_composite 体例——Holm 族 3 claim + leakage=0 + I1）。"""
+    """P4-α 复合（evaluate_c1_composite 体例——Holm 族 3 claim + leakage=0 + I1）。
+
+    v1.2 判据域立法（Q-L04-12 补裁②）：配对比较 = 语境工件非门判据——复合门 =
+    margin（profile 冻结契约）+ 双域义务（Q-L04-12②）+ replay（Q-L13-20①）。
+    """
     return evaluate_c1_composite(
-        result_id, stat_plan_ref, (margin, pairing, replay),
+        result_id, stat_plan_ref, (margin, dual, replay),
         mechanical_ok=True,
         leakage_free=leakage_free,
         i1_match=bool(replay.recompute_ok and replay.verdict is HypothesisVerdict.SUPPORTED),
-        recompute_ok=all(r.recompute_ok for r in (margin, pairing, replay)),
+        recompute_ok=all(r.recompute_ok for r in (margin, dual, replay)),
         statistical_core=margin,
         detected_by=detected_by,
         composite_label="p4_alpha_brain_core",

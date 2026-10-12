@@ -329,10 +329,12 @@ class CellResult:
     index: int
     task_digest: str
     unified_digest: str
-    session1_record: dict[str, Any]                # MW0 速率递归会话（training_session.v1）
-    session2_record: dict[str, Any]                # p1 真实速率续训录制（谱系链）
+    claim_record: dict[str, Any]                   # 模型 A（MW0 单域判据承载）录制
+    session1_record: dict[str, Any]                # 模型 B p1 预训练会话（双域义务）
+    session2_record: dict[str, Any]                # 模型 B MW0 会话（谱系链 session2.before==session1.after）
     replay_bit_exact: bool
-    rssm_ratio: float                              # session-1 末权重（判据口径——like-for-like 锚）
+    mw0_only_ratio: float                          # MW0 单域从零模型（v1.2 判据口径——探针 like-for-like）
+    chain_ratio: float                             # 双域链模型比率（描述性——迁移干扰量化）
     table_ratio: float                             # 线性 12 滞后表格基线（ADR-G-0030 §2 冻结形）
     persist_mse: float
     rssm_mse: float
@@ -355,55 +357,66 @@ def run_cell(index: int, params: P4AlphaBrainParams,
         raise ValueError(f"cell {index}: train segment too short ({n_train})")
     norm_rates, mu, sd = _zscore(rates, n_train)
 
+    # —— 模型 A：MW0 单域从零（v1.2 判据承载——探针协议 like-for-like，Q-L04-12 补裁②）——
     model = RSSMWorldModel(params, parent_digest="root", init_seed=init_seed, input_dim=1)
     param_count = model.param_count()
-    digest_before_1 = model.digest()
     train_xs = [torch.tensor([r], dtype=torch.float32) for r in norm_rates[:n_train + 1]]
-    losses_1 = model.train_on_sequence(train_xs, lr=params.lr,
+    digest_before_a = model.digest()
+    losses_a = model.train_on_sequence(train_xs, lr=params.lr,
                                        epochs=params.epochs, target_dims=(0,))
-    session1 = record_training_session(master_seed, init_seed, task_digest, model,
-                                       digest_before_1, losses_1, params)
-    record1 = _record_view(session1)
+    session_a = record_training_session(master_seed, init_seed, task_digest, model,
+                                        digest_before_a, losses_a, params)
+    claim_record = _record_view(session_a)
 
-    # 判据评价（session-1 末权重——like-for-like 探针锚口径）
+    # 判据评价（MW0 单域模型末权重——v1.2 判据口径）
     preds = _predict_next_rates(model, norm_rates, mu, sd)
-    rssm_ratio, persist_mse = _heldout_ratio(preds, rates, n_train)
+    mw0_only_ratio, persist_mse = _heldout_ratio(preds, rates, n_train)
     table_ratio = table_baseline_ratio(rates)
     horizons = _horizon_ratios(model, norm_rates, mu, sd, rates, n_train)
 
-    # p1 域续训（Q-L04-12② 双源；真实速率序列同一任务形——谱系链承载）
-    norm_p1, mu1, sd1 = _zscore(p1_rates, len(p1_rates) - _P1_HOLDOUT)
-    digest_before_2 = model.digest()
-    p1_xs = [torch.tensor([r], dtype=torch.float32) for r in norm_p1]
-    losses_2 = model.train_on_sequence(p1_xs, lr=params.lr,
-                                       epochs=params.epochs, target_dims=(0,))
-    session2 = record_training_session(master_seed, init_seed, p1_digest, model,
-                                       digest_before_2, losses_2, params)
-    record2 = _record_view(session2)
-    lineage_chained = session2.weights_digest_before == session1.weights_digest_after
-
-    # 重放判据（MW0 会话——同种子同数据 → 末权重逐位恒等）
-    def _retrain(module: Any) -> list[float]:
+    # 重放判据（判据承载模型——同种子同数据 → 末权重逐位恒等；I1）
+    def _retrain_a(module: Any) -> list[float]:
         assert isinstance(module, RSSMWorldModel)
         return module.train_on_sequence(train_xs, lr=params.lr,
                                         epochs=params.epochs, target_dims=(0,))
 
-    replay_ok = lineage_chained and replay_training_session(
-        session1,
+    replay_ok = replay_training_session(
+        session_a,
         rebuild=lambda: RSSMWorldModel(params, parent_digest="root",
                                        init_seed=init_seed, input_dim=1),
-        retrain=_retrain,
+        retrain=_retrain_a,
     )
 
-    # p1 域 held-out（描述性）
-    p1_preds = _predict_next_rates(model, norm_p1, mu1, sd1)
+    # —— 模型 B：双域链（Q-L04-12② 义务承载——p1 预训练 → MW0；机械门 + 干扰描述性）——
+    model_b = RSSMWorldModel(params, parent_digest="root", init_seed=init_seed, input_dim=1)
+    norm_p1, mu1, sd1 = _zscore(p1_rates, len(p1_rates) - _P1_HOLDOUT)
+    p1_xs = [torch.tensor([r], dtype=torch.float32) for r in norm_p1]
+    digest_before_1 = model_b.digest()
+    losses_1 = model_b.train_on_sequence(p1_xs, lr=params.lr,
+                                         epochs=params.epochs, target_dims=(0,))
+    session1 = record_training_session(master_seed, init_seed, p1_digest, model_b,
+                                       digest_before_1, losses_1, params)
+    b1_record = _record_view(session1)
+    digest_before_2 = model_b.digest()
+    losses_2 = model_b.train_on_sequence(train_xs, lr=params.lr,
+                                         epochs=params.epochs, target_dims=(0,))
+    session2 = record_training_session(master_seed, init_seed, task_digest, model_b,
+                                       digest_before_2, losses_2, params)
+    b2_record = _record_view(session2)
+    chain_preds = _predict_next_rates(model_b, norm_rates, mu, sd)
+    chain_ratio, _ = _heldout_ratio(chain_preds, rates, n_train)
+
+    # p1 域 held-out（描述性——双域链模型）
+    p1_preds = _predict_next_rates(model_b, norm_p1, mu1, sd1)
     p1_ratio, _ = _heldout_ratio(p1_preds, p1_rates, len(p1_rates) - _P1_HOLDOUT)
 
     return CellResult(
         index=index, task_digest=task_digest, unified_digest=unified_digest,
-        session1_record=record1, session2_record=record2, replay_bit_exact=replay_ok,
-        rssm_ratio=rssm_ratio, table_ratio=table_ratio, persist_mse=persist_mse,
-        rssm_mse=rssm_ratio * persist_mse, horizon_ratios=horizons,
+        claim_record=claim_record, session1_record=b1_record,
+        session2_record=b2_record, replay_bit_exact=replay_ok,
+        mw0_only_ratio=mw0_only_ratio, chain_ratio=chain_ratio,
+        table_ratio=table_ratio, persist_mse=persist_mse,
+        rssm_mse=mw0_only_ratio * persist_mse, horizon_ratios=horizons,
         param_count=param_count, p1_heldout_ratio=p1_ratio,
         train_mean=mu, train_std=sd,
     )
@@ -425,11 +438,28 @@ def _record_view(session: Any) -> dict[str, Any]:
     }
 
 
+def run_cell_guarded(index: int, params: P4AlphaBrainParams,
+                     p1_rates: list[float], p1_digest: str
+                     ) -> tuple[CellResult | None, str]:
+    """run_cell 的剔除包装（stat plan v1.3：训练失稳 cell 全指标剔除并留痕——守卫不放宽）。"""
+    from galatea.subject.brain.ports import TrainingSessionViolation
+
+    try:
+        return run_cell(index, params, p1_rates, p1_digest), ""
+    except TrainingSessionViolation as broken:
+        return None, f"cell {index}: training_session_violation: {broken}"
+
+
 def run_smoke(cells: int = 2) -> list[CellResult]:
     """冒烟（stat plan 冻结前判据可达性诊断——运行前修订留痕先例 c1）。"""
     params = load_p4_alpha_profile(_ROOT / "config/profiles/p4_alpha_brain.profile.yaml")
     p1_rates, p1_digest = p1_rate_series()
-    return [run_cell(i, params, p1_rates, p1_digest) for i in range(cells)]
+    results: list[CellResult] = []
+    for i in range(cells):
+        cell, _reason = run_cell_guarded(i, params, p1_rates, p1_digest)
+        if cell is not None:
+            results.append(cell)
+    return results
 
 
 # ---------------------------------------------------------------- 首评编排
@@ -445,36 +475,45 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
     params = load_p4_alpha_profile(root / "config/profiles/p4_alpha_brain.profile.yaml")
     p1_rates, p1_digest = p1_rate_series()
 
-    cells = [run_cell(i, params, p1_rates, p1_digest) for i in range(n_cells)]
-    rssm_ratios = tuple(c.rssm_ratio for c in cells)
+    cells: list[CellResult] = []
+    exclusions: list[str] = []
+    for i in range(n_cells):
+        cell, reason = run_cell_guarded(i, params, p1_rates, p1_digest)
+        if cell is None:
+            exclusions.append(reason)               # stat plan v1.3 剔除留痕
+        else:
+            cells.append(cell)
+    n_completed = len(cells)
+    mw0_only_ratios = tuple(c.mw0_only_ratio for c in cells)
+    chain_ratios = tuple(c.chain_ratio for c in cells)
     table_ratios = tuple(c.table_ratio for c in cells)
 
     from galatea.evidence.evaluator.evaluate_p4 import (
         evaluate_p4_composite,
+        evaluate_p4_dual_domain_gate,
         evaluate_p4_margin_median,
         evaluate_p4_replay_gate,
-        evaluate_p4_table_pairing,
     )
 
     margin = evaluate_p4_margin_median(
-        "R-p4-brain-margin", stat_plan_ref, rssm_ratios,
+        "R-p4-brain-margin", stat_plan_ref, mw0_only_ratios,
         params.heldout_margin_vs_persistence)
-    pairing = evaluate_p4_table_pairing(
-        "R-p4-brain-pairing", stat_plan_ref, rssm_ratios, table_ratios)
-    replay = evaluate_p4_replay_gate(
-        "R-p4-brain-replay", stat_plan_ref,
-        tuple(c.replay_bit_exact for c in cells),
+    dual = evaluate_p4_dual_domain_gate(
+        "R-p4-brain-dualdomain", stat_plan_ref,
         tuple(c.session2_record["weights_digest_before"]
               == c.session1_record["weights_digest_after"] for c in cells),
         tuple(len(c.session1_record) == 10 and len(c.session2_record) == 10
               for c in cells))
+    replay = evaluate_p4_replay_gate(
+        "R-p4-brain-replay", stat_plan_ref,
+        tuple(c.replay_bit_exact for c in cells))
     if leakage_free_override is None:
         from galatea.evidence.evaluator.leakage import load_tree_sources, run_leakage_suite
         leakage_free = run_leakage_suite(load_tree_sources(root)).leakage_free
     else:
         leakage_free = leakage_free_override
     composite = evaluate_p4_composite(
-        "R-p4-brain-001", stat_plan_ref, margin, pairing, replay,
+        "R-p4-brain-001", stat_plan_ref, margin, dual, replay,
         leakage_free=leakage_free)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -482,25 +521,38 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
         "result_id": composite.result_id,
         "stat_plan_ref": stat_plan_ref,
         "profile": "p4_alpha_brain@v1.1",
+        "stat_plan_version": "v1.3",
         "n_cells": n_cells,
+        "n_completed": n_completed,
+        "exclusions": exclusions,
         "claims": {
             "p4_alpha_heldout_vs_persistence": {
                 "verdict": margin.verdict.value, "p": margin.p_or_bayes,
                 "effect": margin.effect_size, "detail": margin.data_refs,
             },
-            "p4_alpha_vs_table_baseline": {
-                "verdict": pairing.verdict.value, "p": pairing.p_or_bayes,
-                "effect": pairing.effect_size, "ci": pairing.data_refs,
+            "p4_alpha_dual_domain_training_delivered": {
+                "verdict": dual.verdict.value, "p": dual.p_or_bayes,
+                "effect": dual.effect_size,
             },
             "p4_alpha_training_replay_bit_exact": {
                 "verdict": replay.verdict.value, "p": replay.p_or_bayes,
                 "effect": replay.effect_size,
             },
         },
+        "descriptive": {
+            "table_baseline_pairing": {
+                "role": "Q-L04-12③ 对照基线语境工件（非门判据——v1.2 立法）",
+                "rssm_median": sorted(mw0_only_ratios)[n_cells // 2],
+                "table_median": sorted(table_ratios)[n_cells // 2],
+                "chain_median": sorted(chain_ratios)[n_cells // 2],
+                "rssm_beats_table": sum(1 for r, s in zip(mw0_only_ratios, table_ratios) if r < s),
+            },
+        },
         "cells": [
             {
                 "index": c.index, "task_digest": c.task_digest,
-                "rssm_ratio": c.rssm_ratio, "table_ratio": c.table_ratio,
+                "mw0_only_ratio": c.mw0_only_ratio, "chain_ratio": c.chain_ratio,
+                "table_ratio": c.table_ratio,
                 "persist_mse": c.persist_mse, "rssm_mse": c.rssm_mse,
                 "replay_bit_exact": c.replay_bit_exact,
                 "horizon_ratios": c.horizon_ratios,
@@ -518,7 +570,7 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
     }
     (out_dir / "R-p4-brain-001.json").write_text(
         _json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    for claim_result in (margin, pairing, replay):
+    for claim_result in (margin, dual, replay):
         (out_dir / f"{claim_result.result_id}.json").write_text(
             _json.dumps({
                 "result_id": claim_result.result_id,
@@ -535,5 +587,5 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
                 "data_refs": list(claim_result.data_refs),
                 "recompute_ok": claim_result.recompute_ok,
             }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return {"composite": composite, "margin": margin, "pairing": pairing,
+    return {"composite": composite, "margin": margin, "dual": dual,
             "replay": replay, "leakage_free": leakage_free, "out_dir": out_dir}

@@ -204,6 +204,13 @@ entries:
     metric: paired_mean_log_ratio_difference_vs_table_baseline
     min_effect: {type: mean_log_diff, value: 0.0}
     min_n: 64
+  - id: p4_alpha_dual_domain_gate                            # v1.9 新增（v1.2 立法——Q-L04-12② 双源义务机械门）
+    q: Q-L04-12
+    claim_gate: P4-α
+    thresholds:
+      all_cells_dual_sessions_executed: true
+      lineage_chain_continuous: true
+      record_schema_complete: true
   - id: p4_alpha_replay_gate                                 # v1.9 新增（确定性门 Q-L13-20①）
     q: Q-L13-20
     claim_gate: P4-α

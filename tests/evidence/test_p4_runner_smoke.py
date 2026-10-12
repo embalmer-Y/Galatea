@@ -33,13 +33,15 @@ def test_runner_cell_end_to_end(shrunk: None) -> None:
     p1_rates = [0.01, -0.005, 0.008, -0.002] * 12          # 48 拍合成速率（p1 域义务路径）
     p1_digest = "b" * 64
     cell = runs_p4.run_cell(0, _PARAMS, p1_rates, p1_digest)
-    # 会话链录制（training_session.v1 十字段）
+    # 会话链录制（training_session.v1 十字段；claim 模型 + 双域链模型 B）
+    assert len(cell.claim_record) == 10
+    assert cell.claim_record["loss_last"] < cell.claim_record["loss_first"]
     assert len(cell.session1_record) == 10 and len(cell.session2_record) == 10
-    assert cell.session1_record["loss_last"] < cell.session1_record["loss_first"]
     assert cell.session2_record["weights_digest_before"] \
-        == cell.session1_record["weights_digest_after"]    # 谱系链
+        == cell.session1_record["weights_digest_after"]    # 模型 B 谱系链
     # 判据量（机械域——比率有限且为正）
-    assert 0.0 < cell.rssm_ratio < float("inf")
+    assert 0.0 < cell.mw0_only_ratio < float("inf")
+    assert 0.0 < cell.chain_ratio < float("inf")
     assert 0.0 < cell.table_ratio < float("inf")
     assert cell.persist_mse > 0.0
     assert cell.param_count == cell.param_count            # 工件计数在位（27521 预算断言在模型构造）
@@ -77,6 +79,6 @@ def test_first_evaluation_orchestration_small(shrunk: None, tmp_path: Path) -> N
         runs_p4._ROOT, tmp_path, n_cells=2, leakage_free_override=True)
     assert result["composite"].result_id == "R-p4-brain-001"
     assert (tmp_path / "R-p4-brain-001.json").exists()
-    for name in ("R-p4-brain-margin", "R-p4-brain-pairing", "R-p4-brain-replay"):
+    for name in ("R-p4-brain-margin", "R-p4-brain-dualdomain", "R-p4-brain-replay"):
         assert (tmp_path / f"{name}.json").exists()
     assert result["leakage_free"] is True                  # override 注入路径
