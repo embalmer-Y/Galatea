@@ -264,4 +264,5 @@ galatea/evidence/control/probe_report.py   【交付】探针报告生成器（R
 | Q-L04-05 | `CapabilityEstimate` 的 action_class 粒度（与 L03-06 affordance 枚举、L10 能力契约对齐） | C3/C4 | CONFIRMED（AI-v2 2026-10-07，裁决见 open_questions.md A 区） |
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照） | M2 | CONFIRMED（AI-v2 2026-09-26：主判据=谱系断裂；延续主张 gap=0、分支主张允许，见 A 区） |
 | Q-L04-07 | C1+ 神经世界模型替换表格模型时的等价性/泄漏验证方法（与 Q-L03-07 同源） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
-| Q-L04-12 | P4-α 神经世界模型范围（RSSM 式小尺度/双域训练/表格并存 held-out 配对判据） | P4-α | CONFIRMED（AI-v2 2026-10-11，见 A 区） |
+| Q-L04-12 | P4-α 神经世界模型范围（RSSM 式小尺度/双域训练/表格并存 held-out 配对判据） | P4-α | CONFIRMED（AI-v2 2026-10-11，见 A 区；补裁② 2026-10-11 判据域立法同源） |
+| Q-L04-13 | P4-α margin 判据校准（首评 REFUTED 后呈递 owner——锚模型本尊跨种 median 0.302 同不达 0.1，单种子锚外推校准缺陷） | P4-α | UNCONFIRMED（owner 否决权域，AI 不自行降判据 §4.6.5；证据 ADR-G-0031） |

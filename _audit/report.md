@@ -10,11 +10,11 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**167**
-  - CONFIRMED: 163
+- 登记册声明 Q 号：**168**
+  - CONFIRMED: 164
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 163, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 164, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
@@ -38,7 +38,7 @@
 - `lld/L01_environment_channels.md`: 12 → Q-L01-01, Q-L01-02, Q-L01-03, Q-L01-04, Q-L01-05, Q-L01-06, Q-L01-07, Q-L01-08, Q-L01-09, Q-L01-10, Q-L01-11, Q-L01-12
 - `lld/L02_sensorium.md`: 8 → Q-L02-01, Q-L02-02, Q-L02-03, Q-L02-04, Q-L02-05, Q-L02-06, Q-L02-07, Q-L02-08
 - `lld/L03_perception.md`: 7 → Q-L03-01, Q-L03-02, Q-L03-03, Q-L03-04, Q-L03-05, Q-L03-06, Q-L03-07
-- `lld/L04_world_body_self.md`: 8 → Q-L04-01, Q-L04-02, Q-L04-03, Q-L04-04, Q-L04-05, Q-L04-06, Q-L04-07, Q-L04-12
+- `lld/L04_world_body_self.md`: 9 → Q-L04-01, Q-L04-02, Q-L04-03, Q-L04-04, Q-L04-05, Q-L04-06, Q-L04-07, Q-L04-12, Q-L04-13
 - `lld/L05_drive_appraisal_affect.md`: 8 → Q-L05-01, Q-L05-02, Q-L05-03, Q-L05-04, Q-L05-05, Q-L05-06, Q-L05-07, Q-L05-08
 - `lld/L06_memory.md`: 8 → Q-L06-01, Q-L06-02, Q-L06-03, Q-L06-04, Q-L06-05, Q-L06-06, Q-L06-07, Q-L06-08
 - `lld/L07_workspace.md`: 7 → Q-L07-01, Q-L07-02, Q-L07-03, Q-L07-04, Q-L07-05, Q-L07-06, Q-L07-07
@@ -69,7 +69,7 @@
 - `lld/L01_environment_channels.md`: 210 行 · 标题「# L01 环境与声明通道：WorldTruth、Channel Adapter、干预注册、最小世界 MW0」 · OK
 - `lld/L02_sensorium.md`: 235 行 · 标题「# L02 Sensorium：感觉形成、校准、对齐与增益」 · OK
 - `lld/L03_perception.md`: 210 行 · 标题「# L03 知觉：对象/事件/来源/affordance 与带置信度的 PerceptualBelief」 · OK
-- `lld/L04_world_body_self.md`: 267 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
+- `lld/L04_world_body_self.md`: 268 行 · 标题「# L04 世界/身体/自我模型：信念、rollout、主动感知与自我预测误差」 · OK
 - `lld/L05_drive_appraisal_affect.md`: 244 行 · 标题「# L05 驱力-评价-情感：持续动力学、有界 ModulationField 与内稳态价值」 · OK
 - `lld/L06_memory.md`: 234 行 · 标题「# L06 记忆：八子系统、来源类型、检索、巩固与遗忘控制」 · OK
 - `lld/L07_workspace.md`: 225 行 · 标题「# L07 递归全局工作空间：竞争、广播、读取回执与因果访问」 · OK
@@ -104,7 +104,7 @@
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：65（只增不减）
+- 清单条目：69（只增不减）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）

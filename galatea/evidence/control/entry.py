@@ -987,7 +987,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"p4: composite={first['composite'].verdict.value} "
             f"margin={first['margin'].verdict.value} "
-            f"pairing={first['pairing'].verdict.value} "
+            f"dualdomain={first['dual'].verdict.value} "
             f"replay={first['replay'].verdict.value} "
             f"leakage_free={first['leakage_free']}"
         )

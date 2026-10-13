@@ -1,9 +1,11 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.30（2026-10-13）：P4-α 全量首评工件四锚（v1.3 协议 62/64 cells——margin REFUTED 0.172≥0.1
+# 如实入档/双域门 SUPPORTED/重放门 SUPPORTED 62/62；INC-13 教训：先锚定后处置，防 v1.1 误删重演）。
 # v1.29（2026-10-11）：P4-α 冻结前置——硬机制第七次探针全绿（torch 2.14.1+cpu 确定性面 +
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.29
+  version: v1.30
   frozen_at: '2026-10-11'
   authority: AI-v2
   artifacts:
@@ -294,3 +296,22 @@ artifact_manifest:
     sha256: 224827eb0ed27aad3df94f2cf60530a8ba7b86c4d296e228478174f116b75250
     gate: P4-α 冻结前置探针（硬机制第七次执行——层A torch 确定性四检 + 层B 真实流学习会话
       录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
+  - name: R-p4-brain-001
+    path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
+    sha256: 05fdd142e3edd82e5ca8478236e667560352f9554013e79e6a98d0368c405f6b
+    gate: P4-α 全量首评复合（stat plan v1.3：margin REFUTED 0.172≥0.1 如实入档 + 双域门 SUPPORTED + 重放门 SUPPORTED；62/64 cells，2 失稳剔除留痕）
+
+  - name: R-p4-brain-margin
+    path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-margin.json
+    sha256: d37347bbd6ce0b6e1268f9cd73deb25aa4950dcc714a8fec8d8582e9f5cf237f
+    gate: P4-α margin 判定（median 0.172 vs 冻结阈 0.1——REFUTED；判据校准发现：表格锚模型本尊跨种 median 0.302 同样不达——单种子锚外推为跨种子判据的校准缺陷，Q-L04-13 呈递 owner）
+
+  - name: R-p4-brain-dualdomain
+    path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-dualdomain.json
+    sha256: 98da0d3a7aeda1d48f45d634ab038b7dd21d11c99a3ad9c40503c87b6c156e10
+    gate: P4-α 双域训练义务门（Q-L04-12②——62/62 谱系链连续 + 双录制十字段完整）
+
+  - name: R-p4-brain-replay
+    path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json
+    sha256: d25d5335c8a748dfcc376db55f27aa02da2b961ee1577f48da60bd3f3cab82b5
+    gate: P4-α 训练重放门（Q-L13-20① 宪法语义——62/62 末权重逐位恒等，I1）
