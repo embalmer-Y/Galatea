@@ -82,3 +82,18 @@ def test_first_evaluation_orchestration_small(shrunk: None, tmp_path: Path) -> N
     for name in ("R-p4-brain-margin", "R-p4-brain-dualdomain", "R-p4-brain-replay"):
         assert (tmp_path / f"{name}.json").exists()
     assert result["leakage_free"] is True                  # override 注入路径
+    payload = (tmp_path / "R-p4-brain-001.json").read_text(encoding="utf-8")
+    assert '"n_completed"' in payload
+
+
+def test_median_statistic_exclusion_safe() -> None:
+    """REV-0028 R1 回归：中位数统计量必须对剔除场景取 n_completed 索引——
+    62 元素列表按 n_cells=64 取 sorted[32] 曾致 descriptive 0.302 vs 真值 0.189。"""
+    values = tuple(sorted(0.01 * i for i in range(1, 63)))     # 62 元素
+    assert runs_p4._median(values) == (values[30] + values[31]) / 2
+    odd = tuple(sorted(0.01 * i for i in range(1, 64)))        # 63 元素
+    assert runs_p4._median(odd) == odd[31]
+    import pytest
+
+    with pytest.raises(ValueError, match="empty"):
+        runs_p4._median(())

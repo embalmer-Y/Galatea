@@ -1,17 +1,17 @@
 """P4-α 三 claim 判定器（stat plan p4_alpha v1.0 冻结承载；顺延终止条款第八次执行）。
 
-- heldout_vs_persistence：median gate（64 cell 比率中位数 < 冻结阈 0.1——profile
-  heldout_margin_vs_persistence 的多 cell 泛化操作化，stat plan 头部依据）；
-- vs_table_baseline：配对对数比率差 Wald（mean d > 0 ∧ CI lower > 0——几何均值
-  优越，Q-L04-12③ 表格基线 = ADR-G-0030 §2 线性冻结形）；
-- training_replay_bit_exact：确定性门（64/64 重放恒等 + 谱系链 + 十字段——
-  Q-L13-20① 宪法语义，I1 = 本判据）。
-- 复合 = evaluate_c1_composite 体例（Holm 族 = 3 claim 主判定 p，REV-0014 R3
+- heldout_vs_persistence：median gate（完成 cells 比率中位数 < 冻结阈 0.1——
+  profile heldout_margin_vs_persistence 的多 cell 泛化操作化，stat plan 头部依据）；
+- dual_domain_training_delivered：确定性门（Q-L04-12② 双源义务——谱系链 + 双录制
+  十字段；v1.2 立法承载）；
+- training_replay_bit_exact：确定性门（完成 cells 重放恒等——Q-L13-20① 宪法语义，
+  I1 = 本判据）。
+- 配对比较（vs 表格基线）= 语境工件非门判据（v1.2 立法，Q-L04-12 补裁②；其计算
+  在 runs_p4 descriptive 块，不走 EvidenceResult）——v1.0 的 evaluate_p4_table_pairing
+  已随立法移除，复合门族 = margin + dual + replay（Holm 族 3 claim，REV-0014 R3
   机械执行；leakage=0 + I1 + recompute 前置；statistical_core = margin claim）。
 """
 from __future__ import annotations
-
-import math
 
 from galatea.evidence.evaluator.hypotheses import (
     ConfidenceInterval,
@@ -63,49 +63,6 @@ def evaluate_p4_margin_median(result_id: str, stat_plan_ref: str,
         data_refs=(f"n_cells={n} mean={sum(ordered) / n:.6f} "
                    f"min={ordered[0]:.6f} max={ordered[-1]:.6f}",),
         recompute_ok=True,                       # 比率确定性重算（median = 排序统计量）
-    )
-
-
-def evaluate_p4_table_pairing(result_id: str, stat_plan_ref: str,
-                              rssm_ratios: tuple[float, ...],
-                              table_ratios: tuple[float, ...],
-                              detected_by: str = "evidence.evaluator") -> EvidenceResult:
-    """claim2 p4_alpha_vs_table_baseline（配对对数比率差 Wald——几何均值优越）。
-
-    d_i = ln(table_ratio_i) − ln(rssm_ratio_i)；截断 10 = ln 域有限性防御面
-    （stat plan unknown_handling 冻结；实测比率有限）。
-    """
-    if len(rssm_ratios) != len(table_ratios) or not rssm_ratios:
-        raise ValueError("paired arms must be non-empty and equal length")
-
-    def _log_floor(value: float) -> float:
-        bounded = min(value, 10.0)
-        return math.log(max(bounded, 1e-12))
-
-    diffs = tuple(_log_floor(t) - _log_floor(r) for r, t in zip(rssm_ratios, table_ratios))
-    n = len(diffs)
-    mean = sum(diffs) / n
-    var = sum((d - mean) ** 2 for d in diffs) / (n - 1) if n > 1 else 0.0
-    se = math.sqrt(var / n)
-    z = 1.959963984540054
-    lower, upper = mean - z * se, mean + z * se
-    passed = mean > 0.0 and lower > 0.0
-    # p = 单侧 Wald（mean > 0）
-    p = 1.0 - 0.5 * (1.0 + math.erf(mean / se / 2.0 ** 0.5)) if se > 0 else (0.0 if mean > 0 else 1.0)
-    return EvidenceResult(
-        result_id=result_id, hypothesis_refs=("p4_alpha_vs_table_baseline",),
-        stat_plan_ref=stat_plan_ref,
-        estimand="paired_log_ratio_difference_vs_frozen_table_baseline",
-        effect_size=mean,
-        ci=ConfidenceInterval(lower=lower, upper=upper, level=0.95),
-        p_or_bayes=max(p, 0.0),
-        verdict=HypothesisVerdict.SUPPORTED if passed else HypothesisVerdict.REFUTED,
-        unknowns=(),
-        refutations=() if passed else (
-            f"paired log-diff mean {mean:.6f} CI [{lower:.6f}, {upper:.6f}] "
-            "not positive-above-zero",),
-        data_refs=(f"n_cells={n} wins={sum(1 for d in diffs if d > 0)}/{n}",),
-        recompute_ok=True,
     )
 
 

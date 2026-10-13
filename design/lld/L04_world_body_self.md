@@ -220,7 +220,7 @@ galatea/subject/models/tests/
   【交付】上列九件全量（stack_bit_exact = 全栈双跑 digest 恒等集成面）
 config/profiles/
   c1_perception_models.profile.yaml   【已冻结·typed loader 已交付 = galatea/subject/c1profile.py（补录件：INC-11 纪律；先验/似然原料自 m0 冻结初始条件派生 Q-L04-11）】 v1.0】rollout 深度/宽度、信念更新率、自我误差权重等（Q-L03/L04 批裁决；REV-0013 R6 勘误文件名）
-  p4_alpha_brain.profile.yaml         【已冻结 v1.0·typed loader = galatea/subject/p4profile.py】P4-α 脑核参数（Q-L04-12/Q-L13-20/Q-G00-15；ADR-G-0030）
+  p4_alpha_brain.profile.yaml         【已冻结 v1.1（v1.1 = lr 运行前修订；REV-0028 R5 注记）·typed loader = galatea/subject/p4profile.py】P4-α 脑核参数（Q-L04-12/Q-L13-20/Q-G00-15；ADR-G-0030）
 
 galatea/subject/brain/                      # P4-α 预测脑脑核面（HLD §15.1 世界/自我模型行；
                                             # Q-L04-12①/Q-L13-20②；ADR-G-0030 §5 范围）——strict 类型
@@ -265,4 +265,4 @@ galatea/evidence/control/probe_report.py   【交付】探针报告生成器（R
 | Q-L04-06 | 连续性 gap 的最大可接受数量与"伪更新"判定边界（M2 对照） | M2 | CONFIRMED（AI-v2 2026-09-26：主判据=谱系断裂；延续主张 gap=0、分支主张允许，见 A 区） |
 | Q-L04-07 | C1+ 神经世界模型替换表格模型时的等价性/泄漏验证方法（与 Q-L03-07 同源） | C1 | CONFIRMED（AI-v2 2026-10-03，见 A 区） |
 | Q-L04-12 | P4-α 神经世界模型范围（RSSM 式小尺度/双域训练/表格并存 held-out 配对判据） | P4-α | CONFIRMED（AI-v2 2026-10-11，见 A 区；补裁② 2026-10-11 判据域立法同源） |
-| Q-L04-13 | P4-α margin 判据校准（首评 REFUTED 后呈递 owner——锚模型本尊跨种 median 0.302 同不达 0.1，单种子锚外推校准缺陷） | P4-α | UNCONFIRMED（owner 否决权域，AI 不自行降判据 §4.6.5；证据 ADR-G-0031） |
+| Q-L04-13 | P4-α margin 判据校准（首评 REFUTED 后呈递 owner——锚模型本尊跨种 median 0.189 同不达 0.1（29/62 达标，中位级非全域级；REV-0028 R1 勘误初版 0.302），单种子锚外推校准缺陷） | P4-α | UNCONFIRMED（owner 否决权域，AI 不自行降判据 §4.6.5；证据 ADR-G-0031） |

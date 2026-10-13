@@ -55,6 +55,18 @@ def cell_master_seed(index: int) -> bytes:
     return hashlib.sha256(f"{_LABEL}|{index}".encode("utf-8") + _MASTER_SEED).digest()
 
 
+def _median(values: tuple[float, ...]) -> float:
+    """排序统计量中位数（REV-0028 R1：剔除场景下必须以 n_completed 取索引——
+    62 元素列表按 n_cells=64 索引取 sorted[32] 曾致 descriptive 中位数失实 0.302
+    vs 真值 0.189，五处文本传播，S1 教训）。"""
+    ordered = sorted(values)
+    n = len(ordered)
+    if n == 0:
+        raise ValueError("median of empty sequence")
+    mid = n // 2
+    return ordered[mid] if n % 2 == 1 else (ordered[mid - 1] + ordered[mid]) / 2.0
+
+
 # ---------------------------------------------------------------- 流采集
 def collect_stream_vectors(master_seed: bytes, cycles: int | None = None
                            ) -> tuple[list[tuple[int, tuple[float, ...]]],
@@ -542,9 +554,10 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
         "descriptive": {
             "table_baseline_pairing": {
                 "role": "Q-L04-12③ 对照基线语境工件（非门判据——v1.2 立法）",
-                "rssm_median": sorted(mw0_only_ratios)[n_cells // 2],
-                "table_median": sorted(table_ratios)[n_cells // 2],
-                "chain_median": sorted(chain_ratios)[n_cells // 2],
+                "n_completed": n_completed,
+                "rssm_median": _median(mw0_only_ratios),
+                "table_median": _median(table_ratios),
+                "chain_median": _median(chain_ratios),
                 "rssm_beats_table": sum(1 for r, s in zip(mw0_only_ratios, table_ratios) if r < s),
             },
         },
