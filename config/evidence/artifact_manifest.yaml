@@ -1,11 +1,14 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.31（2026-10-13）：REV-0028 R1 闭环——R-p4-brain-001 确定性重生成重锚（descriptive 中位数索引缺陷更正：
+# table 0.302→0.189312/rssm 0.176→0.172048/chain 0.157→0.150213；claims/cells/exclusions 逐字节恒等——
+# margin/dualdomain/replay 三锚不变即判定路径无误的直接证明；REGENERATED 先例 v1.9）。旧锚 05fdd142 保留本注记。
 # v1.30（2026-10-13）：P4-α 全量首评工件四锚（v1.3 协议 62/64 cells——margin REFUTED 0.172≥0.1
 # 如实入档/双域门 SUPPORTED/重放门 SUPPORTED 62/62；INC-13 教训：先锚定后处置，防 v1.1 误删重演）。
 # v1.29（2026-10-11）：P4-α 冻结前置——硬机制第七次探针全绿（torch 2.14.1+cpu 确定性面 +
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.30
+  version: v1.31
   frozen_at: '2026-10-11'
   authority: AI-v2
   artifacts:
@@ -298,7 +301,7 @@ artifact_manifest:
       录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
   - name: R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
-    sha256: 05fdd142e3edd82e5ca8478236e667560352f9554013e79e6a98d0368c405f6b
+    sha256: 087639123b33bda31065413d0b2ccde72b2d348db111fcae2220082327188776
     gate: P4-α 全量首评复合（stat plan v1.3：margin REFUTED 0.172≥0.1 如实入档 + 双域门 SUPPORTED + 重放门 SUPPORTED；62/64 cells，2 失稳剔除留痕）
 
   - name: R-p4-brain-margin
