@@ -7,11 +7,11 @@
 # 部署推理 bit-exact；学习参数 = 工件（digest 锚）；表格模型并存为回退层/对照基线。
 profile:
   id: p4_alpha_brain
-  version: v1.1
-  frozen_at: "2026-10-11"
+  version: v1.2
+  frozen_at: "2026-10-15"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15 预测脑 v2
-  ruling_refs: [Q-G00-14, Q-G00-15, Q-L04-12, Q-L13-20, Q-L13-19, Q-T02]
+  ruling_refs: [Q-G00-14, Q-G00-15, Q-L04-12, Q-L04-13, Q-L04-14, Q-L13-20, Q-L13-19, Q-T02]
 
 determinism:                                  # Q-L13-20③（探针层A 配置即生产配置）
   torch_version: "2.14.1+cpu"                 # 探针实测；升级 = 新 Q（uv.lock 哈希锁定）
@@ -28,8 +28,11 @@ probe_anchors:                                # Q-G00-15②（证据 evidence/p4
   probe_report: evidence/p4_alpha_probe/probe_report.json
   probe_regression_test: tests/evidence/test_p4_alpha_probe.py
 
-world_model:                                  # Q-L04-12（P4-α 范围）
+world_model:                                  # Q-L04-12（P4-α 范围）+ Q-L04-14（v1.2 递归修订）
   architecture_family: rssm_style             # 确定性 recurrent + 随机潜变量（小尺度 CPU 级）
+  recurrence: predictive_coding_error_feedback  # v1.2：递归输入 [x, e, z]，e = x − x̂_{t|t−1}
+                                              # （误差解剖驱动——丢帧合并值相位重锁的一阶特征；
+                                              # imagination 中 e ≡ 0 无观测即无惊讶。Q-L04-14①）
   param_budget: [10000, 1000000]              # 10^4–10^6（CPU 单线程实时预算；实现期实测复核）
   latent_dim: 32                              # 探针延续（2 的幂，Q-G00-08 定值原则族）
   deterministic_state_dim: 64                 # 2 的幂
@@ -55,7 +58,20 @@ training:                                     # Q-L13-20①②（学习会话录
   # 不可平移到 38k 参数门控递归——冒烟实证 lr=0.01 门控发散（cells 1/4 回落平凡解
   # ratio 1.03/1.08），0.001 稳定收敛（6/6 cells 训练损失单调降，held-out 中位 0.075）。
   lr: 0.001
-  epochs: 600
+  # v1.2 运行前修订（2026-10-15，专项研究单元胜出配置——owner 2026-10-13 授权
+  # "启动专项研究单元攻关并解决该问题"；17 配置攻关全记录 ADR-G-0032）：
+  # epochs 600→2400。晚段端点质量由内部验证早停选择面保护（见下），更长训练
+  # = 更宽的选择面而非端点赌注（研究实证：晚期灾难发散被选择面截断）。
+  epochs: 2400
+  # v1.2 内部验证早停（Q-L04-14③）：训练段末 min(48, len//2) 拍为选择面
+  # （48 = 研究网格 {32,48,64} 实证最优），每 5 epochs 以原始域 held-out 同式
+  # 比率筛选最优 epoch 权重——训练晚期灾难发散（仪表实证 recon 0.0106→3.29）、
+  # Adam 欠拟合平台、过拟合三种失败模式统一免疫。
+  internal_selection: {val_window: 48, eval_every: 5}
+  # v1.2 滑动窗口起点（Q-L04-14②）：epoch 轮换窗口起点——同一丢帧合并值事件在
+  # 三种相位上下文中出现，定向训练任意相位入口的锁相技能（误差解剖：可转化带
+  # 90–97% 误差集中于相位失锁后的 rest 误预测，ADR-G-0032 §3）。
+  window_starts: [0, 24, 48]                  # 24 = 2× ADR-G-0030 §2 冻结脚本周期 12
   full_batch_preferred: true                  # 无 minibatch 采样 RNG；minibatch 必须经 L00 流
   weights_as_artifacts: true                  # state_dict 入 kernel registry 内容寻址 + manifest 锚
   neural_module_interface: Q-T02①             # state_dict + digest + parent_digest 谱系

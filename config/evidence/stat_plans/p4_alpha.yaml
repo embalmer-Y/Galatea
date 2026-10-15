@@ -17,8 +17,8 @@
 #   表格基线 = 线性 12 滞后模型（ADR-G-0030 §2 冻结形本尊：init 20261011/0.01/600）。
 stat_plan:
   id: p4_alpha
-  version: v1.3
-  frozen_at: "2026-10-11"
+  version: v1.4
+  frozen_at: "2026-10-15"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-α 行 + ADR-G-0030 §5 实现期范围
@@ -32,6 +32,18 @@ stat_plan:
                                              # （去除初始化方差——like-for-like 锚）
     normalization: z_score_train_segment_only   # 训练段统计量派生；held-out 零统计量（防泄漏）
 
+  # v1.4 运行前修订（2026-10-15；专项研究单元确认性重评预注册——owner 2026-10-13
+  # 选项 A 指令「启动专项研究单元攻关并解决该问题」授权，Q-L04-13/Q-L04-14 登记）：
+  # 判据模型 = profile p4_alpha_brain **v1.2** 训练过程（预测编码误差反馈递归
+  # + 滑动窗口起点 (0,24,48) + 内部验证早停 {val_window 48, eval_every 5} +
+  # epochs 2400——全部溯源与动机链见 profile v1.2 修订注记与 ADR-G-0032）。
+  # **不变项**：margin 阈 0.1 / estimand（median per-cell held-out ratio）/
+  # 种子派生（master/init 全同）/ z-score 纪律 / held-out 64 对协议 / 剔除规则
+  # （v1.3）/ 表格基线冻结形 / Holm 族。已变更项仅 = 脑核训练过程（模型规格，
+  # profile 级可修订面；运行前修订先例 v1.1/v1.2/v1.3）。研究单元离线全量
+  # 验证（与集成 runner 逐位恒等实证）：median 0.0683、34/64 达标——确认性
+  # 全量 sealed 重评（entry p4）为预注册的一次性运行，其 EvidenceResult 为
+  # 门退出判定对象；v1.3 首评 REFUTED 工件原样归档留存（profile v1.1 口径）。
   # v1.1 运行前修订（2026-10-11；c1/p1 运行前修订先例——首次全量运行在 MW0→p1 会话序
   # 下崩溃：某 cell p1 续训损失上升 1.108→1.139 被 TrainingSessionViolation fail-closed
   # 拦截 = 真实跨域训练失稳发现，如实留痕）。修订 = 会话序交换：session-1 = p1 真实
@@ -130,11 +142,19 @@ stat_plan:
       holdout_tail_pairs: 64                   # T6 拍（Q-L00-01；探针协议）
     model:
       architecture: rssm_style_gru             # GRUCell 递归核（RSSM 标准形；发现 2 留痕）
+                                               # v1.4：+ 预测编码误差反馈 e = x − x̂_{t|t−1}
+                                               # （递归输入 [x, e, z]——Q-L04-14①，profile v1.2）
       input_dim: 1                             # 一维速率序列（任务形）
       init: xavier_derived                     # √(2/(fan_in+fan_out)) 推导式（发现 4 留痕）
       optimizer_lr: 0.001                      # Adam 库规范默认（profile v1.1 运行前修订）
-      epochs: 600
+      epochs: 2400                             # v1.4（profile v1.2——选择面加宽，端点由早停保护）
       normalization: z_score_train_segment_only
+      training_procedure:                      # v1.4（Q-L04-14②③；全部溯源 profile v1.2）
+        window_starts: [0, 24, 48]             # 滑动窗口起点轮换（24 = 2× 冻结脚本周期）
+        internal_selection: {val_window: 48, eval_every: 5}
+                                               # 训练段末 48 拍选择面 + 原始域 held-out
+                                               # 同式比率筛选最优 epoch 权重（录制/重放
+                                               # 合同完整——weights_after = 选择后快照）
     table_baseline:
       form: linear_12lag                       # ADR-G-0030 §2 冻结形（Q-L04-12③ 承载）
       init_seed: 20261011

@@ -280,15 +280,18 @@ def _zscore(rates: list[float], n_train: int) -> tuple[list[float], float, float
 
 def _predict_next_rates(model: RSSMWorldModel, norm_rates: list[float],
                         mu: float, sd: float) -> list[float]:
-    """在线滤波逐拍预测下一速率（反标准化回原始域——train 统计量）。"""
+    """在线滤波逐拍预测下一速率（反标准化回原始域——train 统计量；误差反馈
+    递归的 x_prev 逐拍线程——Q-L04-14①，与研究 harness filter_preds 逐位同式）。"""
     with torch.no_grad():
         h = torch.zeros(model.det_dim)
         z = torch.zeros(model.latent_dim)
+        x_prev = torch.zeros(1)              # 首拍 e = x₁（研究配置逐位锚）
         preds: list[float] = []
         for r in norm_rates:
-            h, _mq, _lq, _mp, _lp, x_pred = model.step(
-                torch.tensor([r], dtype=torch.float32), h, z)
+            x = torch.tensor([r], dtype=torch.float32)
+            h, _mq, _lq, _mp, _lp, x_pred = model.step(x, h, z, x_prev)
             z = _mq
+            x_prev = x_pred              # 误差反馈 = x − x̂_{t|t−1}（上拍预测）
             preds.append(float(x_pred[0]) * sd + mu)
     return preds
 
@@ -312,11 +315,13 @@ def _horizon_ratios(model: RSSMWorldModel, norm_rates: list[float],
     with torch.no_grad():
         h_state = torch.zeros(model.det_dim)
         z_state = torch.zeros(model.latent_dim)
+        x_prev = torch.zeros(1)              # 首拍 e = x₁（研究配置逐位锚）
         states: list[tuple[torch.Tensor, torch.Tensor]] = []
         for r in norm_rates:
-            h_state, _mq, _lq, _mp, _lp, _pred = model.step(
-                torch.tensor([r], dtype=torch.float32), h_state, z_state)
+            x = torch.tensor([r], dtype=torch.float32)
+            h_state, _mq, _lq, _mp, _lp, _pred = model.step(x, h_state, z_state, x_prev)
             z_state = _mq
+            x_prev = _pred               # 误差反馈 = x − x̂_{t|t−1}（上拍预测）
             states.append((h_state.clone(), z_state.clone()))
     for horizon in range(1, _HORIZONS + 1):
         ms: list[float] = []
@@ -375,7 +380,8 @@ def run_cell(index: int, params: P4AlphaBrainParams,
     train_xs = [torch.tensor([r], dtype=torch.float32) for r in norm_rates[:n_train + 1]]
     digest_before_a = model.digest()
     losses_a = model.train_on_sequence(train_xs, lr=params.lr,
-                                       epochs=params.epochs, target_dims=(0,))
+                                       epochs=params.epochs, target_dims=(0,),
+                                       val_context=(mu, sd))
     session_a = record_training_session(master_seed, init_seed, task_digest, model,
                                         digest_before_a, losses_a, params)
     claim_record = _record_view(session_a)
@@ -390,7 +396,8 @@ def run_cell(index: int, params: P4AlphaBrainParams,
     def _retrain_a(module: Any) -> list[float]:
         assert isinstance(module, RSSMWorldModel)
         return module.train_on_sequence(train_xs, lr=params.lr,
-                                        epochs=params.epochs, target_dims=(0,))
+                                        epochs=params.epochs, target_dims=(0,),
+                                        val_context=(mu, sd))
 
     replay_ok = replay_training_session(
         session_a,
@@ -405,13 +412,15 @@ def run_cell(index: int, params: P4AlphaBrainParams,
     p1_xs = [torch.tensor([r], dtype=torch.float32) for r in norm_p1]
     digest_before_1 = model_b.digest()
     losses_1 = model_b.train_on_sequence(p1_xs, lr=params.lr,
-                                         epochs=params.epochs, target_dims=(0,))
+                                         epochs=params.epochs, target_dims=(0,),
+                                         val_context=(mu1, sd1))
     session1 = record_training_session(master_seed, init_seed, p1_digest, model_b,
                                        digest_before_1, losses_1, params)
     b1_record = _record_view(session1)
     digest_before_2 = model_b.digest()
     losses_2 = model_b.train_on_sequence(train_xs, lr=params.lr,
-                                         epochs=params.epochs, target_dims=(0,))
+                                         epochs=params.epochs, target_dims=(0,),
+                                         val_context=(mu, sd))
     session2 = record_training_session(master_seed, init_seed, task_digest, model_b,
                                        digest_before_2, losses_2, params)
     b2_record = _record_view(session2)
