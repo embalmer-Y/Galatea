@@ -8,7 +8,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.32
+  version: v1.33
   frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
@@ -321,4 +321,20 @@ artifact_manifest:
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json
     sha256: 1345d4ea8f464fdb00dc66cc4b335546660a8ce09bd12c41f7ae0b47c815387f
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——63/63 末权重逐位恒等，I1）
+  - name: v13-archive-R-p4-brain-001
+    path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-001.json
+    sha256: 087639123b33bda31065413d0b2ccde72b2d348db111fcae2220082327188776
+    gate: P4-α v1.3 首评复合（INC-15 确定性重生成归档——margin REFUTED 0.172 如实存档；digest 与 v1.31 锚逐位匹配实证）
+  - name: v13-archive-R-p4-brain-margin
+    path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-margin.json
+    sha256: d37347bbd6ce0b6e1268f9cd73deb25aa4950dcc714a8fec8d8582e9f5cf237f
+    gate: P4-α v1.3 margin 判定存档（median 0.172 vs 0.1 REFUTED——Q-L04-13 呈递证据原件，INC-15 归档）
+  - name: v13-archive-R-p4-brain-dualdomain
+    path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-dualdomain.json
+    sha256: 98da0d3a7aeda1d48f45d634ab038b7dd21d11c99a3ad9c40503c87b6c156e10
+    gate: P4-α v1.3 双域门存档（62/62 谱系链；INC-15 归档）
+  - name: v13-archive-R-p4-brain-replay
+    path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-replay.json
+    sha256: d25d5335c8a748dfcc376db55f27aa02da2b961ee1577f48da60bd3f3cab82b5
+    gate: P4-α v1.3 重放门存档（62/62 逐位恒等 I1；INC-15 归档）
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——62/62 末权重逐位恒等，I1）
