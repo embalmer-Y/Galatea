@@ -8,8 +8,8 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.31
-  frozen_at: '2026-10-11'
+  version: v1.32
+  frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
   - name: R-m1-sc3-001
@@ -301,20 +301,24 @@ artifact_manifest:
       录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
   - name: R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
-    sha256: 087639123b33bda31065413d0b2ccde72b2d348db111fcae2220082327188776
+    sha256: 86e4aff2f08cfe184579046768148f761cb13809074c2fa19e242950bbadaf47
+    gate: P4-α 确认性全量重评复合（stat plan v1.4/profile v1.2——margin SUPPORTED median 0.042997<0.1 + 双域门 SUPPORTED + 重放门 SUPPORTED；63/64 cells，cell 52 失稳剔除留痕；Q-L04-13 选项 A 研究单元后确认性运行，ADR-G-0032 §5 预注册）
     gate: P4-α 全量首评复合（stat plan v1.3：margin REFUTED 0.172≥0.1 如实入档 + 双域门 SUPPORTED + 重放门 SUPPORTED；62/64 cells，2 失稳剔除留痕）
 
   - name: R-p4-brain-margin
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-margin.json
-    sha256: d37347bbd6ce0b6e1268f9cd73deb25aa4950dcc714a8fec8d8582e9f5cf237f
+    sha256: eee3de281fee569a72412f8ab813256d14951a051e0a7026dba1fe265d7ff0fc
+    gate: P4-α margin 判定（median 0.042997 vs 冻结阈 0.1——SUPPORTED；v1.3 首评 REFUTED 0.172 的研究单元闭环，ADR-G-0032）
     gate: P4-α margin 判定（median 0.172 vs 冻结阈 0.1——REFUTED；判据校准发现：表格锚模型本尊跨种 median 0.302 同样不达——单种子锚外推为跨种子判据的校准缺陷，Q-L04-13 呈递 owner）
 
   - name: R-p4-brain-dualdomain
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-dualdomain.json
-    sha256: 98da0d3a7aeda1d48f45d634ab038b7dd21d11c99a3ad9c40503c87b6c156e10
+    sha256: fc493f1d795bc8ccb3000a2e8c4dd08141ad86ac85ca20d7f196f377b5bf2618
+    gate: P4-α 双域训练义务门（Q-L04-12②——63/63 谱系链连续 + 双录制十字段完整）
     gate: P4-α 双域训练义务门（Q-L04-12②——62/62 谱系链连续 + 双录制十字段完整）
 
   - name: R-p4-brain-replay
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json
-    sha256: d25d5335c8a748dfcc376db55f27aa02da2b961ee1577f48da60bd3f3cab82b5
+    sha256: 1345d4ea8f464fdb00dc66cc4b335546660a8ce09bd12c41f7ae0b47c815387f
+    gate: P4-α 训练重放门（Q-L13-20① 宪法语义——63/63 末权重逐位恒等，I1）
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——62/62 末权重逐位恒等，I1）

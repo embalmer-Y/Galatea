@@ -10,7 +10,10 @@ meta:
   authority: AI-v2
   authority_ref: ADR-G-0029
   register_ref: Q-L13-19
-  criteria_numeric_status: pending_p4_alpha_stat_plan   # 判据数值随统计计划冻结；本版为结构+首评
+  criteria_numeric_status: margin_family_frozen_gctb_deferred_p4_beta   # REV-0028 R3 处置更新（2026-10-16）
+  # 判据数值处置：margin 族（world_model 预测标度）已随 stat plan p4_alpha v1.4 冻结
+  # （median 0.1 < 阈——确认性重评 SUPPORTED 实证）；GCTB 12 任务协议 = P4-β 范围，
+  # 数值冻结随 P4-β 准备单元 stat plan 执行（第二次显式登记非静默——ADR-G-0032 §8）。
   # REV-0028 R3 迟延登记（2026-10-13）：ADR-G-0030 §5「BFI 判据数值随 stat plan 冻结」未兑现——stat plan
   # p4_alpha v1.0–v1.3 仅覆盖 margin/dual/replay 三 claim，GCTB 12 任务数值未冻。迟延原因：P4-α 首评
   # margin REFUTED（Q-L04-13 owner 决策等待期），GCTB 数值冻结随重评单元一并执行（禁静默缺席）。
