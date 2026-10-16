@@ -10,20 +10,21 @@
 
 ## 2. Q 编号闭合（声明 vs 引用）
 
-- 登记册声明 Q 号：**169**
-  - CONFIRMED: 165
+- 登记册声明 Q 号：**174**
+  - CONFIRMED: 170
   - UNCONFIRMED: 3
   - CLOSED: 1
-  - 分区分佈：{'A': 165, 'B': 3, 'C': 1}
+  - 分区分佈：{'A': 170, 'B': 3, 'C': 1}
 
 - OK：无重复声明
 
-- **WARNING 被引用但登记册未声明（10）**：
+- **WARNING 被引用但登记册未声明（11）**：
   - `Q-G00-05` → HLD.md, README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L03-06` → lld/L03_perception.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L04-05` → lld/L04_world_body_self.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L05-05` → README.md, lld/L05_drive_appraisal_affect.md, open_questions.md
   - `Q-L06-05` → lld/L06_memory.md, lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
+  - `Q-L07-08` → open_questions.md
   - `Q-L11-03` → lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
   - `Q-L11-04` → lld/L11_learning_consolidation.md, lld/L13_evidence_evaluation_registry.md, open_questions.md
   - `Q-L13-06` → lld/L13_evidence_evaluation_registry.md, open_questions.md
