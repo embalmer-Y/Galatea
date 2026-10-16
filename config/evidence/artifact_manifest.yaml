@@ -302,7 +302,7 @@ artifact_manifest:
   - name: R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
     sha256: 86e4aff2f08cfe184579046768148f761cb13809074c2fa19e242950bbadaf47
-    gate: P4-α 确认性全量重评复合（stat plan v1.4/profile v1.2——margin SUPPORTED median 0.042997<0.1 + 双域门 SUPPORTED + 重放门 SUPPORTED；63/64 cells，cell 52 失稳剔除留痕；Q-L04-13 选项 A 研究单元后确认性运行，ADR-G-0032 §5 预注册）
+    gate: P4-α 确认性全量重评复合（stat plan v1.4/profile v1.2——margin SUPPORTED median 0.042997<0.1 + 双域门 SUPPORTED + 重放门 SUPPORTED；63/64 cells，cell 52 失稳剔除留痕；Q-L04-13 选项 A 研究单元后确认性运行，ADR-G-0032 §5 预注册；INC-15：v1.3 工件曾被原位覆盖未归档，v1.31 digest 锚 + 确定性重生成归档见 INC-15）
     gate: P4-α 全量首评复合（stat plan v1.3：margin REFUTED 0.172≥0.1 如实入档 + 双域门 SUPPORTED + 重放门 SUPPORTED；62/64 cells，2 失稳剔除留痕）
 
   - name: R-p4-brain-margin

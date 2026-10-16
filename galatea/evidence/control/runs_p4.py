@@ -538,11 +538,19 @@ def run_p4_first_evaluation(root: Path | None = None, out_dir: Path | None = Non
         leakage_free=leakage_free)
 
     out_dir.mkdir(parents=True, exist_ok=True)
+    # 溯源标签动态读取（REV-0029 R2：禁硬编码版本——治理合同面单一事实源）
+    import yaml as _yaml
+    profile_version = str(_yaml.safe_load(
+        (root / "config/profiles/p4_alpha_brain.profile.yaml").read_text(encoding="utf-8")
+    )["profile"]["version"])
+    stat_plan_version = str(_yaml.safe_load(
+        (root / stat_plan_ref).read_text(encoding="utf-8")
+    )["stat_plan"]["version"])
     payload = {
         "result_id": composite.result_id,
         "stat_plan_ref": stat_plan_ref,
-        "profile": "p4_alpha_brain@v1.1",
-        "stat_plan_version": "v1.3",
+        "profile": f"p4_alpha_brain@{profile_version}",
+        "stat_plan_version": stat_plan_version,
         "n_cells": n_cells,
         "n_completed": n_completed,
         "exclusions": exclusions,

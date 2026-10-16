@@ -43,7 +43,9 @@ stat_plan:
   # profile 级可修订面；运行前修订先例 v1.1/v1.2/v1.3）。研究单元离线全量
   # 验证（与集成 runner 逐位恒等实证）：median 0.0683、34/64 达标——确认性
   # 全量 sealed 重评（entry p4）为预注册的一次性运行，其 EvidenceResult 为
-  # 门退出判定对象；v1.3 首评 REFUTED 工件原样归档留存（profile v1.1 口径）。
+  # 门退出判定对象。**INC-15 更正（2026-10-16）**：v1.3 首评 REFUTED 工件未归档即被原位覆盖
+  # （早稿「原样归档留存」宣称失实，INC-14 同族第三次已立案）——存留物 = v1.31 manifest
+  # digest 四锚 + REV-0028 独立重算记录；确定性重生成归档见 INC-15 处置③。
   # v1.1 运行前修订（2026-10-11；c1/p1 运行前修订先例——首次全量运行在 MW0→p1 会话序
   # 下崩溃：某 cell p1 续训损失上升 1.108→1.139 被 TrainingSessionViolation fail-closed
   # 拦截 = 真实跨域训练失稳发现，如实留痕）。修订 = 会话序交换：session-1 = p1 真实

@@ -109,4 +109,8 @@
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/resident/resident_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- OK：本地存在的全部工件与归档锚一致（SKIP 4 项缺失）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-margin.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-dualdomain.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- OK：本地存在的全部工件与归档锚一致（SKIP 8 项缺失）
