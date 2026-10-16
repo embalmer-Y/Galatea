@@ -1,0 +1,71 @@
+# Galatea P4-β 冻结统计计划 — 心智扩展（GCTB 子集双分离 + 先想后动差）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 种子派生纪律（Q-L13-12④）：master seed 内嵌本计划。
+# 判据数值溯源 = 冻结前可行性探针（硬机制第八次，evidence/p4_beta_probe/，
+# REV-0028 R3 移交项在本计划兑现——GCTB 判据数值首次冻结）。
+stat_plan:
+  id: p4_beta_mind
+  version: v1.0
+  frozen_at: "2026-10-16"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/HLD.md    # §15.5 P4-β 行 + ADR-G-0033
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死
+    master_seed_hex: "70342d626574612d6d696e64"   # = b"p4-beta-mind".hex()
+    trial_seed: sha256("{task}|{index}" + master_seed_bytes)
+    label: "p4.beta.mind"
+    trial_unit: seeded_task_run
+
+  claims:
+    - claim_id: p4_beta_two_step_dissociation
+      hypothesis: >
+        可反驳假设：model_based 原型的 stay 调节（rewarded × transition）显著大于
+        habit 原型（双分离——GCTB two_step_task，Q-L13-21①）。若两原型调节无差
+        → 任务形不可判定或 MB 机制未实现 → 门判据失败。
+      estimand: moderation_separation_mb_minus_habit
+      primary_endpoints:
+        - separation_above_freeze_value        # sep > 0.01 且配对优势 > 0.5（探针 0.0189/0.57）
+      n_per_arm: 40                            # 配对种子
+      power: 0.80
+      test: paired_seeded_comparison
+      effect_ci_rule: distribution_reported
+      threshold: {frozen: "sep>0.01 & dominance>0.5", probe_measured: {sep: 0.0189, dominance: 0.57}}
+      unknown_handling: 试次内拍丢失不计（world 确定性流无丢失——纯任务模拟）；全数据可复算
+
+    - claim_id: p4_beta_optout_economy
+      hypothesis: >
+        可反驳假设：校准置信驱动的弃权（后验均值 < 保底 0.3）产生正经济增益
+        （GCTB opt_out_metacognition，Q-L13-21②）。若增益 ≤ 0 → 元认知无经济价值
+        → 门判据失败。
+      estimand: optout_economic_gain_vs_always_gamble
+      primary_endpoints:
+        - gain_above_zero                       # gain > 0（探针 +2.085，20 seeds）
+      n_per_arm: 20
+      power: 0.80
+      test: paired_seeded_comparison
+      effect_ci_rule: distribution_reported
+      threshold: {frozen: "gain>0", probe_measured: {gain: 2.085}}
+      unknown_handling: 全数据可复算（确定性种子化模拟）
+
+    - claim_id: p4_beta_think_first_advantage
+      hypothesis: >
+        可反驳假设：草稿板 + 思维迭代循环（开慢环）在超预算陷阱场景中纠正置信
+        先验的不可行选择（GCTB think_first_advantage，Q-L13-21④/Q-L07-10）。
+        若循环不能纠正或矛盾检出不开火 → 思维循环无因果贡献 → 门判据失败。
+      estimand: tfa_correction_on_trapped_scenario
+      primary_endpoints:
+        - tfa_correction_true                   # TFA_corrected == true（探针实测 true）
+        - contradiction_fired                   # 矛盾检出开火（INC-08 可失败性）
+      n_per_arm: 20                            # 多世界种子（每 seed 真实 MW0 布局）
+      power: 0.80
+      test: deterministic_gate                 # 机械判据（p=0.0/1.0 单调承载）
+      effect_ci_rule: none_deterministic
+      threshold: {frozen: "TFA==true & contradiction_fired", probe_measured: {tfa: true, contradiction: true}}
+      unknown_handling: 布局资源不足（<2 资源格）的 seed 剔除留痕；世界真实布局禁伪造
+
+  scenario:
+    world: 真实 MW0 冻结流 + 探针任务形（Q-L13-21 协议）
+    model: P4-α RSSM（profile p4_alpha_brain v1.2——imagine 评估面复用）
+    device: cpu_default_gpu_certified_pending   # Q-T02 补裁③：认证绿后经运行前修订迁 GPU
+  correction: holm_bonferroni                 # 族 = 3 claim 级 p

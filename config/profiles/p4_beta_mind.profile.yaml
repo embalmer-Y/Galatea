@@ -1,0 +1,75 @@
+# Galatea P4-β 冻结规格 — 心智扩展（草稿板/思维迭代/慢环深思 + GCTB 子集）
+# 效力：P4-β 门冻结合同（拟 ADR-G-0033 · tag p4-beta-freeze）。
+# 纪律：全部数值溯源本批裁决（Q-L04-15 / Q-L07-09 / Q-L07-10 / Q-L09-11 / Q-L13-21 /
+# Q-T02 补裁③，AI-v2 2026-10-16）+ 冻结前可行性探针实测（硬机制第八次执行——
+# evidence/p4_beta_probe/probe_report.json verdict=PASS，四层全绿）+ 既有冻结常数。
+# 宪法语境：给定权重确定性；GPU 认证 = Q-T02 补裁③ 程序（本 profile 预留 device 认证态）。
+profile:
+  id: p4_beta_mind
+  version: v1.0
+  frozen_at: "2026-10-16"
+  authority: AI-v2
+  spec_ref: design/HLD.md  # §15.5 P4-β 行
+  ruling_refs: [Q-L04-15, Q-L07-09, Q-L07-10, Q-L09-11, Q-L13-21, Q-T02, Q-L13-19]
+
+determinism:                                  # Q-T02 补裁③（设备维开放——认证程序）
+  torch_version: "2.14.1+cpu"                 # 生产 claim 运行默认设备 = CPU（锚历史延续）
+  device_certification:                       # GPU 认证态（认证绿后经运行前修订启用）
+    status: pending_probe_layer_a_rerun       # 探针层A 冒烟四检已全绿（2026-10-16）；正式复验随认证工作项
+    cuda_env: {CUBLAS_WORKSPACE_CONFIG: ":4096:8", use_deterministic_algorithms: true}
+    isolated_venv: torch 2.14.1+cu130         # 项目锁环境零触碰（ADR-G-0031 §7 先例）
+  num_threads: 1
+  use_deterministic_algorithms: true
+  default_dtype: float32
+  global_rng_forbidden: true
+  inference_double_run: bit-exact
+
+scratchpad:                                   # Q-L07-09（假设槽草稿板）
+  hypothesis_schema: DraftHypothesis          # {claim, provenance_ref, confidence,
+                                              #  created_cycle, status}
+  status_vocabulary: [open, evaluated, superseded, contradicted]
+  non_belief_principle: true                  # 条目非信念——禁直进 L03/L04 信念面
+  promotion: explicit_evaluation_loop         # Q-L07-10 循环产出，逐案留痕
+  snapshot: workspace_checkpoint面             # 全状态入 workspace 快照（Q-L13-17 同族）
+
+thought_iteration:                            # Q-L07-10（思维迭代循环）
+  loop: [generate, evaluate, contradict, revise]
+  evaluate_source: rssm_imagine_rollout       # P4-α 世界模型想象面复用（Q-L04-12）
+  receipt: DraftThoughtReceipt                # 拍号/供体/评分/矛盾引用/动作——逐拍留痕
+  contradiction_event: typed                  # ContradictionEvent（探针实证可开火）
+  think_steps_budget: 8                       # 冻结探针值（B3：8 步预算过滤超可行计划）
+
+slow_clock:                                   # Q-L09-11（慢环调度）
+  trigger: [idle_cycle, low_arousal]          # 空闲拍 / 低唤起（阈值探针后随实现冻结）
+  products: scratchpad_hypotheses             # 产物 = 草稿板假设/计划候选
+  action_plane: unchanged                     # 行动面经 gateway 原样——零新增权限
+  audit: resident_audit_stream                # 迁移审计流扩展
+
+gctb:                                         # Q-L13-21（判据数值——探针冻结，REV-0028 R3 兑现）
+  two_step_task:
+    trials: 120                               # 探针值（反转 @60）
+    drift_prob: 0.08                          # 每拍 8% 反转漂移（经典任务结构）
+    reversal: trial 60
+    transition_common: 0.8
+    reward_good: 0.8
+    mb_alpha: 0.5                             # endstate 价值更新（传播机制）
+    habit_alpha: 0.2                          # 支线历史平均
+    criterion_separation: ">0.01"             # moderation(MB) − moderation(habit)
+    criterion_dominance: ">0.5"               # 配对种子优势占比
+    probe_measured: {mb_mod: 0.0241, habit_mod: 0.0052, sep: 0.0189, dominance: 0.57}
+  opt_out_metacognition:
+    arms: 2
+    true_p_range: [0.05, 0.25]
+    safe_harbor: 0.3
+    trials: 30
+    criterion_gain: ">0"
+    probe_measured: {gain: 2.085}
+  think_first_advantage:
+    budget_steps: 8                           # 路线可行性预算（继承 rollout 上界 Q-L04-01）
+    criterion: TFA_corrected == true          # 关循环陷阱选择 → 开循环纠正到可行真最优
+    contradiction_required: true              # 矛盾检出必须开火（INC-08 可失败性）
+    probe_measured: {without: D1, with: D2, true_best: D2, tfa: true, contradiction: true}
+  probe_anchors:
+    probe_report: evidence/p4_beta_probe/probe_report.json
+    world_seed: 20261016
+    stream_source: p4.alpha cell-0（真实 MW0 流）

@@ -8,7 +8,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.34
+  version: v1.35
   frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
@@ -298,6 +298,10 @@ artifact_manifest:
     path: evidence/p4_alpha_probe/probe_report.json
     sha256: 224827eb0ed27aad3df94f2cf60530a8ba7b86c4d296e228478174f116b75250
     gate: P4-α 冻结前置探针（硬机制第七次执行——层A torch 确定性四检 + 层B 真实流学习会话
+  - name: p4-beta-probe-report
+    path: evidence/p4_beta_probe/probe_report.json
+    sha256: 0ab7dc9678b5dbc030f7009e120287f3da6e0a544fc535d13a9c4deeefaff427
+    gate: P4-β 冻结前置探针（硬机制第八次——Layer A GPU 确定性 5/5 + B1 two_step 双分离 sep 0.0189 + B2 弃权经济 +2.085 + B3 草稿板陷阱 TFA 纠正 true；ADR-G-0033 §2 规格）
       录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
   - name: R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
