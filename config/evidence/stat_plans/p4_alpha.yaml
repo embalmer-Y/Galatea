@@ -37,6 +37,8 @@ stat_plan:
   # 判据模型 = profile p4_alpha_brain **v1.2** 训练过程（预测编码误差反馈递归
   # + 滑动窗口起点 (0,24,48) + 内部验证早停 {val_window 48, eval_every 5} +
   # epochs 2400——全部溯源与动机链见 profile v1.2 修订注记与 ADR-G-0032）。
+  # （claim hypothesis 文本中「profile v1.1 lr=1e-3 训练」系 v1.3 冻结时点引用——
+  # 冻结 claim 文本不改，以本修订为准：REV-0029 R5。）
   # **不变项**：margin 阈 0.1 / estimand（median per-cell held-out ratio）/
   # 种子派生（master/init 全同）/ z-score 纪律 / held-out 64 对协议 / 剔除规则
   # （v1.3）/ 表格基线冻结形 / Holm 族。已变更项仅 = 脑核训练过程（模型规格，
