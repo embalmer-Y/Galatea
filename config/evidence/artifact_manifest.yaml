@@ -8,7 +8,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.39
+  version: v1.40
   frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
@@ -381,5 +381,5 @@ artifact_manifest:
     gate: Q-L13-22 重设计探针可复算工件（REV-0030 R2——20/20 块符号一致 mean 0.2515/CV 0.285 + 逐种子优势率 0.760；判据重冻锚定测量，规格 ADR-G-0034 §2）
   - name: p4-gamma-probe-report
     path: evidence/p4_gamma_probe/probe_report.json
-    sha256: 83ceb013c68b725ac7272f35ad74afe0a5ee4fa4ec025fdd5a3e1a0365dcc8e9
-    gate: P4-γ 冻结前可行性探针（硬机制第九次——MPC 优势 0.0647 8/8 种子 + 睡眠增益 0.000292 + 门判别 A拒/B入 + 规划双跑 bit-exact；verdict=PASS；Q-G00-16 判据锚定）
+    sha256: 0f2001827b69e38f21e6f8927315099cc90420d38f417bd33036caade1b22f8d
+    gate: P4-γ 冻结前可行性探针（硬机制第九次——MPC 优势 0.0647 8/8 种子 + 睡眠增益 0.000292 + 门判别 A拒/B入 + 规划双跑 bit-exact；verdict=PASS；Q-G00-16 判据锚定；v1.40 重锚 = REV-0031 R2 同尺门修正重生成，原 83ceb013… 系首版跨数据集参照形）

@@ -86,15 +86,18 @@ def main() -> int:
                         "sleep_gain": forget_a - forget_b}
 
     # 探针 3：在线门（双域不退化——A 拒 / B 入）
+    # REV-0031 R2 修正：同尺参照 = 父模型（未学习相 2）的相 2 held-out——
+    # improve = 候选相 2 误差 ≤ 父模型相 2 误差（学习发生）；no_regress = 相 1 ≤ pre×1.5。
     phase2_holdout = xs2[len(xs2) // 2:]
+    parent_p2 = heldout_mse(model_p1, phase2_holdout)
 
     def dual_gate(model_c: Any) -> tuple[bool, dict[str, float]]:
         b2 = heldout_mse(model_c, phase2_holdout)
         b1 = heldout_mse(model_c, xs1[half1:])
-        improve = b2 <= post_a
+        improve = b2 <= parent_p2
         no_regress = b1 <= pre * 1.5
         return (improve and no_regress,
-                {"phase1": b1, "phase2": b2, "pre_p1": pre, "post_a_p2": post_a})
+                {"phase1": b1, "phase2": b2, "pre_p1": pre, "parent_p2": parent_p2})
 
     gate_a, det_a = dual_gate(model_a)
     gate_b, det_b = dual_gate(model_b)

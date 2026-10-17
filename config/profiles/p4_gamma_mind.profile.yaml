@@ -66,7 +66,7 @@ claims_criteria:                              # Q-L13-23（判据数值——sta
 
 probe_anchors:                                # Q-G00-16
   probe_report: evidence/p4_gamma_probe/probe_report.json
-  probe_digest: "83ceb013c68b725ac7272f35ad74afe0a5ee4fa4ec025fdd5a3e1a0365dcc8e9"
+  probe_digest: "0f2001827b69e38f21e6f8927315099cc90420d38f417bd33036caade1b22f8d"  # REV-0031 R2 同尺门修正重生成（原 83ceb013… 存档于 git 历史 977ddb9 提交注记）
   probe_verdict: PASS
   master_seed_label: "p4-gamma-probe"
   regression_test: tests/evidence/test_p4_gamma_probe.py
