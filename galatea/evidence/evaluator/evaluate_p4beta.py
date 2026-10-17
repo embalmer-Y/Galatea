@@ -51,7 +51,7 @@ def evaluate_p4beta_two_step(result_id: str, stat_plan_ref: str,
                              separation_threshold: float, dominance_threshold: float,
                              data_ref: str,
                              detected_by: str = "evidence.evaluator") -> EvidenceResult:
-    """claim1 p4_beta_two_step_dissociation（配对种子比较 + 冻结双阈值）。"""
+    """claim1 p4_beta_two_step_dissociation（配对种子比较 + v2 重冻双阈值——Q-L13-22 α）。"""
     if len(mb) != len(habit) or len(mb) < 2:
         raise ValueError("two_step requires equal-length paired sequences n≥2")
     mean, sd, n = _paired_stats(mb, habit)
@@ -64,7 +64,7 @@ def evaluate_p4beta_two_step(result_id: str, stat_plan_ref: str,
     return EvidenceResult(
         result_id=result_id, hypothesis_refs=("p4_beta_two_step_dissociation",),
         stat_plan_ref=stat_plan_ref,
-        estimand="moderation_separation_mb_minus_habit",
+        estimand="regression_interaction_separation_mb_minus_habit",
         effect_size=mean,
         ci=ConfidenceInterval(lower=mean - half, upper=mean + half, level=0.95),
         p_or_bayes=p,

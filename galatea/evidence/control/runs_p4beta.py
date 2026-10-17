@@ -1,8 +1,9 @@
 """P4-β sealed 评价 runner（stat plan p4_beta_mind v1.0 冻结承载；GCTB P4-β 子集）。
 
-三 claim（Q-L13-21 立法；判据数值 = p4_beta_mind.profile 冻结探针值）：
-1. two_step 双分离（Daw 谱系 MW0 小型化）：MB 原型 stay 调节 > habit 原型
-   （sep > 0.01 ∧ 配对优势 > 0.5）——**门判据核心**（Q-L13-21①）；
+三 claim（Q-L13-21 立法；判据数值 = p4_beta_mind.profile v1.3 冻结——claim1 任务形
+经 Q-L13-22 owner α 裁决完整重设计）：
+1. two_step 双分离（Daw 谱系 MW0 小型化 v2）：MB 原型 stay 回归 interaction >
+   habit 原型（sep > 0.10 ∧ 配对优势 > 0.60）——**门判据核心**（Q-L13-21①）；
 2. opt_out 元认知经济：校准置信弃权增益 > 0（Q-L13-21②）；
 3. think_first_advantage：草稿板 + 思维迭代在超预算陷阱场景纠正置信直选
    （TFA == true ∧ 矛盾检出开火——机械门，INC-08 可失败性）（Q-L13-21④/Q-L07-10）。
@@ -45,59 +46,82 @@ def trial_seed(task: str, index: int) -> bytes:
 
 
 # ---------------------------------------------------------------- claim 1: two_step
-def two_step_stay_signal(agent_kind: str, seed: bytes,
-                         params: P4BetaMindParams) -> float:
-    """two_step 单种子 stay 调节（rewarded × common-transition stay 率差；探针 B1 同式）。
+def _logistic_interaction(rows: list[tuple[int, int, int]]) -> float:
+    """Daw 式 stay ~ reward × common 回归 interaction 系数（确定性 IRLS，零 RNG）。
 
-    MB 原型 = endstate 价值 + 转移概率前瞻（mb_alpha 更新）；habit 原型 = 支线历史
-    平均（habit_alpha 更新）。转移反转 @reversal_at + 每拍 drift 概率反转——MB 应
-    立即跟随、habit 滞后 → 调节差 = 双分离信号。
+    Q-L13-22 α 重设计统计量（profile two_step_task.statistic 冻结）——旧桶均值差在
+    非平稳 + 小样本桶下方差 ~ 效应量（可判定性证伪，登记册在案）。
+    """
+    import numpy as np
+
+    y = np.array([r[0] for r in rows], dtype=float)
+    rew = np.array([r[1] for r in rows], dtype=float)
+    com = np.array([r[2] for r in rows], dtype=float)
+    design = np.column_stack([np.ones_like(rew), rew, com, rew * com])
+    beta = np.zeros(design.shape[1])
+    for _ in range(50):                          # IRLS 固定迭代（确定性）
+        p = 1.0 / (1.0 + np.exp(-design @ beta))
+        w = np.clip(p * (1 - p), 1e-9, None)
+        z = design @ beta + (y - p) / w
+        xtw = design.T * w
+        beta = np.linalg.solve(xtw @ design + 1e-8 * np.eye(design.shape[1]), xtw @ z)
+    return float(beta[3])
+
+
+def two_step_moderation(agent_kind: str, seed: bytes,
+                        params: P4BetaMindParams) -> float:
+    """two_step 单种子 MB 调节（v2 重设计形——Q-L13-22 α；profile 任务形逐项承载）。
+
+    原型对：MB = endstate 价值 + 转移矩阵前瞻；habit = 支线历史平均。
+    重设计三件：softmax(β) 探索选择（argmax 哑化信号——诊断①）、价值衰减 decay
+    （无衰减锁死状态——诊断①）、固定单次反转无每拍漂移（漂移 0.01 即崩——诊断③）。
     """
     import numpy as np
 
     rng = np.random.default_rng(int.from_bytes(seed[:8], "big"))
     common = params.two_step_transition_common
+    beta_choice = params.two_step_softmax_beta
+    decay = params.two_step_value_decay
     trans = {"A": (common, 1.0 - common), "B": (1.0 - common, common)}
     good = 0
     v_end = {0: 0.5, 1: 0.5}
     q_h = {"A": 0.5, "B": 0.5}
-    stay_common: list[int] = []
-    stay_rare: list[int] = []
+    rows: list[tuple[int, int, int]] = []
     prev: str | None = None
     for t in range(params.two_step_trials):
-        if t == params.two_step_reversal or rng.random() < params.two_step_drift_prob:
+        if t == params.two_step_reversal:        # 固定单次反转（per_trial_drift = none）
             good = 1 - good
+        v_end[0] *= decay
+        v_end[1] *= decay
+        q_h["A"] = 0.5 + (q_h["A"] - 0.5) * decay
+        q_h["B"] = 0.5 + (q_h["B"] - 0.5) * decay
         if agent_kind == "mb":
             v_a = common * v_end[0] + (1.0 - common) * v_end[1]
             v_b = (1.0 - common) * v_end[0] + common * v_end[1]
-            choice = "A" if v_a > v_b else ("B" if v_b > v_a else ("A" if rng.random() < 0.5 else "B"))
+            p_a = 1.0 / (1.0 + np.exp(-beta_choice * (v_a - v_b)))
         else:
-            choice = ("A" if q_h["A"] > q_h["B"] else
-                      ("B" if q_h["B"] > q_h["A"] else ("A" if rng.random() < 0.5 else "B")))
+            p_a = 1.0 / (1.0 + np.exp(-beta_choice * (q_h["A"] - q_h["B"])))
+        choice = "A" if rng.random() < p_a else "B"
         end_state = 0 if rng.random() < trans[choice][0] else 1
-        is_common = trans[choice][0] >= 0.8
+        is_common = trans[choice][0] >= common
         reward = 1.0 if rng.random() < (0.8 if end_state == good else 0.2) else 0.0
         if prev is not None:
-            stay = 1 if choice == prev else 0
-            if reward and is_common:
-                stay_common.append(stay)
-            elif reward and not is_common:
-                stay_rare.append(stay)
+            rows.append((1 if choice == prev else 0,
+                         1 if reward >= 0.5 else 0, 1 if is_common else 0))
         prev = choice
         if agent_kind == "mb":
             v_end[end_state] += params.two_step_mb_alpha * (reward - v_end[end_state])
         else:
             q_h[choice] += params.two_step_habit_alpha * (reward - q_h[choice])
-    return ((statistics.mean(stay_common) if stay_common else 0.0)
-            - (statistics.mean(stay_rare) if stay_rare else 0.0))
+    return _logistic_interaction(rows)
 
 
 def run_two_step(params: P4BetaMindParams, n: int | None = None
                  ) -> dict[str, Any]:
-    """claim1 数据面：配对种子 MB/habit 调节序列 + 分离统计量。"""
+    """claim1 数据面：配对种子 MB/habit interaction 序列 + 分离统计量。"""
     n = _N_TWO_STEP if n is None else n
-    mb = [two_step_stay_signal("mb", trial_seed("two_step", i), params) for i in range(n)]
-    habit = [two_step_stay_signal("habit", trial_seed("two_step", i), params) for i in range(n)]
+    mb = [two_step_moderation("mb", trial_seed("two_step", i), params) for i in range(n)]
+    habit = [two_step_moderation("habit", trial_seed("two_step", i), params) for i in range(n)]
     sep = statistics.mean(mb) - statistics.mean(habit)
     dominance = sum(1 for a, b in zip(mb, habit) if a > b) / len(mb)
     return {"mb": mb, "habit": habit, "separation": sep, "dominance": dominance, "n": n}

@@ -8,7 +8,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.36
+  version: v1.37
   frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
@@ -353,9 +353,17 @@ artifact_manifest:
     gate: P4-β GPU 设备认证（Q-T02 补裁③——CUDA 层A 复验 + RSSM 录制/重放 + 训练双跑全 bit-exact，torch 2.14.1+cu130/RTX 5060 Ti）
   - name: R-p4beta-tasks
     path: evidence/p4_beta_mind_first_evaluation/p4beta_tasks.json
-    sha256: 18cbf34aa316e94a75435827cff63b1809163e0ad6d21fbd654931f33fbbf11a
-    gate: P4-β 首评任务数据（stat plan v1.1 n=40/20/20——two_step sep 0.0393/dominance 0.475、optout 增益 2.23、TFA 全过 0 剔除；I1 双跑 byte-identical）
+    sha256: 834e98007b16d464a3a90321a5e95b57be23596fce5304fa482da5dae4fd366d
+    gate: P4-β 任务数据（v1.37 重锚 = v2 形 Q-L13-22 α 再评价——two_step sep 0.2140/dominance 0.650 过重冻判据；v1.36 锚 = v1.0 形 0.0393/0.475 REFUTED 原文存档于 v1_0-form-archive 锚；I1 双跑 byte-identical GPU）
   - name: R-p4beta-mind-001
     path: evidence/p4_beta_mind_first_evaluation/p4beta_first_evaluation.json
+    sha256: 56f2d2c72f3dc3ded7bf5c61790e2ba3d70e01179ca7452c1af9d07a239f2f46
+    gate: P4-β 再评价判定（v1.37 重锚 = profile v1.3/stat plan v2.0——三 claim 全 SUPPORTED + composite SUPPORTED；v1.36 锚 = v1.0 形混合判定 REFUTED 原文存档于 v1_0-form-archive 锚）
+  - name: v1_0-form-archive-R-p4beta-tasks
+    path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json
+    sha256: 18cbf34aa316e94a75435827cff63b1809163e0ad6d21fbd654931f33fbbf11a
+    gate: P4-β v1.0 形任务数据归档（two_step REFUTED 0.475 如实存档——Q-L13-22 α 重设计前置证据原件；digest 与 v1.36 锚逐位一致）
+  - name: v1_0-form-archive-R-p4beta-mind-001
+    path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json
     sha256: 8a06ff1a707f078112daf8b373408843be7cf6e01be2db5aac33b58dfd17ce52
-    gate: P4-β 首评判定（two_step REFUTED 如实——可判定性证伪触发 Q-L13-21 重开条件，诊断 n=400 sep=-0.0134；optout/think_first SUPPORTED；门不退出）
+    gate: P4-β v1.0 形首评判定归档（two_step REFUTED/双 SUPPORTED 混合——Q-L13-21 重开触发证据原件；digest 与 v1.36 锚逐位一致）

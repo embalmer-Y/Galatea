@@ -227,13 +227,17 @@ class P4BetaMindParams:
     arousal_low: float
     urgency_idle: float
     check_interval_cycles: int
-    # gctb 判据数值（Q-L13-21；stat plan v1.0 冻结同源）
+    # gctb 判据数值（Q-L13-21 + Q-L13-22 α；stat plan v2.0 冻结同源）
     two_step_trials: int
-    two_step_drift_prob: float
+    two_step_per_trial_drift: str          # "none"（重设计：去每拍漂移）
     two_step_reversal: int
     two_step_transition_common: float
     two_step_mb_alpha: float
     two_step_habit_alpha: float
+    two_step_choice_rule: str              # "softmax"
+    two_step_softmax_beta: float
+    two_step_value_decay: float
+    two_step_statistic: str                # "regression_interaction"
     criterion_separation: float
     criterion_dominance: float
     optout_arms: int
@@ -313,12 +317,16 @@ def load_p4_beta_profile(path: Path | None = None) -> P4BetaMindParams:
         arousal_low=arousal_low,
         urgency_idle=float(_need(sc, "urgency_idle")),
         check_interval_cycles=int(_need(sc, "check_interval_cycles")),
-    two_step_trials=int(_need(ts, "trials")),
-    two_step_drift_prob=float(_need(ts, "drift_prob")),
-    two_step_reversal=int(_need(ts, "reversal_at")),
+        two_step_trials=int(_need(ts, "trials")),
+        two_step_per_trial_drift=str(_need(ts, "per_trial_drift")),
+        two_step_reversal=int(_need(ts, "reversal_at")),
         two_step_transition_common=float(_need(ts, "transition_common")),
         two_step_mb_alpha=float(_need(ts, "mb_alpha")),
         two_step_habit_alpha=float(_need(ts, "habit_alpha")),
+        two_step_choice_rule=str(_need(ts, "choice_rule")),
+        two_step_softmax_beta=float(_need(ts, "softmax_beta")),
+        two_step_value_decay=float(_need(ts, "value_decay")),
+        two_step_statistic=str(_need(ts, "statistic")),
         criterion_separation=float(str(_need(ts, "criterion_separation")).lstrip(">")),
         criterion_dominance=float(str(_need(ts, "criterion_dominance")).lstrip(">")),
         optout_arms=int(_need(oo, "arms")),

@@ -5,7 +5,7 @@
 # REV-0028 R3 移交项在本计划兑现——GCTB 判据数值首次冻结）。
 stat_plan:
   id: p4_beta_mind
-  version: v1.1
+  version: v2.0
   frozen_at: "2026-10-16"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
@@ -13,6 +13,11 @@ stat_plan:
   # 运行前修订 v1.1（2026-10-16，GPU 认证收尾）：scenario.device → gpu_certified_cuda
   # （Q-T02 补裁③ 认证程序绿——owner 2026-10-16"生产 claim 运行待 GPU 认证后迁移"指令兑现；
   # 判据/estimand/n/种子/协议零改动——v1.0 数值面原样）。
+  # 运行前修订 v2.0（2026-10-16，Q-L13-22 owner α 裁决执行）：claim1 two_step 任务形完整
+  # 重设计 + 判据重冻——旧形（120t/漂移 0.08/桶均值差/sep>0.01∧dominance>0.5）经首评与
+  # 方向对比探针证伪可判定性（登记册 Q-L13-21 重开/Q-L13-22 行全证据），v1.0 首评工件
+  # 归档 manifest v1.36 锚如实保留；新形判据 = sep>0.10 ∧ dominance>0.60（探针
+  # 0.280/CV0.236/0.760 锚定，2.8×/2σ margin）；claim2/claim3 与 n/种子/Holm 族原样。
 
   seed_derivation:                           # Q-L13-12④：运行前钉死
     master_seed_hex: "70342d626574612d6d696e64"   # = b"p4-beta-mind".hex()
@@ -23,17 +28,19 @@ stat_plan:
   claims:
     - claim_id: p4_beta_two_step_dissociation
       hypothesis: >
-        可反驳假设：model_based 原型的 stay 调节（rewarded × transition）显著大于
-        habit 原型（双分离——GCTB two_step_task，Q-L13-21①）。若两原型调节无差
-        → 任务形不可判定或 MB 机制未实现 → 门判据失败。
-      estimand: moderation_separation_mb_minus_habit
+        可反驳假设：model_based 原型的 stay 调节（reward × transition 回归
+        interaction 系数）显著大于 habit 原型（双分离——GCTB two_step_task v2
+        重设计形，Q-L13-21① + Q-L13-22 α 裁决）。若两原型调节无差 → 任务形
+        不可判定或 MB 机制未实现 → 门判据失败。
+      estimand: regression_interaction_separation_mb_minus_habit
       primary_endpoints:
-        - separation_above_freeze_value        # sep > 0.01 且配对优势 > 0.5（探针 0.0189/0.57）
-      n_per_arm: 40                            # 配对种子
+        - separation_above_freeze_value        # sep > 0.10 且配对优势 > 0.60（探针 0.280/0.760）
+      n_per_arm: 40                            # 配对种子（不变）
       power: 0.80
       test: paired_seeded_comparison
       effect_ci_rule: distribution_reported
-      threshold: {frozen: "sep>0.01 & dominance>0.5", probe_measured: {sep: 0.0189, dominance: 0.57}}
+      threshold: {frozen: "sep>0.10 & dominance>0.60", probe_measured: {block_sep_mean: 0.280, per_seed_dominance: 0.760}}
+      task_form: {trials: 400, reversal_at: 60, per_trial_drift: none, choice_rule: "softmax(β=5)", value_decay: 0.9, statistic: "stay ~ reward×common IRLS"}
       unknown_handling: 试次内拍丢失不计（world 确定性流无丢失——纯任务模拟）；全数据可复算
 
     - claim_id: p4_beta_optout_economy

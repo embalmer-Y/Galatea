@@ -31,8 +31,11 @@ def test_loads_frozen_v1_1_values() -> None:
     assert p.think_steps_budget == 8
     assert p.convergence_mode == "no_new_successor"
     assert p.arousal_low == 0.1 and p.urgency_idle == 0.0 and p.check_interval_cycles == 1
-    assert p.two_step_trials == 120 and p.two_step_reversal == 60
-    assert p.criterion_separation == 0.01 and p.criterion_dominance == 0.5
+    assert p.two_step_trials == 400 and p.two_step_reversal == 60
+    assert p.two_step_per_trial_drift == "none"
+    assert p.two_step_softmax_beta == 5.0 and p.two_step_value_decay == 0.9
+    assert p.two_step_statistic == "regression_interaction"
+    assert p.criterion_separation == 0.10 and p.criterion_dominance == 0.60
     assert p.optout_safe_harbor == 0.3
     assert p.device_cert_status == "certified_cuda"   # v1.2 认证翻转
     assert p.cublas_workspace_config == ":4096:8"

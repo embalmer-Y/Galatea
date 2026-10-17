@@ -63,48 +63,69 @@ def test_probe_layer_a_gpu_determinism():
 
 
 # ---------------------------------------------------------------- Layer B1
-def _two_step_stay_signal(agent, seed, trials=120, reversal_at=60, drift=0.08):
+# v2（Q-L13-22 owner α 裁决 2026-10-16）：任务形完整重设计后升版——旧形（120t/漂移 0.08/
+# 桶均值差）经首评与方向对比探针证伪可判定性（argmax+无衰减哑化信号 + 漂移 0.01 即崩），
+# 全证据登记册 Q-L13-22 行在案；新形判据 sep>0.10 ∧ dominance>0.60（profile v1.3 重冻）。
+def _logistic_interaction(rows):
+    import numpy as np
+    y = np.array([r[0] for r in rows], float)
+    rew = np.array([r[1] for r in rows], float)
+    com = np.array([r[2] for r in rows], float)
+    X = np.column_stack([np.ones_like(rew), rew, com, rew * com])
+    b = np.zeros(4)
+    for _ in range(50):
+        p = 1.0 / (1.0 + np.exp(-X @ b))
+        w = np.clip(p * (1 - p), 1e-9, None)
+        z = X @ b + (y - p) / w
+        xtw = X.T * w
+        b = np.linalg.solve(xtw @ X + 1e-8 * np.eye(4), xtw @ z)
+    return float(b[3])
+
+
+def _two_step_moderation_v2(agent, seed, trials=400, reversal_at=60,
+                            beta_choice=5.0, decay=0.9):
     import numpy as np
     rng = np.random.default_rng(seed)
     trans = {"A": (0.8, 0.2), "B": (0.2, 0.8)}
     good = 0
     v_end = {0: 0.5, 1: 0.5}
     q_h = {"A": 0.5, "B": 0.5}
-    sc: list[int] = []
-    sr: list[int] = []
+    rows = []
     prev = None
     for t in range(trials):
-        if t == reversal_at or rng.random() < drift:
+        if t == reversal_at:                     # 固定单次反转（无每拍漂移）
             good = 1 - good
+        v_end[0] *= decay
+        v_end[1] *= decay
+        q_h["A"] = 0.5 + (q_h["A"] - 0.5) * decay
+        q_h["B"] = 0.5 + (q_h["B"] - 0.5) * decay
         if agent == "mb":
             v_a = 0.8 * v_end[0] + 0.2 * v_end[1]
             v_b = 0.2 * v_end[0] + 0.8 * v_end[1]
-            choice = "A" if v_a > v_b else ("B" if v_b > v_a else ("A" if rng.random() < 0.5 else "B"))
+            p_a = 1.0 / (1.0 + np.exp(-beta_choice * (v_a - v_b)))
         else:
-            choice = "A" if q_h["A"] > q_h["B"] else ("B" if q_h["B"] > q_h["A"] else ("A" if rng.random() < 0.5 else "B"))
+            p_a = 1.0 / (1.0 + np.exp(-beta_choice * (q_h["A"] - q_h["B"])))
+        choice = "A" if rng.random() < p_a else "B"
         e = 0 if rng.random() < trans[choice][0] else 1
         common = trans[choice][0] >= 0.8
         reward = 1.0 if rng.random() < (0.8 if e == good else 0.2) else 0.0
         if prev is not None:
-            stay = 1 if choice == prev else 0
-            if reward and common:
-                sc.append(stay)
-            elif reward and not common:
-                sr.append(stay)
+            rows.append((1 if choice == prev else 0, 1 if reward >= 0.5 else 0,
+                         1 if common else 0))
         prev = choice
         if agent == "mb":
             v_end[e] += 0.5 * (reward - v_end[e])
         else:
             q_h[choice] += 0.2 * (reward - q_h[choice])
-    return (statistics.mean(sc) if sc else 0.0) - (statistics.mean(sr) if sr else 0.0)
+    return _logistic_interaction(rows)
 
 
 def test_probe_b1_two_step_dissociation():
-    mb = [_two_step_stay_signal("mb", s) for s in range(40)]
-    h = [_two_step_stay_signal("habit", s) for s in range(40)]
+    mb = [_two_step_moderation_v2("mb", s) for s in range(40)]
+    h = [_two_step_moderation_v2("habit", s) for s in range(40)]
     sep = statistics.mean(mb) - statistics.mean(h)
     dominance = sum(1 for a, b in zip(mb, h) if a > b) / len(mb)
-    assert sep > 0.01 and dominance > 0.5, f"sep={sep:.4f} dominance={dominance:.2f}"
+    assert sep > 0.10 and dominance > 0.60, f"sep={sep:.4f} dominance={dominance:.2f}"
 
 
 # ---------------------------------------------------------------- Layer B2

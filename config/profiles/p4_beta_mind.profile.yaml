@@ -4,6 +4,9 @@
 # Q-T02 补裁③，AI-v2 2026-10-16）+ 冻结前可行性探针实测（硬机制第八次执行——
 # evidence/p4_beta_probe/probe_report.json verdict=PASS，四层全绿）+ 既有冻结常数。
 # 宪法语境：给定权重确定性；GPU 认证 = Q-T02 补裁③ 程序（本 profile 预留 device 认证态）。
+# 运行前修订 v1.3（2026-10-16，Q-L13-22 owner α 裁决执行）：two_step 任务形完整重设计 +
+#   判据重冻（sep>0.10 ∧ dominance>0.60——探针实测 0.280/0.760 锚定；旧判据随旧统计量
+#   退役非降级——新统计量标度不同，判据形承 Q-L13-19② 双分离优先不变）。
 # 运行前修订 v1.2（2026-10-16，实现期 GPU 认证收尾）：device_certification.status →
 #   certified_cuda（认证程序全绿——scripts/p4beta_gpu_cert.py，隔离 CUDA venv 执行）；
 #   生产 claim 运行迁 GPU（owner 2026-10-16 指令兑现；two_step/optout 为 numpy 任务
@@ -18,7 +21,7 @@
 #     Q-L07-10 行内补裁注记，登记册同批）
 profile:
   id: p4_beta_mind
-  version: v1.2
+  version: v1.3
   frozen_at: "2026-10-16"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15.5 P4-β 行
@@ -65,17 +68,22 @@ slow_clock:                                   # Q-L09-11（慢环调度）
   audit: resident_audit_stream                # 迁移审计流扩展
 
 gctb:                                         # Q-L13-21（判据数值——探针冻结，REV-0028 R3 兑现）
-  two_step_task:
-    trials: 120                               # 探针值（反转 @60）
-    drift_prob: 0.08                          # 每拍 8% 反转漂移（经典任务结构）
-    reversal_at: 60                           # v1.1：原 descriptive 行 "reversal: trial 60" 改机械可读键（运行前修订留痕——数值不变）
+  two_step_task:                              # v1.3 运行前修订（Q-L13-22 owner α 裁决——任务形完整重设计）
+    trials: 400                               # 重设计值（Q-L13-22 探针：120t 桶样本不足 + 漂移致可判定性证伪）
+    per_trial_drift: none                     # 去每拍漂移（漂移决定性实证：0.01 即崩——非平稳带宽必须 ≫ 再学窗口）
+    reversal_at: 60                           # 固定单次反转（教科书 reversal 范式；340 稳态拍供分离表达）
     transition_common: 0.8
     reward_good: 0.8
-    mb_alpha: 0.5                             # endstate 价值更新（传播机制）
-    habit_alpha: 0.2                          # 支线历史平均
-    criterion_separation: ">0.01"             # moderation(MB) − moderation(habit)
-    criterion_dominance: ">0.5"               # 配对种子优势占比
-    probe_measured: {mb_mod: 0.0241, habit_mod: 0.0052, sep: 0.0189, dominance: 0.57}
+    mb_alpha: 0.5                             # endstate 价值更新（传播机制不变）
+    habit_alpha: 0.2                          # 支线历史平均（不变）
+    choice_rule: softmax                      # 重设计：argmax → softmax（β=5）——确定性 argmax 哑化信号（Q-L13-22 诊断①）
+    softmax_beta: 5.0
+    value_decay: 0.9                          # 重设计：价值衰减（无衰减动力学锁死状态）
+    statistic: regression_interaction         # 重设计：桶均值差 → Daw 式 stay ~ reward×common interaction（IRLS 确定性零 RNG）
+    criterion_separation: ">0.10"             # 重冻（探针 0.280 的 2.8× margin；旧 >0.01 系旧统计量标度随统计量退役）
+    criterion_dominance: ">0.60"              # 重冻（探针逐种子优势率 0.760，n=40 二项 2σ 余量）
+    probe_measured: {block_sep_mean: 0.280, block_cv: 0.236, blocks_sign_consistent: 20/20, per_seed_dominance: 0.760}
+    probe_provenance: Q-L13-22 方向对比探针（研究级 20 块×40 种子 + 200 种子逐种子测量，登记册行在案）
   opt_out_metacognition:
     arms: 2
     true_p_range: [0.05, 0.25]
