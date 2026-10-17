@@ -1,0 +1,73 @@
+# Galatea P4-γ 冻结统计计划 — 行动与学习（MPC 规划优势 + 睡眠增益 + 在线门）
+# 效力：运行前冻结（claim 冻结先于运行）；运行后改动 = StatPlanMutation 拒绝（L13 §6）。
+# 种子派生纪律（Q-L13-12④）：master seed 内嵌本计划。
+# 判据数值溯源 = 冻结前可行性探针（硬机制第九次，evidence/p4_gamma_probe/，Q-G00-16）。
+stat_plan:
+  id: p4_gamma_mind
+  version: v1.0
+  frozen_at: "2026-10-17"
+  authority: AI-v2
+  template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
+  spec_ref: design/HLD.md    # §15.5 P4-γ 行 + ADR-G-0035
+
+  seed_derivation:                           # Q-L13-12④：运行前钉死
+    master_seed_hex: "70342d67616d6d612d6d696e64"  # = b"p4-gamma-mind".hex()
+    trial_seed: sha256("{task}|{index}" + master_seed_bytes)
+    label: "p4.gamma.mind"
+    trial_unit: seeded_task_run
+
+  claims:
+    - claim_id: p4_gamma_mpc_planning_advantage
+      hypothesis: >
+        可反驳假设：EFE-MPC 主体（动作条件化 RSSM 想象上枚举规划，Q-L10-18）在真实
+        MW0 能量稳态任务中优于反应式脚本基线（Q-L13-23①——新颖任务求解承载）。
+        若无优势 → 模型内搜索无因果贡献 → 门判据失败。
+      estimand: paired_mean_energy_advantage_mpc_minus_script
+      primary_endpoints:
+        - advantage_above_freeze_value         # 配对均值差 > 0.02（探针 0.0647 ~3× margin）
+        - per_seed_wins_majority               # 逐种子胜率 > 0.5（探针 8/8）
+      n_per_arm: 16                            # 配对世界种子（探针 8 的 2×）
+      power: 0.80
+      test: paired_seeded_comparison
+      effect_ci_rule: distribution_reported
+      threshold: {frozen: "advantage>0.02 & wins>0.5", probe_measured: {advantage: 0.0647, wins: "8/8"}}
+      de_functional_baselines: descriptive     # 持续/随机基线同场描述性测量（Q-L13-19② 收窄先例 Q-L13-22）
+      unknown_handling: 全数据可复算（确定性种子化模拟）
+
+    - claim_id: p4_gamma_sleep_gain
+      hypothesis: >
+        可反驳假设：生成式重放做梦巩固（dream 混入微调，Q-L06-09）降低旧任务遗忘
+        （Q-L13-23②——睡眠增益）。若重放不减少遗忘 → 做梦巩固无因果贡献 → 门判据失败。
+      estimand: forgetting_difference_a_minus_b
+      primary_endpoints:
+        - replay_reduces_forgetting            # forget_a > forget_b（配对相位差，探针 +0.000292）
+        - replay_arm_no_regression             # forget_b ≤ 0.1 × pre（重放臂不退化，探针 forget_b < 0）
+      n_per_arm: 8                             # 配对相位（流种子对）
+      power: 0.80
+      test: paired_seeded_comparison
+      effect_ci_rule: distribution_reported
+      threshold: {frozen: "forget_a>forget_b & forget_b<=0.1*pre", probe_measured: {forget_a: 0.000186, forget_b: -0.000105}}
+      unknown_handling: 全数据可复算
+
+    - claim_id: p4_gamma_online_gate_discrimination
+      hypothesis: >
+        可反驳假设：双域不退化门（Q-L11-09②）正确判别候选——回归候选拒收、
+        受保护候选入场（Q-L13-23③ 保护不退化门——机械确定性判据）。
+        若门判别错误 → 在线学习门不可信 → 门判据失败。
+      estimand: gate_discrimination_correctness
+      primary_endpoints:
+        - all_cases_correct                    # 逐案判别正确 = true（机械门，INC-08 可失败性）
+      n_per_arm: 20                            # 构造候选案例（回归/受保护各半，确定性构造）
+      power: 0.80
+      test: deterministic_gate
+      effect_ci_rule: none_deterministic
+      threshold: {frozen: "all_correct", probe_measured: {A_rejected: true, B_admitted: true}}
+      unknown_handling: 全数据可复算
+
+  scenario:
+    world: 真实 MW0 冻结流 + 条件化 RSSM（input_dim=4，profile p4_gamma_mind v1.0）
+    device: gpu_certified_cuda                 # Q-T02 补裁③ 延续（owner claim 迁 GPU 指令）
+  correction: holm_bonferroni                  # 族 = 3 claim 级 p
+  qualifiers:                                  # 承 REV-0029 R6 / REV-0030 R8 限定语纪律
+    - grid_selection_optimism: 判据锚自第九次探针（含方案选择历史）——后续新任务形禁引用本探针调优记录
+    - probe_single_seed_note: mpc 配对优势探针 = 8 种子单次实现；正式 n=16 承载抽样波动

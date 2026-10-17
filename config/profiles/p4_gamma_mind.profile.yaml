@@ -1,0 +1,75 @@
+# Galatea P4-γ 冻结规格 — 行动与学习（EFE 统一目标 / 潜空间 MPC / 在线学习门 / 做梦巩固）
+# 效力：P4-γ 门冻结合同（拟 ADR-G-0035 · tag p4-gamma-freeze）。
+# 纪律：全部数值溯源本批裁决（Q-L04-16 / Q-L08-11 / Q-L10-18 / Q-L11-09 / Q-L06-09 /
+# Q-L13-23 / Q-G00-16，AI-v2 2026-10-17）+ 冻结前可行性探针实测（硬机制第九次执行——
+# evidence/p4_gamma_probe/probe_report.json verdict=PASS，MPC 8/8 种子优势 + 睡眠增益
+# +0.000292 + 门判别 A拒/B入 + 规划双跑 bit-exact）+ 既有冻结常数（rollout ≤8 / lr 1e-3 /
+# Adam / Q-T02 certified_cuda）。
+profile:
+  id: p4_gamma_mind
+  version: v1.0
+  frozen_at: "2026-10-17"
+  authority: AI-v2
+  spec_ref: design/HLD.md  # §15.5 P4-γ 行
+  ruling_refs: [Q-L04-16, Q-L08-11, Q-L10-18, Q-L11-09, Q-L06-09, Q-L13-23, Q-G00-16, Q-T02]
+
+determinism:                                  # Q-T02 补裁③ 延续（设备认证既有）
+  torch_version: "2.14.1+cpu"                 # 生产 claim 默认 CPU 锚历史；GPU 认证态延续
+  device_certification:
+    status: certified_cuda                    # 2026-10-16 认证绿（evidence/p4_beta_gpu_certification/）
+    torch_version_cuda: "2.14.1+cu130"
+    cuda_env: {CUBLAS_WORKSPACE_CONFIG: ":4096:8", use_deterministic_algorithms: true}
+    cert_evidence: evidence/p4_beta_gpu_certification/cert_report.json
+  num_threads: 1
+  use_deterministic_algorithms: true
+  default_dtype: float32
+  global_rng_forbidden: true                  # CEM/重放采样种子经 L00 流（Q-L10-18①）
+  inference_double_run: bit-exact
+
+efe:                                          # Q-L08-11（期望自由能统一目标）
+  pragmatic: steady_state_deviation_integral  # 想象路径能量对 set-point 偏差负积分（探针形）
+  set_point: 0.7                              # 探针值（Q-G00-16②；能量分数域）
+  epistemic: prior_logvar_negative_sum        # 信息增益代理 = 先验潜方差负和（Q-L08-11①）
+  w_epistemic: 0.1                            # 探针值（等权先例链的加权实现——0.1 = pragmatic 主导）
+  source_integration: nine_source_weights_in  # 九源收编 = pragmatic 权重输入（Q-L08-11②，生产者零改动）
+  safety_fallback: pareto_arbitration_asis    # Pareto 仲裁保留原样（Q-L08-11③）
+
+mpc:                                          # Q-L10-18（潜空间 MPC 规划）
+  planner: action_conditioned_rssm_enumeration  # 探针形：8 候选计划枚举（确定性——非 CEM 起步）
+  plan_horizon: 4                             # ≤ rollout 上界 8（Q-L04-01 继承）
+  candidate_plans: 8                          # 探针冻结集合（PLANS——ADR-G-0035 §2 原文）
+  execute: first_action_rolling               # 滚动执行首动作
+  determinism: bit_exact                      # 探针双跑实证（probe_report.determinism_double_run）
+  action_space: [move, rest, forage]          # MW0 三原语（eat/look = P4-γ+ 扩展再裁）
+
+online_learning:                              # Q-L11-09（世界模型在线梯度学习门）
+  lr: 0.001                                   # Adam 库规范默认（P4-α profile v1.1 先例）
+  optimizer: adam
+  finetune_epochs: 100                        # 探针值
+  replay_mix_ratio: "1:1"                     # 新任务 ⊕ dream 重放（探针形）
+  gate: dual_domain_no_regression             # 新任务改善 ∧ 旧任务 held-out ≤ pre×1.5（探针容差）
+  rollback: weights_checkpoint                # NeuralModule state_dict + parent_digest 谱系既有
+  ewc_lambda: 0.0                             # 默认禁用——重放为主保护（Q-L11-09④；启用 = 运行前修订 + 新 Q 重锚）
+  record_schema: training_session.v1          # Q-L13-20① 全量适用
+
+dream_consolidation:                          # Q-L06-09（生成式重放做梦巩固——离线环）
+  trigger: quiescent_or_explicit_session      # 静息期（低唤起 ∧ 无 pending 超集）∨ 实验控制显式会话
+  dream_steps: 600                            # 探针值（imagine 生成步数）
+  dream_source: model_self_imagination        # P1 模型自生成（速率位 = 预测、动作位 = argmax 预测）
+  product: model_candidate_via_online_gate    # 做梦不直写任何面（走 Q-L11-09 门）
+  audit: training_session.v1                  # dream 会话录制同式
+
+claims_criteria:                              # Q-L13-23（判据数值——stat plan v1.0 同源）
+  mpc_advantage: ">0.02"                      # 探针 0.0647 的 ~3× margin；wins > 0.5（探针 8/8）
+  sleep_gain: "forget_a > forget_b"           # 探针 +0.000292；且 forget_b ≤ 0.1×pre（重放臂不退化）
+  online_gate: mechanical_dual_domain         # 确定性判据（判别正确性逐案留痕）
+
+probe_anchors:                                # Q-G00-16
+  probe_report: evidence/p4_gamma_probe/probe_report.json
+  probe_digest: "83ceb013c68b725ac7272f35ad74afe0a5ee4fa4ec025fdd5a3e1a0365dcc8e9"
+  probe_verdict: PASS
+  master_seed_label: "p4-gamma-probe"
+  regression_test: tests/evidence/test_p4_gamma_probe.py
+  mpc_probe_measured: {advantage: 0.0647, wins: "8/8"}
+  dream_probe_measured: {forget_a: 0.000186, forget_b: -0.000105, sleep_gain: 0.000292}
+  gate_probe_measured: {A_rejected: true, B_admitted: true}
