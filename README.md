@@ -5,7 +5,7 @@
 > Galatea is a research project building a *single cognitive individual* with sensation, emotion, self-models, and learning — where every capability claim must be backed by intervenable, measurable, recomputable causal structure.
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![status](https://img.shields.io/badge/gates-F0%E2%86%92P1%20all%20exited-brightgreen) ![tests](https://img.shields.io/badge/pytest-757%20passed-success) ![phase](https://img.shields.io/badge/current-P4%20%E9%A2%84%E6%B5%8B%E8%84%91%20v2-orange)
+![status](https://img.shields.io/badge/gates-43%20frozen%2Fexited-brightgreen) ![tests](https://img.shields.io/badge/pytest-821%20passed-success) ![phase](https://img.shields.io/badge/current-P4%20%E9%A2%84%E6%B5%8B%E8%84%91%20v2-orange)
 
 ---
 
@@ -21,12 +21,11 @@ Galatea 不是聊天机器人，也不是一个 Agent 框架。它是一个**认
 
 2026-10-11 起，项目完成一次宪法级修订（[ADR-G-0029](adr/ADR-G-0029.md)）：验证手段不被当成架构教条——主线转向**预测脑 v2**（分层生成模型 + 预测误差最小化 + 主动推理），学习参数作为工件（digest 锚定）经 promotion 门入环，LLM/神经组件在留痕/消融/归属纪律下解禁；**安全包络全体不可让渡**。
 
-## 2. 当前状态（2026-10-11）
+## 2. 当前状态（2026-10-17）
 
-- **门链 F0→M0→M1→M2→R0→C0–C5→E1→H1→P1 十四门全部退出**（2026-10-10，tag `p1-exit`）——每门的退出判据、独立评审（REV-0003…REV-0026）与证据工件均在库可溯。
-- **当前阶段 = P4 预测脑 v2**：P4-α（脑核：RSSM 式潜状态世界模型 + 摊销推断）冻结前置已交付（[ADR-G-0030](adr/ADR-G-0030.md)，硬机制第七次探针全绿：真实流学习会话录制/重放逐位恒等，held-out 误差为持续基线的 0.83%）。
-- **验证基线**：`uv run pytest` **757 passed**；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest 65 锚）；import-linter 4 契约 KEPT；保护集 134 场景只增不减。
-- **治理**：登记册 CONFIRMED 172 项裁决（AI 主导裁决 + owner 否决权，DEV_SPEC §4.6）；30 份 ADR；独立评审报告 27 份（`_audit/reviews/`）。
+- **门链 43 门**：F0→M0→M1→M2→R0→C0–C5→E1→H1→P1 十四门退出后，预测脑 v2 主线推进——**P4-α（脑核）已退出**（[ADR-G-0032](adr/ADR-G-0032.md)，margin 0.043 < 0.1）、**P4-β（心智：草稿板/思维迭代/慢环 + GCTB）已退出**（[ADR-G-0034](adr/ADR-G-0034.md)）、**P4-γ（行动与学习：EFE/MPC/在线学习门/做梦巩固）已冻结**（[ADR-G-0035](adr/ADR-G-0035.md)）。每门判据、独立评审（REV-0003…0031）与证据工件均在库可溯。
+- **验证基线**：`uv run pytest` **821 passed + 1 skipped**（GPU 层，无 CUDA 时跳过）；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest v1.40 = 83 锚）；import-linter 4 契约 KEPT；保护集 142 场景只增不减。
+- **治理**：登记册 CONFIRMED 189 项裁决（AI 主导裁决 + owner 否决权，DEV_SPEC §4.6）；35 份 ADR；独立评审报告 32 份（`_audit/reviews/`）。
 - **物理面**：主体以 systemd 三服务常驻 Linux 主机（真实遥测内感受、SIGKILL 自愈、状态快照跨崩溃连续）；音频听说与发声归属闭环已在物理域成立（声学回环比 1,222,437×）。
 
 ## 3. 架构速览
@@ -56,7 +55,7 @@ Galatea/
 ├── AGENTS.md            # AI 开发会话第一必读（当前状态 + 纪律）
 ├── DEV_SPEC.md          # 流程法规（NORMATIVE）：裁决权模型 §4.6、INC 事故登记
 ├── design/              # 架构规范源：HLD.md + 14 档 LLD + open_questions.md（裁决登记册）
-├── adr/                 # 30 份架构决策记录（ADR-G-0001…0030）
+├── adr/                 # 35 份架构决策记录（ADR-G-0001…0035）
 ├── _audit/              # 独立评审报告（REV-*）+ check_docs.py + report.md
 ├── galatea/             # 实现（kernel/env/subject/evidence 四平面，pyright strict）
 ├── tests/               # 平面级测试（env/subject/evidence）
@@ -68,43 +67,84 @@ Galatea/
 └── pyproject.toml       # Python 3.12.13 钉版；uv.lock 哈希锁定（require-hashes）
 ```
 
-## 5. 快速开始
+## 5. 快速开始（从零重建）
+
+**系统前置：只需 `git` 与 `uv`，其余全部由锁文件自动安装（全部为预编译 wheel，无需编译器/系统库）。**
 
 ```bash
-# 依赖：uv 0.13+（自动管理 Python 3.12.13 钉版）
-git clone git@github.com:embalmer-Y/Galatea.git
+# 1) 安装 uv（x86_64 与 aarch64 同一脚本；也可用 pipx install uv）
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"        # 非交互 shell 必需（uv 默认装在 ~/.local/bin）
+
+# 2) clone + 依赖安装（uv 自动下载钉版 CPython 3.12.13——.python-version 与 requires-python 双重钉死）
+git clone git@github.com:embalmer-Y/Galatea.git   # 需已配 GitHub SSH key；HTTPS clone 亦可
 cd Galatea
-uv sync --extra tessera      # venv 重建（uv.lock 全包哈希覆盖，require-hashes）；
-                             # tessera extra = zenoh/CBOR 部署面——缺它 pytest 收集即报错（环境缺陷显式暴露）
-uv run pytest --tb=no -q     # 期望：757 passed（evidence/ 缺失时相关 SKIP 为正常）
-uv run python _audit/check_docs.py   # 文档/归档一致性核验（0 FAIL）
-uv run lint-imports          # 架构分层契约（4 契约 KEPT）
+uv sync --extra tessera --frozen    # --frozen = 锁外漂移即拒（uv.lock 全包哈希覆盖，require-hashes）；
+                                    # tessera extra = zenoh/CBOR 部署面——缺它 pytest 收集即报错（环境缺陷显式暴露）
+                                    # 系统依赖补齐（Debian/Ubuntu）：sudo apt install -y git
+
+# 3) 验收基线（数字不等 = 环境问题，先修环境再继续）
+uv run pytest --tb=no -q              # 期望：821 passed, 1 skipped（GPU 层，无 CUDA 机器跳过属正常）
+uv run python _audit/check_docs.py    # 期望：0 FAIL；fresh clone 无 evidence/ → 4 项 SKIP 属正常（digest 锚已随 git 持久化）
+uv run lint-imports                   # 期望：Contracts: 4 kept, 0 broken
 ```
 
 评价入口（正式首评复现，见 `galatea/evidence/control/entry.py`）：
 
 ```bash
-uv run python -m galatea.evidence.control.entry --help   # m1|carryover|root|c1|...|p1 子命令
+uv run python -m galatea.evidence.control.entry --help   # m1|carryover|root|c1..c5|p1|p4|p4beta 子命令
 ```
 
-## 6. AI 开发会话引导（在新主机重建会话）
+### 6.1 已知陷阱（历史实战沉淀，P1/拓扑迁移期实证）
+
+| 陷阱 | 现象 | 处置 |
+|---|---|---|
+| **venv 移动后必须重建** | 目录迁移/拷贝后入口脚本 spawn ENOENT（shebang 携带旧绝对路径） | `rm -rf .venv && uv sync --extra tessera --frozen`（uv sync 校验通过但运行会炸——必须删掉重建） |
+| **非交互 SSH 无 uv** | 部署脚本 fail-fast：uv 不在 PATH | `export PATH="$HOME/.local/bin:$PATH"`（deploy 脚本已内置该义务检查） |
+| **主机缺 git** | static_reports 生成器 spawn git 失败 | `sudo apt install -y git`（deploy 脚本已内置该义务检查） |
+| **fresh clone 的 SKIP** | check_docs 报 4 项 SKIP | 不是 FAIL——evidence/ 不入库（两段式载荷：git archive + evidence tar，见 §7）；digest 锚已随 git 持久化，逐件恢复用 `scripts/evidence_backup.py drill` |
+
+## 6. 平台支持与多机重建
+
+**平台矩阵**（uv.lock 为单锁多平台通用锁，全包哈希锁定）：
+
+| 平台 | 状态 | 依据 |
+|---|---|---|
+| Linux x86_64 | **全链验证**（开发机 + 部署主机 757→821 基线逐版本全等） | 本机实测 |
+| **Linux aarch64 (ARM)** | **锁级就绪**（整机复测待多机测试） | uv.lock 已含 aarch64 manylinux wheel：torch 2.14.1+cpu / numpy / polars-runtime / duckdb / eclipse-zenoh / cbor2 / pyyaml 全部有 arm64 轮子；其余为纯 Python 包（架构无关） |
+| macOS (x64/Apple Silicon) | 锁级就绪（P4 脑面除外），未验证 | 锁含 darwin 分辨标记与 arm64 wheel；注意：P4 神经模块版本合同钉 `2.14.1+cpu`（Linux 轮子），macOS 装到 `2.14.1` 无 +cpu 后缀，P4 profile loader 会 fail-closed——非 P4 面（kernel/env/subject 基础面）不受影响 |
+| Windows | 锁级就绪，未验证 | 锁含 win 轮子 |
+
+**ARM/Linux 多机实测待办**：锁级覆盖已核验（2026-10-17，逐包核对 uv.lock 的 aarch64 manylinux 轮子），整机安装属下一轮多机测试——测完把平台矩阵状态从"锁级就绪"改为"整机验证"，异常按验收清单逐条回报。
+
+**重建验收清单（每台新机器跑一遍，任何一步不等即回报环境问题）**：
+
+1. `uv sync --extra tessera --frozen` 零报错（ARM 上若报 no matching wheel = 锁覆盖缺口，如实回报）；
+2. `uv run pytest --tb=no -q` = **821 passed, 1 skipped**（与开发机全等）；
+3. `uv run python _audit/check_docs.py` = 0 FAIL；
+4. `uv run lint-imports` = 4 KEPT；
+5. `uv run python -m galatea.evidence.control.entry --help` 正常输出子命令表。
+
+**可选件（均不在验收基线内）**：GPU 隔离 venv（CUDA 确定性认证——`scripts/p4beta_gpu_cert.py`，当前认证于 x86 + RTX 5060 Ti / torch 2.14.1+cu130）；音频/P2/P3 物理脚本（`scripts/audio_*.py`、`p3_*.py` 需真实声卡/Tessera 硬件，不进 pytest 基线）。
+
+## 7. AI 开发会话引导（在新主机重建会话）
 
 本项目的开发由 AI 会话自主执行（owner 立法 + AI 裁决 + 独立评审三权结构）。在新机器上重建开发会话：
 
-1. **clone + 环境**：`git clone` → `uv sync` → `uv run pytest`（基线 757 passed 必须全等——不等即环境问题，先修环境）；
+1. **clone + 环境**：按 §5 快速开始；基线 821 passed 必须全等——不等即环境问题，先修环境；
 2. **第一必读**：`AGENTS.md`（当前状态/纪律/在办事项）→ `DEV_SPEC.md`（流程法规）→ `design/HLD.md`（架构规范源）；
 3. **裁决纪律**：一切新参数/新机制先在 `design/open_questions.md` 立 Q 号成文裁决（背景/选项/选择/影响/重开条件），再动实现——**无源常量与"先改实现后补裁决"都是流程违规**；
 4. **评价纪律**：stat plan 运行前冻结、sealed 评价集、保护集只增不减、顺延终止条款（统计评价不可无限顺延）；
 5. **安全纪律**：凭证仅环境变量/会话内使用，禁入库；evidence/ 不入库但 digest 锚定于 manifest；每门退出做 evidence 异地备份（Q-L13-14）。
 
-## 7. 物理部署（Linux 主机）
+## 8. 物理部署（Linux 主机）
 
 - `scripts/deploy_p1_host.sh`：全栈部署（两段式载荷：git archive + evidence tar；fail-fast 义务检查）；
 - `scripts/deploy_resident_host.sh`：常驻三服务（galatea-zenohd 路由 / galatea-body-sim 体模拟源【诚实标注】/ galatea-resident 主体常驻，SIGKILL 自愈 + 状态快照恢复）；
 - `scripts/evidence_backup.py`：evidence 异地备份 + 逐件恢复演练（backup / drill 双模式）；
 - Tessera 传感平台桥（zenoh + CBOR）：`galatea/env/tessera_bridge.py`（sensing-only）。
 
-## 8. 文档地图
+## 9. 文档地图
 
 | 想了解 | 去看 |
 |---|---|
@@ -112,12 +152,12 @@ uv run python -m galatea.evidence.control.entry --help   # m1|carryover|root|c1|
 | 流程法规（裁决权/评审/事故登记） | `DEV_SPEC.md` |
 | 高层架构（双平面/门体系/预测脑 v2 §15） | `design/HLD.md` |
 | 每个模块的冻结设计 | `design/lld/L00…L13` |
-| 一切参数的裁决出处 | `design/open_questions.md`（172 项） |
-| 重大决策（含 owner 指令原文） | `adr/ADR-G-0001…0030` |
+| 一切参数的裁决出处 | `design/open_questions.md`（189 项） |
+| 重大决策（含 owner 指令原文） | `adr/ADR-G-0001…0035` |
 | 独立评审与事故登记 | `_audit/reviews/`、`DEV_SPEC.md` INC 节 |
 | 脑功能完备性评估 | `config/evidence/brain_function_inventory.yaml` + Q-L13-19 |
 | 哲学评分（Birch 框架） | `config/evidence/birch_markers.yaml` + Q-L13-18 |
 
-## 9. 开源协议
+## 10. 开源协议
 
 [MIT](LICENSE) © 2026 embalmer-Y
