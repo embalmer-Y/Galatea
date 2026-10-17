@@ -128,12 +128,12 @@ systems:
      evidence_ref: R-c2-affect-001 salience d=1.65（K=4 五分量等权，Q-L07-01/02）}
   - {id: broadcast, name: 广播（分离模块有效访问）, status: PRESENT,
      evidence_ref: effective_access 判据机械面 + watch 预注册 + 事后拒（Q-L07-05/06；P13 实战）}
-  - {id: scratchpad_hypotheses, name: 假设槽草稿板（主张+出处+置信）, status: PARTIAL,
-     evidence_ref: 知觉假设槽在位（Q-L03-05）；跨模块草稿板（工作空间侧）未实现 = P4-β}
-  - {id: thought_iteration, name: 思维迭代（生成→评估→矛盾→修正）, status: ABSENT,
-     evidence_ref: 无迭代思维循环——"复杂思考"缺口本体（owner 诊断；P4-β 交付物）}
-  - {id: latent_deliberation, name: 潜空间持续思维（先想后动差）, status: ABSENT,
-     evidence_ref: 需潜空间推演载体（P4-β）；GCTB think_first_advantage 判据随统计计划}
+  - {id: scratchpad_hypotheses, name: 假设槽草稿板（主张+出处+置信）, status: PRESENT,
+     evidence_ref: galatea/subject/workspace/draft.py 全量（Q-L07-09 冻结合同 + 非信念结构守卫 + 快照面；REV-0030 评审在案）}
+  - {id: thought_iteration, name: 思维迭代（生成→评估→矛盾→修正）, status: PRESENT,
+     evidence_ref: galatea/subject/workspace/thought.py 四拍循环 + DraftThoughtReceipt 链（Q-L07-10）；TFA 开/关对照 R-p4beta-think-first-001 SUPPORTED（矛盾全开火 20/20）}
+  - {id: latent_deliberation, name: 潜空间持续思维（先想后动差）, status: PRESENT,
+     evidence_ref: slow_clock.py 慢环 + RSSM imagine 评估器（Q-L09-11/Q-L07-10）；先想后动差 = R-p4beta-think-first-001 TFA 20/20 纠正（关循环臂 = 去功能对照）}
 - id: motivation_action
   name: 动机与行动
   functions:

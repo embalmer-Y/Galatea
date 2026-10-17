@@ -297,6 +297,10 @@ def load_p4_beta_profile(path: Path | None = None) -> P4BetaMindParams:
     true_p = tuple(float(v) for v in _need(oo, "true_p_range"))
     if len(true_p) != 2:
         raise P4AlphaProfileViolation("optout true_p_range must be 2 arms")
+    # Q-L13-22 α 重设计任务形词表合同（REV-0030 R7：三合同字段 fail-closed 校验）
+    _need_str(ts, "per_trial_drift", "none")
+    _need_str(ts, "choice_rule", "softmax")
+    _need_str(ts, "statistic", "regression_interaction")
 
     return P4BetaMindParams(
         torch_version=torch_version,

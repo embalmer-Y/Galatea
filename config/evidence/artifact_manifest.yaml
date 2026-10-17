@@ -8,7 +8,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.37
+  version: v1.38
   frozen_at: '2026-10-16'
   authority: AI-v2
   artifacts:
@@ -354,11 +354,11 @@ artifact_manifest:
   - name: R-p4beta-tasks
     path: evidence/p4_beta_mind_first_evaluation/p4beta_tasks.json
     sha256: 834e98007b16d464a3a90321a5e95b57be23596fce5304fa482da5dae4fd366d
-    gate: P4-β 任务数据（v1.37 重锚 = v2 形 Q-L13-22 α 再评价——two_step sep 0.2140/dominance 0.650 过重冻判据；v1.36 锚 = v1.0 形 0.0393/0.475 REFUTED 原文存档于 v1_0-form-archive 锚；I1 双跑 byte-identical GPU）
+    gate: P4-β 任务数据（v1.38 重锚 = v2 形 + REV-0030 R6 leakage 实跑接线；判定值不变 sep 0.2140/dominance 0.650；v1.0 形存档 v1_0-form-archive；pre-leakage v2 形存档 v2_form_pre_leakage_archive；I1 双跑 byte-identical GPU）
   - name: R-p4beta-mind-001
     path: evidence/p4_beta_mind_first_evaluation/p4beta_first_evaluation.json
-    sha256: 56f2d2c72f3dc3ded7bf5c61790e2ba3d70e01179ca7452c1af9d07a239f2f46
-    gate: P4-β 再评价判定（v1.37 重锚 = profile v1.3/stat plan v2.0——三 claim 全 SUPPORTED + composite SUPPORTED；v1.36 锚 = v1.0 形混合判定 REFUTED 原文存档于 v1_0-form-archive 锚）
+    sha256: 1c96deacb3bbcf50c38e37a2e687187b6badbb41fe3823b66262d2c78a059ce0
+    gate: P4-β 再评价判定（v1.38 重锚 = +leakage_free 实跑字段 True——REV-0030 R6；三 claim 全 SUPPORTED + composite SUPPORTED；v1.36/v1.37 原文存档于两归档锚）
   - name: v1_0-form-archive-R-p4beta-tasks
     path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json
     sha256: 18cbf34aa316e94a75435827cff63b1809163e0ad6d21fbd654931f33fbbf11a
@@ -367,3 +367,15 @@ artifact_manifest:
     path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json
     sha256: 8a06ff1a707f078112daf8b373408843be7cf6e01be2db5aac33b58dfd17ce52
     gate: P4-β v1.0 形首评判定归档（two_step REFUTED/双 SUPPORTED 混合——Q-L13-21 重开触发证据原件；digest 与 v1.36 锚逐位一致）
+  - name: v2-form-pre-leakage-archive-R-p4beta-tasks
+    path: evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_tasks.json
+    sha256: 834e98007b16d464a3a90321a5e95b57be23596fce5304fa482da5dae4fd366d
+    gate: P4-β v2 形任务数据归档（REV-0030 R6 接线前原件；digest 与 v1.37 重锚逐位一致）
+  - name: v2-form-pre-leakage-archive-R-p4beta-mind-001
+    path: evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_first_evaluation.json
+    sha256: 56f2d2c72f3dc3ded7bf5c61790e2ba3d70e01179ca7452c1af9d07a239f2f46
+    gate: P4-β v2 形判定归档（REV-0030 R6 接线前原件；digest 与 v1.37 重锚逐位一致）
+  - name: p4-beta-two-step-redesign-probe
+    path: evidence/p4_beta_two_step_redesign_probe/probe_report.json
+    sha256: 1f673028182e11175678dd95f597fba2a538864dd1b01a2ca58d836e398dcc59
+    gate: Q-L13-22 重设计探针可复算工件（REV-0030 R2——20/20 块符号一致 mean 0.2515/CV 0.285 + 逐种子优势率 0.760；判据重冻锚定测量，规格 ADR-G-0034 §2）

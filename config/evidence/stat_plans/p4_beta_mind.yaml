@@ -79,3 +79,8 @@ stat_plan:
     model: P4-α RSSM（profile p4_alpha_brain v1.2——imagine 评估面复用）
     device: gpu_certified_cuda                 # v1.1（认证绿后迁 GPU——owner 指令；I1 = 同环境双跑 bit-exact）
   correction: holm_bonferroni                 # 族 = 3 claim 级 p
+  qualifiers:                                 # REV-0030 R8：限定语显式重述（承 REV-0029 R6）
+    - grid_selection_optimism: 判据数值锚自 Q-L13-22 探针（该探针含方向选择历史）——
+        后续新任务形/新网格不得引用本网格调优记录（P4-α ADR-G-0032 R6 承接）
+    - dominance_margin: dominance 0.650 对重冻阈 0.60 的裕度系 n=40 单次抽样实现——
+        探针 0.760（n=200）为期望估计；重开条件 = 复评 dominance < 0.60 连续两次

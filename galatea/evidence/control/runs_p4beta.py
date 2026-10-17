@@ -423,6 +423,10 @@ def run_p4beta_first_evaluation(root: Path, out_dir: Path,
     i1_match = _jsonify(tasks_rerun) == payload
     (out_dir / "p4beta_tasks.json").write_text(payload + "\n", encoding="utf-8")
 
+    # leakage 探针实跑（REV-0030 R6：composite leakage_free 禁硬编码——runs_p4 同式接线）
+    from galatea.evidence.evaluator.leakage import load_tree_sources, run_leakage_suite
+    leakage_free = run_leakage_suite(load_tree_sources(root)).leakage_free
+
     two_result = evaluate_p4beta_two_step(
         "R-p4beta-two-step-001", plan_ref,
         tuple(tasks["two_step"]["mb"]), tuple(tasks["two_step"]["habit"]),
@@ -439,11 +443,12 @@ def run_p4beta_first_evaluation(root: Path, out_dir: Path,
                   f"n_excluded={tasks['think_first']['n_excluded']}"))
     composite = evaluate_p4beta_composite(
         "R-p4beta-mind-001", plan_ref,
-        two_result, opt_result, tf_result, leakage_free=True, i1_match=i1_match)
+        two_result, opt_result, tf_result, leakage_free=leakage_free, i1_match=i1_match)
 
     result_doc = {
         "results": [_result_dict(r) for r in (two_result, opt_result, tf_result, composite)],
         "i1_match": i1_match,
+        "leakage_free": bool(leakage_free),
         "profile_ref": profile_ref,
         "stream_digest": tasks["think_first"]["stream_digest"],
         "exclusions": [t for t in tasks["think_first"]["trials"] if not t["included"]],
