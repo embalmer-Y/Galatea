@@ -1,6 +1,6 @@
 # L07 递归全局工作空间：竞争、广播、读取回执与因果访问
 
-> LLD: L07/14 · v1.0.2 · 2026-10-06（v1.0.2：C2 次单元交付标注——十件 + pipeline 全量落地；v1.0.1：参数裁决批 + profile 冻结）· 原版 2026-09-13 · 状态：WORKING（C2 实现期）
+> LLD: L07/14 · v1.1 · 2026-10-16（v1.1：P4-β 首单元交付标注——draft.py 草稿板 Q-L07-09 / thought.py 思维迭代 Q-L07-10 / slow_clock.py L09 移交件 Q-L09-11 / p4_beta typed loader INC-11；v1.0.2：C2 次单元交付标注；v1.0.1：参数裁决批 + profile 冻结）· 原版 2026-09-13 · 状态：WORKING（P4-β 实现期）
 > 上游：`HLD.md` §5（递归全局工作空间）/§6/§11.1（`broadcast ≠ causal access`） · `L02/L03/L04/L05/L06`（候选来源）
 > 下游消费者：全体认知模块（广播读者）、L08（目标素材）、L09（metacontrol）、L13（因果访问证据评价）
 > 引入门槛：**C2**（workspace 回执 + 增益回执链）→ **E1**（workspace lesion 选择性失败为硬退出条件）
@@ -196,7 +196,22 @@ galatea/subject/workspace/tests/
   test_competition_causality.py test_pseudo_workspace_criteria.py test_no_execution_path.py
 config/profiles/
   c2_workspace.profile.yaml   K/w_c/TTL/回执超时/depth_max/separated 关系定义（冻结前 UNCONFIRMED）
+  p4_beta_mind.profile.yaml   P4-β：草稿板/思维迭代/慢环 + GCTB 判据数值（v1.1，运行前修订留痕）
 
+> **P4-β 首单元交付标注（2026-10-16）**：draft.py（Q-L07-09 草稿板——DraftHypothesis 冻结
+> schema + DraftDonor 写权限矩阵 + 状态机 open→evaluated→{superseded|contradicted} 禁跳级
+> 禁复活 + 非信念原则 API 形状承诺 + snapshot/restore/state_digest 全状态快照）+
+> thought.py（Q-L07-10 思维迭代——四拍 generate/evaluate/contradict/revise 顺序冻结 +
+> DraftThoughtReceipt 逐拍 prev-digest 链 + ContradictionEvent typed 检出（只检出不改状态，
+> 处置归 revise：被后继覆盖 → superseded / 未修正矛盾引用 → contradicted）+ 终止 = 预算
+> 8 或收敛（no_new_successor 机械操作化——离散生成器零改进后继即收敛，零新自由常量）+
+> 评估器/冲突判据/修正生成全部注入式——生产面 = P4-α RSSM imagine 评分）+
+> slow_clock.py（Q-L09-11 慢环——L09 移交件：触发判据属 L09 域、产物面属 L07 草稿板；
+> 触发 = idle_cycle（urgency≤0 ∧ 无 pending）∨ low_arousal（<0.1，锚 Q-L05-03 band）；
+> 逐拍检测；行动面零接口零新增）+ p4profile.load_p4_beta_profile（INC-11 fail-closed；
+> torch 设备维 Q-T02 补裁③：认证态 + CUDA 环境变量逐字校验放行路径）。测试：
+> test_draft_scratchpad / test_thought_loop / test_slow_clock（13 测试；含 AST import 面
+> 非信念结构守卫——P14 教训：禁源码字面量匹配）。
 > **C2 次单元交付标注（2026-10-06）**：十件全量（ports/propose/compete/frame/broadcast/watch/
 > access/recurse/pseudo_check/receipt）+ pipeline 装配面 + c2profile C2WorkspaceParams typed
 > loader（INC-11）。要点：等权打分 + affect 分量调制缩放（consume_salience_modulation——

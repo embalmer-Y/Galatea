@@ -15,14 +15,19 @@
 #       v2.2 = C5 实现期首单元增补（2026-10-08，INC-12 义务第十二次执行——c5 场景随 promotion/rollback/replay/巩固落成即冻，c5-exit 复核）。
 #       v2.3 = E1 实现期增补（2026-10-09，INC-12 义务第十三次执行——60 格闭合/I2 独立性/lesion 选择性场景）。
 #       v2.4 = H1 实现期增补（2026-10-10，INC-12 义务第十四次执行——长时运行/恢复/审计/急停语义场景）。
+#       v2.5 = P1 实现期增补（2026-10-10，INC-12 义务第十五次执行）。
+#       v2.6 = P4-α 评价单元增补（2026-10-11，INC-12 义务第十六次执行）。
+#       v2.7 = P4-β 实现期首/次单元增补（2026-10-16，INC-12 义务第十七次执行——草稿板/思维循环/
+#         慢环/loader/GCTB runner 场景随实现落成即冻，p4-beta-exit 复核）。
 # 纪律：保护集**只增不减**（退役须 DEV_SPEC §4.6 难逆决策裁定 + 记录，禁静默删除）；
 # 每门退出前更新本清单（新增该门关键场景 + 复核基线未退化）；基线 = 冻结测试断言
 #（确定性模拟中 bit-exact 断言即基线；统计型场景以冻结统计计划为准绳）。
 protection_suite:
   id: m1_protection_suite
-  version: v2.6                # v2.6（P4-α 评价单元）：新增 p4 场景 3 至 137（INC-12 义务第十六次执行）
+  version: v2.7                # v2.7（P4-β 实现期首/次单元）：新增 p4_beta 场景 5 至 142（INC-12 义务第十七次执行）
+                               # v2.6（P4-α 评价单元）：新增 p4 场景 3 至 137（INC-12 义务第十六次执行）
                                # v2.5（P1 实现期增补）：新增 p1 场景 6 至 134（INC-12 义务第十五次执行）
-  frozen_at: "2026-10-11"   # v2.6（P4-α 评价单元同步；v2.1 为 REV-0021 R5 修正）
+  frozen_at: "2026-10-16"   # v2.7（P4-β 首/次单元同步；v2.1 为 REV-0021 R5 修正）
   authority: AI-v2
   spec_ref: design/lld/L13_evidence_evaluation_registry.md
   retroactive_note: >
@@ -673,3 +678,33 @@ protection_suite:
       frozen_gate: P4-α
       assertion: 统一误差流合同 fail-closed——重复模态帧拒/基模态缺席拒（禁伪造零向量）/
         首拍速率 typed Unknown 拒（禁伪造零速率）；特征空间 = L02 形成层唯一复用（Q-L02-06）
+    - id: p4_beta_scratchpad_non_belief
+      source_test: galatea/subject/workspace/tests/test_draft_scratchpad.py
+      frozen_gate: P4-β
+      assertion: 草稿板非信念原则——AST import 面零信念/行动/目标平面 + API 无确证出口 +
+        白名单外供体 UnauthorizedDraftDonor 拒 + 状态机禁跳级禁复活 + 快照往返 digest
+        恒等/篡改拒（Q-L07-09①②③④）
+    - id: p4_beta_thought_loop_contradiction_fails_open
+      source_test: galatea/subject/workspace/tests/test_thought_loop.py
+      frozen_gate: P4-β
+      assertion: 思维循环 INC-08 可失败性——目标互斥矛盾必开火（静默 = 缺陷）+ 逐拍
+        DraftThoughtReceipt prev-digest 链挂接 + 拍序冻结校验 + 预算终止/收敛双形态 +
+        同分确定性 tie-break + 循环参数逐项来自冻结 profile（Q-L07-10）
+    - id: p4_beta_slow_clock_no_action_plane
+      source_test: galatea/subject/workspace/tests/test_slow_clock.py
+      frozen_gate: P4-β
+      assertion: 慢环行动面零新增——产物仅草稿/审计记录 + 种子供体 controller_proposal
+        白名单出口校验 + 触发矩阵确定性（紧迫/pending/高唤起全不触发）+ 逐拍检测频度 +
+        episode digest 稳定 + jsonl 审计可序列化（Q-L09-11②③④）
+    - id: p4_beta_profile_loader_fail_closed
+      source_test: galatea/subject/tests/test_p4beta_loader.py
+      frozen_gate: P4-β
+      assertion: p4_beta_mind typed loader fail-closed——torch 版本漂移拒/认证态未翻转时
+        CUDA 版本拒（certified_cuda + CUBLAS 冻结值双条件）/缺键拒/状态词表漂移拒；
+        正向 v1.1 慢环阈值与 GCTB 判据数值逐项装载（INC-11；Q-T02 补裁③）
+    - id: p4_beta_gctb_runner_smoke
+      source_test: tests/evidence/test_runs_p4beta_smoke.py
+      frozen_gate: P4-β
+      assertion: GCTB runner 端到端冒烟（INC-08：runner 路径必须有覆盖）——陷阱场景 TFA
+        结构断言（近支线预算内必纠正）+ 矛盾开火 + numpy 任务面双跑 byte-identical +
+        剔除留痕（世界真实布局禁伪造）（Q-L13-21）

@@ -5,11 +5,14 @@
 # REV-0028 R3 移交项在本计划兑现——GCTB 判据数值首次冻结）。
 stat_plan:
   id: p4_beta_mind
-  version: v1.0
+  version: v1.1
   frozen_at: "2026-10-16"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-β 行 + ADR-G-0033
+  # 运行前修订 v1.1（2026-10-16，GPU 认证收尾）：scenario.device → gpu_certified_cuda
+  # （Q-T02 补裁③ 认证程序绿——owner 2026-10-16"生产 claim 运行待 GPU 认证后迁移"指令兑现；
+  # 判据/estimand/n/种子/协议零改动——v1.0 数值面原样）。
 
   seed_derivation:                           # Q-L13-12④：运行前钉死
     master_seed_hex: "70342d626574612d6d696e64"   # = b"p4-beta-mind".hex()
@@ -67,5 +70,5 @@ stat_plan:
   scenario:
     world: 真实 MW0 冻结流 + 探针任务形（Q-L13-21 协议）
     model: P4-α RSSM（profile p4_alpha_brain v1.2——imagine 评估面复用）
-    device: cpu_default_gpu_certified_pending   # Q-T02 补裁③：认证绿后经运行前修订迁 GPU
+    device: gpu_certified_cuda                 # v1.1（认证绿后迁 GPU——owner 指令；I1 = 同环境双跑 bit-exact）
   correction: holm_bonferroni                 # 族 = 3 claim 级 p

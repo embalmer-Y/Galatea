@@ -4,9 +4,21 @@
 # Q-T02 补裁③，AI-v2 2026-10-16）+ 冻结前可行性探针实测（硬机制第八次执行——
 # evidence/p4_beta_probe/probe_report.json verdict=PASS，四层全绿）+ 既有冻结常数。
 # 宪法语境：给定权重确定性；GPU 认证 = Q-T02 补裁③ 程序（本 profile 预留 device 认证态）。
+# 运行前修订 v1.2（2026-10-16，实现期 GPU 认证收尾）：device_certification.status →
+#   certified_cuda（认证程序全绿——scripts/p4beta_gpu_cert.py，隔离 CUDA venv 执行）；
+#   生产 claim 运行迁 GPU（owner 2026-10-16 指令兑现；two_step/optout 为 numpy 任务
+#   device 无关，think_first RSSM 仪器在认证环境执行；I1 = 同环境双跑 bit-exact）。
+# 运行前修订 v1.1（2026-10-16，实现期首单元——P4-α profile v1.1 lr 先例）：
+#   ① slow_clock 阈值冻结（Q-L09-11③"数值探针后定"兑现，全锚既有冻结常数零新自由常量）
+#     — arousal_low=0.1（锚 Q-L05-03 hysteresis_band = 2 × render_noise_sigma(0.05, m0 冻结)）
+#     — urgency_idle=0.0（锚 Q-L08-09④ C-5 支持判定 urgency>0 活跃信号判据的补集）
+#     — check_interval_cycles=1（逐拍检测——触发判据本身即频度门，零信息新常量）
+#   ② thought_iteration.convergence_mode=no_new_successor（Q-L07-10③ 收敛子句
+#     "评分改进<冻结阈值"的确定性机械操作化：离散生成器零改进后继即收敛，零新自由常量；
+#     Q-L07-10 行内补裁注记，登记册同批）
 profile:
   id: p4_beta_mind
-  version: v1.0
+  version: v1.2
   frozen_at: "2026-10-16"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15.5 P4-β 行
@@ -14,8 +26,11 @@ profile:
 
 determinism:                                  # Q-T02 补裁③（设备维开放——认证程序）
   torch_version: "2.14.1+cpu"                 # 生产 claim 运行默认设备 = CPU（锚历史延续）
-  device_certification:                       # GPU 认证态（认证绿后经运行前修订启用）
-    status: pending_probe_layer_a_rerun       # 探针层A 冒烟四检已全绿（2026-10-16）；正式复验随认证工作项
+  device_certification:                       # GPU 认证态（v1.2 运行前修订翻转——认证程序绿）
+    status: certified_cuda                    # Q-T02 补裁③ 认证绿（2026-10-16）：层A 正式复验 + RSSM 录制/重放 + 训练双跑全 bit-exact
+    torch_version_cuda: "2.14.1+cu130"        # 认证 venv 版本（隔离 venv，项目锁零触碰）
+    cert_evidence: evidence/p4_beta_gpu_certification/cert_report.json
+    cert_regression: tests/evidence/test_p4_beta_probe.py::test_probe_layer_a_gpu_determinism
     cuda_env: {CUBLAS_WORKSPACE_CONFIG: ":4096:8", use_deterministic_algorithms: true}
     isolated_venv: torch 2.14.1+cu130         # 项目锁环境零触碰（ADR-G-0031 §7 先例）
   num_threads: 1
@@ -38,9 +53,13 @@ thought_iteration:                            # Q-L07-10（思维迭代循环）
   receipt: DraftThoughtReceipt                # 拍号/供体/评分/矛盾引用/动作——逐拍留痕
   contradiction_event: typed                  # ContradictionEvent（探针实证可开火）
   think_steps_budget: 8                       # 冻结探针值（B3：8 步预算过滤超可行计划）
+  convergence_mode: no_new_successor          # v1.1②（确定性收敛操作化，零新自由常量）
 
 slow_clock:                                   # Q-L09-11（慢环调度）
-  trigger: [idle_cycle, low_arousal]          # 空闲拍 / 低唤起（阈值探针后随实现冻结）
+  trigger: [idle_cycle, low_arousal]          # 空闲拍 / 低唤起
+  arousal_low: 0.1                            # v1.1①（锚 Q-L05-03 band = 2×render_noise_sigma）
+  urgency_idle: 0.0                           # v1.1①（锚 Q-L08-09④ urgency>0 活跃判据补集）
+  check_interval_cycles: 1                    # v1.1①（逐拍检测——触发判据即频度门）
   products: scratchpad_hypotheses             # 产物 = 草稿板假设/计划候选
   action_plane: unchanged                     # 行动面经 gateway 原样——零新增权限
   audit: resident_audit_stream                # 迁移审计流扩展
@@ -49,7 +68,7 @@ gctb:                                         # Q-L13-21（判据数值——探
   two_step_task:
     trials: 120                               # 探针值（反转 @60）
     drift_prob: 0.08                          # 每拍 8% 反转漂移（经典任务结构）
-    reversal: trial 60
+    reversal_at: 60                           # v1.1：原 descriptive 行 "reversal: trial 60" 改机械可读键（运行前修订留痕——数值不变）
     transition_common: 0.8
     reward_good: 0.8
     mb_alpha: 0.5                             # endstate 价值更新（传播机制）

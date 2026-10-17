@@ -24,7 +24,9 @@ def configure_deterministic_torch() -> None:
 
 
 def _tensor_digest(t: torch.Tensor) -> str:
-    return hashlib.sha256(t.detach().contiguous().numpy().tobytes()).hexdigest()
+    # .cpu() 对 CPU 张量恒等（既有 digest 锚不变）；CUDA 张量经 host 拷贝——
+    # 权重工件身份设备无关（Q-T02 补裁③ 认证程序实测暴露面，P4-β）
+    return hashlib.sha256(t.detach().cpu().contiguous().numpy().tobytes()).hexdigest()
 
 
 def per_key_digests(state: dict[str, torch.Tensor]) -> dict[str, str]:

@@ -138,6 +138,11 @@ class RSSMWorldModel(NeuralModule):
             raise TypeError("core module type drift")
         return core
 
+    @property
+    def _device(self) -> torch.device:
+        """状态张量设备面（权重所在设备；CPU 路径恒 cpu——既有逐位锚不变）。"""
+        return next(self.module.parameters()).device
+
     @staticmethod
     def _kl_closed_form(mu_q: torch.Tensor, logvar_q: torch.Tensor,
                         mu_p: torch.Tensor, logvar_p: torch.Tensor) -> torch.Tensor:
@@ -175,9 +180,10 @@ class RSSMWorldModel(NeuralModule):
         """在线滤波至末拍状态 (h, z)（逐拍摄入真实形成帧——部署语义）。"""
         if not xs:
             raise ValueError("filter_state requires >= 1 frame")
-        h = torch.zeros(self.det_dim)
-        z = torch.zeros(self.latent_dim)
-        x_prev = torch.zeros(self.input_dim)     # 首拍 e = x₁（研究配置逐位锚）
+        dev = self._device
+        h = torch.zeros(self.det_dim, device=dev)
+        z = torch.zeros(self.latent_dim, device=dev)
+        x_prev = torch.zeros(self.input_dim, device=dev)  # 首拍 e = x₁（研究配置逐位锚）
         with torch.no_grad():
             for x in xs:
                 h, mu_q, _lvq, _mu_p, _lvp, pred = self.step(x, h, z, x_prev)
@@ -195,9 +201,10 @@ class RSSMWorldModel(NeuralModule):
         """
         if len(xs) < 1:
             raise ValueError("filter_sequence requires >= 1 frame")
-        h = torch.zeros(self.det_dim)
-        z = torch.zeros(self.latent_dim)
-        x_prev = torch.zeros(self.input_dim)     # 首拍 e = x₁（研究配置逐位锚）
+        dev = self._device
+        h = torch.zeros(self.det_dim, device=dev)
+        z = torch.zeros(self.latent_dim, device=dev)
+        x_prev = torch.zeros(self.input_dim, device=dev)  # 首拍 e = x₁（研究配置逐位锚）
         preds: list[torch.Tensor] = []
         with torch.no_grad():
             for x in xs:
@@ -264,11 +271,12 @@ class RSSMWorldModel(NeuralModule):
         for ep in range(epochs):
             seg = xs[starts[ep % len(starts)]:]
             optimizer.zero_grad()
-            h = torch.zeros(self.det_dim)
-            z = torch.zeros(self.latent_dim)
-            x_prev = torch.zeros(self.input_dim)   # 首拍 e = x₁（研究配置逐位锚）
-            recon_acc = torch.zeros(())
-            kl_acc = torch.zeros(())
+            dev = self._device
+            h = torch.zeros(self.det_dim, device=dev)
+            z = torch.zeros(self.latent_dim, device=dev)
+            x_prev = torch.zeros(self.input_dim, device=dev)  # 首拍 e = x₁（逐位锚）
+            recon_acc = torch.zeros((), device=dev)
+            kl_acc = torch.zeros((), device=dev)
             count = 0
             for t, x in enumerate(seg):
                 h, mu_q, logvar_q, mu_p, logvar_p, x_pred = self.step(x, h, z, x_prev)

@@ -1,20 +1,27 @@
 # Galatea P4-α 冻结规格 — 预测脑 v2 脑核（神经世界模型 + 摊销推断 + 统一误差流）
 # 效力：P4-α 门冻结合同（拟 ADR-G-0030 · tag p4-alpha-freeze）。
 # 纪律：全部数值溯源本批裁决（Q-L04-12 / Q-L13-20 / Q-G00-15，AI-v2 2026-10-11）
+# 运行前修订 v1.3（2026-10-16，P4-β 实现期——GPU 认证收尾）：device_certification 块新增
+# （Q-T02 补裁③ 认证程序绿——CUDA 层A 复验/录制重放/训练双跑全 bit-exact；训练语义零改动）。
 # + 探针实测（硬机制第七次执行——tests/evidence/test_p4_alpha_probe.py 永久回归，
 # 证据 evidence/p4_alpha_probe/probe_report.json）+ 既有冻结常数（Q-L01-01 窗 / Q-L00-01 T6）。
 # 宪法语境（ADR-G-0029 §2）：给定权重的确定性——训练可复算（录制重放逐位恒等），
 # 部署推理 bit-exact；学习参数 = 工件（digest 锚）；表格模型并存为回退层/对照基线。
 profile:
   id: p4_alpha_brain
-  version: v1.2
-  frozen_at: "2026-10-15"
+  version: v1.3
+  frozen_at: "2026-10-16"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15 预测脑 v2
   ruling_refs: [Q-G00-14, Q-G00-15, Q-L04-12, Q-L04-13, Q-L04-14, Q-L13-20, Q-L13-19, Q-T02]
 
 determinism:                                  # Q-L13-20③（探针层A 配置即生产配置）
   torch_version: "2.14.1+cpu"                 # 探针实测；升级 = 新 Q（uv.lock 哈希锁定）
+  device_certification:                       # v1.3 运行前修订（Q-T02 补裁③ 认证程序——P4-β 工作项执行）
+    status: certified_cuda                    # 层A 正式复验 + 录制/重放 + 训练双跑全 bit-exact（2026-10-16）
+    torch_version_cuda: "2.14.1+cu130"        # 认证 venv（隔离，项目锁零触碰——ADR-G-0031 §7 先例）
+    cuda_env: {CUBLAS_WORKSPACE_CONFIG: ":4096:8", use_deterministic_algorithms: true}
+    cert_evidence: evidence/p4_beta_gpu_certification/cert_report.json
   num_threads: 1                              # 探针实测（位等价前提；多线程 = 经新 Q 证位等价）
   use_deterministic_algorithms: true          # Q-T02③ 激活
   default_dtype: float32                      # Q-T10 模型面 float32

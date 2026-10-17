@@ -991,8 +991,22 @@ def main(argv: list[str] | None = None) -> int:
             f"replay={first['replay'].verdict.value} "
             f"leakage_free={first['leakage_free']}"
         )
+    elif command == "p4beta":
+        from galatea.evidence.control.runs_p4beta import run_p4beta_first_evaluation
+        out_dir = root / "evidence" / "p4_beta_mind_first_evaluation"
+        first = run_p4beta_first_evaluation(root, out_dir)
+        rs = first["results"]
+        print(
+            f"p4beta: composite={rs['composite'].verdict.value} "
+            f"two_step={rs['two_step'].verdict.value} "
+            f"(sep={rs['two_step'].effect_size:.4f}) "
+            f"optout={rs['optout'].verdict.value} "
+            f"(gain={rs['optout'].effect_size:.4f}) "
+            f"think_first={rs['think_first'].verdict.value} "
+            f"i1={first['i1_match']}"
+        )
     else:
-        print(f"unknown command: {command}（m1|carryover|root|c1..c5|p1|p4）")
+        print(f"unknown command: {command}（m1|carryover|root|c1..c5|p1|p4|p4beta）")
         return 2
     return 0
 

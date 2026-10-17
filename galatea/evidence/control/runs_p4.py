@@ -278,6 +278,10 @@ def _zscore(rates: list[float], n_train: int) -> tuple[list[float], float, float
     return [(r - mu) / sd for r in rates], mu, sd
 
 
+#: 公开别名（P4-β runs_p4beta 跨模块消费；REV-0029 R2 后新评价代码禁引私有名）
+zscore_train_stats = _zscore
+
+
 def _predict_next_rates(model: RSSMWorldModel, norm_rates: list[float],
                         mu: float, sd: float) -> list[float]:
     """在线滤波逐拍预测下一速率（反标准化回原始域——train 统计量；误差反馈

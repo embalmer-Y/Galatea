@@ -1,6 +1,6 @@
 # L09 控制器与元控制：五类控制器并行提案、仲裁与 metacontrol
 
-> LLD: L09/14 · v1.1 · 2026-10-06（C3 准备单元：Q-L09-01/02/03/04/07 CONFIRMED + c3_motivation.profile v1.0 冻结；实现件 = C3 实现期）· 原版 2026-09-13 · 状态：WORKING（C3 冻结评审前置）
+> LLD: L09/14 · v1.2 · 2026-10-16（v1.2：P4-β 首单元——Q-L09-11 慢环调度合同交付标注（移交件 galatea/subject/workspace/slow_clock.py：触发判据属本档域、产物面属 L07 草稿板、行动面零接口零新增）；v1.1：C3 准备单元 Q-L09-01/02/03/04/07 + c3_motivation.profile 冻结）· 原版 2026-09-13 · 状态：WORKING（P4-β 实现期）
 > 上游：`HLD.md` §1.2（归属与控制）/§5（预测误差）/§6/§9.2 · `L03/L04/L05/L06/L07/L08`（提案素材与目标） · `L00_kernel.md`（T 级调度）
 > 下游：L10（`ControllerProposal → ActionIntention` 仲裁与提交）
 > 引入门槛：**M1**（最小授权与选择证据）→ **C3**（五类控制器 + metacontrol）→ **C4**（forward/inverse 与主动感知闭环）→ **E1**（控制器 lesion）
@@ -214,6 +214,18 @@ galatea/subject/control/tests/
 config/profiles/
   m1_control_min.profile.yaml   M1 最小控制器集与仲裁参数
   c3_control.profile.yaml（注记：C3 冻结物实为 c3_motivation.profile.yaml v1.0——八节合一承载 L08+L09 参数，REV-0017 R8）       五类权重/优先序/元决策触发/最小驻留/adaptive 界（冻结前 UNCONFIRMED）
+  p4_beta_mind.profile.yaml   P4-β slow_clock 节（阈值 v1.1 冻结——arousal_low=0.1 锚 Q-L05-03 band；urgency_idle=0.0 锚 Q-L08-09④ 补集）
+
+> **P4-β 首单元交付标注（2026-10-16，Q-L09-11 慢环调度合同）**：实现件 =
+> `galatea/subject/workspace/slow_clock.py`（**L09 移交件**——触发判据属本档域，产物面属
+> L07 草稿板；落位 workspace 包以保持 workspace→action/goals 禁 import 结构面零新增）。
+> 要点：触发 = idle_cycle（无驱力 urgency > 0——Q-L08-09④ 活跃信号判据补集，且无
+> pending 命令）∨ low_arousal（arousal < 0.1——锚 Q-L05-03 band = 2σ 同源常数）；
+> 逐拍检测（check_interval=1，触发判据本身即频度门）；产物 = DraftHypothesis（供体 =
+> controller_proposal 白名单出口校验 require_controller_donors）；**行动面零新增**（本模块
+> 零行动/命令/意图接口——结构守卫 = workspace 禁 import action 既有面）；深思拍数上界 =
+> 思维循环 think_steps_budget=8（Q-L07-10③ 复用）；审计 = SlowClockRecord typed jsonl +
+> episode digest（迁移审计流 Q-L13-16 扩展点）。测试：test_slow_clock（触发矩阵/审计/供体）。
 ```
 
 ## 11. 未决问题（→ open_questions.md）
