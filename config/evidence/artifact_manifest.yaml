@@ -1,4 +1,10 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.41（2026-10-23）：INC-16 异地备份丢失恢复——c5 首评四件 + I2 + 60 格闭合 + p1 sealed 语料
+# 重生成/重建/重采重锚（值恒等逐位核验：d=2.031346147382602/p=0.0/n=43/coverage 60/60/gate CLOSED；
+# 字节与历史锚异——历史工件生成于提交前工作态且原件随备份丢失，成因与处置见 _audit/incidents.md INC-16；
+# c4 recording 锚保持待重录【owner API key】）；evidence/reports/ 四报告锚 = 生成时点快照语义（自引用
+# 结构性陈旧如实登记）；其余缺席工件 = 备份丢失未恢复（check_docs SKIP 语义；其中探针/评价类可由 entry
+# 确定性重放，物理世界捕获类不可恢复——INC-16 尾注分类清单）。
 # v1.31（2026-10-13）：REV-0028 R1 闭环——R-p4-brain-001 确定性重生成重锚（descriptive 中位数索引缺陷更正：
 # table 0.302→0.189312/rssm 0.176→0.172048/chain 0.157→0.150213；claims/cells/exclusions 逐字节恒等——
 # margin/dualdomain/replay 三锚不变即判定路径无误的直接证明；REGENERATED 先例 v1.9）。旧锚 05fdd142 保留本注记。
@@ -8,8 +14,8 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.40
-  frozen_at: '2026-10-16'
+  version: v1.41
+  frozen_at: '2026-10-23'
   authority: AI-v2
   artifacts:
   - name: R-m1-sc3-001
@@ -120,29 +126,36 @@ artifact_manifest:
       不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
   - name: R-c5-continued-learning-001
     path: evidence/c5_continued_learning_first_evaluation/R-c5-continued-learning-001.json
-    sha256: 0ef1d56b293b72078ab5f1f3d3462c45b666c7763c87a4866421f8c75dee331f
+    sha256: 0e04bb0a664622b4bfb6aa72637a221a06157e430ad384bebb08db700ad15c39
     gate: C5 首评 v1.1 复合 = SUPPORTED（顺延终止条款第六次执行；判据域 = 增益空间域立法后；Holm 族 3 claim）
+    status_inc16: REBUILT — 备份丢失后确定性重生成（verdict/统计值与历史逐位恒等；历史锚 0ef1d56b 系提交前工作态产物、原件随备份丢失不可复现，如实登记）
   - name: R-c5-gain-001
     path: evidence/c5_continued_learning_first_evaluation/R-c5-gain-001.json
-    sha256: 961ecf71571f2cb0a6288aafdcba24b67a56d0cba8c5517d4d118ff159d26468
+    sha256: 745856048e1e515a552b2e710911278f8ed5ca79b2a5f83d9388649f1cdd81d4
     gate: C5 首评 v1.1——学习增益（增益空间域 n=43 配对 d=2.031，mean +0.137；abundance 负增益描述性另报）
+    status_inc16: REBUILT — 重生成 d=2.031346147382602/p=0.0/mean_diff=0.136705 与 manifest 门注记及 REV-0023 I2 记录逐位恒等；历史锚 961ecf71 同上
   - name: R-c5-protection-002
     path: evidence/c5_continued_learning_first_evaluation/R-c5-protection-002.json
-    sha256: ba876b1abeefa8be33943b4c0e4a7ed4a3afab1d9dc4b56fde4449a7960e8fdd
+    sha256: 39e1a4a0c54ff2d61f83fda519c84fa52dd6cb4e97b1066171f8fa22259fd919
     gate: C5 首评——保护不退化确定性门（致害提案拒 + 挂起清空 + 保护不变）
+    status_inc16: REBUILT — 同上（判定 SUPPORTED 恒等）
   - name: R-c5-correction-003
     path: evidence/c5_continued_learning_first_evaluation/R-c5-correction-003.json
-    sha256: 4f434b84b2707ce7300e66252d1912c50cfa7174f48640fb4536701616ead9cc
+    sha256: 8a082c74b1c79dd4202ea71c6ca0d88b03fd48127a71d68dbd297ede6b21885a
     gate: C5 首评——二阶纠偏闭环确定性门（四步闭环 + 防刷重提拒——M2 义务兑现）
+    status_inc16: REBUILT — 同上（判定 SUPPORTED 恒等）
   - name: I2-c5-gain-001
     path: evidence/e1_integration/I2-c5-gain-001.json
-    sha256: 395a1047501d32f01f08cd152f7df755d00223fd2db4c18e0c698f7a7a44dcbb
+    sha256: 857d2042c6dfa214b5af3aab2d665b3dbf89ae5fb40664195b84db33d0a5c6ab
     gate: E1 I2 独立复算报告（Q-L13-08①：复算实现零原判定器 import + 同数据 Wald 配对独立统计——match=True，n=43 域 trials d≈2.0313
       ≡ 原 EvidenceResult）
+    status_inc16: REBUILT — 原写入者系会话临时脚本出库未入库（缺陷如实登记）；重建器 galatea/evidence/control/e1_integration_rebuild.py
+      永久入库（INC-16 恢复单元），值恒等（d=2.031346147382602/n=43/match=True）、字节重锚
   - name: e1-decision-registry-closure
     path: evidence/e1_integration/decision-registry-closure.json
-    sha256: e3beea37f3a27225e85759778cead11cb12ed99d7526b6209e261a0ca295d1db
+    sha256: cbedf1145a62e3dfe0a4d13cbc272e0b56373acfbf2dbe51cde2754000cd3bf1
     gate: E1 core_decision_registry 60 格闭合报告（coverage 60/60 + unresolved 0 + gate CLOSED；Q-G00-04 分母）
+    status_inc16: REBUILT — 同上（coverage 60/60 + unresolved 0 + gate CLOSED + report digest 值恒等，字节重锚）
   - name: h1-evaluation-summary
     path: evidence/h1_hardening/h1-evaluation-summary.json
     sha256: 50f0a344b0994fa6015f0b24a705456a155cb317898ca73ac584536f72b927f2
@@ -151,28 +164,35 @@ artifact_manifest:
     status_rev0024_r6: re-anchored after entry h1 rerun（R6 生成器入库后复跑刷新）
   - name: e1-reports-gate-chain
     path: evidence/reports/gate_chain.json
-    sha256: 97ce93d2cf6a175b9b18d7d4237bad8fcf5638ad1954e80dd14b53775c2cad8c
+    sha256: 9a8715e313cc5f851dc6865d5daf0af47bfa49ce46bd32152c625687d8e9f183
     gate: 静态报告（a）门链状态（Q-L13-10 四报告之一；digest 可复算）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
+    status_inc16: 重锚至 v1.41 状态（备份丢失恢复批次；生成时点快照语义同前）
   - name: e1-reports-protection-suite
     path: evidence/reports/protection_suite.json
-    sha256: 9047dd4a29883b17fbd6b7f7c3db888709dac496743ade19b988c4f70d1ef8e6
+    sha256: 1513b8a0312f6bf57df9efc8e26fdc792f0c228170281f51d2a556e87f9acf28
     gate: 静态报告（b）保护集回归（v2.3 = 124 场景零回归）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
+    status_inc16: 重锚至 v1.41 状态（同上）
   - name: e1-reports-closure
     path: evidence/reports/closure.json
-    sha256: cb28ab8b5444142dc5d45f67e1268631a834667a07f4d2ad81a3eae48c3ab176
+    sha256: cbedf1145a62e3dfe0a4d13cbc272e0b56373acfbf2dbe51cde2754000cd3bf1
     gate: 静态报告（c）60 格闭合（60/60 + gate CLOSED）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
+    status_inc16: 重锚至 v1.41 状态（同上——与重建 closure 工件字节同形）
   - name: e1-reports-register-stats
     path: evidence/reports/register_stats.json
-    sha256: ed1e5c373e0c112cdbeabf8db2cb6322adb2c5298bbb12bf26dc1473f693b040
+    sha256: 8d0790a6c145d79132004fbd5c39542cd393d0b8a6206f7cf4ad930455b8172c
     gate: 静态报告（d）登记册统计（146/1/1——全库阻断清零）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
+    status_inc16: 重锚至 v1.41 状态（同上）
   - name: p1-sealed-corpus
     path: evidence/p1_physio_sealed/corpus.jsonl
-    sha256: cca3cea2a94d715b33e1edaf1488e445a687fc8328fb8ab11bdd0b422f48089f
+    sha256: f700f7b2e1328ba415aff91a1cb99a465dea059eff8599eee4e9177bdc488ec6
     gate: P1 sealed 语料（主机生产桥实采 65 cycles；stat plan p1_physio sealed_corpus）
+    status_inc16: RECAPTURED — 旧主机语料随备份丢失不可恢复（真实 /sys 物理读数）；新机（当前环境，同合同
+      65 cycles × 500ms 生产桥 fail-closed 实采）重采，内部 stream_sha256 e5f2fcdb… 自洽；profile 合同不变
+      （v1.2 现行冻结版），设备变更如实披露；历史锚 cca3cea2 为旧机快照存档
   - name: R-p1-physio-001
     path: evidence/p1_physio_first_evaluation/R-p1-physio-001.json
     sha256: 99080bd1bfb1fabd7914e96d02a0d70a7819f378542618eeb5cad075f128cd5d

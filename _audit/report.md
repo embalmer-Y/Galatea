@@ -1,6 +1,6 @@
 # 文档机器校验报告（只读）
 
-根目录：`/home/emb/project/galatea/design`
+根目录：`/home/emb/project/Galatea/design`
 
 扫描 `.md` 文件数：**24**
 
@@ -79,7 +79,7 @@
 - `lld/L10_action_gateway_physio_attribution.md`: 303 行 · 标题「# L10 行动-网关-PhysIO-归属：授权链、fail-closed gateway、四类现实授权与归属系统」 · OK
 - `lld/L11_learning_consolidation.md`: 245 行 · 标题「# L11 学习与巩固：三层可塑性、replay、promotion/rollback 与保护集」 · OK
 - `lld/L12_language_social.md`: 251 行 · 标题「# L12 语言与社会认知：typed LLM 角色、权限矩阵与他者模型」 · OK
-- `lld/L13_evidence_evaluation_registry.md`: 356 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
+- `lld/L13_evidence_evaluation_registry.md`: 362 行 · 标题「# L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decisi」 · OK
 
 ## 6. LLD 头部规范（版本/日期/状态/上游/下游/门槛）
 
@@ -106,8 +106,75 @@
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
 - 清单条目：83（只增不减）
+- SKIP `evidence/m1_first_evaluation/R-m1-sc3-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/m1_first_evaluation/R-m1-sc4-002.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/m2_carryover_first_evaluation/R-r0-root-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c1_models_first_evaluation/R-c1-models-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c1_models_first_evaluation/R-c1-tracking-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c1_models_first_evaluation/R-c1-worldpred-002.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c1_models_first_evaluation/R-c1-body-003.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c2_affect_first_evaluation/R-c2-affect-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c2_affect_first_evaluation/R-c2-modulation-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c2_affect_first_evaluation/R-c2-collapse-002.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c3_motivation_first_evaluation/R-c3-motivation-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c3_motivation_first_evaluation/R-c3-priority-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c3_motivation_first_evaluation/R-c3-switching-002.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c4_recording/recording_v1.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c4_action_social_first_evaluation/R-c4-calibration-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c4_action_social_first_evaluation/R-c4-efference-002.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/c4_action_social_first_evaluation/R-c4-switching-003.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/h1_hardening/h1-evaluation-summary.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p1_physio_first_evaluation/R-p1-physio-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p1_physio_first_evaluation/R-p1-physio-fidelity.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p1_physio_first_evaluation/R-p1-physio-safety.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p1_physio_first_evaluation/R-p1-physio-signal.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/audio_io_test/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/audio_closed_loop/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
 - SKIP `evidence/resident/resident_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- OK：本地存在的全部工件与归档锚一致（SKIP 4 项缺失）
+- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/role_swap_battery/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/release_audit.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/tessera_bridge/capture.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/resident_fusion_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/fusion_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/resident_service_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/snapshot_z7_cp64.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/state_continuity_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_state_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_snapshot_cp12096.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/last_restart_restore.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/birch_scoring/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/speech_surface_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/rreport_v0.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/first_words/first_words.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/rreport_v1.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/first_words_v1/first_words.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/speech_initiative_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_probe/probe_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_probe/probe_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-margin.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-dualdomain.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-margin.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-dualdomain.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-replay.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_gpu_certification/cert_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/p4beta_tasks.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/p4beta_first_evaluation.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_tasks.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_two_step_redesign_probe/probe_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_gamma_probe/probe_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- OK：本地存在的全部工件与归档锚一致（SKIP 71 项缺失）

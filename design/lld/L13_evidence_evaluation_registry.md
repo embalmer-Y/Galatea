@@ -1,6 +1,6 @@
 # L13 证据链与治理：实验控制、独立记录器、评价器、promotion gate、统计计划与 core_decision_registry
 
-> LLD: L13/14 · v1.0.3 · 2026-10-02（v1.0.3：§10 control/entry.py 交付席位（REV-0010 R5 收敛项）+ run_wording_cells 规范化注记（Q-L13-12④）+ test_evaluation_entry.py 席位——C0 准备单元）· v1.0.2 2026-10-02（§10 R0 准备单元交付标注 + gate/expansion.py、sc6 正式 runner、expansion/sealed/recorder/leakage 测试席位补录；§11 Q-L13-03/-05 转 CONFIRMED + Q-L13-11 新增——AI-v2 裁决，见 A 区）· v1.0.1 2026-10-02（§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
+> LLD: L13/14 · v1.0.4 · 2026-10-23（v1.0.4：§10 control/e1_integration_rebuild.py + test_e1_integration_rebuild.py 席位补录——INC-16 恢复单元，E1 integration 工件重建器永久入库）· v1.0.3 · 2026-10-02（§10 control/entry.py 交付席位（REV-0010 R5 收敛项）+ run_wording_cells 规范化注记（Q-L13-12④）+ test_evaluation_entry.py 席位——C0 准备单元）· v1.0.2 2026-10-02（§10 R0 准备单元交付标注 + gate/expansion.py、sc6 正式 runner、expansion/sealed/recorder/leakage 测试席位补录；§11 Q-L13-03/-05 转 CONFIRMED + Q-L13-11 新增——AI-v2 裁决，见 A 区）· v1.0.1 2026-10-02（§9 M2 行改期锚定注记，ADR-G-0009/REV-0009 R1）· 原版  2026-09-13 · 状态：WORKING（**F0 即须合同冻结**；R0/E1 为根门槛）
 > 上游：`HLD.md` §5.1（科学平面全章）/§6.2/§8/§9（R0/E1/H1）/§10.4（全门槛退出纪律）/§11/§12/§13 · `L00_kernel.md`（registry/digest/checkpoint/TypedUnknown）· `L01`（EvidenceResult 根）· `open_questions.md` C 区
 > 下游：owner claim 冻结、门槛退出、Promotion Gate（供 L11）、`core_decision_registry`（供 E1）、审计与复算
 > 引入门槛：**F0**（证据合同 + 统计计划模板 + sealed 分割）→ **M0/M1/M2**（各门 EvidenceResult）→ **R0**（根结果 + 独立 ExpansionDecision）→ **E1→H1**；贯穿全阶段（原稿"E0"经 Q-G00-07 裁决为撰写期残留，已剔除，2026-09-17）
@@ -272,6 +272,10 @@ galatea/evidence/                           # 科学平面（非 subject；stric
                          （C1 实现期次单元增补 c1 子命令——run_c1_first_evaluation）
                          （m1|carryover|root 子命令；冻结计划 + Q-L13-12 种子 → 确定性
                          复现 + 工件落盘；ExpansionDecision 签发不在入口——Q-L13-03 gate act）
+  control/
+    e1_integration_rebuild.py  # 【INC-16 恢复单元交付】E1 integration 工件重建器（I2-c5-gain-001 +
+                               # decision-registry-closure 永久入库重建——原写入者系临时脚本出库的
+                               # 缺陷面补正；输入全在库、双跑逐字节相同钉死）
   recorder/              【R0 准备单元交付（最小范围：四分区 batch 落盘；流式 per-record 入册 C0+）】
     writer.py            Polars 写侧、append-only、digest 计算、四类分区
                          （分区 blob 经 kernel registry 内容寻址；行 schema 漂移 fail-closed）
@@ -319,6 +323,8 @@ galatea/evidence/tests/
                                    # C5 gain claim 复算成立 n=43/d≈2.0313）
   test_decision_registry_dataset.py  # 【E1 实现期交付】见 tests/evidence/test_e1_closure_dataset.py
                                    # （60 格闭合 + N-A remote 列约束 + DEFERRED 治理锚）
+  # tests/evidence/test_e1_integration_rebuild.py  # 【INC-16 恢复单元交付】重建器三测试（I2 判据值
+  #                                   # 逐位锚 d=2.031346147382602 / closure CLOSED / 双跑字节恒等）
   test_protection_only_grows.py test_statplan_immutable.py test_report_digest.py
   # 【R0 准备单元交付 + 席位补录】：test_sealed_isolation.py / test_sealed_no_backflow.py /
   # test_append_only.py / test_recorder_kill_stops_run.py / test_i1_bitexact.py /
