@@ -27,10 +27,15 @@ def test_registry_load_fail_closed(tmp_path) -> None:
 
 
 def test_score_runs_and_all_declared_probes_pass() -> None:
-    """首评口径：全部 award 级标记的探针过（证据基座完整）——回归锚。"""
+    """回归锚（INC-16 后口径）：探针零 FAIL；证据不可得（typed）→ UNDETERMINABLE 出分母。
+
+    INC-16（2026-10-23 备份丢失）后，B0-2 音频闭环工件与 B0-3 冻结 WAV 取证面系旧机
+    物理事件（manifest LOST 注记）——仪器语义：证据不可得 = UNDETERMINABLE（不参分母），
+    非能力回退（ABSENT）亦非 FAIL（禁伪装）。
+    """
     report = score()
     assert report["total_markers"] == 15
-    assert report["scored_markers"] == 14          # UNDETERMINABLE 排除
+    assert report["scored_markers"] == 12          # UNDETERMINABLE 3 = 现象学残余 1 + INC-16 证据不可得 2
     failed = [m for ms in report["tiers"].values() for m in ms if m["probe"] == "FAIL"]
     assert not failed, failed
     assert report["verdict"] in ("VIABLE_SO_FAR_WITH_FORWARD_RISKS",

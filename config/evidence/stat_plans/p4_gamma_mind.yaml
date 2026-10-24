@@ -4,8 +4,13 @@
 # 判据数值溯源 = 冻结前可行性探针（硬机制第九次，evidence/p4_gamma_probe/，Q-G00-16）。
 stat_plan:
   id: p4_gamma_mind
-  version: v1.0
+  version: v1.1
   frozen_at: "2026-10-17"
+  revisions:                                # 运行前修订留痕（claim 未运行；L13 §6）
+    - v1.1 2026-10-23 owner 裁决「GPU 问题修正为 cpu 运行」——开发机无 NVIDIA GPU（INC-16 迁移），
+      scenario.device gpu_certified_cuda → cpu；profile loader CPU 路径合同不变（runtime ==
+      torch_version 2.14.1+cpu，p4profile._resolve_torch_version 首路径放行）；estimand/判据数值/
+      种子派生/claims 零改动
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-γ 行 + ADR-G-0035
@@ -71,7 +76,7 @@ stat_plan:
 
   scenario:
     world: 真实 MW0 冻结流 + 条件化 RSSM（input_dim=4，profile p4_gamma_mind v1.0）
-    device: gpu_certified_cuda                 # Q-T02 补裁③ 延续（owner claim 迁 GPU 指令）
+    device: cpu                                # v1.1 运行前修订（owner 2026-10-23 裁决——无 GPU 机；原 gpu_certified_cuda 为 Q-T02 补裁③ owner claim 迁 GPU 指令，随设备事实退役非降级）
   correction: holm_bonferroni                  # 族 = 3 claim 级 p
   qualifiers:                                  # 承 REV-0029 R6 / REV-0030 R8 / REV-0031 R1/R5 限定语纪律
     - grid_selection_optimism: 判据锚自第九次探针（含方案选择历史）——后续新任务形禁引用本探针调优记录

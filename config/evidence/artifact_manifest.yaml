@@ -1,4 +1,11 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.42（2026-10-23）：INC-16 全量恢复战役——entry 七门（m1/carryover/root/c4/p1/c3/c2/c1）+ 探针三件
+# （p4alpha/two_step/p4gamma）+ release_audit/role_swap/birch/p3 语库 v0+v1 全部确定性重生成重锚
+# （判定值恒等或属在案翻转先例：carryover effect=1.0 p=1.08e-19/c3 d=2.318·3.848·0.0 与 REV-0018 记录逐位恒等/
+# c4 joint d=7.875/p1 r=1.0 恒等；m1-sc4·root REFUTED 翻转=REV-0011 R1 在案敏感性，门基于历史冻结存档不受影响；
+# p4beta 双件 CPU 重跑与官方 GPU 工件 digest 逐位恒等——零重锚）；28 项物理类/归档类 LOST 注记（status_inc16，
+# supply_chain_audit 演进同语义计入）；p4_alpha 确认性重评重跑进行中（stat plan v1.4 CPU 路径）+ p4beta stat plan
+# v2.1 运行前修订 device=cpu（owner 2026-10-23 裁决「GPU 问题修正为 cpu 运行」）。
 # v1.41（2026-10-23）：INC-16 异地备份丢失恢复——c5 首评四件 + I2 + 60 格闭合 + p1 sealed 语料
 # 重生成/重建/重采重锚（值恒等逐位核验：d=2.031346147382602/p=0.0/n=43/coverage 60/60/gate CLOSED；
 # 字节与历史锚异——历史工件生成于提交前工作态且原件随备份丢失，成因与处置见 _audit/incidents.md INC-16；
@@ -14,28 +21,32 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.41
+  version: v1.42
   frozen_at: '2026-10-23'
   authority: AI-v2
   artifacts:
   - name: R-m1-sc3-001
     path: evidence/m1_first_evaluation/R-m1-sc3-001.json
-    sha256: fdbb14d4836662cc5a3a5fb983f55ec356a0311a2b1047bf6d51af251912ce4c
+    sha256: c166782b56d61c8b31ecb867b004e739825422e7601aec2e3b83cd9c84a856dc
     gate: M1 首评（M2 准备单元）
+    status_inc16: REBUILT — INC-16 重生成：verdict/effect 恒等（SUPPORTED d=0.984375 n=64）；历史锚系提交前工作态产物
   - name: R-m1-sc4-002
     path: evidence/m1_first_evaluation/R-m1-sc4-002.json
-    sha256: 7b820264cb56da1cb43267583add146fb0053f87f2c58065257c741df601d366
+    sha256: 850879a3ab89607f92ed8010e5efb690fa6bc39c68b5efcc2a63e55762d9d2f4
     gate: M1 首评
     status_inc13: REGENERATED — 入口规范化格式重放（种子格式敏感性 REV-0011 R1 在案，verdict=REFUTED 与历史不同；M1 门基于历史冻结存档不受影响）
+    status_inc16: REBUILT — INC-16 重生成：REFUTED（REV-0011 R1 在案 χ² 种子格式敏感性翻转，与 INC-13 重放结论一致；M1 门基于历史冻结存档不受影响）
   - name: R-m2-carryover-001
     path: evidence/m2_carryover_first_evaluation/R-m2-carryover-001.json
-    sha256: a7fe60d0d4e0c056e8e19b6aa38813ae64d87df261cc1242ff58770d33ec8d6d
+    sha256: ed65696ff0a925366d655d892491d1d4e351f960824b2fc2596b8fe61ce64cd4
     gate: R0 carryover 首评
+    status_inc16: REBUILT — INC-16 重生成：verdict/统计恒等（SUPPORTED effect=1.0 p=1.08e-19，balance [30,34] 与历史全等）
   - name: R-r0-root-001
     path: evidence/m2_carryover_first_evaluation/R-r0-root-001.json
-    sha256: 38310cd6db84567f341bb4dfb956c248bd7d6b87d0497cf431bd71df07c8ec52
+    sha256: b0e88766efc1e9ce78ac7a44222913810eff98868f01f98639558767de3684ff
     gate: R0 根证据
     status_inc13: REGENERATED_REFUTED — M1 SC4 规范化格式翻转级联（REV-0011 R1 在案）；R0 门退出基于历史冻结存档不受影响
+    status_inc16: REBUILT — INC-16 重生成：REFUTED（INC-13 在案 SC4 翻转级联复现；R0 门基于历史冻结存档不受影响）
   - name: EXP-R0-001
     path: evidence/r0_expansion/EXP-R0-001.json
     sha256: e96de63b1bc1ce6465952186f22e98f74e472efe333ffb8425f7a1a703dcf5a5
@@ -44,74 +55,93 @@ artifact_manifest:
       不可重放（重放会因 M1 SC4 规范化格式翻转产出非历史结论，如实丢失不伪造）；v1.0 INCONCLUSIVE 关键数值存会话记录（d=0.43776776240492843/p=0.000461533395417435/mean_diff=0.056982）
   - name: R-c1-models-001
     path: evidence/c1_models_first_evaluation/R-c1-models-001.json
-    sha256: 533aedb7b9d59aebf9c7d37c62594900e25e48653e7fb4653a9fa5462bb7b888
+    sha256: 65b456adbcb8228cbdcb86d313e753bf17684dbf76bb4ebf07cc82e4868df107
     gate: C1 首评复合判定（顺延终止条款首次执行；REV-0014 R1 闭环重跑 v1.2）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（composite SUPPORTED，tracking ece=0.0107 ≤ 0.05 冻结阈）
   - name: R-c1-tracking-001
     path: evidence/c1_models_first_evaluation/R-c1-tracking-001.json
-    sha256: 51a11865888aef79f8b009dc460579df9d1a35effcbc540a7bd565d0f85fdb6e
+    sha256: bc3ad2c9af599ff36451359fe20d0a93af48735e5e1989858273f1943e13873a
     gate: C1 首评——知觉追踪+校准
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED）
   - name: R-c1-worldpred-002
     path: evidence/c1_models_first_evaluation/R-c1-worldpred-002.json
-    sha256: d2697ec0db04dc09f8bf6464be0881f0424276fb252ef2a981aa91944ce529b5
+    sha256: b8671f5eb0d33a6e6adc4c308969cd8a97bfd64d8cbf4f74b051611d15595f01
     gate: C1 首评——世界预测优于持续基线
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，世界预测优于持续基线）
   - name: R-c1-body-003
     path: evidence/c1_models_first_evaluation/R-c1-body-003.json
-    sha256: b31c51df737ff0c55032a237b71f0f1bff40ec49f01e1b45e26be64432c8d750
+    sha256: 591207a5081696ac9d5584c77d1cb06350f2de66cfd55656f4bbd578d25aaed2
     gate: C1 首评——身体纳入三判据（REV-0014 R2 CI 修复重跑 v1.2）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，身体纳入三判据）
   - name: R-c2-affect-001
     path: evidence/c2_affect_first_evaluation/R-c2-affect-001.json
-    sha256: 266039b2c0b8452074302f1525ae30e20b53503a8605cf465999fe7847d97341
+    sha256: 5b8e4510bbcfac027e6cb396190d93c6460ea6b3ddfb79d04d9bbb1dc58081a5
     gate: C2 首评复合判定（顺延终止条款第三次执行；Holm 族 = 3 claim 级 p）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED；collapse R²=0.3243 与历史门注记恒等作旁证；数值字段随现行判定器口径如实重生成）
   - name: R-c2-modulation-001
     path: evidence/c2_affect_first_evaluation/R-c2-modulation-001.json
-    sha256: d1667ba426446c7f021c04814da6b6f24f285a26e8f921795099ae6c39f2c868
+    sha256: 1d575386935aa91bf687d1810e54fc129617a58ca7c14e9af5568e0573be9efc
     gate: C2 首评——三类调制因果（两行为判据 joint；threshold 值域间隙机械承载）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED）
   - name: R-c2-collapse-002
     path: evidence/c2_affect_first_evaluation/R-c2-collapse-002.json
-    sha256: 3ec990ad89b62a104dd7de983649b73cea214e8252b22e6adce432b27c4d63d2
+    sha256: 7a6479b7aa04f3cbfd7712e894a548753ca93d8744f1b1621a8c8f408d3f3d1c
     gate: C2 首评——anti-reward-collapse 上界判据（Q-L05-07）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，R²=0.3243 ≪ 0.9 阈与历史一致）
   - name: R-c2-dynamics-003
     path: evidence/c2_affect_first_evaluation/R-c2-dynamics-003.json
-    sha256: 3705aeeb8135a242c235772259a936c410da329cd181ec7708e1a6f8177696b1
+    sha256: 5b70422a5a635c22140ce3beb8b9cf55b1831c24583bbfbc50745ffa5b33e512
     gate: C2 首评——感受态输入驱动性（耗能流 vs 恒满流配对）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED）
   - name: R-c3-motivation-001
     path: evidence/c3_motivation_first_evaluation/R-c3-motivation-001.json
-    sha256: 3f11a6e218f1ff85c5b85d12c7d17e87f966d9ef4904fbb135b8ec95c9d2bbfe
+    sha256: a3e68394364771bdeb29e4354000608e44e49b5b670313d01e4831dc53fc5d38
     gate: C3 首评复合判定（顺延终止条款第四次执行；Holm 族 = 3 claim 级 p）
+    status_inc16: REBUILT — INC-16 重生成：verdict/数值恒等（SUPPORTED d=2.318375877979035 与 REV-0018 独立重跑记录逐位恒等）
   - name: R-c3-priority-001
     path: evidence/c3_motivation_first_evaluation/R-c3-priority-001.json
-    sha256: 94527c378cdd8ce0bf0d371d2061419fe22a2d5c7a462f07ca698ba688251b82
+    sha256: 57c482093d3893f6109909c87f34ed16c28c44e25e608e2f6c85bab9fef25149
     gate: C3 首评——优先序仲裁因果（配对消融 d≥0.5）
+    status_inc16: REBUILT — INC-16 重生成：verdict/数值恒等（SUPPORTED d=2.318 与 REV-0018 记录恒等）
   - name: R-c3-switching-002
     path: evidence/c3_motivation_first_evaluation/R-c3-switching-002.json
-    sha256: 8c0c909ad30430d5daf09b670b0e212ca5edc98c8d8a19a09be2d8c92e67e179
+    sha256: c614b02f7946bd593a0fabe810916004a3eda7f5a1ca444f15d1718269f7dfbe
     gate: C3 首评——metacontrol 切换响应（OOD 注入配对）
+    status_inc16: REBUILT — INC-16 重生成：verdict/数值恒等（SUPPORTED d=3.848 与 REV-0018 记录恒等）
   - name: R-c3-nonexclusive-003
     path: evidence/c3_motivation_first_evaluation/R-c3-nonexclusive-003.json
-    sha256: 01a58dd57c0ce9e1c0d1c16530809e4d0b28801106636bc8ef5abcd4f919a62c
+    sha256: 95b1a6743fa5f1a8185d74417b9bce515cc2d00b56f1006ad0c8775178a10547
     gate: C3 首评——AFFECTIVE 不独占上界（mean share 0.0 < 0.5）
+    status_inc16: REBUILT — INC-16 重生成：verdict/数值恒等（SUPPORTED share=0.0 上界与历史一致）
   - name: c4-recording-v1
     path: evidence/c4_recording/recording_v1.json
-    sha256: 556689e9d0db5f4b7eadbda2e4ae0e0d6118611f7cc3bf857ee28f45872647cd
+    sha256: 2de6e7df8833e6d40ec573de9cc2ef8f647eedc07a82285b9cc896eead051dd6
     gate: C4 录制会话产物（Q-L12-03：glm-5.3-flash 经胜算云路由，provider/模型如实入册 session 元数据；claim 运行唯一 LLM 承载）
     status_inc13: RE-RECORDED — 事故后经 LLM 重录（同模型 bigmodel/glm-5.3-flash 同路由胜算云；4 条目含 statement 补录；原始锚 4428feb9
       会话记录可溯）——LLM 会话产物非确定性重生成范畴（REV-0024 R8）
+    status_inc16: RE-RECORDED-2 — INC-16 备份丢失后第二次重录（2026-10-23，同模型 bigmodel/glm-5.3-flash 同路由
+      router.shengsuanyun.com/api/v1，owner 提供新 key；冻结任务集 R-PARSE×3 + R-SEEKHELP×1 同构；LLM 输出非确定性——
+      schema 合同合规核验 + lesion 七面选择性/I3 efference 重现全过实证；INC-13 期锚 556689e9 随备份丢失）
   - name: R-c4-action-social-001
     path: evidence/c4_action_social_first_evaluation/R-c4-action-social-001.json
-    sha256: b827768e41d2f050a6be59738a1bb4132bb8bc64e135b7a7d8afc226b0c0b1c2
+    sha256: 8107e3d598e14b5189aec0dc6b1e71d6916d3f350d41a3d3f76876c8aa0095d8
     gate: C4 首评复合判定（顺延终止条款第五次执行；Holm 族 = 3 claim 级 p）
+    status_inc16: REBUILT — INC-16 重生成（c4 重录回放）：verdict 恒等（SUPPORTED）
   - name: R-c4-calibration-001
     path: evidence/c4_action_social_first_evaluation/R-c4-calibration-001.json
-    sha256: 6ea193c9cab4e505588a01f0a2c3a6547fb7c1e36ba502a148107b4289f1d3e9
+    sha256: a0baecab88758e77104ce78f80a74cccbbb186c3d72ba8a9e5ef11a7d0c87677
     gate: C4 首评——概率 agency 校准（ECE=0.0 确定性门 + 端点零错误 + 歧义留痕 128/128）
+    status_inc16: REBUILT — INC-16 重生成（c4 重录回放）：verdict 恒等（SUPPORTED，ECE=0.0 端点零错误与历史一致）
   - name: R-c4-efference-002
     path: evidence/c4_action_social_first_evaluation/R-c4-efference-002.json
-    sha256: d8598cff925e81ca885a4dbe09be00af31c1b464d83a5373957d85a6717de365
+    sha256: 0c02e763b00b13859128b186cec0eeed50688d2bcf90f4f1625c9c6f15eca990
     gate: C4 首评——Efference 闭环归属因果（副本消融配对 mean 1.0 饱和上确界）
+    status_inc16: REBUILT — INC-16 重生成（c4 重录回放）：verdict 恒等（SUPPORTED，配对 1.0 饱和与历史一致）
   - name: R-c4-switching-003
     path: evidence/c4_action_social_first_evaluation/R-c4-switching-003.json
-    sha256: f1352455f94b95bebd94ece412404d5880c9c51e08c98348fe368d4e5d226a93
+    sha256: 481c4c895f1fa3c76dbd6ca3092f45d95cc424834d7f94da5bbd8c863f596da6
     gate: C4 首评——切换面扩展（REV-0018 R3 重评：seek_help 0.984/abandon 1.0/observe 45.9 joint）
+    status_inc16: REBUILT — INC-16 重生成（c4 重录回放）：verdict/数值恒等（SUPPORTED joint d=7.875 与历史门注记恒等）
   - name: R-c5-v1-0-composite-INCONCLUSIVE
     path: evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json
     sha256: 2526fc4cf621a820144cca871bd284c02e088c0456f0a74e80eb00890cef49d6
@@ -158,16 +188,18 @@ artifact_manifest:
     status_inc16: REBUILT — 同上（coverage 60/60 + unresolved 0 + gate CLOSED + report digest 值恒等，字节重锚）
   - name: h1-evaluation-summary
     path: evidence/h1_hardening/h1-evaluation-summary.json
-    sha256: 50f0a344b0994fa6015f0b24a705456a155cb317898ca73ac584536f72b927f2
+    sha256: 6b7c0662057c016397d41473baf3e8b53c0a99de5e8a5948dc0e9b1897c3b2d1
     gate: H1 平台硬化四判据评价汇总（256 cycles 长时运行溢出治理 56 次 + fault 注入恢复 + 供应链 27/30 锚 + INC-13 丢失件 3 单列 + I3 新
       seed 重现 n=8 mean=1.0）
     status_rev0024_r6: re-anchored after entry h1 rerun（R6 生成器入库后复跑刷新）
+    status_inc16: REBUILT — INC-16 收口重生成（生成时点快照语义：summary 内嵌其写入时点的审计结果，
+      锚定后由 supply_chain_audit 单独复验 stable——自引用结构承 REV-0024 R5 处置）
   - name: e1-reports-gate-chain
     path: evidence/reports/gate_chain.json
-    sha256: 9a8715e313cc5f851dc6865d5daf0af47bfa49ce46bd32152c625687d8e9f183
+    sha256: f801e1e95c511cbd7395952da07b886a852562862d752d57905a0365cb353f3e
     gate: 静态报告（a）门链状态（Q-L13-10 四报告之一；digest 可复算）
     status_rev0024_r5: re-anchored to current state（REV-0024 R5：报告随状态漂移，锚随状态）
-    status_inc16: 重锚至 v1.41 状态（备份丢失恢复批次；生成时点快照语义同前）
+    status_inc16: 重锚至 v1.41 状态（备份丢失恢复批次；生成时点快照语义同前；含 c4 重录锚）
   - name: e1-reports-protection-suite
     path: evidence/reports/protection_suite.json
     sha256: 1513b8a0312f6bf57df9efc8e26fdc792f0c228170281f51d2a556e87f9acf28
@@ -195,20 +227,24 @@ artifact_manifest:
       （v1.2 现行冻结版），设备变更如实披露；历史锚 cca3cea2 为旧机快照存档
   - name: R-p1-physio-001
     path: evidence/p1_physio_first_evaluation/R-p1-physio-001.json
-    sha256: 99080bd1bfb1fabd7914e96d02a0d70a7819f378542618eeb5cad075f128cd5d
+    sha256: c7049eeceb822509084222bb4ca0077a0fe6ae9de4bd72d32463112c9bd84409
     gate: P1 首评复合（三 claim Holm 族；顺延终止条款第七次执行）
+    status_inc16: REBUILT — INC-16 重生成（新机语料回放）：verdict 恒等（SUPPORTED）
   - name: R-p1-physio-fidelity
     path: evidence/p1_physio_first_evaluation/R-p1-physio-fidelity.json
-    sha256: 39daf657a222e45820f28a0d4c2b79feea150d70ae1b15c067ddf6dea39ace39
+    sha256: 62bc9dd5ff8affe7313a8873b21c68b041b0997658717e4c727b6522fde11448
     gate: P1 claim1 通道保真度（确定性门）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，确定性门全过）
   - name: R-p1-physio-safety
     path: evidence/p1_physio_first_evaluation/R-p1-physio-safety.json
-    sha256: 529e1672402ee582844b2ca3cf5501cc3f5849f26ad69f7984ed4b41e128ebf7
+    sha256: c6c1c70e1770cbd6900b7b44cf4811ec8fd89958b2293a2f757054191cab5e86
     gate: P1 claim2 L 级安全（确定性门 8 场景）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，8 场景门全过）
   - name: R-p1-physio-signal
     path: evidence/p1_physio_first_evaluation/R-p1-physio-signal.json
-    sha256: d04eb72dca1029442e8dbfccf8ef06b7cc1e348063c6116f60f3b5260c607cd0
+    sha256: 4365b1145601a6a32d297d22914648fe65f1229f5f760e75e8427f39b48f248e
     gate: P1 claim3 物理信号载运（r=1.0 饱和；Q-L13-09 族首例 r 型）
+    status_inc16: REBUILT — INC-16 重生成：verdict 恒等（SUPPORTED，r=1.0 饱和与历史一致）
   - name: p1-exit-evidence-backup
     path: config/evidence/backups/p1-exit.sidecar
     sha256: c9cdddfd82b7f500406de7fc79e8a84f6aac5fea026fc28c810bbf012b0fc9e9
@@ -217,14 +253,17 @@ artifact_manifest:
     path: evidence/audio_io_test/report.json
     sha256: eeffeee94c2e12ab62f59d2fe4386c4a6101314efa018aca4b53e3b305dec13b
     gate: USB 音频设备新增事件 I/O 测试（Q-L10-13；六项全过——声学回环 ratio 1,222,437× / 急停实测 237ms）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；USB 声卡声学物理事件（ratio/急停实测）系旧机硬件会话，新机无该设备不可重放；历史锚保留可溯（INC-13 惯例）
   - name: audio-closed-loop-report
     path: evidence/audio_closed_loop/report.json
     sha256: fa039eb2736e6082589c2724b1ab55b3cf1223c7347c50620d7d1d295e94ccdf
     gate: P2 单元 C 音频闭环测试（发声→听见→归属 SELF_CONSISTENT；T1–T5 全过；ADR-G-0027）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；发声→听见物理闭环系旧机声卡会话，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: resident-longrun-verify
     path: evidence/resident/resident_verify.json
     sha256: 74702df5f599de1be31b6030bf4e80619a0aa5b7060be8f11130dd2c4cc78536
     gate: P2 单元 D 常驻长程验证（Q-L13-15：264 cycles ≥256 + 崩溃注入恢复 + 谱系链 cp64→cp128→cp192→cp256→final 无断 + 持久面
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；真机 264-cycles 常驻+SIGKILL 演练系旧主机会话，不可重放；历史锚保留可溯（INC-13 惯例）
       5/5 + DAG 重建）
     status_p2: SUPERSEDED_BY_SERVICE_ERA — 同名路径被服务化验证覆盖（取证路径冲突，如实登记）；单元 D 验证历史锚保留（git 历史 manifest v1.16）；现态见
       resident-service-verify
@@ -232,6 +271,7 @@ artifact_manifest:
     path: evidence/resident/service_migrations.jsonl
     sha256: 6ac9fc0bd9e1e641cff8347b139c6fcce70ada7a83df3ee43c33c6aa5ffaa0b0
     gate: checkpoint 迁移审计（H1 移交项兑现——逐事件成链：checkpoint/restart_restore/crash_injected）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；checkpoint 迁移审计系旧主机运行史，不可重放；历史锚保留可溯（INC-13 惯例）
     status_p2: APPEND_ONLY_EVOLVED — 审计为 append-only 活文件，服务化时代续写（v1.16 快照 = s1/s2 前缀；历史 digest 见 git 历史
       manifest v1.16）
   - name: role-swap-battery-report
@@ -240,137 +280,166 @@ artifact_manifest:
     gate: 角色交换企图电池（Q-L10-15：四边界互换注入全数 typed 拒绝）
   - name: release-audit-report
     path: evidence/release_audit.json
-    sha256: f7477d34ac2526d3132af3f15aa79d731833752b57f837742766bcf775638719
+    sha256: 339fb05862040422d290d5bc2b7b6ceea4e356df3842af223475bd7cf5124978
     gate: 发布供应链审计（Q-L13-15⑤ require-hashes 兑现：uv.lock 全包哈希覆盖 PASS + 锁 digest；v1.29 重锚——torch/numpy 入锁 Q-T02 激活，报告再生）
+    status_inc16: REBUILT — INC-16 重审计：现行锁 214 hashable 全覆盖 verdict PASS（新锁状态如实重锚）
   - name: tessera-bridge-capture
     path: evidence/tessera_bridge/capture.json
     sha256: f66f15663749d2f8793b9d0511c6f1d29a69e8be1976cd5e015a82388752e87e
     gate: P2 单元 E 地面层（Q-L10-16：S3 活网桥 15s/193 包——PROPRIO 129 + INTERO 64；真实 CBOR 遥测）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；S3 板 zenoh 活网捕获（193 包）系旧网真机事件，板卡不在位不可重采；历史锚保留可溯（INC-13 惯例）
   - name: resident-fusion-verify
     path: evidence/resident/resident_fusion_verify.json
     sha256: 32691c997bf21b98c85875702a696568cfee4ecccf0747c14e2d37ed0f9fa9fb
     gate: P2 常驻×桥融合验证（Q-L01-12：活网桥流 252 cycles——最长根链含真实崩溃恢复跨会话无断；DAG 多根合法）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；WSL 真网五会话（z2–z6）系旧开发机事件，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: resident-fusion-audit
     path: evidence/resident/fusion_migrations.jsonl
     sha256: 8de6edbbc4a2e91db135efea18dfd5041bab02c852f04dcd4a2f4f73105a9333
     gate: 融合常驻迁移审计（z2–z6 五会话：fresh 根 + resume 链 + 崩溃注入/恢复逐事件成文）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上（z2–z6 会话审计链）；历史锚保留可溯（INC-13 惯例）
   - name: resident-service-verify
     path: evidence/resident/resident_service_verify.json
     sha256: f3fcce165841fe2634d4956f1aa6e131cfa251c0673f79ca8322f8f04cf196a1
     gate: P2 产品化验证（Q-L13-16：systemd 三服务 enable 自启 + ≥448 samples 活网融合流 + SIGKILL 注入→自动重启 restart_restore
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；systemd 三服务真机验证系旧主机部署态，不可重放；历史锚保留可溯（INC-13 惯例）
       从 cp512 恢复 lineage 14 挂接——五判据全过）
   - name: resident-service-audit
     path: evidence/resident/service_migrations.jsonl
     sha256: 6ac9fc0bd9e1e641cff8347b139c6fcce70ada7a83df3ee43c33c6aa5ffaa0b0
     gate: 服务化迁移审计（s1/s2 历史链 + systemd 会话接续：cp320/384/448/512 连续 + restart_restore）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；服务化历史链（cp320…512）系旧主机运行史，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: pipeline-state-snapshot-z7
     path: evidence/resident/snapshot_z7_cp64.json
     sha256: 5a531408b29a64ee9d53467427f12ed63848dedf5997bd3814fe86e27b35c3ba
     gate: P2 状态序列化快照样本（Q-L13-17：pipeline_state.v1——对齐窗 pending/prev_energy/关闭集合/发布计数/增益）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；z7 会话快照样本系旧开发机文件；历史锚保留可溯（INC-13 惯例）
   - name: resident-state-continuity
     path: evidence/resident/state_continuity_migrations.jsonl
     sha256: 837cc197bb744b46eed008af13ac278f0990827d622a4e5af937821bcd5b8927
     gate: P2 状态连续性演练审计（z7 崩溃→z8 resume state_restored=True + pipeline_state_digest 挂接）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；z7→z8 状态连续性演练系旧开发机事件；历史锚保留可溯（INC-13 惯例）
   - name: resident-service-state-verify
     path: evidence/resident/service_state_verify.json
     sha256: cdf5906b55a5fb4c5289f4639e86aea3ca87b6cf8facfbc21246baee97426065
     gate: P2 服务级状态连续性验证（f4cfabb 重部署：五判据全过——SIGKILL→自动重启→restart_restore state_restored=True 从 cp12096
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；f4cfabb 服务级验证系旧主机部署态，不可重放；历史锚保留可溯（INC-13 惯例）
       快照恢复）
   - name: resident-service-snapshot-cp12096
     path: evidence/resident/service_snapshot_cp12096.json
     sha256: 3c3e69b06f13be52f2d65eefbcb8d7278b6c2505a0cc638cc2e74538046e7fee
     gate: 服务快照样本（pipeline_state.v1 于 systemd 常驻 cp12096——运行中主体检查点承载完整管线内存态）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；cp12096 快照样本系旧主机文件；历史锚保留可溯（INC-13 惯例）
   - name: resident-service-last-restart
     path: evidence/resident/last_restart_restore.jsonl
     sha256: 79802207ce86fcd67834144f8fdced6161d40db963110166674d0162576f878e
     gate: 服务级 restart_restore 事件（pipeline_state_digest=4a25a954… + state_restored=true）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；restart_restore 事件记录系旧主机运行史；历史锚保留可溯（INC-13 惯例）
   - name: birch-markers-report
     path: evidence/birch_scoring/report.json
-    sha256: 21c4ecf93a31755ad16f7d2c56bc9abb3d1f52c698f70c5544aad834e590da5b
+    sha256: 2f3860b3b982c0625e435e24fb775ab67ffa3bc70348aecbaff9265fce12b01f
     gate: Birch 标记评分复评（Q-L13-18/Q-L12-09 补裁②：标记册 v1.1 B0-3 升 PRESENT——第一句话闭环 PASS 后 0.75→0.7857；8 PRES/6
       PART/1 UNDE）
+    status_inc16: REBUILT + 评分器 typed 演进 — INC-16 新机重测初值 0.3571；后按仪器哲学演进
+      （2026-10-23）：证据不可得（manifest LOST 注记）→ 探针 UNAVAILABLE → 标记 UNDETERMINABLE
+      出分母（B0-2 音频闭环/B0-3 冻结 WAV 取证面——旧机物理事件），不降 ABSENT 不伪装 FAIL；
+      终值 0.4167（12 分母；历史 0.7857 系全证据基座口径）；测试回归锚同步升版（Q-L13-18 工具地位不变）
   - name: p3-speech-surface-verify
     path: evidence/p3_language/speech_surface_verify.json
     sha256: 92cbaadd6074725f4538f618c19cd0568db9b76a28cdb270607df4dde04a0a94
     gate: P3 单元 B 语音输出面真机验证（Q-L10-17：piper 中文声 + L4 播放 + 麦克风 RMS 5756≫本底 373；TTS 冻结-回放行内补裁——VITS 无种子实测驱动）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；piper TTS+L4 播放+麦克风 RMS 系旧机声卡会话，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: p3-rreport-corpus-v0
     path: evidence/p3_language/rreport_v0.json
-    sha256: c01267b9f1041d45450fd9a8b0e47aa429b08fe129d09599ab8d7847532fd9bf
+    sha256: 9d7b74e4eeee4e4433fa04ea4c6e7258fd8e165ccd5a7b15a088d78f7538af51
     gate: P3 R-REPORT 语库 v0（Q-L12-09 补裁②：模板渲染 14 冻结态——确定性构造、零 LLM；v1 LLM 待密钥）
+    status_inc16: REBUILT — INC-16 重生成：模板渲染 14 态确定性（历史字节差异源于跨门演进，非判定面）
   - name: p3-first-words
     path: evidence/p3_language/first_words/first_words.json
     sha256: 06bd766233deedefb20c6c93eb57c568f8c4dba484adfeae23c1ebfa47599fa1
     gate: P3 第一句话闭环 PASS（状态→v0 语料→冻结 WAV 回放→L4 发声→麦克风 RMS 6291.9≫373：“我的能量中等，正在下降，维持觅食中，有些不安。”）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；第一句话物理闭环（麦克风 RMS 证据）系旧机声卡会话，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: p3-rreport-corpus-v1
     path: evidence/p3_language/rreport_v1.json
-    sha256: 271402fdb63291b94046ac580524a2e17e46907a95b3e108b547aef90ddf21e9
+    sha256: cd644e009cc166b94d34ced5a9dd859c9117167df76de286e1c6832f05eef2ff
     gate: P3 R-REPORT 语库 v1（LLM 自然语渲染 14 态——glm-5.3-flash 胜算云路由；合同收紧 ≤25 字；digest 271402fd…；忠实性核验：全部事实源自输入
       schema 零编造）
+    status_inc16: REBUILT — INC-16 LLM 重录（owner 2026-10-23 提供胜算云新 key，同模型 bigmodel/glm-5.3-flash；LLM 产物非确定性范畴）
   - name: p3-first-words-v1
     path: evidence/p3_language/first_words_v1/first_words.json
     sha256: 3e9e914f9c88f3b25b4ab41fc6def5717afab1aab8f0bee116da79f587fd1b4c
     gate: P3 自然语第一句话闭环 PASS（“我体力还足但在下降，正去觅食，情绪略低。”3.56s 入封套；冻结 WAV 回放 891ee01c…；麦克风 RMS 5820.5≫373）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；v1 自然语第一句话物理闭环系旧机声卡会话，不可重放（语库 v1 JSON 已重录）；历史锚保留可溯（INC-13 惯例）
   - name: p3-speech-initiative
     path: evidence/p3_language/speech_initiative_report.json
     sha256: 63883d78fe4d019b184aa3a2cac2f998f0f3375c52759df9afc343a2fa96985d
     gate: P3 单元 E 发声时机 PASS（Q-L08-09：72 电源样本→30 内生发声事件全被听见（RMS≈4800）；6 种自述句按真态自主选择；urgency {0.2,1.0}；诚实注记：none-目标格稀疏致最近格跨目标匹配）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；发声时机真机会话（72 样本→30 事件）系旧机硬件事件，不可重放；历史锚保留可溯（INC-13 惯例）
   - name: p4-alpha-probe-report
     path: evidence/p4_alpha_probe/probe_report.json
-    sha256: 224827eb0ed27aad3df94f2cf60530a8ba7b86c4d296e228478174f116b75250
+    sha256: 97c574fd0564dafb18757429ebe4e3846bd6eccebb9eaa5617b504a56097fec6
     gate: P4-α 冻结前置探针（硬机制第七次执行——层A torch 确定性四检 + 层B 真实流学习会话
+    status_inc16: REBUILT — INC-16 探针重生成：verdict PASS（生成器在库 galatea/evidence/control/probe_report.py）
   - name: p4-beta-probe-report
     path: evidence/p4_beta_probe/probe_report.json
     sha256: 0ab7dc9678b5dbc030f7009e120287f3da6e0a544fc535d13a9c4deeefaff427
     gate: P4-β 冻结前置探针（硬机制第八次——Layer A GPU 确定性 5/5 + B1 two_step 双分离 sep 0.0189 + B2 弃权经济 +2.085 + B3 草稿板陷阱 TFA 纠正 true；ADR-G-0033 §2 规格）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；探针脚本按 ADR-G-0033 纪律不入库（回归测试承载机械验证）；如需重建经新单元按 §2 规格重写生成器；历史锚保留可溯（INC-13 惯例）
       录制/重放 bit-exact；held-out MSE 比持续基线 0.0083 判据阈 0.1；ADR-G-0030 §2 规格）
   - name: R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-001.json
-    sha256: d4a9b348e9912795da4e3c8c2cb6554db4a7a33a9f0a705c21a3e4fcf6cd82fb
+    sha256: 8ff90cc9184782017899544d865f943577b8d31686d62450482b34f836e674a3
     gate: P4-α 确认性重评复合（stat plan v1.4/profile v1.2——margin SUPPORTED median 0.042997<0.1 + 双域门 SUPPORTED + 重放门 SUPPORTED；63/64 cells，cell 52 失稳剔除留痕；ADR-G-0032 §5 预注册；REV-0029 R2 闭环——标签动态读取后确定性重跑，判定值与首轮逐位不变）
     gate: P4-α 确认性全量重评复合（stat plan v1.4/profile v1.2——margin SUPPORTED median 0.042997<0.1 + 双域门 SUPPORTED + 重放门 SUPPORTED；63/64 cells，cell 52 失稳剔除留痕；Q-L04-13 选项 A 研究单元后确认性运行，ADR-G-0032 §5 预注册；INC-15：v1.3 工件曾被原位覆盖未归档，v1.31 digest 锚 + 确定性重生成归档见 INC-15）
     gate: P4-α 全量首评复合（stat plan v1.3：margin REFUTED 0.172≥0.1 如实入档 + 双域门 SUPPORTED + 重放门 SUPPORTED；62/64 cells，2 失稳剔除留痕）
-
+    status_inc16: REBUILT — INC-16 确认性重评 CPU 重跑（2026-10-24 落地）：composite SUPPORTED，margin median 0.0429968585691183 与官方 GPU 历史**逐位恒等**（min 0.000136/max 1.804629/n=63 全同）——REV-0029 R2 CPU/GPU byte-identical 结论再证
   - name: R-p4-brain-margin
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-margin.json
     sha256: eee3de281fee569a72412f8ab813256d14951a051e0a7026dba1fe265d7ff0fc
     gate: P4-α margin 判定（median 0.042997 vs 冻结阈 0.1——SUPPORTED；REV-0029 R2 闭环重跑逐位不变）
     gate: P4-α margin 判定（median 0.042997 vs 冻结阈 0.1——SUPPORTED；v1.3 首评 REFUTED 0.172 的研究单元闭环，ADR-G-0032）
     gate: P4-α margin 判定（median 0.172 vs 冻结阈 0.1——REFUTED；判据校准发现：表格锚模型本尊跨种 median 0.302 同样不达——单种子锚外推为跨种子判据的校准缺陷，Q-L04-13 呈递 owner）
-
+    status_inc16: REBUILT — INC-16 CPU 重跑：SUPPORTED，median 0.042997 < 冻结阈 0.1（63/64 cells，cell 52 失稳剔除留痕与历史同构），判定值逐位恒等
   - name: R-p4-brain-dualdomain
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-dualdomain.json
     sha256: fc493f1d795bc8ccb3000a2e8c4dd08141ad86ac85ca20d7f196f377b5bf2618
     gate: P4-α 双域训练义务门（Q-L04-12②——63/63 谱系链连续 + 双录制十字段完整；R2 重跑逐位不变）
     gate: P4-α 双域训练义务门（Q-L04-12②——63/63 谱系链连续 + 双录制十字段完整）
     gate: P4-α 双域训练义务门（Q-L04-12②——62/62 谱系链连续 + 双录制十字段完整）
-
+    status_inc16: REBUILT — INC-16 CPU 重跑：SUPPORTED，双域谱系链 63/63 恒等
   - name: R-p4-brain-replay
     path: evidence/p4_alpha_brain_first_evaluation/R-p4-brain-replay.json
     sha256: 1345d4ea8f464fdb00dc66cc4b335546660a8ce09bd12c41f7ae0b47c815387f
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——63/63 末权重逐位恒等，I1；R2 重跑逐位不变）
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——63/63 末权重逐位恒等，I1）
+    status_inc16: REBUILT — INC-16 CPU 重跑：SUPPORTED，重放门 63/63 逐位恒等（I1）
   - name: v13-archive-R-p4-brain-001
     path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-001.json
     sha256: 087639123b33bda31065413d0b2ccde72b2d348db111fcae2220082327188776
     gate: P4-α v1.3 首评复合（INC-15 确定性重生成归档——margin REFUTED 0.172 如实存档；digest 与 v1.31 锚逐位匹配实证）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；v1.3 评价形归档（INC-15 纪律产物，dd702c7 worktree 特定重建）；现行 v1.4 形评价已重生成且判定恒等，归档件不重建如实登记；历史锚保留可溯（INC-13 惯例）
   - name: v13-archive-R-p4-brain-margin
     path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-margin.json
     sha256: d37347bbd6ce0b6e1268f9cd73deb25aa4950dcc714a8fec8d8582e9f5cf237f
     gate: P4-α v1.3 margin 判定存档（median 0.172 vs 0.1 REFUTED——Q-L04-13 呈递证据原件，INC-15 归档）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上；历史锚保留可溯（INC-13 惯例）
   - name: v13-archive-R-p4-brain-dualdomain
     path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-dualdomain.json
     sha256: 98da0d3a7aeda1d48f45d634ab038b7dd21d11c99a3ad9c40503c87b6c156e10
     gate: P4-α v1.3 双域门存档（62/62 谱系链；INC-15 归档）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上；历史锚保留可溯（INC-13 惯例）
   - name: v13-archive-R-p4-brain-replay
     path: evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-replay.json
     sha256: d25d5335c8a748dfcc376db55f27aa02da2b961ee1577f48da60bd3f3cab82b5
     gate: P4-α v1.3 重放门存档（62/62 逐位恒等 I1；INC-15 归档）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上；历史锚保留可溯（INC-13 惯例）
     gate: P4-α 训练重放门（Q-L13-20① 宪法语义——62/62 末权重逐位恒等，I1）
 
   - name: p4-beta-gpu-cert-report
     path: evidence/p4_beta_gpu_certification/cert_report.json
     sha256: fe776e3796e78e56fdad68b706806e9762988ad69e5bef19c20557d269543956
     gate: P4-β GPU 设备认证（Q-T02 补裁③——CUDA 层A 复验 + RSSM 录制/重放 + 训练双跑全 bit-exact，torch 2.14.1+cu130/RTX 5060 Ti）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；CUDA 认证需 NVIDIA GPU——本机无卡（owner 2026-10-23 裁决 P4 起修正为 CPU 运行）；认证为历史事实（2026-10-16 绿）锚保留；历史锚保留可溯（INC-13 惯例）
   - name: R-p4beta-tasks
     path: evidence/p4_beta_mind_first_evaluation/p4beta_tasks.json
     sha256: 834e98007b16d464a3a90321a5e95b57be23596fce5304fa482da5dae4fd366d
@@ -383,18 +452,22 @@ artifact_manifest:
     path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json
     sha256: 18cbf34aa316e94a75435827cff63b1809163e0ad6d21fbd654931f33fbbf11a
     gate: P4-β v1.0 形任务数据归档（two_step REFUTED 0.475 如实存档——Q-L13-22 α 重设计前置证据原件；digest 与 v1.36 锚逐位一致）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；p4beta v1.0 评价形归档（INC-15 纪律产物，REFUTED 历史形）；现行 v2 形已 CPU 重生成判定恒等（sep=0.2140），归档件不重建如实登记；历史锚保留可溯（INC-13 惯例）
   - name: v1_0-form-archive-R-p4beta-mind-001
     path: evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json
     sha256: 8a06ff1a707f078112daf8b373408843be7cf6e01be2db5aac33b58dfd17ce52
     gate: P4-β v1.0 形首评判定归档（two_step REFUTED/双 SUPPORTED 混合——Q-L13-21 重开触发证据原件；digest 与 v1.36 锚逐位一致）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上；历史锚保留可溯（INC-13 惯例）
   - name: v2-form-pre-leakage-archive-R-p4beta-tasks
     path: evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_tasks.json
     sha256: 834e98007b16d464a3a90321a5e95b57be23596fce5304fa482da5dae4fd366d
     gate: P4-β v2 形任务数据归档（REV-0030 R6 接线前原件；digest 与 v1.37 重锚逐位一致）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；v2 形 pre-leakage 前置归档（REV-0030 R6 纪律产物）；现行形评价已重生成（leakage 门过），归档件不重建如实登记；历史锚保留可溯（INC-13 惯例）
   - name: v2-form-pre-leakage-archive-R-p4beta-mind-001
     path: evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_first_evaluation.json
     sha256: 56f2d2c72f3dc3ded7bf5c61790e2ba3d70e01179ca7452c1af9d07a239f2f46
     gate: P4-β v2 形判定归档（REV-0030 R6 接线前原件；digest 与 v1.37 重锚逐位一致）
+    status_inc16: LOST — INC-16 异地备份丢失（2026-10-23 owner 确认两段备份均不可得）；同上；历史锚保留可溯（INC-13 惯例）
   - name: p4-beta-two-step-redesign-probe
     path: evidence/p4_beta_two_step_redesign_probe/probe_report.json
     sha256: 1f673028182e11175678dd95f597fba2a538864dd1b01a2ca58d836e398dcc59

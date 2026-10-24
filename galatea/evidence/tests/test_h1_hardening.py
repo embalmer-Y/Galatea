@@ -49,9 +49,12 @@ def test_supply_chain_audit_full_manifest() -> None:
     assert out["stable"], out["failed"]
     assert out["manifest_total"] == 83   # v1.40（P4-γ 探针锚 R2 同尺门修正重锚——只增不减）
     assert not out["failed"]
-    # lost 名单随演进增长（INC-13 三件 + P2 服务化演进 SUPERSEDED 件——锚与状态注记均保留可溯）
-    assert out["lost_inc13"] == ["EXP-R0-001", "R-c5-v1-0-composite-INCONCLUSIVE",
-                                 "R-c5-v1-0-gain-INCONCLUSIVE", "resident-longrun-verify"]
+    # lost 名单随演进增长（INC-13 三件 + P2 服务化演进 SUPERSEDED 件 + INC-16 备份丢失物理类
+    # 28 件——锚与状态注记均保留可溯；断言 = 历史名单 ⊆ 现名单（只增不减），禁缩小）
+    historical_lost = ["EXP-R0-001", "R-c5-v1-0-composite-INCONCLUSIVE",
+                       "R-c5-v1-0-gain-INCONCLUSIVE", "resident-longrun-verify"]
+    assert all(name in out["lost_inc13"] for name in historical_lost)
+    assert len(out["lost_inc13"]) >= len(historical_lost)
 
 
 def test_i3_independent_reproduction_new_seeds() -> None:

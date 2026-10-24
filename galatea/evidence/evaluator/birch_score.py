@@ -158,8 +158,12 @@ def _state_field(out: Any, field: str) -> float | None:
     return None
 
 
-def _probe_rreport_channel() -> tuple[bool, str]:
-    """B0-3 自我报告通道全链在位（P3）：v0 语料 + 确定性渲染 + 冻结 WAV + 闭环 PASS 工件。"""
+def _probe_rreport_channel() -> tuple[bool | None, str]:
+    """B0-3 自我报告通道全链在位（P3）：v0 语料 + 确定性渲染 + 冻结 WAV + 闭环 PASS 工件。
+
+    INC-16 三态：语料/渲染面在库可验，冻结 WAV 与闭环工件系旧机物理事件（manifest
+    LOST 注记）→ None（UNDETERMINABLE）——能力不可判定，非回退。
+    """
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "p3_first_words", _REPO / "scripts" / "p3_first_words.py")
@@ -181,8 +185,15 @@ def _probe_rreport_channel() -> tuple[bool, str]:
     if fw_path.is_file():
         fw_pass = json.loads(fw_path.read_text(encoding="utf-8")).get("verdict") == "PASS"
     ok = n_entries >= 14 and deterministic and n_wavs >= 1 and fw_pass
-    return ok, (f"entries={n_entries} renderer_deterministic={deterministic} "
-                f"frozen_wavs={n_wavs} first_words_PASS={fw_pass}")
+    detail = (f"entries={n_entries} renderer_deterministic={deterministic} "
+              f"frozen_wavs={n_wavs} first_words_PASS={fw_pass}")
+    if not ok:
+        index = _manifest_index()
+        physical_lost = (n_wavs == 0 and any(
+            index.get(n, {}).get("lost") for n in ("p3-first-words", "p3-first-words-v1")))
+        if n_entries >= 14 and deterministic and physical_lost:
+            return None, detail + "；冻结 WAV/闭环工件 INC-16 LOST——证据不可得（typed）"
+    return ok, detail
 
 
 MODULE_PROBES: dict[str, Any] = {
@@ -200,11 +211,22 @@ MODULE_PROBES: dict[str, Any] = {
 # ---------------------------------------------------------------- 工件 digest 探针
 def _manifest_index() -> dict[str, dict[str, str]]:
     data = yaml.safe_load(_MANIFEST.read_text(encoding="utf-8"))["artifact_manifest"]
-    return {a["name"]: {"path": a["path"], "sha256": a["sha256"]}
-            for a in data["artifacts"]}
+    out: dict[str, dict[str, str]] = {}
+    for a in data["artifacts"]:
+        notes = [a.get(k, "") for k in ("status_inc13", "status_p2", "status_inc16")]
+        out[a["name"]] = {"path": a["path"], "sha256": a["sha256"],
+                          # INC-16 typed 语义：LOST/SUPERSEDED 注记 = 证据物理不可得（非能力回退）
+                          "lost": "1" if any(n.startswith(("LOST", "SUPERSEDED")) for n in notes) else ""}
+    return out
 
 
-def _probe_artifacts(names: list[str], index: dict[str, dict[str, str]]) -> tuple[bool, str]:
+def _probe_artifacts(names: list[str],
+                     index: dict[str, dict[str, str]]) -> tuple[bool | None, str]:
+    """工件 digest 探针（三态：True 过 / False 失败 / None = 证据不可得 typed）。
+
+    INC-16（2026-10-23 备份丢失）起：工件缺席且 manifest 带 LOST/SUPERSEDED 注记
+    → None（UNDETERMINABLE，不参分母）——证据物理不可得 ≠ 能力回退，禁伪装 FAIL。
+    """
     details: list[str] = []
     for name in names:
         entry = index.get(name)
@@ -212,6 +234,8 @@ def _probe_artifacts(names: list[str], index: dict[str, dict[str, str]]) -> tupl
             return False, f"manifest 无此锚：{name}"
         path = _REPO / entry["path"]
         if not path.is_file():
+            if entry.get("lost"):
+                return None, f"证据不可得（typed；manifest LOST 注记）：{entry['path']}"
             return False, f"工件缺失：{entry['path']}"
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if digest != entry["sha256"]:
@@ -258,7 +282,9 @@ def score(registry: dict[str, Any] | None = None) -> dict[str, Any]:
                 raise RegistryViolation(f"未知探针类型：{probe['type']}")
         except Exception as broken:            # 探针崩溃 = 失败（禁半截奖）
             passed, detail = False, f"探针异常：{type(broken).__name__}: {broken}"
-        state = marker["award"] if passed else "ABSENT"   # 探针失败 → 降 ABSENT
+        state = ("UNDETERMINABLE" if passed is None
+                 else (marker["award"] if passed else "ABSENT"))   # None = 证据不可得 typed（INC-16）；
+        # 探针失败仍降 ABSENT（评分器可失败非宣称器）；None 不参分母亦不伪装 FAIL
         results.append(MarkerResult(
             marker_id=marker["id"], tier=marker["tier"], state=state,
             probe_passed=passed, probe_detail=detail,

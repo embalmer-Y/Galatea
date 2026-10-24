@@ -151,6 +151,7 @@ def supply_chain_audit(root: Path) -> dict[str, Any]:
     """判据 3：供应链 hash 审计——manifest 全锚 sha256 重算比对（Q-T08 语义）。
 
     INC-13 丢失件（status_inc13 注记）计入 lost 非 failed——历史锚保留可溯。
+    INC-16（2026-10-23 备份丢失恢复）起 status_inc16 注记同语义计入 lost。
     """
     import yaml
 
@@ -162,9 +163,10 @@ def supply_chain_audit(root: Path) -> dict[str, Any]:
     for entry in manifest["artifact_manifest"]["artifacts"]:
         total += 1
         p = root / entry["path"]
-        status = entry.get("status_inc13", "") + entry.get("status_p2", "")
+        status_notes = [entry.get(k, "") for k in
+                        ("status_inc13", "status_p2", "status_inc16")]
         if not p.is_file():
-            if status.startswith(("LOST", "SUPERSEDED")):
+            if any(n.startswith(("LOST", "SUPERSEDED")) for n in status_notes):
                 lost.append(entry["name"])       # 历史锚保留可溯（INC-13 惯例 + P2 服务化演进）
                 continue
             failed.append(f"missing:{entry['name']}")

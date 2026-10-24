@@ -5,12 +5,14 @@
 # REV-0028 R3 移交项在本计划兑现——GCTB 判据数值首次冻结）。
 stat_plan:
   id: p4_beta_mind
-  version: v2.0
+  version: v2.1
   frozen_at: "2026-10-16"
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-β 行 + ADR-G-0033
   # 运行前修订 v1.1（2026-10-16，GPU 认证收尾）：scenario.device → gpu_certified_cuda
+  # 运行前修订 v2.1（2026-10-23，owner 裁决「GPU 问题修正为 cpu 运行」——INC-16 迁移后无 NVIDIA GPU 机）：
+  # scenario.device → cpu；estimand/判据数值/种子派生/claims 零改动（INC-16 恢复重跑承载）
   # （Q-T02 补裁③ 认证程序绿——owner 2026-10-16"生产 claim 运行待 GPU 认证后迁移"指令兑现；
   # 判据/estimand/n/种子/协议零改动——v1.0 数值面原样）。
   # 运行前修订 v2.0（2026-10-16，Q-L13-22 owner α 裁决执行）：claim1 two_step 任务形完整
@@ -77,7 +79,7 @@ stat_plan:
   scenario:
     world: 真实 MW0 冻结流 + 探针任务形（Q-L13-21 协议）
     model: P4-α RSSM（profile p4_alpha_brain v1.2——imagine 评估面复用）
-    device: gpu_certified_cuda                 # v1.1（认证绿后迁 GPU——owner 指令；I1 = 同环境双跑 bit-exact）
+    device: cpu                                # v2.1 运行前修订（owner 2026-10-23 裁决；v1.1 曾迁 GPU——设备事实变更，非降级）
   correction: holm_bonferroni                 # 族 = 3 claim 级 p
   qualifiers:                                 # REV-0030 R8：限定语显式重述（承 REV-0029 R6）
     - grid_selection_optimism: 判据数值锚自 Q-L13-22 探针（该探针含方向选择历史）——
