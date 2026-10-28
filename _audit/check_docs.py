@@ -31,7 +31,7 @@ def main() -> None:
     add = lines.append
     add("# 文档机器校验报告（只读）")
     add("")
-    add(f"根目录：`{ROOT}`")
+    add(f"根目录：`{ROOT.name}`（相对仓库根，机器无关——REV-0032 R4）")
     add("")
 
     all_files = files()
@@ -269,7 +269,7 @@ def main() -> None:
         for rel in mismatch:
             add(f"- FAIL `{rel}`: 本地工件 sha256 与归档锚不符（禁事后篡改）")
         for rel in missing:
-            add(f"- SKIP `{rel}`: 本地不存在（fresh clone；digest 锚已在 git 持久化）")
+            add(f"- SKIP `{rel}`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）")
         if not mismatch:
             add("- OK：本地存在的全部工件与归档锚一致" + (f"（SKIP {len(missing)} 项缺失）" if missing else ""))
     add("")

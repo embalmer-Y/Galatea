@@ -24,7 +24,7 @@ Galatea 不是聊天机器人，也不是一个 Agent 框架。它是一个**认
 ## 2. 当前状态（2026-10-28）
 
 - **门链 43 门**：F0→M0→M1→M2→R0→C0–C5→E1→H1→P1 十四门退出后，预测脑 v2 主线推进——**P4-α（脑核）已退出**（[ADR-G-0032](adr/ADR-G-0032.md)，margin 0.043 < 0.1）、**P4-β（心智：草稿板/思维迭代/慢环 + GCTB）已退出**（[ADR-G-0034](adr/ADR-G-0034.md)）、**P4-γ（行动与学习：EFE/MPC/在线学习门/做梦巩固）已冻结**（[ADR-G-0035](adr/ADR-G-0035.md)）。每门判据、独立评审（REV-0003…0031）与证据工件均在库可溯。
-- **验证基线**：`uv run pytest` **824 passed + 1 skipped**（INC-16 恢复战役终态，含重建器测试 3 件；GPU 层无 CUDA 时跳过）；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest v1.42 = 83 锚终态：52 匹配 + 31 LOST 注记【INC-16：物理捕获类不可恢复，digest 锚留史】+ 0 failed）；import-linter 4 契约 KEPT；保护集 142 场景只增不减。
+- **验证基线**：`uv run pytest` **824 passed + 1 skipped**（INC-16 恢复战役终态，含重建器测试 3 件；GPU 层无 CUDA 时跳过）；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest v1.42 = 83 锚终态：52 匹配 + 31 lost【= 28 status_inc16 LOST + 3 status_inc13 LOST + 1 status_p2 SUPERSEDED，1 件双注记去重——REV-0032 R1 口径更正】+ 0 failed）；import-linter 4 契约 KEPT；保护集 142 场景只增不减。
 - **治理**：登记册 CONFIRMED 189 项裁决（AI 主导裁决 + owner 否决权，DEV_SPEC §4.6）；35 份 ADR；独立评审报告 32 份（`_audit/reviews/`）。
 - **物理面**：主体以 systemd 三服务常驻 Linux 主机（真实遥测内感受、SIGKILL 自愈、状态快照跨崩溃连续）；音频听说与发声归属闭环已在物理域成立（声学回环比 1,222,437×）。
 

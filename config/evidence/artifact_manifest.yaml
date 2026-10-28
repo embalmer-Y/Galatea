@@ -6,6 +6,10 @@
 # p4beta 双件 CPU 重跑与官方 GPU 工件 digest 逐位恒等——零重锚）；28 项物理类/归档类 LOST 注记（status_inc16，
 # supply_chain_audit 演进同语义计入）；p4_alpha 确认性重评重跑进行中（stat plan v1.4 CPU 路径）+ p4beta stat plan
 # v2.1 运行前修订 device=cpu（owner 2026-10-23 裁决「GPU 问题修正为 cpu 运行」）。
+# REV-0032 R3 注记（2026-10-28）：LOST 注记三义 legend——(a) 物理不可恢复（真机捕获件，锚留史不可重放）；
+# (b) 可按需确定性重放未重放（entry 路径在案，按需执行）；(c) 选择性不重建的归档形（*_archive 等 9 件，
+# 注记自述"归档件不重建如实登记"，如需重建经新单元按原规格重写生成器）。逐项注记文本承载具体归类，
+# 与 _audit/incidents.md INC-16 处置③两分法对齐。
 # v1.41（2026-10-23）：INC-16 异地备份丢失恢复——c5 首评四件 + I2 + 60 格闭合 + p1 sealed 语料
 # 重生成/重建/重采重锚（值恒等逐位核验：d=2.031346147382602/p=0.0/n=43/coverage 60/60/gate CLOSED；
 # 字节与历史锚异——历史工件生成于提交前工作态且原件随备份丢失，成因与处置见 _audit/incidents.md INC-16；

@@ -1,6 +1,6 @@
 # 文档机器校验报告（只读）
 
-根目录：`/home/emb/project/Galatea/design`
+根目录：`design`（相对仓库根，机器无关——REV-0032 R4）
 
 扫描 `.md` 文件数：**24**
 
@@ -106,35 +106,35 @@
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
 - 清单条目：83（只增不减）
-- SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/audio_io_test/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/audio_closed_loop/report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/resident_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/tessera_bridge/capture.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/resident_fusion_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/fusion_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/resident_service_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/snapshot_z7_cp64.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/state_continuity_migrations.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/service_state_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/service_snapshot_cp12096.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/resident/last_restart_restore.jsonl`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p3_language/speech_surface_verify.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p3_language/first_words/first_words.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p3_language/first_words_v1/first_words.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p3_language/speech_initiative_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_probe/probe_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-001.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-margin.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-dualdomain.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-replay.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_gpu_certification/cert_report.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_tasks.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
-- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone；digest 锚已在 git 持久化）
+- SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/audio_io_test/report.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/audio_closed_loop/report.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/resident_verify.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/tessera_bridge/capture.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/resident_fusion_verify.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/fusion_migrations.jsonl`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/resident_service_verify.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_migrations.jsonl`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/snapshot_z7_cp64.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/state_continuity_migrations.jsonl`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_state_verify.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/service_snapshot_cp12096.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/resident/last_restart_restore.jsonl`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/speech_surface_verify.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/first_words/first_words.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/first_words_v1/first_words.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p3_language/speech_initiative_report.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_probe/probe_report.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-margin.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-dualdomain.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_alpha_brain_first_evaluation/v1_3_archive/R-p4-brain-replay.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_gpu_certification/cert_report.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_tasks.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v1_0_form_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_tasks.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
+- SKIP `evidence/p4_beta_mind_first_evaluation/v2_form_pre_leakage_archive/p4beta_first_evaluation.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
 - OK：本地存在的全部工件与归档锚一致（SKIP 31 项缺失）
