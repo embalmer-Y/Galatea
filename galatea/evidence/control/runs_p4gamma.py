@@ -641,3 +641,120 @@ def run_claim1(n_worlds: int = 16, epochs: int = 300) -> dict[str, Any]:
     }
     result["verdict"] = ("SUPPORTED" if all(result["criteria"].values()) else "REFUTED")
     return result
+
+
+def _finetune(parent: Any, mix: list[torch.Tensor], epochs: int = 100,
+              input_dim: int = 4) -> Any:
+    """在线学习语义微调（Q-L11-09①：从父权重起步——非重训；claim2/3 v1.0 通路）。"""
+    from galatea.subject.brain.world_model import RSSMWorldModel
+    from galatea.subject.p4profile import load_p4_alpha_profile
+    params = load_p4_alpha_profile(_ROOT / "config/profiles/p4_alpha_brain.profile.yaml")
+    m = RSSMWorldModel(params, parent_digest="root", init_seed=params.init_seed,
+                       input_dim=input_dim)
+    m.load_state(parent.state_dict())
+    m.train_on_sequence(mix, lr=params.lr, epochs=epochs, target_dims=(0,))
+    return m
+
+
+def run_claim2(n_pairs: int = 8, epochs_parent: int = 300, epochs_finetune: int = 100,
+               dream_steps: int = DREAM_STEPS) -> dict[str, Any]:
+    """claim2 睡眠增益正式运行（stat plan p4_gamma_mind 冻结承载；Q-L06-09/Q-L13-23②）。
+
+    n=8 配对相位对：P1 = phase1 前半训练；臂 a = 仅 phase2 前半微调；
+    臂 b = phase2 前半 ⊕ dream（P1 自 imagine 生成式重放）；遗忘 = phase1 后半 held-out
+    MSE 增量。冻结判据：mean(forget_a) > mean(forget_b) ∧ 逐对 forget_b ≤ 0.1×|pre|。
+    数据通路 = v1.0 三动作符号（claim1 REFUTED 终态零触碰——Q-L13-23 补裁③）。
+    """
+    pairs: list[dict[str, Any]] = []
+    for i in range(n_pairs):
+        rows1 = collect_conditioned(seed_for(f"p4.gamma|phase1|{i}"), cycles=256)
+        rows2 = collect_conditioned(seed_for(f"p4.gamma|phase2|{i}"), cycles=256)
+        xs1, xs2 = to_tensors(rows1), to_tensors(rows2)
+        half1, half2 = len(xs1) // 2, len(xs2) // 2
+        model_p1 = train_conditioned(xs1[: half1 + 1], epochs_parent)
+        pre = heldout_mse(model_p1, xs1[half1:])
+        model_a = _finetune(model_p1, xs2[: half2 + 1], epochs_finetune)
+        forget_a = heldout_mse(model_a, xs1[half1:]) - pre
+        dream = dream_samples(model_p1, xs1[: half1 + 1], steps=dream_steps)
+        model_b = _finetune(model_p1, xs2[: half2 + 1] + dream, epochs_finetune)
+        forget_b = heldout_mse(model_b, xs1[half1:]) - pre
+        pairs.append({"pair": i, "pre": pre, "forget_a": forget_a,
+                      "forget_b": forget_b,
+                      "replay_no_regression": forget_b <= 0.1 * abs(pre)})
+    mean_a = statistics.mean(p["forget_a"] for p in pairs)
+    mean_b = statistics.mean(p["forget_b"] for p in pairs)
+    wins = sum(1 for p in pairs if p["forget_a"] > p["forget_b"])
+    no_reg = sum(1 for p in pairs if p["replay_no_regression"])
+    result: dict[str, Any] = {
+        "claim": "p4_gamma_sleep_gain",
+        "stat_plan": "p4_gamma_mind v1.2",
+        "n_pairs": n_pairs,
+        "epochs": {"parent": epochs_parent, "finetune": epochs_finetune,
+                   "dream_steps": dream_steps},
+        "mean_forget_a": mean_a, "mean_forget_b": mean_b,
+        "paired_sleep_gain": mean_a - mean_b,
+        "wins_a_over_b": f"{wins}/{n_pairs}",
+        "replay_arm_no_regression": f"{no_reg}/{n_pairs}",
+        "pairs": pairs,
+        "criteria": {"forget_a>forget_b": mean_a > mean_b,
+                     "forget_b<=0.1*|pre|": no_reg == n_pairs},
+    }
+    result["verdict"] = ("SUPPORTED" if all(result["criteria"].values()) else "REFUTED")
+    return result
+
+
+def run_claim3(n_cases: int = 20, epochs_parent: int = 300,
+               epochs_finetune: int = 100) -> dict[str, Any]:
+    """claim3 在线双域门判别正式运行（stat plan 冻结承载；Q-L11-09②/Q-L13-23③）。
+
+    n=20 构造候选（回归/受保护各半，确定性构造）：受保护臂 = 真实 phase2 前半微调
+    （应改善 phase2 held-out 且旧任务 ≤ pre×1.5 → 门准入）；回归臂 = 损毁 phase2 混合
+    （确定性置零速率——应未胜过父模型 → 门拒收）。判据：20 案例判别全对（机械门，
+    INC-08 可失败性——构造有效性由拒收臂确实未胜过父模型承载）。
+    """
+    rows1 = collect_conditioned(seed_for("p4.gamma|gate|phase1"), cycles=256)
+    rows2 = collect_conditioned(seed_for("p4.gamma|gate|phase2"), cycles=256)
+    xs1, xs2 = to_tensors(rows1), to_tensors(rows2)
+    half1, half2 = len(xs1) // 2, len(xs2) // 2
+    parent = train_conditioned(xs1[: half1 + 1], epochs_parent)
+    pre1 = heldout_mse(parent, xs1[half1:])
+    parent_ph2 = heldout_mse(parent, xs2[half2:])
+    cases: list[dict[str, Any]] = []
+    half_cases = n_cases // 2
+    for i in range(half_cases):                    # 受保护臂（应准入）
+        cand = _finetune(parent, xs2[: half2 + 1], epochs_finetune)
+        cand_ph2 = heldout_mse(cand, xs2[half2:])
+        cand_ph1 = heldout_mse(cand, xs1[half1:])
+        improve = cand_ph2 <= parent_ph2
+        no_regress = cand_ph1 <= pre1 * 1.5
+        cases.append({"case": f"protect-{i}", "expected": "admit",
+                      "improve": improve, "no_regress": no_regress,
+                      "gate_decision": "admit" if (improve and no_regress) else "reject",
+                      "cand_ph2": cand_ph2, "cand_ph1": cand_ph1})
+    for i in range(n_cases - half_cases):          # 回归臂（应拒收）
+        corrupt = [torch.zeros_like(x) for x in xs2[: half2 + 1]]   # 确定性置零速率
+        cand = _finetune(parent, corrupt, epochs_finetune)
+        cand_ph2 = heldout_mse(cand, xs2[half2:])
+        cand_ph1 = heldout_mse(cand, xs1[half1:])
+        improve = cand_ph2 <= parent_ph2
+        no_regress = cand_ph1 <= pre1 * 1.5
+        cases.append({"case": f"regress-{i}", "expected": "reject",
+                      "improve": improve, "no_regress": no_regress,
+                      "gate_decision": "admit" if (improve and no_regress) else "reject",
+                      "cand_ph2": cand_ph2, "cand_ph1": cand_ph1,
+                      "construction_valid": cand_ph2 > parent_ph2})
+    correct = sum(1 for c in cases if c["gate_decision"] == c["expected"])
+    construction_valid = all(c.get("construction_valid", True) for c in cases)
+    result: dict[str, Any] = {
+        "claim": "p4_gamma_online_gate_discrimination",
+        "stat_plan": "p4_gamma_mind v1.2",
+        "n_cases": n_cases,
+        "parent_pre1": pre1, "parent_ph2_heldout": parent_ph2,
+        "cases": cases,
+        "correct": f"{correct}/{n_cases}",
+        "construction_valid": construction_valid,
+        "criteria": {"all_cases_correct": correct == n_cases,
+                     "construction_valid": construction_valid},
+    }
+    result["verdict"] = ("SUPPORTED" if all(result["criteria"].values()) else "REFUTED")
+    return result
