@@ -7,11 +7,21 @@
 # Adam / Q-T02 certified_cuda）。
 profile:
   id: p4_gamma_mind
-  version: v1.0
+  version: v1.1                                # v1.1（2026-10-28）运行前修订：任务形 v2（owner「采纳 A」裁决——Q-L10-18 补裁②/Q-L13-23 行内补裁②；claim 零运行在先）
   frozen_at: "2026-10-17"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15.5 P4-γ 行
   ruling_refs: [Q-L04-16, Q-L08-11, Q-L10-18, Q-L11-09, Q-L06-09, Q-L13-23, Q-G00-16, Q-T02]
+
+revisions:                                     # 运行前修订留痕（L13 §6）
+  - v1.1 2026-10-28 任务形 v2（claim1 专属——REV-0031 R1 移交项，owner「采纳 A」裁决执行）：
+    eat 入动作空间（MW0 既有原语 Q-L01-09④；四动作 input_dim=5 + 候选计划集 v2 八枚）、
+    带外排放带控 band [0.4,0.8]（研究级方向探针实测锚 scripts/p4gamma_taskform_probe.py
+    迭代 2——mpc dev 0.0225/in_band 0.766/blind 消融 +0.1775/script 8/8 胜/const_rest 劣败；
+    文献一致主形：Ernst 2009/Dunbar 2022 恒温器近优限定 + Agarwal 2021 rliable 胜率规范
+    + Pezzulo 2015 带控范式 + MBRL 消融归因标准）、代谢税 = look 既有成本 −0.005
+    （m0 冻结 action_energy_delta 锚零新常数）；claim2/claim3 数据通路与冻结锚零触碰；
+    estimand/判据数值变更同步 stat plan v1.2；世界冻结参数零触碰（税/带控为评价任务层 overlay）
 
 determinism:                                  # Q-T02 补裁③ 延续（设备认证既有）
   torch_version: "2.14.1+cpu"                 # 生产 claim 默认 CPU 锚历史；GPU 认证态延续
@@ -27,20 +37,43 @@ determinism:                                  # Q-T02 补裁③ 延续（设备�
   inference_double_run: bit-exact
 
 efe:                                          # Q-L08-11（期望自由能统一目标）
-  pragmatic: steady_state_deviation_integral  # 想象路径能量对 set-point 偏差负积分（探针形）
-  set_point: 0.7                              # 探针值（Q-G00-16②；能量分数域）
+  pragmatic: band_deviation_integral          # v1.1 任务形 v2：想象路径带外偏差负积分（原 steady_state_deviation_integral 为探针形留史）
+  band: [0.4, 0.8]                            # v1.1 带控判分区间（方向探针实测锚——owner「采纳 A」；const_rest 臂 0.20 劣败承载任务非退化）
+  set_point: 0.7                              # 探针形留史（v1.0 原值；claim1 现行 = band）
   epistemic: prior_logvar_negative_sum        # 信息增益代理 = 先验潜方差负和（Q-L08-11①）
   w_epistemic: 0.1                            # 探针值（等权先例链的加权实现——0.1 = pragmatic 主导）
   source_integration: nine_source_weights_in  # 九源收编 = pragmatic 权重输入（Q-L08-11②，生产者零改动）
   safety_fallback: pareto_arbitration_asis    # Pareto 仲裁保留原样（Q-L08-11③）
 
+task_form_v2:                                 # v1.1 新增（owner「采纳 A」；REV-0031 R1 移交项兑现）
+  actions: [move, rest, forage, eat]          # eat = MW0 既有原语（Q-L01-09④）——非新动作
+  input_dim: 5                                # [energy_rate, move, rest, forage, eat]
+  plans_v2:                                   # 候选计划集 v2 八枚（horizon 4 不变；0=move 1=rest 2=forage 3=eat）
+    - [1, 1, 1, 1]   # RRRR 慢升
+    - [3, 3, 3, 3]   # EEEE 快升（需存粮）
+    - [0, 0, 0, 0]   # MMMM 排放
+    - [2, 2, 2, 2]   # FFFF 排放+囤粮
+    - [1, 1, 3, 3]   # RREE 混合升
+    - [3, 3, 0, 0]   # EEMM 先升后排
+    - [0, 0, 1, 1]   # MMRR 先排后升
+    - [2, 2, 3, 3]   # FFEE eat 链
+  band: [0.4, 0.8]                            # 带控判分区间（同 efe.band）
+  metabolic_tax: -0.005                       # 每拍 look（m0 冻结 action_energy_delta["look"]——零新常数）
+  arms:
+    mpc: primary                              # 主判据臂
+    script: frozen_baseline                   # 原反应式脚本 = 冻结基线（主对照）
+    mpc_blind: attribution_ablation           # 盲化消融（模型速率位清零）= 归因机械面
+    hysteresis: descriptive                   # 调谐滞回控制器 = descriptive（文献一致：确定性小任务近优）
+    const_rest: degeneracy_canary             # 任务非退化金丝雀（必须劣败——劣败消失 = 任务失效守卫）
+  regression_probe: scripts/p4gamma_taskform_probe.py  # 方向对比探针（迭代 2 四判读过；研究级）
+
 mpc:                                          # Q-L10-18（潜空间 MPC 规划）
   planner: action_conditioned_rssm_enumeration  # 探针形：8 候选计划枚举（确定性——非 CEM 起步）
   plan_horizon: 4                             # ≤ rollout 上界 8（Q-L04-01 继承）
-  candidate_plans: 8                          # 探针冻结集合（PLANS——ADR-G-0035 §2 原文）
+  candidate_plans: 8                          # v1.1 = task_form_v2.plans_v2 集合（原探针集为 v1.0 形留史）
   execute: first_action_rolling               # 滚动执行首动作
   determinism: bit_exact                      # 探针双跑实证（probe_report.determinism_double_run）
-  action_space: [move, rest, forage]          # MW0 三原语（eat/look = P4-γ+ 扩展再裁）
+  action_space: [move, rest, forage, eat]     # v1.1 任务形 v2（原 [move,rest,forage] 为 v1.0 形留史；eat = Q-L01-09④ 既有原语，owner 补裁②）
 
 online_learning:                              # Q-L11-09（世界模型在线梯度学习门）
   lr: 0.001                                   # Adam 库规范默认（P4-α profile v1.1 先例）
@@ -59,10 +92,10 @@ dream_consolidation:                          # Q-L06-09（生成式重放做梦
   product: model_candidate_via_online_gate    # 做梦不直写任何面（走 Q-L11-09 门）
   audit: training_session.v1                  # dream 会话录制同式
 
-claims_criteria:                              # Q-L13-23（判据数值——stat plan v1.0 同源）
-  mpc_advantage: ">0.02"                      # 探针 0.0647 的 ~3× margin；wins > 0.5（探针 8/8）
-  sleep_gain: "forget_a > forget_b"           # 探针 +0.000292；且 forget_b ≤ 0.1×pre（重放臂不退化）
-  online_gate: mechanical_dual_domain         # 确定性判据（判别正确性逐案留痕）
+claims_criteria:                              # Q-L13-23（判据数值——stat plan 同源；v1.1 = claim1 任务形 v2 重冻）
+  mpc_advantage: ">0.005 & wins>0.5"          # v1.1 任务形 v2（方向探针 0.0147 的 ~2.9× margin，Q-L13-22 margin 先例；归因面 blind>0.01）
+  sleep_gain: "forget_a > forget_b"           # 探针 +0.000292；且 forget_b ≤ 0.1×pre（重放臂不退化）——claim2 通路零触碰
+  online_gate: mechanical_dual_domain         # 确定性判据（判别正确性逐案留痕）——claim3 通路零触碰
 
 probe_anchors:                                # Q-G00-16
   probe_report: evidence/p4_gamma_probe/probe_report.json

@@ -4,13 +4,17 @@
 # 判据数值溯源 = 冻结前可行性探针（硬机制第九次，evidence/p4_gamma_probe/，Q-G00-16）。
 stat_plan:
   id: p4_gamma_mind
-  version: v1.1
+  version: v1.2
   frozen_at: "2026-10-17"
   revisions:                                # 运行前修订留痕（claim 未运行；L13 §6）
     - v1.1 2026-10-23 owner 裁决「GPU 问题修正为 cpu 运行」——开发机无 NVIDIA GPU（INC-16 迁移），
       scenario.device gpu_certified_cuda → cpu；profile loader CPU 路径合同不变（runtime ==
       torch_version 2.14.1+cpu，p4profile._resolve_torch_version 首路径放行）；estimand/判据数值/
       种子派生/claims 零改动
+    - v1.2 2026-10-28 owner 裁决「采纳 A」（Q-L13-23 行内补裁②/Q-L10-18 补裁②）——claim1 任务形
+      替换 v2（REV-0031 R1 移交项兑现，claim 零运行在先）：带控经济（band [0.4,0.8] + 代谢税
+      look −0.005 + eat 链四动作 input_dim=5 + 计划集 v2）；estimand/主判据/归因面重冻；
+      claim2/claim3 estimand/判据/种子/通路零改动；世界冻结参数零触碰（任务层 overlay）
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-γ 行 + ADR-G-0035
@@ -24,24 +28,28 @@ stat_plan:
   claims:
     - claim_id: p4_gamma_mpc_planning_advantage
       hypothesis: >
-        可反驳假设（REV-0031 R1 运行前修订——语义收窄）：EFE 驱动的自适应能量稳态
-        主体（动作条件化 RSSM 想象上枚举规划，Q-L10-18）在真实 MW0 能量稳态任务中
-        优于反应式脚本基线。若无优势 → 模型驱动的自适应调节无因果贡献 → 门判据失败。
-        **本 claim 不承载"模型内搜索"归因**——探针形 MW0 经济中仅 rest 涨能量（无代价），
-        MPC 臂构造性塌缩为常量 rest 策略（REV-0031 R1 诊断：首动作 64/64 rest、
-        energy 钉死上界）；"模型内搜索因果贡献"须非退化任务形承载 = 实现期首工作项
-        （eat 链/带外排放经济 + INC-08 迷你探针先证可击败）→ stat plan 运行前修订
-        替换任务形后方可运行 claim1。
-      estimand: paired_mean_energy_advantage_mpc_minus_script
+        可反驳假设（v1.2 任务形 v2——REV-0031 R1 移交项，owner「采纳 A」）：EFE 驱动的
+        模型基规划主体（动作条件化 RSSM 想象上枚举 + eat 链，Q-L10-18 补裁②）在 MW0
+        带控能量调节任务（band [0.4,0.8] + 代谢税 + 带外排放计罚）中优于冻结反应式脚本
+        基线，且优势由学到的世界模型承载（盲化消融归因面）。若无优势或优势不随模型消融
+        消失 → 模型驱动规划无因果贡献 → 门判据失败。文献语境（呈递 owner 裁决依据）：
+        确定性小任务上调谐反射式策略近优（Ernst 2009/Dunbar 2022）——hysteresis 臂为
+        descriptive 非判据；任务形 = 主动推理带控范式（Pezzulo 2015）；统计形 = 胜率
+        probability-of-improvement（Agarwal 2021 rliable）+ 消融归因（MBRL 标准）。
+      estimand: paired_mean_band_deviation_script_minus_mpc
       primary_endpoints:
-        - advantage_above_freeze_value         # 配对均值差 > 0.02（探针 0.0647 ~3× margin）
-        - per_seed_wins_majority               # 逐种子胜率 > 0.5（探针 8/8）
-      n_per_arm: 16                            # 配对世界种子（探针 8 的 2×）
+        - advantage_above_freeze_value         # 配对均值差 > 0.005（方向探针 0.0147 的 ~2.9× margin）
+        - per_seed_wins_majority               # 逐种子胜率 > 0.5（方向探针 8/8）
+      attribution_endpoint:                    # 机械归因面（MBRL 消融标准）
+        blind_ablation_advantage: 0.01         # 模型速率位清零臂 − mpc 臂 配对差 > 0.01（方向探针 0.1775）
+      task_validity_guard:                     # 任务非退化金丝雀（违反 = 运行无效非 claim 失败）
+        const_rest_must_lose: const_rest mean_dev > script mean_dev（逐种子多数）
+      n_per_arm: 16                            # 配对世界种子（stat plan 冻结值不变）
       power: 0.80
       test: paired_seeded_comparison
       effect_ci_rule: distribution_reported
-      threshold: {frozen: "advantage>0.02 & wins>0.5", probe_measured: {advantage: 0.0647, wins: "8/8"}}
-      de_functional_baselines: descriptive     # 持续/随机基线同场描述性测量（Q-L13-19② 收窄先例 Q-L13-22）
+      threshold: {frozen: "advantage>0.005 & wins>0.5 & blind>0.01", probe_measured: {advantage: 0.0147, wins: "8/8", blind_advantage: 0.1775}}
+      de_functional_baselines: descriptive     # hysteresis（调谐反射——文献一致近优语境）+ const_rest（金丝雀）
       unknown_handling: 全数据可复算（确定性种子化模拟）
 
     - claim_id: p4_gamma_sleep_gain
@@ -75,15 +83,17 @@ stat_plan:
       unknown_handling: 全数据可复算
 
   scenario:
-    world: 真实 MW0 冻结流 + 条件化 RSSM（input_dim=4，profile p4_gamma_mind v1.0）
-    device: cpu                                # v1.1 运行前修订（owner 2026-10-23 裁决——无 GPU 机；原 gpu_certified_cuda 为 Q-T02 补裁③ owner claim 迁 GPU 指令，随设备事实退役非降级）
+    world: 真实 MW0 冻结流 + 条件化 RSSM（claim1 = 任务形 v2 input_dim=5，profile p4_gamma_mind v1.1；
+      claim2/claim3 = v1.0 三动作通路零触碰）
+    device: cpu                                # v1.1（2026-10-23 owner 裁决）延续——v1.2 修订零改动
   correction: holm_bonferroni                  # 族 = 3 claim 级 p
   qualifiers:                                  # 承 REV-0029 R6 / REV-0030 R8 / REV-0031 R1/R5 限定语纪律
-    - grid_selection_optimism: 判据锚自第九次探针（含方案选择历史）——后续新任务形禁引用本探针调优记录
-    - probe_single_seed_note: mpc 配对优势探针 = 8 种子单次实现；正式 n=16 承载抽样波动；
-        dream 睡眠增益探针 = 单相位对实现（同局限）
-    - mpc_degeneracy_disclosure: REV-0031 R1——探针形 MPC 臂 = 常量 rest（构造性塌缩），
-        claim1 判定语义 = 自适应稳态调节非模型内搜索归因；非退化任务形 = 实现期首工作项
-        （替换前 claim1 禁运行）
-    - secondary_faces: in_band_fraction / min_energy 为描述性副面（探针实测 mpc 臂
-        in_band=0——能量钉死带外，稳态语义以 mean_energy 主判据承载）
+    - grid_selection_optimism: claim1 v2 判据锚自任务形方向探针（scripts/p4gamma_taskform_probe.py
+        迭代 2，n=8）；正式 n=16 承载抽样波动；新探针禁引用本探针调优记录
+    - hysteresis_parity_context: 方向探针实测 hysteresis 与 mpc 打平（−8e-05）——文献一致
+        （确定性小任务调谐反射式近优，Ernst 2009/Dunbar 2022）；故 hysteresis 为 descriptive
+        非判据；规划优势差异化场景（部分可观测/随机性）= P4-γ+ 研究单元登记非本门阻塞
+    - mpc_degeneracy_disclosure: REV-0031 R1 探针形塌缩已由任务形 v2 处置（v1.2 修订）；
+        const_rest 金丝雀转正为 task_validity_guard（劣败消失 = 运行无效守卫）
+    - secondary_faces: in_band_fraction / min_energy 为描述性副面（方向探针实测 mpc 0.766
+        vs const_rest 0.0）

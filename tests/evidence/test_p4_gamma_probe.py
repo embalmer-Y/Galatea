@@ -1,10 +1,11 @@
-"""P4-γ 冻结前可行性探针（硬机制第九次）——永久回归测试。
+"""P4-γ 探针永久回归测试（硬机制第九次 + 任务形 v2）。
 
-复用 runs_p4gamma 核心（规格 ADR-G-0035 §2）：动作条件化 RSSM（input_dim=4）训练
-一次，复用承载三断言面——① EFE-MPC 双跑 bit-exact + 对脚本基线优势（确定性种子）；
-② 生成式重放睡眠增益（forget_a > forget_b ∧ 重放臂不退化）；③ 在线双域门合同面。
-判据 = p4_gamma_mind.profile v1.0（探针冻结）；完整 8/16 种子扫描属正式 claim 运行
-（stat plan p4_gamma_mind v1.0），本回归断言确定性种子子集的判据方向。
+复用 runs_p4gamma 核心：① 任务形 v2（claim1 现行——stat plan v1.2 冻结承载）EFE-MPC
+双跑 bit-exact + 对冻结脚本基线配对优势 + 盲化消融归因 + const_rest 金丝雀；
+② 生成式重放睡眠增益（forget_a > forget_b ∧ 重放臂不退化——v1.0 通路零触碰）；
+③ 在线双域门合同面。判据 = p4_gamma_mind.profile v1.1（任务形 v2 运行前修订）；
+完整 16 种子扫描属正式 claim 运行（stat plan p4_gamma_mind v1.2），本回归断言
+确定性种子子集的判据方向。
 """
 import statistics
 
@@ -16,13 +17,17 @@ import yaml
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 from galatea.evidence.control.runs_p4gamma import (  # noqa: E402
+    _run_episode_v2,
     collect_conditioned,
+    collect_conditioned_v2,
     dream_samples,
     heldout_mse,
     run_episode,
     seed_for,
     to_tensors,
+    to_tensors_v2,
     train_conditioned,
+    train_conditioned_v2,
 )
 from galatea.subject.brain.module import configure_deterministic_torch  # noqa: E402
 
@@ -42,20 +47,38 @@ def trained_model():
     return train_conditioned(xs[: len(xs) - 31], 300)
 
 
-def test_mpc_double_run_bit_exact_and_advantage(trained_model) -> None:
-    """EFE-MPC 规划确定性 + 对脚本基线优势（确定性种子子集——判据方向）。"""
+@pytest.fixture(scope="module")
+def trained_model_v2():
+    rows = collect_conditioned_v2(seed_for("p4.gamma|train"), cycles=256)
+    # 判据锚流（探针迭代 2 同源）：eat 分支在本世界从不触发——{0,1,2} 必须在位；
+    # eat 通道零训练样本如实登记（MPC 依赖 move/rest 爬升/排放关联）
+    assert {0, 1, 2} <= {a for _, a in rows}, "v2 训练流必须覆盖 move/rest/forage"
+    xs = to_tensors_v2(rows)
+    return train_conditioned_v2(xs[: len(xs) - 31], 300)
+
+
+def test_mpc_double_run_bit_exact_and_advantage(trained_model_v2) -> None:
+    """任务形 v2 机制健康回归（stat plan v1.2）：双跑 bit-exact + 盲化消融归因
+    （聚合面）+ const_rest 金丝雀 + 首动作非塌缩。方向断言（advantage/wins）
+    属 claim 正式运行（n=16）职责——回归不在小子集上断言方向（冻结 EFE 含
+    epistemic 项，近确定性任务下 2 种子方向为噪声级，如实登记）。"""
     seed0 = seed_for("p4.gamma|world|0")
-    r1 = run_episode(seed0, trained_model, mode="mpc")
-    r2 = run_episode(seed0, trained_model, mode="mpc")
-    assert r1["plans"] == r2["plans"] and r1["mean_energy"] == r2["mean_energy"]
-    pairs = []
+    r1 = _run_episode_v2(seed0, trained_model_v2, mode="mpc")
+    r2 = _run_episode_v2(seed0, trained_model_v2, mode="mpc")
+    assert r1["plans"] == r2["plans"] and r1["mean_dev"] == r2["mean_dev"]
+    mpc_devs, blind_devs, script_devs, canary_devs = [], [], [], []
     for i in (0, 1):
         seed = seed_for(f"p4.gamma|world|{i}")
-        pairs.append((run_episode(seed, trained_model, mode="mpc")["mean_energy"],
-                      run_episode(seed, trained_model, mode="script")["mean_energy"]))
-    advantage = (statistics.mean(a for a, _ in pairs)
-                 - statistics.mean(b for _, b in pairs))
-    assert advantage > 0, f"MPC 配对优势为负（探针前提破坏）：{advantage:+.4f}"
+        mpc_devs.append(_run_episode_v2(seed, trained_model_v2, mode="mpc")["mean_dev"])
+        blind_devs.append(_run_episode_v2(seed, trained_model_v2, mode="mpc_blind")["mean_dev"])
+        script_devs.append(_run_episode_v2(seed, trained_model_v2, mode="script")["mean_dev"])
+        canary_devs.append(_run_episode_v2(seed, trained_model_v2, mode="const_rest")["mean_dev"])
+    blind_advantage = statistics.mean(blind_devs) - statistics.mean(mpc_devs)
+    assert blind_advantage > 0, f"盲化消融未劣化（归因面破坏）：{blind_advantage:+.4f}"
+    assert statistics.mean(canary_devs) > statistics.mean(script_devs), \
+        "const_rest 金丝雀未劣败于 script（任务非退化失效）"
+    flat = [a for r in (r1,) for a in r["first_actions"]]
+    assert len(set(flat)) > 1, "MPC 首动作单一常量（构造性塌缩回归）"
 
 
 def test_dream_replay_sleep_gain(trained_model) -> None:

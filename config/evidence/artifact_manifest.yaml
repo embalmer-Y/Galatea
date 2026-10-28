@@ -1,4 +1,5 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.43（2026-10-28）：P4-γ claim1 任务形替换单元双锚——① p4-gamma-taskform-probe-report（方向对比探针迭代 2 原件，owner「采纳 A」裁决证据：Form B 四判读过/blind +0.1775 模型承载/hysteresis 打平 −8e-05 诚实限定）；② p4-gamma-claim1-taskform-v2（claim1 正式运行 n=16 = **REFUTED 如实入档**：advantage −0.0062 < 0.005、wins 4/16——epistemic 探索项（冻结 EFE w=0.1）在近确定性带控任务中诱导无粮探索性 eat（首动作 176/1024）破坏调节；归因面 blind 0.0411>0.01 与金丝雀守卫 16/16 仍过；I1 双跑 byte-identical。前序 epistemic 漏累加变体（pyright 拦截、16/16 SUPPORTED 假象）未入库即修正——INC-15 风险闭环。门不退出（§4.6.5），呈递 owner；stat plan v1.2/profile v1.1 运行前修订承载，REV-0031 R1 移交项兑现）。
 # v1.42（2026-10-23）：INC-16 全量恢复战役——entry 七门（m1/carryover/root/c4/p1/c3/c2/c1）+ 探针三件
 # （p4alpha/two_step/p4gamma）+ release_audit/role_swap/birch/p3 语库 v0+v1 全部确定性重生成重锚
 # （判定值恒等或属在案翻转先例：carryover effect=1.0 p=1.08e-19/c3 d=2.318·3.848·0.0 与 REV-0018 记录逐位恒等/
@@ -25,7 +26,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.42
+  version: v1.43
   frozen_at: '2026-10-23'
   authority: AI-v2
   artifacts:
@@ -480,3 +481,11 @@ artifact_manifest:
     path: evidence/p4_gamma_probe/probe_report.json
     sha256: 0f2001827b69e38f21e6f8927315099cc90420d38f417bd33036caade1b22f8d
     gate: P4-γ 冻结前可行性探针（硬机制第九次——MPC 优势 0.0647 8/8 种子 + 睡眠增益 0.000292 + 门判别 A拒/B入 + 规划双跑 bit-exact；verdict=PASS；Q-G00-16 判据锚定；v1.40 重锚 = REV-0031 R2 同尺门修正重生成，原 83ceb013… 系首版跨数据集参照形）
+  - name: p4-gamma-taskform-probe-report
+    path: evidence/p4_gamma_taskform_probe/probe_report.json
+    sha256: d354f4ad3877400fa6a16d2df050c1007f04ade0c748e22eb29bd21b9a940ab4
+    gate: P4-γ claim1 任务形方向对比探针（研究级非 claim——Form A/B 对比 + 五臂金丝雀；Form B 四判读过，owner 2026-10-28「采纳 A」裁决证据；规格与迭代记录 = 脚本 docstring 0815abe）
+  - name: p4-gamma-claim1-taskform-v2
+    path: evidence/p4_gamma_mind_first_evaluation/p4gamma_claim1_taskform_v2.json
+    sha256: 2a3d3f41753e930585aee95ed5fe6beedbeadd47475dd553cafd1d30ed35cc32
+    gate: P4-γ claim1 正式运行（任务形 v2，stat plan v1.2 冻结判据）= **REFUTED 如实入档**——advantage −0.0062/wins 4/16（epistemic 探索项诱导无粮 eat 探索）；归因面 blind 0.0411>0.01 ✓、金丝雀 16/16 ✓、I1 双跑 byte-identical；n=16 配对世界种子，device=cpu；门不退出，呈递 owner（Q-L13-22 程序先例）
