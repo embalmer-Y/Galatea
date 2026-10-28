@@ -5,7 +5,7 @@
 > Galatea is a research project building a *single cognitive individual* with sensation, emotion, self-models, and learning — where every capability claim must be backed by intervenable, measurable, recomputable causal structure.
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![status](https://img.shields.io/badge/gates-43%20frozen%2Fexited-brightgreen) ![tests](https://img.shields.io/badge/pytest-821%20passed-success) ![phase](https://img.shields.io/badge/current-P4%20%E9%A2%84%E6%B5%8B%E8%84%91%20v2-orange)
+![status](https://img.shields.io/badge/gates-43%20frozen%2Fexited-brightgreen) ![tests](https://img.shields.io/badge/pytest-824%20passed-success) ![phase](https://img.shields.io/badge/current-P4%20%E9%A2%84%E6%B5%8B%E8%84%91%20v2-orange)
 
 ---
 
@@ -21,10 +21,10 @@ Galatea 不是聊天机器人，也不是一个 Agent 框架。它是一个**认
 
 2026-10-11 起，项目完成一次宪法级修订（[ADR-G-0029](adr/ADR-G-0029.md)）：验证手段不被当成架构教条——主线转向**预测脑 v2**（分层生成模型 + 预测误差最小化 + 主动推理），学习参数作为工件（digest 锚定）经 promotion 门入环，LLM/神经组件在留痕/消融/归属纪律下解禁；**安全包络全体不可让渡**。
 
-## 2. 当前状态（2026-10-17）
+## 2. 当前状态（2026-10-28）
 
 - **门链 43 门**：F0→M0→M1→M2→R0→C0–C5→E1→H1→P1 十四门退出后，预测脑 v2 主线推进——**P4-α（脑核）已退出**（[ADR-G-0032](adr/ADR-G-0032.md)，margin 0.043 < 0.1）、**P4-β（心智：草稿板/思维迭代/慢环 + GCTB）已退出**（[ADR-G-0034](adr/ADR-G-0034.md)）、**P4-γ（行动与学习：EFE/MPC/在线学习门/做梦巩固）已冻结**（[ADR-G-0035](adr/ADR-G-0035.md)）。每门判据、独立评审（REV-0003…0031）与证据工件均在库可溯。
-- **验证基线**：`uv run pytest` **821 passed + 1 skipped**（GPU 层，无 CUDA 时跳过）；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest v1.40 = 83 锚）；import-linter 4 契约 KEPT；保护集 142 场景只增不减。
+- **验证基线**：`uv run pytest` **824 passed + 1 skipped**（INC-16 恢复战役终态，含重建器测试 3 件；GPU 层无 CUDA 时跳过）；pyright strict 四平面 0 错误；`check_docs` 0 FAIL（36 份 YAML / manifest v1.42 = 83 锚终态：52 匹配 + 31 LOST 注记【INC-16：物理捕获类不可恢复，digest 锚留史】+ 0 failed）；import-linter 4 契约 KEPT；保护集 142 场景只增不减。
 - **治理**：登记册 CONFIRMED 189 项裁决（AI 主导裁决 + owner 否决权，DEV_SPEC §4.6）；35 份 ADR；独立评审报告 32 份（`_audit/reviews/`）。
 - **物理面**：主体以 systemd 三服务常驻 Linux 主机（真实遥测内感受、SIGKILL 自愈、状态快照跨崩溃连续）；音频听说与发声归属闭环已在物理域成立（声学回环比 1,222,437×）。
 
@@ -84,7 +84,7 @@ uv sync --extra tessera --frozen    # --frozen = 锁外漂移即拒（uv.lock �
                                     # 系统依赖补齐（Debian/Ubuntu）：sudo apt install -y git
 
 # 3) 验收基线（数字不等 = 环境问题，先修环境再继续）
-uv run pytest --tb=no -q              # 期望：821 passed, 1 skipped（GPU 层，无 CUDA 机器跳过属正常）
+uv run pytest --tb=no -q              # 期望：824 passed, 1 skipped（GPU 层，无 CUDA 机器跳过属正常）
 uv run python _audit/check_docs.py    # 期望：0 FAIL；fresh clone 无 evidence/ → 4 项 SKIP 属正常（digest 锚已随 git 持久化）
 uv run lint-imports                   # 期望：Contracts: 4 kept, 0 broken
 ```
@@ -110,20 +110,20 @@ uv run python -m galatea.evidence.control.entry --help   # m1|carryover|root|c1.
 
 | 平台 | 状态 | 依据 |
 |---|---|---|
-| Linux x86_64 | **全链验证**（开发机 + 部署主机 757→821 基线逐版本全等） | 本机实测 |
-| **Linux aarch64 (ARM)** | **锁级就绪**（整机复测待多机测试） | uv.lock 已含 aarch64 manylinux wheel：torch 2.14.1+cpu / numpy / polars-runtime / duckdb / eclipse-zenoh / cbor2 / pyyaml 全部有 arm64 轮子；其余为纯 Python 包（架构无关） |
+| Linux x86_64 | **全链验证**（开发机 + 部署主机 757→824 基线逐版本全等） | 本机实测 |
+| **Linux aarch64 (ARM)** | **整机验证**（2026-10-28 首台） | Radxa Cubie A7A（Allwinner，2×A76+6×A55，6GB RAM）实测：五步验收清单全过——824 passed+1 skip 与基线全等 / check_docs 0 FAIL（83 锚结算）/ 4 KEPT，含全部 P4 神经训练回归（aarch64 CPU bit-exact 成立）。全量 pytest ~3.4h ≈ x86 的 4–5 倍：开发/常驻运行可用，重型 claim 评价留 x86 机 |
 | macOS (x64/Apple Silicon) | 锁级就绪（P4 脑面除外），未验证 | 锁含 darwin 分辨标记与 arm64 wheel；注意：P4 神经模块版本合同钉 `2.14.1+cpu`（Linux 轮子），macOS 装到 `2.14.1` 无 +cpu 后缀，P4 profile loader 会 fail-closed——非 P4 面（kernel/env/subject 基础面）不受影响 |
 | Windows | 锁级就绪，未验证 | 锁含 win 轮子 |
 
-**ARM/Linux 多机实测待办**：锁级覆盖已核验（2026-10-17，逐包核对 uv.lock 的 aarch64 manylinux 轮子），整机安装属下一轮多机测试——测完把平台矩阵状态从"锁级就绪"改为"整机验证"，异常按验收清单逐条回报。
+**ARM/Linux 多机实测**：首个整机验证已完成（2026-10-28，Radxa Cubie A7A，见平台矩阵；uv.lock aarch64 轮子覆盖 2026-10-17 锁级核验经实装证实）——后续新机型仍按下述验收清单执行，测后同步矩阵状态。
 
 **重建验收清单（每台新机器跑一遍，任何一步不等即回报环境问题）**：
 
 1. `uv sync --extra tessera --frozen` 零报错（ARM 上若报 no matching wheel = 锁覆盖缺口，如实回报）；
-2. `uv run pytest --tb=no -q` = **821 passed, 1 skipped**（与开发机全等）；
+2. `uv run pytest --tb=no -q` = **824 passed, 1 skipped**（与开发机全等）；
 3. `uv run python _audit/check_docs.py` = 0 FAIL；
 4. `uv run lint-imports` = 4 KEPT；
-5. `uv run python -m galatea.evidence.control.entry --help` 正常输出子命令表。
+5. `uv run python -m galatea.evidence.control.entry`（无参数）正常输出子命令表。
 
 **可选件（均不在验收基线内）**：GPU 隔离 venv（CUDA 确定性认证——`scripts/p4beta_gpu_cert.py`，当前认证于 x86 + RTX 5060 Ti / torch 2.14.1+cu130）；音频/P2/P3 物理脚本（`scripts/audio_*.py`、`p3_*.py` 需真实声卡/Tessera 硬件，不进 pytest 基线）。
 
@@ -131,7 +131,7 @@ uv run python -m galatea.evidence.control.entry --help   # m1|carryover|root|c1.
 
 本项目的开发由 AI 会话自主执行（owner 立法 + AI 裁决 + 独立评审三权结构）。在新机器上重建开发会话：
 
-1. **clone + 环境**：按 §5 快速开始；基线 821 passed 必须全等——不等即环境问题，先修环境；
+1. **clone + 环境**：按 §5 快速开始；基线 824 passed 必须全等——不等即环境问题，先修环境；
 2. **第一必读**：`AGENTS.md`（当前状态/纪律/在办事项）→ `DEV_SPEC.md`（流程法规）→ `design/HLD.md`（架构规范源）；
 3. **裁决纪律**：一切新参数/新机制先在 `design/open_questions.md` 立 Q 号成文裁决（背景/选项/选择/影响/重开条件），再动实现——**无源常量与"先改实现后补裁决"都是流程违规**；
 4. **评价纪律**：stat plan 运行前冻结、sealed 评价集、保护集只增不减、顺延终止条款（统计评价不可无限顺延）；
