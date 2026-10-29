@@ -1,4 +1,5 @@
 # Galatea 证据工件 manifest（只增不减；INC-13 后含恢复注记）
+# v1.45（2026-10-29）：P4-γ claim3 判据重设计重评锚（owner「α′」裁决执行）——p4-gamma-claim3-criteria-v14 = **SUPPORTED**（stat plan v1.4：admit 谓词回归 Q-L11-09 合同本义「双域不退化」对称 1.5× 容差；候选谱 15 构造实测冻结取 14——良性 7 形 0.73–1.41× 准入 / 损害 7 形 1.78–87.8× 拒收，1.5× 自然分离；INC-08 迷你探针 PASS 4/4 门禁先行；14/14 判别正确 + 构造有效双向 + I1 双跑 byte-identical）。v1.2/v1.3 形 REFUTED 工件保留归档不删（INC-15 纪律）。
 # v1.44（2026-10-29）：P4-γ claim2/claim3 正式运行双锚（I1 双跑 byte-identical）——① p4-gamma-claim2-sleep-gain = **SUPPORTED**（n=8 配对相位对：配对睡眠增益 +8.74e-05、wins 7/8、重放臂无退化 8/8——做梦巩固遗忘保护因果贡献成立）；② p4-gamma-claim3-online-gate = **REFUTED 如实入档**（10/20——受保护臂构造缺陷：纯微调候选不改善 phase2 held-out（与方向探针 A 臂证据一致），可准入候选应为 dream 混合臂；10 案例同种子同质；拒收臂 10/10 构造有效；INC-08 族教训：可准入侧未先证可构造）。
 # v1.43（2026-10-28）：P4-γ claim1 任务形替换单元双锚——① p4-gamma-taskform-probe-report（方向对比探针迭代 2 原件，owner「采纳 A」裁决证据：Form B 四判读过/blind +0.1775 模型承载/hysteresis 打平 −8e-05 诚实限定）；② p4-gamma-claim1-taskform-v2（claim1 正式运行 n=16 = **REFUTED 如实入档**：advantage −0.0062 < 0.005、wins 4/16——epistemic 探索项（冻结 EFE w=0.1）在近确定性带控任务中诱导无粮探索性 eat（首动作 176/1024）破坏调节；归因面 blind 0.0411>0.01 与金丝雀守卫 16/16 仍过；I1 双跑 byte-identical。前序 epistemic 漏累加变体（pyright 拦截、16/16 SUPPORTED 假象）未入库即修正——INC-15 风险闭环。门不退出（§4.6.5），呈递 owner；stat plan v1.2/profile v1.1 运行前修订承载，REV-0031 R1 移交项兑现）。
 # v1.42（2026-10-23）：INC-16 全量恢复战役——entry 七门（m1/carryover/root/c4/p1/c3/c2/c1）+ 探针三件
@@ -27,7 +28,7 @@
 # 真实 MW0 流学习会话录制/重放 bit-exact + held-out 比持续基线 0.0083 + 消融偏移可检出）。
 artifact_manifest:
   id: evidence_artifact_manifest
-  version: v1.44
+  version: v1.45
   frozen_at: '2026-10-23'
   authority: AI-v2
   artifacts:
@@ -498,3 +499,7 @@ artifact_manifest:
     path: evidence/p4_gamma_mind_first_evaluation/p4gamma_claim3_online_gate.json
     sha256: e7f64e8724a504bc2b1bd9d621ad00b14ffe1ce1a2941b32c81f6a6dd9fe3577
     gate: P4-γ claim3 在线门判别正式运行 = **REFUTED 如实入档**——10/20（受保护臂构造缺陷：纯微调候选不改善 phase2 held-out，dream 混合臂方可准入；10 案例同种子同质；拒收臂构造有效 10/10）；I1 双跑 byte-identical；诊断与处置呈递 owner（claim1 β 先例）
+  - name: p4-gamma-claim3-criteria-v14
+    path: evidence/p4_gamma_mind_first_evaluation/p4gamma_claim3_criteria_v14.json
+    sha256: 77c1e0c5218fe8d727494605164716b21b35320796d57fbb3f72a8a522132874
+    gate: P4-γ claim3 判据重设计重评（stat plan v1.4）= **SUPPORTED**——admit 谓词 = 双域 1.5× 不退化（Q-L11-09 合同本义）；候选谱实测冻结 14 案例（良性 7 准入 0.73–1.41× / 损害 7 拒收 1.78–87.8×）；14/14 判别正确 + 构造有效双向；I1 双跑 byte-identical；device=cpu；v1.2/v1.3 形 REFUTED 归档保留

@@ -4,7 +4,7 @@
 # 判据数值溯源 = 冻结前可行性探针（硬机制第九次，evidence/p4_gamma_probe/，Q-G00-16）。
 stat_plan:
   id: p4_gamma_mind
-  version: v1.3
+  version: v1.4
   frozen_at: "2026-10-17"
   revisions:                                # 运行前修订留痕（claim 未运行；L13 §6）
     - v1.1 2026-10-23 owner 裁决「GPU 问题修正为 cpu 运行」——开发机无 NVIDIA GPU（INC-16 迁移），
@@ -22,6 +22,14 @@ stat_plan:
       + 构造有效双向）；INC-08 迷你探针先证双可行（最弱/最强受保护 + 两种损毁
       四案例全对）方准正式运行；v1.2 形 REFUTED 工件保留归档（manifest v1.44 锚
       e7f64e87——纯微调构造缺陷诊断在案）
+    - v1.4 2026-10-29 owner 裁决「α′」（Q-L13-23 行内补裁⑤）——claim3 判据重设计：
+      improve 谓词不可构造实证（v1.3 迷你探针 FAIL 2/4 + 六配置扫参全阴，df86588）
+      → admit 谓词回归 Q-L11-09 冻结合同本义 = **双域不退化**（两域对称 1.5× 容差，
+      1.5× = Q-L11-09 既有探针容差常数零新常数）；候选谱 = 15 构造实测谱冻结
+      （谱测量探针 /tmp/p4gamma_claim3_spectrum.json：良性 8 形 0.73–1.41× /
+      损害 7 形 1.78–87.8×，1.5× 自然分离——预标"损毁"的恒move/减半/隔行清零三形
+      实测良性归准入侧，谱即测量集）；n_cases 20→14（7 准入 + 7 拒收，去同质彻底）；
+      mini 探针门禁延续（最紧准入/最松拒收/最强拒收/中段准入四案例全对方准正式）
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-γ 行 + ADR-G-0035

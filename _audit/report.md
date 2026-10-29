@@ -105,7 +105,7 @@
 
 ## 8. 证据工件归档核验（config/evidence/artifact_manifest.yaml）
 
-- 清单条目：85（只增不减）
+- 清单条目：88（只增不减）
 - SKIP `evidence/r0_expansion/EXP-R0-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-continued-learning-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）
 - SKIP `evidence/c5_continued_learning_first_evaluation_v1_0_INCONCLUSIVE/R-c5-gain-001.json`: 本地不存在（fresh clone 或 LOST 注记锚【INC-13/INC-16 等在案丢失，归类见 manifest 注记——REV-0032 R6 措辞更正】；digest 锚已在 git 持久化）

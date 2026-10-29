@@ -7,7 +7,7 @@
 # Adam / Q-T02 certified_cuda）。
 profile:
   id: p4_gamma_mind
-  version: v1.1                                # v1.1（2026-10-28）运行前修订：任务形 v2（owner「采纳 A」裁决——Q-L10-18 补裁②/Q-L13-23 行内补裁②；claim 零运行在先）
+  version: v1.2                                # v1.2（2026-10-29）运行前修订：claim3 门判据重设计（owner「α′」——Q-L13-23 行内补裁⑤；admit 谓词 = 双域 1.5× 不退化）
   frozen_at: "2026-10-17"
   authority: AI-v2
   spec_ref: design/HLD.md  # §15.5 P4-γ 行
@@ -22,6 +22,7 @@ revisions:                                     # 运行前修订留痕（L13 §6
     + Pezzulo 2015 带控范式 + MBRL 消融归因标准）、代谢税 = look 既有成本 −0.005
     （m0 冻结 action_energy_delta 锚零新常数）；claim2/claim3 数据通路与冻结锚零触碰；
     estimand/判据数值变更同步 stat plan v1.2；世界冻结参数零触碰（税/带控为评价任务层 overlay）
+  - v1.2 2026-10-29 claim3 门判据重设计（owner「α′」——Q-L13-23 行内补裁⑤）：online_learning.gate admit 谓词 = 双域对称 1.5× 容差不退化（Q-L11-09 合同本义），删除探针期"新任务改善"操作化（v1.3 重评 + 谱测量实证不可构造——良性候选 0.73–1.41× / 损害候选 1.78–87.8×，1.5× 自然分离）；estimand = gate_discrimination_correctness 不变；claim1/claim2 零触碰
 
 determinism:                                  # Q-T02 补裁③ 延续（设备认证既有）
   torch_version: "2.14.1+cpu"                 # 生产 claim 默认 CPU 锚历史；GPU 认证态延续
@@ -80,7 +81,7 @@ online_learning:                              # Q-L11-09（世界模型在线梯
   optimizer: adam
   finetune_epochs: 100                        # 探针值
   replay_mix_ratio: "1:1"                     # 新任务 ⊕ dream 重放（探针形）
-  gate: dual_domain_no_regression             # 新任务改善 ∧ 旧任务 held-out ≤ pre×1.5（探针容差）
+  gate: dual_domain_no_regression             # v1.2 修订：双域对称 1.5× 容差不退化（cand ≤ parent×1.5 两域；1.5× = Q-L11-09 既有探针容差）——原"新任务改善"操作化经 v1.3 重评实证不可构造（df86588），回归合同本义（Q-L11-09「双域不退化」）
   rollback: weights_checkpoint                # NeuralModule state_dict + parent_digest 谱系既有
   ewc_lambda: 0.0                             # 默认禁用——重放为主保护（Q-L11-09④；启用 = 运行前修订 + 新 Q 重锚）
   record_schema: training_session.v1          # Q-L13-20① 全量适用
