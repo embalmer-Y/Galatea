@@ -47,7 +47,7 @@ def test_supply_chain_audit_full_manifest() -> None:
     """判据 3：manifest 全锚 sha256 比对（零 fail；LOST/SUPERSEDED 单列）。"""
     out = supply_chain_audit(_ROOT)
     assert out["stable"], out["failed"]
-    assert out["manifest_total"] == 85   # v1.43（P4-γ claim1 任务形替换单元双锚——只增不减；v1.42 前值经任务形单元正常增长）
+    assert out["manifest_total"] == 87   # v1.44（P4-γ claim2/3 正式运行双锚——只增不减）
     assert not out["failed"]
     # lost 名单随演进增长（INC-13 三件 + P2 服务化演进 SUPERSEDED 件 + INC-16 备份丢失物理类
     # 28 件——锚与状态注记均保留可溯；断言 = 历史名单 ⊆ 现名单（只增不减），禁缩小）
