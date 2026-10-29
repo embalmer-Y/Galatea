@@ -4,7 +4,7 @@
 # 判据数值溯源 = 冻结前可行性探针（硬机制第九次，evidence/p4_gamma_probe/，Q-G00-16）。
 stat_plan:
   id: p4_gamma_mind
-  version: v1.2
+  version: v1.3
   frozen_at: "2026-10-17"
   revisions:                                # 运行前修订留痕（claim 未运行；L13 §6）
     - v1.1 2026-10-23 owner 裁决「GPU 问题修正为 cpu 运行」——开发机无 NVIDIA GPU（INC-16 迁移），
@@ -15,6 +15,13 @@ stat_plan:
       替换 v2（REV-0031 R1 移交项兑现，claim 零运行在先）：带控经济（band [0.4,0.8] + 代谢税
       look −0.005 + eat 链四动作 input_dim=5 + 计划集 v2）；estimand/主判据/归因面重冻；
       claim2/claim3 estimand/判据/种子/通路零改动；世界冻结参数零触碰（任务层 overlay）
+    - v1.3 2026-10-29 owner 裁决「α」（Q-L13-23 行内补裁④）——claim3 构造修正重评：
+      受保护臂 = dream 混合候选（finetune(parent, phase2 前半 ⊕ dream(parent))——
+      ADR-G-0035 R2 同尺语义，方向探针 B 臂证据指明可准入形）× 重放深度 300..1200
+      十档自然分布；回归臂 = 10 种确定性损毁（去同质）；判据零改动（20/20 判别正确
+      + 构造有效双向）；INC-08 迷你探针先证双可行（最弱/最强受保护 + 两种损毁
+      四案例全对）方准正式运行；v1.2 形 REFUTED 工件保留归档（manifest v1.44 锚
+      e7f64e87——纯微调构造缺陷诊断在案）
   authority: AI-v2
   template_ref: config/evidence/stat_plan_templates/claim_v1.yaml
   spec_ref: design/HLD.md    # §15.5 P4-γ 行 + ADR-G-0035

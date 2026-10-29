@@ -703,14 +703,47 @@ def run_claim2(n_pairs: int = 8, epochs_parent: int = 300, epochs_finetune: int 
     return result
 
 
-def run_claim3(n_cases: int = 20, epochs_parent: int = 300,
-               epochs_finetune: int = 100) -> dict[str, Any]:
-    """claim3 在线双域门判别正式运行（stat plan 冻结承载；Q-L11-09②/Q-L13-23③）。
+def _corrupt_rows(xs: list[torch.Tensor], kind: int) -> list[torch.Tensor]:
+    """claim3 回归臂确定性损毁（10 种——去同质；全确定性零 RNG）。"""
+    out: list[torch.Tensor] = []
+    for x in xs:
+        y = x.clone()
+        if kind == 0:
+            y[0] = 0.0                                          # 速率清零
+        elif kind == 1:
+            y[0] = -y[0]                                        # 速率翻转
+        elif kind == 2:
+            y[0] = 0.5                                          # 常量正速率
+        elif kind == 3:
+            y[0] = -0.1                                         # 负常量速率
+        elif kind == 4:
+            y[1:] = torch.tensor([1.0, 0.0, 0.0, 0.0])          # 动作恒 move
+        elif kind == 5:
+            y[1:] = 0.0                                         # 动作全零（无动作）
+        elif kind == 6:
+            y[0] = y[0] * 2.0                                   # 速率倍增
+        elif kind == 7:
+            y[1:] = y[1:].roll(1)                               # 动作位轮转
+        elif kind == 8:
+            y[0] = y[0] * 0.5                                   # 速率减半
+        else:
+            y[0] = y[0] * float((len(out) + 1) % 2)             # 隔行速率清零
+        out.append(y)
+    return out
 
-    n=20 构造候选（回归/受保护各半，确定性构造）：受保护臂 = 真实 phase2 前半微调
-    （应改善 phase2 held-out 且旧任务 ≤ pre×1.5 → 门准入）；回归臂 = 损毁 phase2 混合
-    （确定性置零速率——应未胜过父模型 → 门拒收）。判据：20 案例判别全对（机械门，
-    INC-08 可失败性——构造有效性由拒收臂确实未胜过父模型承载）。
+
+def run_claim3(n_cases: int = 20, epochs_parent: int = 300,
+               epochs_finetune: int = 100,
+               dream_steps_scale: tuple[int, ...] = (300, 400, 500, 600,
+                                                     700, 800, 900, 1000,
+                                                     1100, 1200)) -> dict[str, Any]:
+    """claim3 在线双域门判别正式运行（stat plan v1.3 构造修正重评；owner「α」裁决承载）。
+
+    v1.3 构造（Q-L13-23 补裁④）：受保护臂 = dream 混合候选（finetune(parent,
+    phase2 前半 ⊕ dream(parent, steps_i))——ADR-G-0035 R2 同尺语义）× 重放深度
+    300..1200 十档自然分布；回归臂 = 10 种确定性损毁（去同质）。判据零改动：
+    20/20 判别正确 + 构造有效双向（回归臂逐例未胜过父模型 ∧ 受保护臂逐例胜过）。
+    v1.2 形（纯微调受保护臂）REFUTED 工件保留归档——manifest v1.44 锚 e7f64e87。
     """
     rows1 = collect_conditioned(seed_for("p4.gamma|gate|phase1"), cycles=256)
     rows2 = collect_conditioned(seed_for("p4.gamma|gate|phase2"), cycles=256)
@@ -719,37 +752,44 @@ def run_claim3(n_cases: int = 20, epochs_parent: int = 300,
     parent = train_conditioned(xs1[: half1 + 1], epochs_parent)
     pre1 = heldout_mse(parent, xs1[half1:])
     parent_ph2 = heldout_mse(parent, xs2[half2:])
+    dream_base = dream_samples(parent, xs1[: half1 + 1], steps=max(dream_steps_scale))
     cases: list[dict[str, Any]] = []
     half_cases = n_cases // 2
-    for i in range(half_cases):                    # 受保护臂（应准入）
-        cand = _finetune(parent, xs2[: half2 + 1], epochs_finetune)
+    for i in range(half_cases):                    # 受保护臂（dream 混合候选，应准入）
+        steps_i = dream_steps_scale[i % len(dream_steps_scale)]
+        cand = _finetune(parent, xs2[: half2 + 1] + dream_base[: steps_i], epochs_finetune)
         cand_ph2 = heldout_mse(cand, xs2[half2:])
         cand_ph1 = heldout_mse(cand, xs1[half1:])
         improve = cand_ph2 <= parent_ph2
         no_regress = cand_ph1 <= pre1 * 1.5
-        cases.append({"case": f"protect-{i}", "expected": "admit",
+        cases.append({"case": f"protect-dream{steps_i}-{i}", "expected": "admit",
                       "improve": improve, "no_regress": no_regress,
                       "gate_decision": "admit" if (improve and no_regress) else "reject",
-                      "cand_ph2": cand_ph2, "cand_ph1": cand_ph1})
-    for i in range(n_cases - half_cases):          # 回归臂（应拒收）
-        corrupt = [torch.zeros_like(x) for x in xs2[: half2 + 1]]   # 确定性置零速率
+                      "cand_ph2": cand_ph2, "cand_ph1": cand_ph1,
+                      "construction_improves": improve})
+    for i in range(n_cases - half_cases):          # 回归臂（损毁候选，应拒收）
+        corrupt = _corrupt_rows(xs2[: half2 + 1], i)
         cand = _finetune(parent, corrupt, epochs_finetune)
         cand_ph2 = heldout_mse(cand, xs2[half2:])
         cand_ph1 = heldout_mse(cand, xs1[half1:])
         improve = cand_ph2 <= parent_ph2
         no_regress = cand_ph1 <= pre1 * 1.5
-        cases.append({"case": f"regress-{i}", "expected": "reject",
+        cases.append({"case": f"regress-corrupt{i}-{i}", "expected": "reject",
                       "improve": improve, "no_regress": no_regress,
                       "gate_decision": "admit" if (improve and no_regress) else "reject",
                       "cand_ph2": cand_ph2, "cand_ph1": cand_ph1,
-                      "construction_valid": cand_ph2 > parent_ph2})
+                      "construction_improves": improve})
     correct = sum(1 for c in cases if c["gate_decision"] == c["expected"])
-    construction_valid = all(c.get("construction_valid", True) for c in cases)
+    construction_valid = all((c["construction_improves"] is False) for c in cases
+                             if c["expected"] == "reject") and \
+                         all(c["construction_improves"] for c in cases
+                             if c["expected"] == "admit")
     result: dict[str, Any] = {
         "claim": "p4_gamma_online_gate_discrimination",
-        "stat_plan": "p4_gamma_mind v1.2",
+        "stat_plan": "p4_gamma_mind v1.3（构造修正重评——owner α 裁决）",
         "n_cases": n_cases,
         "parent_pre1": pre1, "parent_ph2_heldout": parent_ph2,
+        "protect_dream_steps": list(dream_steps_scale),
         "cases": cases,
         "correct": f"{correct}/{n_cases}",
         "construction_valid": construction_valid,
@@ -757,4 +797,43 @@ def run_claim3(n_cases: int = 20, epochs_parent: int = 300,
                      "construction_valid": construction_valid},
     }
     result["verdict"] = ("SUPPORTED" if all(result["criteria"].values()) else "REFUTED")
+    return result
+
+
+def mini_probe_claim3() -> dict[str, Any]:
+    """claim3 v1.3 构造 INC-08 迷你探针：双可行性先证（四案例全对 + 双向构造有效）。
+
+    受保护最弱档（300 步）与最强档（1200 步）均须胜过父模型（可准入可构造）；
+    两种损毁（清零/翻转）均须未胜过（可拒收可构造）。任一方向失败 = 构造不可用。
+    """
+    rows1 = collect_conditioned(seed_for("p4.gamma|gate|phase1"), cycles=256)
+    rows2 = collect_conditioned(seed_for("p4.gamma|gate|phase2"), cycles=256)
+    xs1, xs2 = to_tensors(rows1), to_tensors(rows2)
+    half1, half2 = len(xs1) // 2, len(xs2) // 2
+    parent = train_conditioned(xs1[: half1 + 1], 300)
+    pre1 = heldout_mse(parent, xs1[half1:])
+    parent_ph2 = heldout_mse(parent, xs2[half2:])
+    dream_full = dream_samples(parent, xs1[: half1 + 1], steps=1200)
+    cases: list[dict[str, Any]] = []
+    for label, mix, expect in (("protect-300", xs2[: half2 + 1] + dream_full[:300], "admit"),
+                               ("protect-1200", xs2[: half2 + 1] + dream_full, "admit"),
+                               ("regress-zero", _corrupt_rows(xs2[: half2 + 1], 0), "reject"),
+                               ("regress-flip", _corrupt_rows(xs2[: half2 + 1], 1), "reject")):
+        cand = _finetune(parent, mix, 100)
+        cand_ph2 = heldout_mse(cand, xs2[half2:])
+        cand_ph1 = heldout_mse(cand, xs1[half1:])
+        improve = cand_ph2 <= parent_ph2
+        no_regress = cand_ph1 <= pre1 * 1.5
+        decision = "admit" if (improve and no_regress) else "reject"
+        cases.append({"case": label, "expected": expect, "improve": improve,
+                      "no_regress": no_regress, "gate_decision": decision,
+                      "cand_ph2": cand_ph2, "cand_ph1": cand_ph1})
+    construction_valid = (all(c["improve"] for c in cases if c["expected"] == "admit")
+                          and all(not c["improve"] for c in cases
+                                  if c["expected"] == "reject"))
+    correct = sum(1 for c in cases if c["gate_decision"] == c["expected"])
+    result = {"probe": "claim3_v1.3_construction_mini", "cases": cases,
+              "parent_pre1": pre1, "parent_ph2_heldout": parent_ph2,
+              "correct": f"{correct}/4", "construction_valid": construction_valid,
+              "verdict": "PASS" if (correct == 4 and construction_valid) else "FAIL"}
     return result
